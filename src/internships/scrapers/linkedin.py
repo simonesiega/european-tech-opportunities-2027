@@ -48,11 +48,17 @@ class LinkedInPayloadError(ValueError):
 
 
 class TextFetcher(Protocol):
-    async def get_text(self, url: str) -> TextResponse: ...
+    """Define the text-fetching interface used by the LinkedIn scraper."""
+
+    async def get_text(self, url: str) -> TextResponse:
+        """Fetch one URL and return its text response."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)
 class LinkedInSearchCard:
+    """Hold a parsed LinkedIn search-result card."""
+
     job_id: str
     title: str
     company: str
@@ -62,12 +68,16 @@ class LinkedInSearchCard:
 
 @dataclass(frozen=True, slots=True)
 class SearchPageResult:
+    """Hold parsed cards and page-level warnings."""
+
     cards: tuple[LinkedInSearchCard, ...]
     warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
 class LinkedInScrapeResult:
+    """Summarize one complete LinkedIn search."""
+
     positions: list[RawJob]
     warnings: tuple[str, ...]
     response_time_ms: int
@@ -78,6 +88,7 @@ class LinkedInScrapeResult:
 
 
 def build_search_url(search: LinkedInSearchConfig, *, start: int) -> str:
+    """Build a bounded LinkedIn guest-search URL."""
     parameters: list[tuple[str, str]] = [
         ("keywords", search.keywords),
         ("location", search.location),
@@ -93,6 +104,7 @@ def build_search_url(search: LinkedInSearchConfig, *, start: int) -> str:
 
 
 def parse_search_page(html: str) -> SearchPageResult:
+    """Parse cards from one LinkedIn search-results page."""
     _reject_blocked_document(html)
     soup = BeautifulSoup(html, "html.parser")
     cards: list[LinkedInSearchCard] = []
@@ -127,6 +139,7 @@ def parse_search_page(html: str) -> SearchPageResult:
 
 
 def parse_job_detail(html: str, card: LinkedInSearchCard) -> RawJob:
+    """Parse a LinkedIn detail page with card data as fallback."""
     _reject_blocked_document(html)
     soup = BeautifulSoup(html, "html.parser")
     title = _optional_text(soup, ".top-card-layout__title, .topcard__title") or card.title
@@ -163,9 +176,12 @@ class LinkedInScraper:
     def __init__(
         self, internship_title_terms: tuple[str, ...] = _DEFAULT_INTERNSHIP_TITLE_TERMS
     ) -> None:
-        self._internship_title_terms = tuple(
-            normalized_key(term) for term in internship_title_terms
+        """Initialize the instance dependencies and state."""
+        self._internship_title_patterns = tuple(
+            re.compile(rf"(?:^|\s){re.escape(normalized_key(term))}(?:$|\s)")
+            for term in internship_title_terms
         )
+        # Searches overlap heavily, so share each in-flight detail request by job ID.
         self._detail_tasks: dict[str, asyncio.Task[TextResponse]] = {}
         self._detail_lock = asyncio.Lock()
 
@@ -176,8 +192,10 @@ class LinkedInScraper:
         *,
         known_jobs: tuple[KnownJob, ...] = (),
     ) -> LinkedInScrapeResult:
+        """Collect internships and optionally refresh generated documentation."""
         cards: dict[str, LinkedInSearchCard] = {}
         seen_search_ids: set[str] = set()
+        allowed_companies = frozenset(normalized_key(name) for name in search.company_names)
         warnings: list[str] = []
         response_time_ms = 0
         response_bytes = 0
@@ -195,14 +213,17 @@ class LinkedInScraper:
             new_search_ids = {
                 card.job_id for card in parsed.cards if card.job_id not in seen_search_ids
             }
+            # LinkedIn can repeat a full page at later offsets. Stop only on an empty
+            # or fully repeated raw page; a page with no eligible titles may still be
+            # followed by a useful page.
             if not parsed.cards or not new_search_ids:
                 break
             seen_search_ids.update(card.job_id for card in parsed.cards)
             page_cards = [
                 card
                 for card in parsed.cards
-                if _company_allowed(card, search)
-                and _title_allowed(card.title, self._internship_title_terms)
+                if _company_allowed(card.company, allowed_companies)
+                and _title_allowed(card.title, self._internship_title_patterns)
             ]
             for card in page_cards:
                 cards.setdefault(card.job_id, card)
@@ -221,6 +242,8 @@ class LinkedInScraper:
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
+                # Search-card disappearance does not close jobs; only explicit detail
+                # responses count as unavailability evidence.
                 warnings.append("LinkedIn job detail skipped: listing no longer available")
             except LinkedInPayloadError:
                 malformed_details += 1
@@ -231,6 +254,8 @@ class LinkedInScraper:
             )
 
         confirmed_unavailable: list[str] = []
+        # Bound rechecks deterministically by job ID so repeated runs inspect the same
+        # subset until those jobs are observed again or explicitly become unavailable.
         absent_known = sorted(
             (job for job in known_jobs if job.source_job_id not in cards),
             key=lambda job: job.source_job_id,
@@ -253,6 +278,7 @@ class LinkedInScraper:
                     raise
                 confirmed_unavailable.append(known.source_job_id)
             except LinkedInPayloadError:
+                # Ambiguous HTML must not advance closure confirmations.
                 warnings.append("Known LinkedIn job recheck skipped: malformed HTML")
 
         return LinkedInScrapeResult(
@@ -266,6 +292,9 @@ class LinkedInScraper:
         )
 
     async def _detail(self, job_id: str, fetcher: TextFetcher) -> TextResponse:
+        """Fetch and parse one LinkedIn job detail page."""
+        # Protect task creation rather than the network wait: concurrent searches share
+        # one request for the same job without serializing requests for different jobs.
         async with self._detail_lock:
             task = self._detail_tasks.get(job_id)
             if task is None:
@@ -277,6 +306,7 @@ class LinkedInScraper:
 
 
 def _required_text(node: Tag, selector: str) -> str:
+    """Extract required text from a parsed element."""
     value = _optional_text(node, selector)
     if not value:
         raise ValueError(f"missing selector: {selector}")
@@ -284,23 +314,24 @@ def _required_text(node: Tag, selector: str) -> str:
 
 
 def _optional_text(node: BeautifulSoup | Tag, selector: str) -> str:
+    """Extract optional text from a parsed element."""
     selected = node.select_one(selector)
     return clean_text(selected.get_text(" ", strip=True)) if isinstance(selected, Tag) else ""
 
 
-def _title_allowed(title: str, terms: tuple[str, ...]) -> bool:
+def _title_allowed(title: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
+    """Check whether a search card title has internship terminology."""
     key = normalized_key(title)
-    return any(re.search(rf"(?:^|\s){re.escape(term)}(?:$|\s)", key) for term in terms)
+    return any(pattern.search(key) for pattern in patterns)
 
 
-def _company_allowed(card: LinkedInSearchCard, search: LinkedInSearchConfig) -> bool:
-    if not search.company_names:
-        return True
-    company_key = normalized_key(card.company)
-    return company_key in {normalized_key(company) for company in search.company_names}
+def _company_allowed(company: str, allowed_companies: frozenset[str]) -> bool:
+    """Check whether a card company matches the normalized allowlist."""
+    return not allowed_companies or normalized_key(company) in allowed_companies
 
 
 def _reject_blocked_document(html: str) -> None:
+    """Reject authentication, challenge, and block pages."""
     normalized = html.casefold()
     if any(marker in normalized for marker in _BLOCK_MARKERS):
         raise LinkedInPayloadError("LinkedIn returned an access or verification page")

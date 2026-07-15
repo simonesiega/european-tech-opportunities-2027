@@ -30,6 +30,7 @@ class FetchError(RuntimeError):
         status_code: int | None = None,
         retryable: bool = False,
     ) -> None:
+        """Initialize the instance dependencies and state."""
         super().__init__(message)
         self.code = code
         self.status_code = status_code
@@ -56,6 +57,7 @@ class HttpFetcher:
         client: httpx.AsyncClient | None = None,
         sleep: Sleep = asyncio.sleep,
     ) -> None:
+        """Initialize the instance dependencies and state."""
         self.settings = settings
         self._sleep = sleep
         self._owns_client = client is None
@@ -80,15 +82,18 @@ class HttpFetcher:
         self._last_request_at: dict[str, float] = {}
 
     async def __aenter__(self) -> HttpFetcher:
+        """Open the asynchronous HTTP client context."""
         return self
 
     async def __aexit__(self, *_args: object) -> None:
+        """Close the asynchronous HTTP client context."""
         if self._owns_client:
             await self._client.aclose()
 
     async def get_text(self, url: str) -> TextResponse:
         """Fetch HTML/text, retrying timeout, transport, 429, and 5xx failures."""
         hostname = (urlsplit(url).hostname or "").casefold()
+        # Enforce authorization before creating any network traffic, including retries.
         if (
             hostname == "linkedin.com" or hostname.endswith(".linkedin.com")
         ) and not self.settings.linkedin_crawl_authorized:
@@ -119,10 +124,11 @@ class HttpFetcher:
         raise last_error
 
     async def _request_once(self, url: str) -> TextResponse:
+        """Perform one HTTP request and classify its response."""
         host = urlsplit(url).hostname
         if not host:
             raise FetchError("invalid_url", "request URL has no hostname")
-        await self._wait_for_host(host)
+        await self._wait_for_host(host.casefold())
         started = time.monotonic()
         try:
             response = await self._client.get(url)
@@ -149,6 +155,8 @@ class HttpFetcher:
                 status_code=response.status_code,
             )
 
+        # Reject an advertised oversized body early, then verify the actual bytes because
+        # Content-Length can be absent or inaccurate.
         content_length = response.headers.get("Content-Length")
         if (
             content_length
@@ -175,7 +183,10 @@ class HttpFetcher:
         )
 
     async def _wait_for_host(self, host: str) -> None:
+        """Apply per-host pacing before an HTTP request."""
         lock = self._host_locks.setdefault(host, asyncio.Lock())
+        # Reserve request start times under the lock, but release it during I/O so slow
+        # responses do not unnecessarily block later rate-limited requests.
         async with lock:
             now = time.monotonic()
             elapsed = now - self._last_request_at.get(host, 0.0)
@@ -186,6 +197,7 @@ class HttpFetcher:
 
 
 def _retry_after_seconds(value: str | None) -> float | None:
+    """Parse a Retry-After header into a bounded delay."""
     if not value:
         return None
     try:

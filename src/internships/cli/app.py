@@ -60,6 +60,7 @@ def main(
         typer.Option("--settings", help="Optional YAML settings file; .env loads automatically."),
     ] = None,
 ) -> None:
+    """Load settings and initialize the CLI context."""
     try:
         settings = load_settings(settings_file)
     except (OSError, ValueError, ValidationError) as exc:
@@ -71,6 +72,7 @@ def main(
 
 @app.command("db-upgrade")
 def db_upgrade(ctx: typer.Context) -> None:
+    """Upgrade the configured database to the latest migration."""
     settings = _settings(ctx)
     upgrade_database(settings.database_url, repository_root=ROOT)
     console.print("Database is at the latest migration.")
@@ -84,6 +86,7 @@ def scrape(
         bool, typer.Option("--no-render", help="Do not update README after persistence.")
     ] = False,
 ) -> None:
+    """Collect internships and optionally refresh generated documentation."""
     settings = _settings(ctx)
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
@@ -120,6 +123,7 @@ def scrape(
 
 @app.command("search-test")
 def search_test(ctx: typer.Context, search_slug: str) -> None:
+    """Preview one configured search without persisting results."""
     settings = _settings(ctx)
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
@@ -149,6 +153,7 @@ def search_test(ctx: typer.Context, search_slug: str) -> None:
 
 @app.command()
 def render(ctx: typer.Context) -> None:
+    """Refresh generated README and registry documentation."""
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     _require_migrations(engine)
@@ -170,6 +175,7 @@ def render(ctx: typer.Context) -> None:
 
 @app.command()
 def searches(ctx: typer.Context) -> None:
+    """Display configured searches and their latest health."""
     settings = _settings(ctx)
     configured = apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
     health: dict[str, SearchHealth] = {}
@@ -198,6 +204,7 @@ def searches(ctx: typer.Context) -> None:
 
 @app.command()
 def stats(ctx: typer.Context) -> None:
+    """Display aggregate pipeline and database statistics."""
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     _require_migrations(engine)
@@ -223,6 +230,7 @@ def stats(ctx: typer.Context) -> None:
 
 @app.command()
 def validate(ctx: typer.Context) -> None:
+    """Validate database invariants and generated documentation."""
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     _require_migrations(engine)
@@ -253,12 +261,14 @@ def validate(ctx: typer.Context) -> None:
 
 
 def _configured_searches(settings: Settings) -> list[LinkedInSearchConfig]:
+    """Load configured searches with runtime overrides."""
     return apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
 
 
 def _selected_searches(
     searches: list[LinkedInSearchConfig], slug: str | None
 ) -> list[LinkedInSearchConfig]:
+    """Select enabled searches by optional slug."""
     selected = select_searches(searches, search_slug=slug)
     if not selected:
         raise ValueError(f"unknown or disabled search: {slug}")
@@ -266,17 +276,20 @@ def _selected_searches(
 
 
 def _repository(settings: Settings) -> tuple[Repository, Engine]:
+    """Create a repository and its database engine."""
     engine = create_database_engine(settings.database_url)
     return Repository(create_session_factory(engine), settings), engine
 
 
 def _search_registry_docs_path(settings: Settings) -> Path:
+    """Resolve registry documentation beside the configured README."""
     return settings.readme_path.parent / "docs" / "search-registry.md"
 
 
 def _readme_metadata(
     repository: Repository, *, configured_searches: int | None = None
 ) -> ReadmeMetadata:
+    """Build README metadata from database statistics."""
     snapshot = repository.stats()
     return ReadmeMetadata(
         open_internships=snapshot.open,
@@ -286,6 +299,7 @@ def _readme_metadata(
 
 
 def _print_result(result: PipelineResult) -> None:
+    """Display collection outcomes in a terminal table."""
     table = Table(title="LinkedIn scrape")
     for heading in ("Search", "Status", "Found", "Duration", "Error"):
         table.add_column(heading)
@@ -307,6 +321,7 @@ def _print_result(result: PipelineResult) -> None:
 
 
 def _print_jobs(jobs: list[DiscoveredJob]) -> None:
+    """Display discovered jobs in a terminal table."""
     table = Table(title="Accepted internships")
     for heading in ("Company", "Title", "Location", "Link"):
         table.add_column(heading)
@@ -316,12 +331,14 @@ def _print_jobs(jobs: list[DiscoveredJob]) -> None:
 
 
 def _settings(ctx: typer.Context) -> Settings:
+    """Return validated settings from the CLI context."""
     if not isinstance(ctx.obj, Settings):
         raise RuntimeError("settings were not initialized")
     return ctx.obj
 
 
 def _require_linkedin_permission(settings: Settings) -> None:
+    """Reject collection unless explicit authorization is configured."""
     if settings.linkedin_crawl_authorized:
         return
     error_console.print(
@@ -332,6 +349,7 @@ def _require_linkedin_permission(settings: Settings) -> None:
 
 
 def _require_migrations(engine: Engine) -> None:
+    """Reject database access when migrations are incomplete."""
     expected = migration_head(repository_root=ROOT)
     missing = missing_tables(engine)
     actual = database_revision(engine)

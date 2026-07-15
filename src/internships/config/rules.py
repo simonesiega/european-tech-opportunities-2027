@@ -23,6 +23,7 @@ class ClassificationRules(BaseModel):
     @field_validator("internship_keywords", "excluded_role_keywords", mode="before")
     @classmethod
     def normalize_keywords(cls, value: object) -> object:
+        """Normalize and deduplicate configured keyword lists."""
         if not isinstance(value, (list, tuple)):
             raise ValueError("keyword configuration must be a list")
         return tuple(
@@ -32,6 +33,7 @@ class ClassificationRules(BaseModel):
     @field_validator("categories", mode="before")
     @classmethod
     def normalize_categories(cls, value: object) -> object:
+        """Normalize category keyword mappings."""
         if not isinstance(value, dict):
             raise ValueError("categories must be a mapping")
         return {
@@ -44,6 +46,7 @@ class ClassificationRules(BaseModel):
 
 
 def load_classification_rules(path: Path) -> ClassificationRules:
+    """Load and validate classification rules from YAML."""
     if not path.is_file():
         raise ValueError(f"classification rules do not exist: {path}")
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))

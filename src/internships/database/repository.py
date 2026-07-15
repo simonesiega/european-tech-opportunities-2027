@@ -21,12 +21,15 @@ from internships.utils.time import ensure_utc
 
 @dataclass(frozen=True, slots=True)
 class PersistSummary:
+    """Summarize database changes from persistence."""
+
     new: int = 0
     updated: int = 0
     closed: int = 0
     reopened: int = 0
 
     def __add__(self, other: PersistSummary) -> PersistSummary:
+        """Combine two persistence summaries."""
         return PersistSummary(
             new=self.new + other.new,
             updated=self.updated + other.updated,
@@ -37,6 +40,8 @@ class PersistSummary:
 
 @dataclass(frozen=True, slots=True)
 class DatabaseStats:
+    """Summarize aggregate database statistics."""
+
     total: int
     open: int
     closed: int
@@ -48,6 +53,8 @@ class DatabaseStats:
 
 @dataclass(frozen=True, slots=True)
 class SearchHealth:
+    """Summarize the latest health of a configured search."""
+
     status: str
     finished_at: datetime
     found_count: int
@@ -60,10 +67,12 @@ class Repository:
     """Use one short SQLite transaction per completed LinkedIn search."""
 
     def __init__(self, factory: sessionmaker[Session], settings: Settings) -> None:
+        """Initialize the instance dependencies and state."""
         self.factory = factory
         self.settings = settings
 
     def sync_searches(self, searches: list[LinkedInSearchConfig], now: datetime) -> None:
+        """Synchronize configured searches with database state."""
         active_slugs = {search.slug for search in searches}
         with self.factory.begin() as session:
             for search in searches:
@@ -88,12 +97,14 @@ class Repository:
                     row.enabled = search.enabled
                     row.config_hash = digest
                     row.updated_at = now
+            # Keep removed searches for run history and provenance; only disable collection.
             for row in session.scalars(select(SearchRow)).all():
                 if row.slug not in active_slugs:
                     row.enabled = False
                     row.updated_at = now
 
     def known_jobs(self, search_slug: str) -> tuple[KnownJob, ...]:
+        """Return active jobs associated with a search."""
         with self.factory() as session:
             rows = session.execute(
                 select(JobRow, JobSearchRow)
@@ -129,6 +140,7 @@ class Repository:
         finished_at: datetime,
         duration_ms: int,
     ) -> PersistSummary:
+        """Persist one successful search transaction."""
         summary = PersistSummary()
         with self.factory.begin() as session:
             session.add(
@@ -173,6 +185,7 @@ class Repository:
         error_code: str,
         error_message: str,
     ) -> None:
+        """Persist diagnostics for one failed search."""
         with self.factory.begin() as session:
             session.add(
                 SearchRunRow(
@@ -192,6 +205,7 @@ class Repository:
             )
 
     def list_open_jobs(self) -> list[StoredJob]:
+        """Return all open jobs in publication order."""
         with self.factory() as session:
             rows = session.scalars(
                 select(JobRow)
@@ -201,11 +215,13 @@ class Repository:
             return [_stored_job(row) for row in rows]
 
     def list_all_jobs(self) -> list[StoredJob]:
+        """Return all jobs in stable identifier order."""
         with self.factory() as session:
             rows = session.scalars(select(JobRow).order_by(JobRow.linkedin_job_id)).all()
             return [_stored_job(row) for row in rows]
 
     def stats(self) -> DatabaseStats:
+        """Display aggregate pipeline and database statistics."""
         with self.factory() as session:
             total = session.scalar(select(func.count()).select_from(JobRow)) or 0
             opened = (
@@ -252,28 +268,35 @@ class Repository:
             )
 
     def search_health(self) -> dict[str, SearchHealth]:
+        """Return latest run health keyed by search slug."""
         with self.factory() as session:
-            output: dict[str, SearchHealth] = {}
-            searches = session.scalars(
-                select(SearchRow).where(SearchRow.enabled.is_(True)).order_by(SearchRow.slug)
+            # Correlate one latest-run lookup per enabled search inside SQL instead of
+            # issuing one database round trip for every registry entry.
+            latest_run_id = (
+                select(SearchRunRow.id)
+                .where(SearchRunRow.search_slug == SearchRow.slug)
+                .order_by(SearchRunRow.finished_at.desc(), SearchRunRow.id.desc())
+                .limit(1)
+                .correlate(SearchRow)
+                .scalar_subquery()
+            )
+            rows = session.execute(
+                select(SearchRow.slug, SearchRunRow)
+                .join(SearchRunRow, SearchRunRow.id == latest_run_id)
+                .where(SearchRow.enabled.is_(True))
+                .order_by(SearchRow.slug)
             ).all()
-            for search in searches:
-                run = session.scalar(
-                    select(SearchRunRow)
-                    .where(SearchRunRow.search_slug == search.slug)
-                    .order_by(SearchRunRow.finished_at.desc(), SearchRunRow.id.desc())
-                    .limit(1)
+            return {
+                slug: SearchHealth(
+                    status=run.status,
+                    finished_at=ensure_utc(run.finished_at),
+                    found_count=run.found_count,
+                    accepted_count=run.accepted_count,
+                    excluded_count=run.excluded_count,
+                    error_code=run.error_code,
                 )
-                if run is not None:
-                    output[search.slug] = SearchHealth(
-                        status=run.status,
-                        finished_at=ensure_utc(run.finished_at),
-                        found_count=run.found_count,
-                        accepted_count=run.accepted_count,
-                        excluded_count=run.excluded_count,
-                        error_code=run.error_code,
-                    )
-            return output
+                for slug, run in rows
+            }
 
     def _upsert_job(
         self,
@@ -284,6 +307,7 @@ class Repository:
         incoming: DiscoveredJob,
         observed_at: datetime,
     ) -> PersistSummary:
+        """Insert or update a discovered job."""
         row = session.get(JobRow, incoming.linkedin_job_id)
         summary = PersistSummary()
         if row is None:
@@ -302,6 +326,7 @@ class Repository:
             session.add(row)
             summary = PersistSummary(new=1)
         else:
+            # A delayed run must never move lifecycle timestamps backwards.
             effective_time = max(ensure_utc(row.last_seen_at), ensure_utc(observed_at))
             changed = any(
                 (
@@ -325,6 +350,8 @@ class Repository:
             summary = PersistSummary(updated=int(changed), reopened=int(reopened))
         session.flush()
 
+        # Provenance is tracked per search because one listing may be discovered by
+        # several independent searches with different availability observations.
         alias = session.get(JobSearchRow, (search_slug, incoming.linkedin_job_id))
         if alias is None:
             session.add(
@@ -341,6 +368,8 @@ class Repository:
         else:
             alias.last_seen_at = max(ensure_utc(alias.last_seen_at), ensure_utc(observed_at))
             alias.last_seen_run_id = run_id
+            # A fresh observation cancels consecutive unavailability evidence and can
+            # reactivate provenance that previously reached the closure threshold.
             alias.unavailable_confirmations = 0
             alias.active = True
         return summary
@@ -353,6 +382,7 @@ class Repository:
         job_ids: tuple[str, ...],
         observed_at: datetime,
     ) -> PersistSummary:
+        """Advance explicit unavailability state for a known job."""
         if not job_ids:
             return PersistSummary()
         aliases = session.scalars(
@@ -370,27 +400,34 @@ class Repository:
             affected.add(alias.linkedin_job_id)
         session.flush()
 
-        closed = 0
-        for job_id in affected:
-            active_aliases = session.scalar(
-                select(func.count())
-                .select_from(JobSearchRow)
-                .where(
-                    JobSearchRow.linkedin_job_id == job_id,
+        # A job remains open while any search still provides active provenance.
+        # Resolve all affected aliases in one query to avoid an N+1 closure check.
+        active_job_ids = set(
+            session.scalars(
+                select(JobSearchRow.linkedin_job_id).where(
+                    JobSearchRow.linkedin_job_id.in_(affected),
                     JobSearchRow.active.is_(True),
                 )
             )
-            if active_aliases:
-                continue
-            job = session.get(JobRow, job_id)
-            if job is not None and job.status != JobStatus.CLOSED.value:
-                job.status = JobStatus.CLOSED.value
-                job.updated_at = max(ensure_utc(job.updated_at), ensure_utc(observed_at))
-                closed += 1
-        return PersistSummary(closed=closed)
+        )
+        closable_ids = affected - active_job_ids
+        if not closable_ids:
+            return PersistSummary()
+
+        jobs_to_close = session.scalars(
+            select(JobRow).where(
+                JobRow.linkedin_job_id.in_(closable_ids),
+                JobRow.status != JobStatus.CLOSED.value,
+            )
+        ).all()
+        for job in jobs_to_close:
+            job.status = JobStatus.CLOSED.value
+            job.updated_at = max(ensure_utc(job.updated_at), ensure_utc(observed_at))
+        return PersistSummary(closed=len(jobs_to_close))
 
 
 def _stored_job(row: JobRow) -> StoredJob:
+    """Convert a database row into the stored-job model."""
     return StoredJob(
         linkedin_job_id=row.linkedin_job_id,
         company=row.company,
@@ -406,5 +443,6 @@ def _stored_job(row: JobRow) -> StoredJob:
 
 
 def _config_hash(search: LinkedInSearchConfig) -> str:
+    """Return a stable hash of a search configuration."""
     payload = json.dumps(search.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode()).hexdigest()

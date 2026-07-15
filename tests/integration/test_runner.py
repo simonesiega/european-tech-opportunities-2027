@@ -156,6 +156,10 @@ def test_overlapping_search_timestamps_remain_monotonic(
     assert stored.first_seen_at == later
     assert stored.last_seen_at == later
 
+    health = repository.search_health()
+    assert set(health) == {search.slug, second.slug}
+    assert health[search.slug].accepted_count == 1
+
 
 def test_distinct_linkedin_ids_are_not_fuzzy_merged_and_explicit_404s_close(
     session_factory: sessionmaker[Session],

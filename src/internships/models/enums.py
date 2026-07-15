@@ -6,6 +6,8 @@ from enum import StrEnum
 
 
 class InternshipCategory(StrEnum):
+    """Enumerate supported technology internship categories."""
+
     ARTIFICIAL_INTELLIGENCE = "artificial-intelligence"
     CLOUD_DEVOPS_INFRASTRUCTURE = "cloud-devops-infrastructure"
     COMPUTER_SCIENCE = "computer-science"
@@ -38,11 +40,15 @@ class InternshipCategory(StrEnum):
 
 
 class JobStatus(StrEnum):
+    """Enumerate job lifecycle states."""
+
     OPEN = "open"
     CLOSED = "closed"
 
 
 class RunStatus(StrEnum):
+    """Enumerate search-run outcomes."""
+
     SUCCESS = "success"
     PARTIAL = "partial"
     FAILED = "failed"

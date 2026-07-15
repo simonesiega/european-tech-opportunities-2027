@@ -11,6 +11,8 @@ from internships.database.base import Base
 
 
 class SearchRow(Base):
+    """Map a configured search to its database row."""
+
     __tablename__ = "searches"
 
     slug: Mapped[str] = mapped_column(String(100), primary_key=True)
@@ -23,6 +25,8 @@ class SearchRow(Base):
 
 
 class SearchRunRow(Base):
+    """Map one search execution to its database row."""
+
     __tablename__ = "search_runs"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
@@ -44,6 +48,8 @@ class SearchRunRow(Base):
 
 
 class JobRow(Base):
+    """Map a discovered job to its database row."""
+
     __tablename__ = "jobs"
 
     linkedin_job_id: Mapped[str] = mapped_column(String(30), primary_key=True)
@@ -61,6 +67,8 @@ class JobRow(Base):
 
 
 class JobSearchRow(Base):
+    """Map job-to-search provenance to its database row."""
+
     __tablename__ = "job_searches"
 
     search_slug: Mapped[str] = mapped_column(

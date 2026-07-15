@@ -17,6 +17,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
+    """Create the focused LinkedIn pipeline schema."""
     op.create_table(
         "searches",
         sa.Column("slug", sa.String(length=100), nullable=False),
@@ -85,6 +86,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    """Remove the focused LinkedIn pipeline schema."""
     op.drop_index("ix_job_searches_active", table_name="job_searches")
     op.drop_table("job_searches")
     op.drop_index("ix_search_runs_status", table_name="search_runs")

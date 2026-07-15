@@ -22,6 +22,8 @@ DEFAULT_USER_AGENT = (
 
 
 class Settings(BaseModel):
+    """Define validated application settings."""
+
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     database_url: str = "sqlite:///data/internships.db"
@@ -47,6 +49,7 @@ class Settings(BaseModel):
     @field_validator("database_url")
     @classmethod
     def validate_database_url(cls, value: str) -> str:
+        """Validate the configured SQLAlchemy database URL."""
         if "://" not in value:
             raise ValueError("database_url must be a SQLAlchemy URL")
         return value
@@ -54,6 +57,7 @@ class Settings(BaseModel):
     @field_validator("log_level")
     @classmethod
     def normalize_log_level(cls, value: str) -> str:
+        """Normalize the configured logging level."""
         normalized = value.upper()
         if normalized not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
             raise ValueError("log_level must be a standard Python logging level")
@@ -61,6 +65,7 @@ class Settings(BaseModel):
 
     @model_validator(mode="after")
     def validate_search_limits(self) -> Settings:
+        """Validate global search-limit overrides."""
         if (
             self.search_max_pages is not None
             and self.search_max_results is not None
@@ -122,6 +127,7 @@ def load_settings(path: Path | None = None, *, dotenv_path: Path = Path(".env"))
 def apply_search_overrides(
     searches: list[LinkedInSearchConfig], settings: Settings
 ) -> list[LinkedInSearchConfig]:
+    """Apply apply search overrides."""
     output: list[LinkedInSearchConfig] = []
     for search in searches:
         pages = settings.search_max_pages or search.max_pages
@@ -146,6 +152,7 @@ def apply_search_overrides(
 
 
 def _environment_values(source: Mapping[str, str | None]) -> dict[str, str]:
+    """Collect supported settings from environment variables."""
     values: dict[str, str] = {}
     for environment_name, field_name in _ENV_FIELDS.items():
         value = source.get(f"INTERNSHIPS_{environment_name}")

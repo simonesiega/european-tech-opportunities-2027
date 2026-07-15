@@ -36,6 +36,7 @@ class LinkedInSearchConfig(BaseModel):
     @field_validator("name", "keywords", "location", "notes", mode="before")
     @classmethod
     def strip_text(cls, value: object) -> object:
+        """Trim required search text fields."""
         if isinstance(value, str):
             return clean_text(value)
         return value
@@ -43,6 +44,7 @@ class LinkedInSearchConfig(BaseModel):
     @field_validator("company_names", mode="before")
     @classmethod
     def normalize_companies(cls, value: object) -> object:
+        """Normalize and deduplicate company allowlists."""
         if value is None:
             return ()
         if not isinstance(value, (list, tuple)):
@@ -57,6 +59,7 @@ class LinkedInSearchConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_scope(self) -> LinkedInSearchConfig:
+        """Reject placeholder or unbounded search definitions."""
         if normalized_key(self.name) in {"example", "example search"}:
             raise ValueError("placeholder searches are not allowed")
         if self.max_results > self.max_pages * 25:

@@ -26,6 +26,7 @@ class DiscoveredJob(BaseModel):
     @field_validator("company", "title", "location", mode="before")
     @classmethod
     def normalize_text(cls, value: object) -> str:
+        """Normalize required job text fields."""
         cleaned = clean_text(str(value))
         if not cleaned:
             raise ValueError("job text fields cannot be empty")
@@ -34,6 +35,7 @@ class DiscoveredJob(BaseModel):
     @field_validator("link")
     @classmethod
     def normalize_link(cls, value: str) -> str:
+        """Canonicalize the job application URL."""
         return canonicalize_url(value)
 
 

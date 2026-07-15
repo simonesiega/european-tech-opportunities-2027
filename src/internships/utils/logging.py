@@ -14,6 +14,7 @@ class JsonFormatter(logging.Formatter):
     """Format log records as one-line JSON while excluding sensitive payloads."""
 
     def format(self, record: logging.LogRecord) -> str:
+        """Format one log record as compact JSON."""
         payload: dict[str, Any] = {
             "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname.lower(),
@@ -29,6 +30,7 @@ class JsonFormatter(logging.Formatter):
 
 
 def configure_logging(level: str = "INFO", *, json_output: bool = True) -> None:
+    """Configure configure logging."""
     handler = logging.StreamHandler()
     handler.setFormatter(
         JsonFormatter() if json_output else logging.Formatter("%(levelname)s %(message)s")

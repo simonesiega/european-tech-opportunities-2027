@@ -169,6 +169,8 @@ _NON_EUROPEAN_MARKERS = frozenset(
 
 @dataclass(frozen=True, slots=True)
 class LocationResult:
+    """Hold normalized location text and its Europe decision."""
+
     locations: list[str]
     country_codes: list[str]
     europe_signal: bool
@@ -176,6 +178,7 @@ class LocationResult:
 
 
 def normalize_locations(values: list[str]) -> LocationResult:
+    """Normalize locations and determine European eligibility."""
     locations: list[str] = []
     codes: set[str] = set()
     europe_signal = False
@@ -214,10 +217,12 @@ def normalize_locations(values: list[str]) -> LocationResult:
 
 
 def _contains_phrase(text: str, phrase: str) -> bool:
+    """Check whether normalized text contains a complete phrase."""
     return bool(re.search(rf"(?:^|\s){re.escape(phrase)}(?:$|\s)", text))
 
 
 def _normalize_display_location(value: str) -> str:
+    """Normalize spacing and punctuation in a displayed location."""
     cleaned = clean_text(value).strip(" ,-|")
     cleaned = re.sub(r"\bUK Remote\b", "Remote — United Kingdom", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\bU\.?K\.?(?=\b|$)", "United Kingdom", cleaned, flags=re.IGNORECASE)

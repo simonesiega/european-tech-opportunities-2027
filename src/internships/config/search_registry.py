@@ -16,6 +16,7 @@ class SearchRegistryError(ValueError):
 
 
 def load_search_file(path: Path) -> LinkedInSearchConfig:
+    """Load and validate one search YAML file."""
     try:
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:
@@ -70,6 +71,7 @@ def select_searches(
 
 
 def _duplicates(values: Iterable[str]) -> set[str]:
+    """Return values that occur more than once."""
     seen: set[str] = set()
     duplicates: set[str] = set()
     for value in values:

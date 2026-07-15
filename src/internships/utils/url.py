@@ -29,6 +29,7 @@ class UnsafeUrlError(ValueError):
 
 
 def _is_public_hostname(hostname: str) -> bool:
+    """Check whether a hostname resolves only to public addresses."""
     normalized = hostname.rstrip(".").lower()
     if normalized in {"localhost", "localhost.localdomain"} or normalized.endswith(".local"):
         return False
@@ -40,6 +41,7 @@ def _is_public_hostname(hostname: str) -> bool:
 
 
 def canonicalize_url(url: str, *, extra_tracking_parameters: Iterable[str] = ()) -> str:
+    """Validate and canonicalize an HTTP or HTTPS URL."""
     candidate = url.strip()
     if not candidate:
         raise UnsafeUrlError("URL must not be empty")

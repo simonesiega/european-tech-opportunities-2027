@@ -18,6 +18,7 @@ from internships.utils.paths import find_project_root
 
 
 def main() -> None:
+    """Check ORM metadata against a database upgraded to migration head."""
     repository_root = find_project_root(Path(__file__))
     expected_version = migration_head(repository_root=repository_root)
 

@@ -30,17 +30,23 @@ Clock = Callable[[], datetime]
 
 
 class Scraper(Protocol):
+    """Define the scraper interface used by the pipeline."""
+
     async def scrape(
         self,
         search: LinkedInSearchConfig,
         fetcher: TextFetcher,
         *,
         known_jobs: tuple[KnownJob, ...] = (),
-    ) -> LinkedInScrapeResult: ...
+    ) -> LinkedInScrapeResult:
+        """Collect jobs for one configured search."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)
 class SearchOutcome:
+    """Describe the outcome of one configured search."""
+
     search: LinkedInSearchConfig
     run_id: str
     started_at: datetime
@@ -53,6 +59,8 @@ class SearchOutcome:
 
 @dataclass(frozen=True, slots=True)
 class PipelineResult:
+    """Summarize all outcomes from a pipeline run."""
+
     status: RunStatus
     successful_searches: int
     failed_searches: int
@@ -65,12 +73,17 @@ class PipelineResult:
 
     @property
     def exit_code(self) -> int:
-        return (
-            0 if self.status == RunStatus.SUCCESS else 2 if self.status == RunStatus.PARTIAL else 1
-        )
+        """Return a process exit code derived from search outcomes."""
+        if self.status == RunStatus.SUCCESS:
+            return 0
+        if self.status == RunStatus.PARTIAL:
+            return 2
+        return 1
 
 
 class CollectionPipeline:
+    """Coordinate collection, classification, and persistence."""
+
     def __init__(
         self,
         *,
@@ -80,6 +93,7 @@ class CollectionPipeline:
         scraper: Scraper | None = None,
         clock: Clock = utc_now,
     ) -> None:
+        """Initialize the instance dependencies and state."""
         self.settings = settings
         self.repository = repository
         self.classifier = Classifier(rules, settings.target_cycle)
@@ -93,6 +107,7 @@ class CollectionPipeline:
         configured_searches: list[LinkedInSearchConfig] | None = None,
         fetcher: TextFetcher | None = None,
     ) -> PipelineResult:
+        """Run selected searches and persist isolated outcomes."""
         if not searches:
             raise ValueError("no enabled LinkedIn searches matched the selection")
         self.repository.sync_searches(configured_searches or searches, self.clock())
@@ -106,6 +121,8 @@ class CollectionPipeline:
         summary = PersistSummary()
         for outcome in outcomes:
             if outcome.result is None:
+                # Persist each failure independently; one broken search must not roll
+                # back successful searches from the same collection run.
                 failed += 1
                 self.repository.persist_failure(
                     run_id=outcome.run_id,
@@ -137,13 +154,12 @@ class CollectionPipeline:
             excluded += search_excluded
             warnings += len(result.warnings)
 
-        status = (
-            RunStatus.SUCCESS
-            if successful and not failed
-            else RunStatus.PARTIAL
-            if successful
-            else RunStatus.FAILED
-        )
+        if not successful:
+            status = RunStatus.FAILED
+        elif failed:
+            status = RunStatus.PARTIAL
+        else:
+            status = RunStatus.SUCCESS
         return PipelineResult(
             status=status,
             successful_searches=successful,
@@ -159,6 +175,7 @@ class CollectionPipeline:
     async def test_search(
         self, search: LinkedInSearchConfig, *, fetcher: TextFetcher | None = None
     ) -> tuple[LinkedInScrapeResult, list[DiscoveredJob], int]:
+        """Run one search without persistence."""
         if fetcher is None:
             async with HttpFetcher(self.settings) as managed:
                 result = await self.scraper.scrape(search, managed)
@@ -168,6 +185,9 @@ class CollectionPipeline:
         return result, jobs, excluded
 
     def _classify(self, result: LinkedInScrapeResult) -> tuple[list[DiscoveredJob], int]:
+        """Classify scraped jobs and collect accepted records."""
+        # Multiple searches or duplicate cards may expose the same LinkedIn ID;
+        # publication and persistence use one canonical record per source ID.
         jobs: dict[str, DiscoveredJob] = {}
         excluded = 0
         for raw in result.positions:
@@ -201,9 +221,13 @@ class CollectionPipeline:
     async def _fetch_all(
         self, searches: list[LinkedInSearchConfig], fetcher: TextFetcher
     ) -> list[SearchOutcome]:
+        """Run selected searches concurrently within configured limits."""
+        # Limit complete search workflows, not only individual HTTP calls, so parsing
+        # and database lookups cannot create an unbounded number of active tasks.
         semaphore = asyncio.Semaphore(self.settings.max_concurrency)
 
         async def fetch(search: LinkedInSearchConfig) -> SearchOutcome:
+            """Collect one search while isolating its errors."""
             async with semaphore:
                 run_id = str(uuid.uuid4())
                 started_at = self.clock()
@@ -226,7 +250,9 @@ class CollectionPipeline:
                     code, message = exc.code, str(exc)
                 except (ValidationError, ValueError) as exc:
                     code, message = "invalid_html", f"LinkedIn HTML rejected: {type(exc).__name__}"
-                except Exception as exc:  # defensive per-search isolation
+                # Preserve batch progress for unexpected provider/parser failures while
+                # keeping potentially sensitive exception details out of persisted logs.
+                except Exception as exc:
                     code, message = "unexpected", f"unexpected failure: {type(exc).__name__}"
                 return SearchOutcome(
                     search=search,
