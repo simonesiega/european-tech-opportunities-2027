@@ -16,12 +16,18 @@ COPY alembic.ini ./
 COPY migrations ./migrations
 COPY configs ./configs
 COPY src ./src
+
 RUN uv sync --frozen --no-dev \
     && groupadd --gid 10001 internships \
-    && useradd --uid 10001 --gid internships --home-dir /app --no-create-home \
-        --shell /usr/sbin/nologin internships \
-    && mkdir -p /app/data \
-    && chown -R internships:internships /app
+    && useradd \
+        --uid 10001 \
+        --gid internships \
+        --home-dir /app \
+        --no-create-home \
+        --shell /usr/sbin/nologin \
+        internships \
+    && mkdir -p /app/data /workspace \
+    && chown -R internships:internships /app /workspace
 
 USER internships
 

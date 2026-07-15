@@ -87,11 +87,15 @@ class CollectionPipeline:
         self.clock = clock
 
     async def run(
-        self, searches: list[LinkedInSearchConfig], *, fetcher: TextFetcher | None = None
+        self,
+        searches: list[LinkedInSearchConfig],
+        *,
+        configured_searches: list[LinkedInSearchConfig] | None = None,
+        fetcher: TextFetcher | None = None,
     ) -> PipelineResult:
         if not searches:
             raise ValueError("no enabled LinkedIn searches matched the selection")
-        self.repository.sync_searches(searches, self.clock())
+        self.repository.sync_searches(configured_searches or searches, self.clock())
         if fetcher is None:
             async with HttpFetcher(self.settings) as managed:
                 outcomes = await self._fetch_all(searches, managed)

@@ -84,6 +84,32 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
     ]
 
 
+def test_targeted_run_keeps_full_registry_enabled(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    rules: ClassificationRules,
+    search: LinkedInSearchConfig,
+) -> None:
+    second = search.model_copy(update={"slug": "second-search", "keywords": "security intern 2027"})
+    repository = Repository(session_factory, settings)
+    pipeline = CollectionPipeline(
+        settings=settings,
+        repository=repository,
+        rules=rules,
+        scraper=FakeScraper(),
+    )
+
+    asyncio.run(
+        pipeline.run(
+            [search],
+            configured_searches=[search, second],
+            fetcher=object(),  # type: ignore[arg-type]
+        )
+    )
+
+    assert repository.stats().configured_searches == 2
+
+
 def test_overlapping_search_timestamps_remain_monotonic(
     session_factory: sessionmaker[Session],
     settings: Settings,

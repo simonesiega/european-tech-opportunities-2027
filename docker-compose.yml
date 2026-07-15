@@ -3,17 +3,21 @@ services:
     build:
       context: .
     image: european-tech-internships-2027:local
+
     env_file:
       - path: .env
         required: false
+
     environment:
       INTERNSHIPS_DATABASE_URL: sqlite:////app/data/internships.db
       INTERNSHIPS_SEARCH_CONFIG_DIR: /app/configs/searches
       INTERNSHIPS_CATEGORY_CONFIG_PATH: /app/configs/categories.yml
-      INTERNSHIPS_README_PATH: /app/README.md
+      INTERNSHIPS_README_PATH: /workspace/README.md
       INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: "${INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED:-false}"
+
     volumes:
       - ./data:/app/data
       - ./configs:/app/configs:ro
-      - ./README.md:/app/README.md
+      - ./:/workspace
+
     init: true

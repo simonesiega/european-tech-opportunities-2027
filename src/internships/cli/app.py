@@ -32,7 +32,11 @@ from internships.database.session import (
 from internships.models.job import DiscoveredJob
 from internships.models.search import LinkedInSearchConfig
 from internships.pipeline.runner import CollectionPipeline, PipelineResult
-from internships.readme import render_readme, validate_readme
+from internships.readme import ReadmeMetadata, render_readme, validate_readme
+from internships.search_registry_docs import (
+    render_search_registry_docs,
+    validate_search_registry_docs,
+)
 from internships.utils.logging import configure_logging
 from internships.utils.paths import find_project_root
 
@@ -85,18 +89,26 @@ def scrape(
     repository, engine = _repository(settings)
     _require_migrations(engine)
     try:
-        selected = _selected_searches(settings, search)
+        configured = _configured_searches(settings)
+        selected = _selected_searches(configured, search)
         rules = load_classification_rules(settings.category_config_path)
         result = asyncio.run(
             CollectionPipeline(
                 settings=settings,
                 repository=repository,
                 rules=rules,
-            ).run(selected)
+            ).run(selected, configured_searches=configured)
         )
         _print_result(result)
         if not no_render and result.successful_searches:
-            render_readme(settings.readme_path, repository.list_open_jobs())
+            render_readme(
+                settings.readme_path,
+                repository.list_open_jobs(),
+                _readme_metadata(repository, configured_searches=len(configured)),
+            )
+            render_search_registry_docs(
+                _search_registry_docs_path(settings), settings.search_config_dir
+            )
             console.print(f"README updated: {settings.readme_path}")
     except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
         error_console.print(f"[red]Scrape failed:[/red] {exc}")
@@ -112,7 +124,7 @@ def search_test(ctx: typer.Context, search_slug: str) -> None:
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
     try:
-        selected = _selected_searches(settings, search_slug)
+        selected = _selected_searches(_configured_searches(settings), search_slug)
         if not selected:
             raise ValueError(f"unknown or disabled search: {search_slug}")
         rules = load_classification_rules(settings.category_config_path)
@@ -141,8 +153,17 @@ def render(ctx: typer.Context) -> None:
     repository, engine = _repository(settings)
     _require_migrations(engine)
     try:
-        render_readme(settings.readme_path, repository.list_open_jobs())
-        console.print(f"README updated with {len(repository.list_open_jobs())} open position(s).")
+        configured = _configured_searches(settings)
+        open_jobs = repository.list_open_jobs()
+        render_readme(
+            settings.readme_path,
+            open_jobs,
+            _readme_metadata(repository, configured_searches=len(configured)),
+        )
+        render_search_registry_docs(
+            _search_registry_docs_path(settings), settings.search_config_dir
+        )
+        console.print(f"README updated with {len(open_jobs)} open position(s).")
     finally:
         engine.dispose()
 
@@ -205,8 +226,18 @@ def validate(ctx: typer.Context) -> None:
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     _require_migrations(engine)
+    configured = _configured_searches(settings)
     open_jobs = repository.list_open_jobs()
-    errors = validate_readme(settings.readme_path, open_jobs)
+    errors = validate_readme(
+        settings.readme_path,
+        open_jobs,
+        _readme_metadata(repository, configured_searches=len(configured)),
+    )
+    errors.extend(
+        validate_search_registry_docs(
+            _search_registry_docs_path(settings), settings.search_config_dir
+        )
+    )
     try:
         jobs = repository.list_all_jobs()
         for job in jobs:
@@ -221,8 +252,13 @@ def validate(ctx: typer.Context) -> None:
     console.print(f"Valid: {len(jobs)} database position(s) and README checked.")
 
 
-def _selected_searches(settings: Settings, slug: str | None) -> list[LinkedInSearchConfig]:
-    searches = apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
+def _configured_searches(settings: Settings) -> list[LinkedInSearchConfig]:
+    return apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
+
+
+def _selected_searches(
+    searches: list[LinkedInSearchConfig], slug: str | None
+) -> list[LinkedInSearchConfig]:
     selected = select_searches(searches, search_slug=slug)
     if not selected:
         raise ValueError(f"unknown or disabled search: {slug}")
@@ -232,6 +268,21 @@ def _selected_searches(settings: Settings, slug: str | None) -> list[LinkedInSea
 def _repository(settings: Settings) -> tuple[Repository, Engine]:
     engine = create_database_engine(settings.database_url)
     return Repository(create_session_factory(engine), settings), engine
+
+
+def _search_registry_docs_path(settings: Settings) -> Path:
+    return settings.readme_path.parent / "docs" / "search-registry.md"
+
+
+def _readme_metadata(
+    repository: Repository, *, configured_searches: int | None = None
+) -> ReadmeMetadata:
+    snapshot = repository.stats()
+    return ReadmeMetadata(
+        open_internships=snapshot.open,
+        last_successful_collection=snapshot.last_success_at,
+        configured_searches=configured_searches,
+    )
 
 
 def _print_result(result: PipelineResult) -> None:
