@@ -43,6 +43,28 @@ jobs:
           enable-cache: true
       - run: uv sync --frozen --dev
 
+      - name: Require main branch for VPS deployment
+        if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
+        run: |
+          echo "VPS deployment is permitted only from the main branch."
+          exit 1
+
+      - name: Configure VPS SSH access
+        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
+            echo "VPS SSH key and verified known_hosts entry are required."
+            exit 1
+          fi
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
       - name: Restore canonical SQLite state
         id: db-cache
         uses: actions/cache/restore@v4
@@ -50,6 +72,34 @@ jobs:
           path: data/internships.db
           key: internship-db-${{ github.run_id }}
           restore-keys: internship-db-
+
+      - name: Bootstrap canonical state from VPS
+        if: inputs.deploy_to_vps
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+          VPS_VOLUME: ${{ vars.VPS_DOCKER_VOLUME }}
+        shell: bash
+        run: |
+          if [ -s data/internships.db ]; then
+            echo "Using canonical state restored from the GitHub Actions cache."
+            exit 0
+          fi
+          if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
+            || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] \
+            || [[ ! "$VPS_VOLUME" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+            echo "VPS bootstrap configuration is missing or invalid."
+            exit 1
+          fi
+
+          mkdir -p data
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes \
+            "${VPS_USER}@${VPS_HOST}" \
+            "docker run --rm -v '$VPS_VOLUME:/data:ro' alpine:3.22@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce cat /data/internships.db" \
+            > data/internships.db
+          uv run python -c "import sqlite3; db=sqlite3.connect('file:data/internships.db?mode=ro', uri=True); result=db.execute('PRAGMA integrity_check').fetchone(); db.close(); assert result == ('ok',), result"
 
       - name: Migrate database
         shell: bash
@@ -117,28 +167,6 @@ jobs:
           gh pr create --title "data: update internship table" \
             --body "Validated LinkedIn → SQLite → README update from run ${GITHUB_RUN_ID}." \
             --base main --head "$branch"
-
-      - name: Require main branch for VPS deployment
-        if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
-        run: |
-          echo "VPS deployment is permitted only from the main branch."
-          exit 1
-
-      - name: Configure VPS SSH access
-        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
-        env:
-          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
-        shell: bash
-        run: |
-          if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
-            echo "VPS SSH key and verified known_hosts entry are required."
-            exit 1
-          fi
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
-          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
       - name: Deploy validated database to VPS
         if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
