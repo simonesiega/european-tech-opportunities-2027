@@ -1,6 +1,8 @@
 name: Collect internships
 
 on:
+  schedule:
+    - cron: "0 */6 * * *"
   workflow_dispatch:
     inputs:
       open_pull_request:
@@ -44,13 +46,13 @@ jobs:
       - run: uv sync --frozen --dev
 
       - name: Require main branch for VPS deployment
-        if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
+        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref != 'refs/heads/main'
         run: |
           echo "VPS deployment is permitted only from the main branch."
           exit 1
 
       - name: Configure VPS SSH access
-        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
+        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
@@ -74,7 +76,7 @@ jobs:
           restore-keys: internship-db-
 
       - name: Bootstrap canonical state from VPS
-        if: inputs.deploy_to_vps
+        if: inputs.deploy_to_vps || github.event_name == 'schedule'
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -147,8 +149,8 @@ jobs:
             data/internships.db
             README.md
 
-      - name: Open README update pull request
-        if: inputs.open_pull_request
+      - name: Open or update README pull request
+        if: inputs.open_pull_request || github.event_name == 'schedule'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -157,19 +159,22 @@ jobs:
             echo "No README changes."
             exit 0
           fi
-          branch="automated/readme-update-${GITHUB_RUN_ID}"
+          branch="automated/readme-update"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$branch"
+          git fetch origin "$branch:refs/remotes/origin/$branch" || true
+          git checkout -B "$branch"
           git add README.md
           git commit -m "data: update internship table"
-          git push --set-upstream origin "$branch"
-          gh pr create --title "data: update internship table" \
-            --body "Validated LinkedIn → SQLite → README update from run ${GITHUB_RUN_ID}." \
-            --base main --head "$branch"
+          git push --force-with-lease --set-upstream origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --title "data: update internship table" \
+              --body "Validated LinkedIn → SQLite → README update from automated collection." \
+              --base main --head "$branch"
+          fi
 
       - name: Deploy validated database to VPS
-        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
+        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
