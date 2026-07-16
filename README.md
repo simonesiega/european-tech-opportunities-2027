@@ -34,8 +34,8 @@ This independent project is not affiliated with or endorsed by LinkedIn or any l
 The table is generated atomically from open rows in `data/internships.db`. Do not edit its rows manually.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open internships:** 46<br>
-**Last successful collection:** July 16, 2026 at 10:51 UTC
+**Open internships:** 47<br>
+**Last successful collection:** July 16, 2026 at 17:56 UTC
 
 | Company | Title | Location | Link |
 |---|---|---|---|
@@ -44,6 +44,7 @@ The table is generated atomically from open rows in `data/internships.db`. Do no
 | Airbus Defence and Space | #Discover II 2026-2027 / Satellite Functional Validation Infrastructure Engineer Internship | Getafe, Community of Madrid, Spain | [Link](<https://www.linkedin.com/jobs/view/4406414832>) |
 | Amazon | 2027 Software Dev Engineer Intern | Dublin, County Dublin, Ireland | [Link](<https://www.linkedin.com/jobs/view/4434735213>) |
 | hackajob | Internship Programme 2027: Information Security Engineer \(Appsec\) | United Kingdom | [Link](<https://www.linkedin.com/jobs/view/4433610667>) |
+| hackajob | Internship Programme 2027: Software Engineer \(iOS\) | United Kingdom | [Link](<https://www.linkedin.com/jobs/view/4429249232>) |
 | IMC Trading | 2027 - Quant Research Intern - IIT Bombay | Amsterdam, North Holland, Netherlands | [Link](<https://www.linkedin.com/jobs/view/4436251089>) |
 | PwC Belgium | School Internship in Cloud &amp; Data \(2026-2027\) | Brussels, Brussels Region, Belgium | [Link](<https://www.linkedin.com/jobs/view/4374268675>) |
 | Qualcomm | FY27 Intern - Software Engineering Internship 2027 - 6 months, Cork | Cork, County Cork, Ireland | [Link](<https://www.linkedin.com/jobs/view/4417144574>) |
