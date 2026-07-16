@@ -14,21 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build pipeline image
-        run: docker build --target internships --tag european-tech-internships-2027-cli:ci .
-      - name: Check CLI in image
-        run: docker run --rm european-tech-internships-2027-cli:ci --help
-      - name: Build site image
-        run: docker build --target site --tag european-tech-internships-2027-site:ci .
-      - name: Check site against a migrated database
+      - name: Build production images
+        run: docker compose build
+      - name: Check CLI image
+        run: docker compose run --rm internships --help
+      - name: Check automatic migration and site database access
         run: |
-          mkdir -p data
-          docker run --rm --user "$(id -u):$(id -g)" \
-            -v "$PWD/data:/app/data" \
-            european-tech-internships-2027-cli:ci db-upgrade
-          container_id=$(docker run --detach \
-            -p 127.0.0.1:3000:3000 \
-            -v "$PWD/data:/app/data:ro" \
-            european-tech-internships-2027-site:ci)
-          trap 'docker rm --force "$container_id"' EXIT
-          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/
+          trap 'docker compose down --volumes' EXIT
+          docker compose up --detach site
+          for _ in $(seq 1 10); do
+            if docker compose exec --no-TTY site node -e \
+              "fetch('http://127.0.0.1:3000').then(response => process.exit(response.ok ? 0 : 1))"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker compose logs site internships
+          exit 1

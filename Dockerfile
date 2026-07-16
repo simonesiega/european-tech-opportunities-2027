@@ -61,8 +61,8 @@ ENV NODE_ENV=production \
     SITE_URL=https://internship2027.simonesiega.com \
     INTERNSHIPS_DATABASE_PATH=/app/data/internships.db
 
-RUN addgroup --system --gid 1001 nodejs \
-    && adduser --system --uid 1001 --ingroup nodejs nextjs \
+RUN addgroup --system --gid 10001 nodejs \
+    && adduser --system --uid 10001 --ingroup nodejs nextjs \
     && mkdir -p /app/data \
     && chown nextjs:nodejs /app/data
 

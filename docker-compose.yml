@@ -17,10 +17,11 @@ services:
       INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: "${INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED:-false}"
 
     volumes:
-      - ./data:/app/data
+      - internships-data:/app/data
       - ./configs:/app/configs:ro
       - ./:/workspace
 
+    command: ["db-upgrade"]
     init: true
 
   site:
@@ -36,10 +37,17 @@ services:
       INTERNSHIPS_DATABASE_PATH: /app/data/internships.db
 
     volumes:
-      - ./data:/app/data:ro
+      - internships-data:/app/data:ro
 
-    ports:
-      - "127.0.0.1:${INTERNSHIPS_SITE_PORT:-3000}:3000"
+    depends_on:
+      internships:
+        condition: service_completed_successfully
+
+    expose:
+      - "3000"
 
     init: true
     restart: unless-stopped
+
+volumes:
+  internships-data:
