@@ -13,6 +13,11 @@ on:
         required: false
         default: false
         type: boolean
+      deploy_to_vps:
+        description: "Atomically deploy the validated database to the VPS"
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: internship-collection
@@ -26,7 +31,7 @@ jobs:
   collect:
     if: vars.LINKEDIN_CRAWL_AUTHORIZED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 180
     env:
       INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: "true"
     steps:
@@ -112,3 +117,92 @@ jobs:
           gh pr create --title "data: update internship table" \
             --body "Validated LinkedIn → SQLite → README update from run ${GITHUB_RUN_ID}." \
             --base main --head "$branch"
+
+      - name: Require main branch for VPS deployment
+        if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
+        run: |
+          echo "VPS deployment is permitted only from the main branch."
+          exit 1
+
+      - name: Configure VPS SSH access
+        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
+            echo "VPS SSH key and verified known_hosts entry are required."
+            exit 1
+          fi
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Deploy validated database to VPS
+        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+          VPS_VOLUME: ${{ vars.VPS_DOCKER_VOLUME }}
+        shell: bash
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$VPS_USER" ] || [ -z "$VPS_VOLUME" ]; then
+            echo "VPS host, user, and Docker volume configuration are required."
+            exit 1
+          fi
+          if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
+            || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            echo "VPS SSH configuration contains unsupported characters."
+            exit 1
+          fi
+          if [[ ! "$VPS_VOLUME" =~ ^[A-Za-z0-9_.-]+$ ]]; then
+            echo "VPS Docker volume contains unsupported characters."
+            exit 1
+          fi
+
+          remote_file="/tmp/internships-${GITHUB_RUN_ID}.db"
+          database_sha=$(sha256sum data/internships.db | cut -d ' ' -f 1)
+          ssh_target="${VPS_USER}@${VPS_HOST}"
+          ssh_options=(-i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes)
+
+          scp -i "$HOME/.ssh/id_ed25519" -P "$VPS_PORT" -o BatchMode=yes \
+            data/internships.db "${ssh_target}:${remote_file}"
+          remote_sha=$(ssh "${ssh_options[@]}" "$ssh_target" \
+            "sha256sum '$remote_file' | cut -d ' ' -f 1")
+          if [ "$database_sha" != "$remote_sha" ]; then
+            ssh "${ssh_options[@]}" "$ssh_target" "rm -f '$remote_file'"
+            echo "Uploaded database checksum does not match."
+            exit 1
+          fi
+
+          ssh "${ssh_options[@]}" "$ssh_target" \
+            "VPS_VOLUME='$VPS_VOLUME' IMPORT_FILE='$remote_file' EXPECTED_SHA='$database_sha' bash -s" <<'REMOTE'
+          set -euo pipefail
+          trap 'rm -f "$IMPORT_FILE"' EXIT
+          docker volume inspect "$VPS_VOLUME" >/dev/null
+          import_name=$(basename "$IMPORT_FILE")
+
+          flock -n /tmp/internships-database-deploy.lock \
+            docker run --rm --user 0 --entrypoint sh \
+              -e IMPORT_NAME="$import_name" \
+              -e EXPECTED_SHA="$EXPECTED_SHA" \
+              -v "$VPS_VOLUME:/data" \
+              -v /tmp:/incoming:ro \
+              alpine:3.22@sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce -euc '
+                test "$(sha256sum "/incoming/$IMPORT_NAME" | cut -d " " -f 1)" = "$EXPECTED_SHA"
+                if [ -f /data/internships.db ]; then
+                  cp -p /data/internships.db /data/internships.db.previous
+                fi
+                cp "/incoming/$IMPORT_NAME" /data/.internships.db.new
+                chown 10001:10001 /data/.internships.db.new
+                chmod 640 /data/.internships.db.new
+                rm -f /data/internships.db-wal /data/internships.db-shm \
+                  /data/internships.db-journal
+                mv /data/.internships.db.new /data/internships.db
+                test "$(sha256sum /data/internships.db | cut -d " " -f 1)" = "$EXPECTED_SHA"
+              '
+          REMOTE
