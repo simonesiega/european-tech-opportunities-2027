@@ -35,7 +35,7 @@ The table is generated atomically from open rows in `data/internships.db`. Do no
 
 <!-- BEGIN INTERNSHIPS -->
 **Open internships:** 46<br>
-**Last successful collection:** July 16, 2026 at 10:51 UTC
+**Last successful collection:** July 16, 2026 at 13:44 UTC
 
 | Company | Title | Location | Link |
 |---|---|---|---|
