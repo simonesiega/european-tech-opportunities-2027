@@ -46,52 +46,23 @@ _CONTEXTUAL_START_DATE_RE = re.compile(
 )
 _EMPLOYMENT_TYPE_VALUES = {
     "full time": EmploymentType.FULL_TIME,
-    "part time": EmploymentType.PART_TIME,
-    "contract": EmploymentType.CONTRACT,
-    "temporary": EmploymentType.TEMPORARY,
     "internship": EmploymentType.INTERNSHIP,
-    "volunteer": EmploymentType.VOLUNTEER,
-    "other": EmploymentType.OTHER,
 }
 _WORK_MODE_VALUES = {
     "remote": WorkMode.REMOTE,
     "hybrid": WorkMode.HYBRID,
-    "on site": WorkMode.ON_SITE,
-    "onsite": WorkMode.ON_SITE,
 }
-_DESCRIPTION_WORK_MODE_PATTERNS = (
-    (
-        WorkMode.HYBRID,
-        re.compile(
-            r"\b(?:hybrid\s+(?:work(?:ing)?|work\s+model|workplace|role|position|arrangement|"
-            r"schedule|setup)|work(?:ing)?\s+(?:in\s+)?(?:a\s+)?hybrid\s+(?:model|arrangement))\b",
-            re.IGNORECASE,
-        ),
-    ),
-    (
-        WorkMode.REMOTE,
-        re.compile(
-            r"\b(?:(?:fully|entirely|100%)\s+remote|remote\s+(?:work(?:ing)?|role|position|"
-            r"internship|arrangement|option)|work(?:ing)?\s+remotely)\b",
-            re.IGNORECASE,
-        ),
-    ),
-    (
-        WorkMode.ON_SITE,
-        re.compile(
-            r"\b(?:on[ -]?site|onsite|office[ -]based|"
-            r"work(?:ing)?\s+(?:from|in)\s+(?:the\s+)?office)\b",
-            re.IGNORECASE,
-        ),
-    ),
-)
-_TOP_CARD_PILL_SELECTORS = (
-    "[data-test-id*='workplace']",
-    "[class*='workplace-type']",
-    ".job-details-preferences-and-skills__pill",
-    ".job-details-jobs-unified-top-card__job-insight",
+_HEADER_TAG_SELECTORS = (
+    ".top-card-layout [data-test-id*='workplace']",
+    ".top-card-layout [class*='workplace-type']",
+    ".top-card-layout .job-details-preferences-and-skills__pill",
+    ".top-card-layout .job-details-jobs-unified-top-card__job-insight",
     ".top-card-layout button",
     ".top-card-layout [role='button']",
+    ".job-details-jobs-unified-top-card__container "
+    ".job-details-preferences-and-skills__pill",
+    ".job-details-jobs-unified-top-card__container "
+    ".job-details-jobs-unified-top-card__job-insight",
 )
 _DEFAULT_INTERNSHIP_TITLE_TERMS = (
     "intern",
@@ -228,82 +199,38 @@ def parse_job_detail(html: str, card: LinkedInSearchCard) -> RawJob:
         locations=[location] if location else [],
         application_url=card.application_url,
         description=description,
-        work_mode=_extract_work_mode(soup, location, description),
+        work_mode=_extract_work_mode(soup),
         employment_type=_extract_employment_type(soup),
         start_date=_extract_start_date(title, description),
     )
 
 
+def _header_tag_values(soup: BeautifulSoup) -> tuple[str, ...]:
+    """Return only exact tag labels rendered in LinkedIn's job header."""
+    values: list[str] = []
+    for selector in _HEADER_TAG_SELECTORS:
+        for node in soup.select(selector):
+            if isinstance(node, Tag):
+                value = normalized_key(node.get_text(" ", strip=True))
+                if value and value not in values:
+                    values.append(value)
+    return tuple(values)
+
+
 def _extract_employment_type(soup: BeautifulSoup) -> EmploymentType | None:
-    """Extract LinkedIn's structured employment type criterion or top-card pill."""
-    for item in soup.select(".description__job-criteria-item"):
-        if not isinstance(item, Tag):
-            continue
-        heading = _optional_text(item, ".description__job-criteria-subheader")
-        if normalized_key(heading or "") != "employment type":
-            continue
-        value = normalized_key(_optional_text(item, ".description__job-criteria-text") or "")
+    """Extract Full time or Internship exclusively from header tags."""
+    for value in _header_tag_values(soup):
         employment_type = _EMPLOYMENT_TYPE_VALUES.get(value)
         if employment_type is not None:
             return employment_type
-
-    for selector in _TOP_CARD_PILL_SELECTORS:
-        for node in soup.select(selector):
-            if not isinstance(node, Tag):
-                continue
-            value = normalized_key(node.get_text(" ", strip=True))
-            employment_type = _EMPLOYMENT_TYPE_VALUES.get(value)
-            if employment_type is not None:
-                return employment_type
     return None
 
 
-def _extract_work_mode(
-    soup: BeautifulSoup, location: str, description: str | None
-) -> WorkMode | None:
-    """Extract a structured mode or a narrowly worded description fallback."""
-    for item in soup.select(".description__job-criteria-item"):
-        if not isinstance(item, Tag):
-            continue
-        heading = _optional_text(item, ".description__job-criteria-subheader")
-        if normalized_key(heading or "") != "workplace type":
-            continue
-        value = _optional_text(item, ".description__job-criteria-text")
-        work_mode = _work_mode_from_text(value)
+def _extract_work_mode(soup: BeautifulSoup) -> WorkMode | None:
+    """Extract Remote or Hybrid exclusively from header tags."""
+    for value in _header_tag_values(soup):
+        work_mode = _WORK_MODE_VALUES.get(value)
         if work_mode is not None:
-            return work_mode
-
-    # LinkedIn also renders workplace mode as a top-card pill instead of a job
-    # criterion. Class names differ between guest and signed-in page variants, so
-    # inspect only known top-card/pill containers and require a standalone mode word.
-    for selector in _TOP_CARD_PILL_SELECTORS:
-        for node in soup.select(selector):
-            if not isinstance(node, Tag):
-                continue
-            work_mode = _work_mode_from_text(node.get_text(" ", strip=True))
-            if work_mode is not None:
-                return work_mode
-
-    if "remote" in normalized_key(location):
-        return WorkMode.REMOTE
-
-    # The guest detail endpoint often omits the workplace pill shown in LinkedIn's
-    # signed-in UI. Accept only explicit work-arrangement phrases from descriptions;
-    # a bare "remote" is intentionally insufficient because it can describe tooling.
-    for work_mode, pattern in _DESCRIPTION_WORK_MODE_PATTERNS:
-        if pattern.search(description or ""):
-            return work_mode
-    return None
-
-
-def _work_mode_from_text(value: str) -> WorkMode | None:
-    """Normalize an exact mode label or a structured top-card insight."""
-    key = normalized_key(value)
-    direct = _WORK_MODE_VALUES.get(key)
-    if direct is not None:
-        return direct
-    for label, work_mode in _WORK_MODE_VALUES.items():
-        if re.search(rf"(?:^|\s){re.escape(label)}(?:$|\s)", key):
             return work_mode
     return None
 

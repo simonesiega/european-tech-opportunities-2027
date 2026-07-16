@@ -77,17 +77,17 @@ def test_linkedin_job_detail_parser_extracts_description(
     assert job.employment_type == "internship"
 
 
-def test_linkedin_job_detail_extracts_full_time_employment(
+def test_linkedin_job_detail_ignores_employment_type_in_about_the_job(
     fixture_html: Callable[[str], str],
 ) -> None:
     card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[1]
     job = parse_job_detail(fixture_html("linkedin_job_detail_2222222222.html"), card)
 
-    assert job.employment_type == "full-time"
+    assert job.employment_type is None
     assert job.work_mode is None
 
 
-def test_linkedin_job_detail_extracts_work_mode_from_explicit_description(
+def test_linkedin_job_detail_ignores_work_mode_in_description(
     fixture_html: Callable[[str], str],
 ) -> None:
     card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
@@ -99,7 +99,7 @@ def test_linkedin_job_detail_extracts_work_mode_from_explicit_description(
 
     job = parse_job_detail(html, card)
 
-    assert job.work_mode == "hybrid"
+    assert job.work_mode is None
 
 
 def test_linkedin_job_detail_ignores_ambiguous_remote_description(
