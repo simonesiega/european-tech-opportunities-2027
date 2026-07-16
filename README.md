@@ -3,7 +3,9 @@
 </h1>
 
 <p align="center">
-  <a href="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/ci.yml"><img src="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/python-ci.yml"><img src="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/python-ci.yml/badge.svg" alt="Python CI status" /></a>
+  <a href="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/site-ci.yml"><img src="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/site-ci.yml/badge.svg" alt="Site CI status" /></a>
+  <a href="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/docker-ci.yml"><img src="https://github.com/simonesiega/european-tech-internships-2027/actions/workflows/docker-ci.yml/badge.svg" alt="Docker CI status" /></a>
   <a href="https://github.com/simonesiega/european-tech-internships-2027/issues"><img src="https://img.shields.io/github/issues/simonesiega/european-tech-internships-2027" alt="Open issues" /></a>
   <a href="https://github.com/simonesiega/european-tech-internships-2027/pulls"><img src="https://img.shields.io/github/issues-pr/simonesiega/european-tech-internships-2027" alt="Open pull requests" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/simonesiega/european-tech-internships-2027" alt="MIT license" /></a>

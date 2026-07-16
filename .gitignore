@@ -11,6 +11,12 @@ dist/
 .coverage
 htmlcov/
 
+# Next.js site
+site/.next/
+site/node_modules/
+site/*.tsbuildinfo
+site/next-env.d.ts
+
 # Local configuration and secrets
 .env
 configs/settings.yml

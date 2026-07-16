@@ -1,0 +1,34 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pipeline image
+        run: docker build --target internships --tag european-tech-internships-2027-cli:ci .
+      - name: Check CLI in image
+        run: docker run --rm european-tech-internships-2027-cli:ci --help
+      - name: Build site image
+        run: docker build --target site --tag european-tech-internships-2027-site:ci .
+      - name: Check site against a migrated database
+        run: |
+          mkdir -p data
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -v "$PWD/data:/app/data" \
+            european-tech-internships-2027-cli:ci db-upgrade
+          container_id=$(docker run --detach \
+            -p 127.0.0.1:3000:3000 \
+            -v "$PWD/data:/app/data:ro" \
+            european-tech-internships-2027-site:ci)
+          trap 'docker rm --force "$container_id"' EXIT
+          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/

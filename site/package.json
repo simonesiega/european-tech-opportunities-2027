@@ -1,0 +1,33 @@
+{
+  "name": "european-tech-internships-2027-site",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "bun@1.3.14",
+  "scripts": {
+    "dev": "next dev",
+    "start": "node .next/standalone/server.js",
+    "build": "node node_modules/next/dist/bin/next build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "prettier": "prettier --check .",
+    "format:check": "bun run prettier",
+    "format": "prettier --write .",
+    "check": "bun run format:check && bun run lint && bun run typecheck && bun run build",
+    "ci": "bun run check"
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.10",
+    "prettier": "^3.9.5",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "5.9.3"
+  }
+}

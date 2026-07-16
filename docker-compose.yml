@@ -2,7 +2,8 @@ services:
   internships:
     build:
       context: .
-    image: european-tech-internships-2027:local
+      target: internships
+    image: european-tech-internships-2027-cli:local
 
     env_file:
       - path: .env
@@ -21,3 +22,24 @@ services:
       - ./:/workspace
 
     init: true
+
+  site:
+    build:
+      context: .
+      target: site
+      args:
+        SITE_URL: "${SITE_URL:-https://internship2027.simonesiega.com}"
+    image: european-tech-internships-2027-site:local
+
+    environment:
+      SITE_URL: "${SITE_URL:-https://internship2027.simonesiega.com}"
+      INTERNSHIPS_DATABASE_PATH: /app/data/internships.db
+
+    volumes:
+      - ./data:/app/data:ro
+
+    ports:
+      - "127.0.0.1:${INTERNSHIPS_SITE_PORT:-3000}:3000"
+
+    init: true
+    restart: unless-stopped

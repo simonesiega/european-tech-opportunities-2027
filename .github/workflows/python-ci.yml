@@ -1,4 +1,4 @@
-name: CI
+name: Python CI
 
 on:
   push:
@@ -10,38 +10,39 @@ permissions:
   contents: read
 
 jobs:
-  quality:
+  ruff:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-      - name: Install Python and dependencies
+      - name: Install frozen dependencies
         run: uv sync --frozen --dev
-      - name: Ruff format
+      - name: Check formatting
         run: uv run ruff format --check .
-      - name: Ruff lint
+      - name: Lint Python
         run: uv run ruff check .
-      - name: Mypy
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install frozen dependencies
+        run: uv sync --frozen --dev
+      - name: Check types
         run: uv run mypy src tests
-      - name: Offline tests
+      - name: Run offline tests
         run: uv run pytest -m "not live"
-      - name: Migration consistency
+      - name: Check migration consistency
         run: uv run python scripts/check_migrations.py
-      - name: Migration smoke test
+      - name: Smoke-test migration and rendering
         env:
           INTERNSHIPS_DATABASE_URL: sqlite:///data/ci.db
         run: |
           uv run alembic upgrade head
           uv run internships render
           uv run internships validate
-
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build production image
-        run: docker build --tag european-tech-internships-2027:ci .
-      - name: Check CLI in image
-        run: docker run --rm european-tech-internships-2027:ci --help

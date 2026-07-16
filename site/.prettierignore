@@ -1,0 +1,10 @@
+.next
+build
+coverage
+node_modules
+next-env.d.ts
+out
+public
+*.tsbuildinfo
+README.md
+docs/

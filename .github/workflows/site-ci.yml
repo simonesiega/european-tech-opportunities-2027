@@ -1,0 +1,28 @@
+name: Site CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - name: Install frozen dependencies
+        run: bun install --frozen-lockfile
+      - name: Check formatting, lint, types, and build
+        env:
+          SITE_URL: https://internship2027.simonesiega.com
+        run: bun run ci

@@ -10,6 +10,9 @@ __pycache__
 .mypy_cache
 .ruff_cache
 htmlcov
+site/.next
+site/node_modules
+site/*.tsbuildinfo
 tests
 docs
 .env
