@@ -74,25 +74,25 @@ Browse every listing currently marked open at [internship2027.simonesiega.com](h
 The repository shows only the bounded preview below so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open internships:** 33<br>
-**Last successful collection:** July 15, 2026 at 16:39 UTC
+**Open internships:** 51<br>
+**Last successful collection:** July 17, 2026 at 21:22 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
-Showing the 10 most recently discovered of 33 open internships:
+Showing the 10 most recently discovered of 51 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Revolut | Internship Programme 2027: Software Engineer \(Python\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4418843133>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Frontend\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4418834444>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Frontend\) | Poland | [View](<https://www.linkedin.com/jobs/view/4418845028>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Java\) | Poland | [View](<https://www.linkedin.com/jobs/view/4418844095>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Android\) | Poland | [View](<https://www.linkedin.com/jobs/view/4418830601>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Python\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418830569>) |
-| Revolut | Internship Programme 2027: Software Engineer \(iOS\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418829630>) |
-| Revolut | Internship Programme 2027: Software Engineer \(Java\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418828668>) |
-| IMC Trading | 2027 - Quant Research Intern - IIT Bombay | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4436251089>) |
-| Wincent | Quantitative Research Internship – Quant Research/Trading – Starting Summer 2027 | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4425670131>) |
+| Autodesk | Software Engineering Intern Summer 2027 | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441319217>) |
+| Autodesk | Software Engineering Intern Summer 2027 | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441306714>) |
+| Revolut | Internship Programme 2027: Information Security Engineer \(Operations\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433230335>) |
+| hackajob | Internship Programme 2027: Software Engineer \(Java\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4429227768>) |
+| hackajob | Internship Programme 2027: Software Engineer \(iOS\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4429249232>) |
+| hackajob | Internship Programme 2027: Information Security Engineer \(Appsec\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4433610667>) |
+| Revolut | Internship Programme 2027: Software Engineer \(Android\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419099439>) |
+| Revolut | Internship Programme 2027: Software Engineer \(Frontend\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419099411>) |
+| Revolut | Internship Programme 2027: Software Engineer \(Python\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419094634>) |
+| Revolut | Internship Programme 2027: Software Engineer \(Java\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419091723>) |
 <!-- END INTERNSHIPS -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
