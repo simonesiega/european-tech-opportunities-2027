@@ -1,0 +1,311 @@
+# European Tech Internships 2027 CLI Reference
+
+[← Documentation](../README.md) · [Installation](../getting-started/installation.md) · [Configuration](../getting-started/configuration.md)
+
+The `internships` CLI manages database migrations, search inspection, authorized collection, canonical SQLite state, validation, and generated documentation projections.
+
+Show the command overview:
+
+```bash
+uv run internships --help
+```
+
+General form:
+
+```text
+uv run internships [GLOBAL OPTIONS] COMMAND [COMMAND OPTIONS]
+```
+
+Select an optional settings file:
+
+```bash
+uv run internships --settings configs/settings.local.yml stats
+```
+
+The global `--settings` option must appear before the command name.
+
+## Contents
+
+- [Command overview](#command-overview)
+- [`db-upgrade`](#db-upgrade)
+- [`searches`](#searches)
+- [`search-test`](#search-test)
+- [`scrape`](#scrape)
+- [`render`](#render)
+- [`stats`](#stats)
+- [`validate`](#validate)
+- [Exit codes](#exit-codes)
+- [Command side effects](#command-side-effects)
+- [Common command sequences](#common-command-sequences)
+
+## Command overview
+
+| Command | Purpose |
+|---|---|
+| `db-upgrade` | Create or upgrade the configured database schema |
+| `searches` | Inspect the effective search registry and available run health |
+| `search-test` | Run one authorized search without persistence |
+| `scrape` | Run authorized collection and persist independent search outcomes |
+| `render` | Regenerate the bounded README projection from SQLite |
+| `stats` | Display aggregate canonical state |
+| `validate` | Check schema, lifecycle invariants, and generated projections |
+
+Configuration sources and precedence are documented in [Configuration](../getting-started/configuration.md).
+
+## `db-upgrade`
+
+```bash
+uv run internships db-upgrade
+```
+
+Creates or upgrades the configured database to the single Alembic head.
+
+It:
+
+- loads Alembic configuration and revisions;
+- creates missing tables;
+- applies pending migrations;
+- performs no LinkedIn network access;
+- does not render the README.
+
+Run it before commands that require canonical database state.
+
+Migration design, backup, and recovery belong to the [database lifecycle guide](../operations/database.md#migrations).
+
+## `searches`
+
+```bash
+uv run internships searches
+```
+
+Displays the effective search registry, including:
+
+- enabled search slugs;
+- location scope;
+- effective page, result, and recheck limits;
+- latest run status;
+- found and accepted counts when migrated state is available.
+
+It performs no network access and does not modify SQLite.
+
+Use it after changing search YAML, category mappings, or global limit overrides.
+
+Search schema and tuning are documented in the [search registry guide](search-registry.md).
+
+## `search-test`
+
+```bash
+uv run internships search-test <slug>
+```
+
+Runs one enabled search without persistence.
+
+It:
+
+- requires the LinkedIn authorization interlock;
+- performs bounded LinkedIn guest-page requests;
+- parses, normalizes, and classifies candidates;
+- prints the result and diagnostics;
+- does not write SQLite;
+- does not update the README.
+
+Use it for one authorized parser, query, or classification preview before persisted collection.
+
+> [!IMPORTANT]
+> The interlock is a safety gate, not permission. Source authorization requirements are defined in [`SECURITY.md`](../../../SECURITY.md).
+
+## `scrape`
+
+Run every enabled search:
+
+```bash
+uv run internships scrape
+```
+
+Run one selected search:
+
+```bash
+uv run internships scrape --search company-amazon
+```
+
+Persist state without modifying the README:
+
+```bash
+uv run internships scrape --no-render
+```
+
+The command:
+
+1. verifies authorization and migration preconditions;
+2. loads and synchronizes the complete search registry;
+3. selects every enabled search or one requested slug;
+4. fetches, parses, normalizes, and classifies candidates;
+5. commits each search outcome independently;
+6. updates provenance and explicit lifecycle evidence;
+7. renders the README unless `--no-render` is set.
+
+A partial run preserves successful search transactions.
+
+A failed search:
+
+- records bounded diagnostics;
+- does not apply absence evidence;
+- does not increment unavailability confirmations;
+- does not close jobs.
+
+Use `--no-render` where canonical state should change without modifying the Git working tree, such as a website-only VPS.
+
+The collection lifecycle is documented in [Architecture](../development/architecture.md#failure-isolation) and [Database lifecycle](../operations/database.md#successful-search-transaction).
+
+## `render`
+
+```bash
+uv run internships render
+```
+
+Regenerates generated documentation from canonical SQLite state.
+
+The README projection includes:
+
+- total open-job count;
+- latest successful collection time;
+- the public website link;
+- at most ten recently discovered open jobs.
+
+Generated search-registry counts are also updated where owned by the rendering path.
+
+The command:
+
+- performs no network access;
+- does not modify SQLite;
+- writes the owned README block through atomic replacement.
+
+> [!IMPORTANT]
+> A fresh local database contains no listings. Do not render and commit the preview from empty development state.
+
+Do not edit generated rows manually.
+
+## `stats`
+
+```bash
+uv run internships stats
+```
+
+Displays aggregate canonical state, including:
+
+- total, open, and closed jobs;
+- configured searches;
+- successful and failed search runs;
+- latest successful collection.
+
+It performs no network access and does not modify state.
+
+Use it after migration, collection, restoration, or deployment to verify that the command is reading the intended database.
+
+## `validate`
+
+```bash
+uv run internships validate
+```
+
+Checks:
+
+- required database tables;
+- the Alembic revision;
+- monotonic lifecycle timestamps;
+- exact README projection equality with canonical state;
+- generated search-registry documentation counts.
+
+Validation performs no network access and never repairs state automatically.
+
+Run it only when the configured database contains the representative canonical state expected by the committed generated documentation.
+
+For diagnosis, use [Troubleshooting](../operations/troubleshooting.md).
+
+## Exit codes
+
+| Code | Meaning |
+|---:|---|
+| `0` | Command completed successfully |
+| `1` | Every selected search failed, or validation found an inconsistency |
+| `2` | Partial scrape, invalid command input, or configuration rejection |
+| `3` | Required database tables are missing or the schema is not at migration head |
+
+After a partial scrape with exit code `2`:
+
+- successful search transactions remain committed;
+- failed searches retain diagnostics;
+- failed searches do not mutate lifecycle state;
+- validation should pass before publication or deployment.
+
+GitHub Actions handling of these codes is documented in [Automation](../operations/automation.md#exit-code-handling).
+
+## Command side effects
+
+| Command | LinkedIn network | Writes SQLite | Writes README |
+|---|---:|---:|---:|
+| `db-upgrade` | No | Schema only | No |
+| `searches` | No | No | No |
+| `search-test` | Yes, after authorization gate | No | No |
+| `scrape` | Yes, after authorization gate | Yes | Normally |
+| `scrape --no-render` | Yes, after authorization gate | Yes | No |
+| `render` | No | No | Yes |
+| `stats` | No | No | No |
+| `validate` | No | No | No |
+
+## Common command sequences
+
+### Initialize a local database
+
+```bash
+uv run internships db-upgrade
+uv run internships searches
+uv run internships stats
+```
+
+A new database is expected to contain no listings.
+
+### Inspect registry and canonical state
+
+```bash
+uv run internships searches
+uv run internships stats
+```
+
+### Test one authorized search without persistence
+
+```bash
+uv run internships search-test <slug>
+```
+
+### Persist one authorized search
+
+```bash
+uv run internships scrape --search <slug>
+uv run internships validate
+```
+
+Validation assumes that the configured SQLite database and generated README represent the same canonical state.
+
+### Collect without modifying the README
+
+```bash
+uv run internships scrape --no-render
+uv run internships stats
+```
+
+### Regenerate documentation from representative state
+
+```bash
+uv run internships render
+uv run internships validate
+```
+
+### Verify migrations during development
+
+```bash
+uv run internships db-upgrade
+uv run python scripts/check_migrations.py
+```
+
+Valid slugs and query configuration are documented in the [search registry guide](search-registry.md). Complete engineering checks are documented in the [development guide](../development/development.md#validation-paths).

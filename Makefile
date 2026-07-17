@@ -1,4 +1,4 @@
-.PHONY: install migrate scrape render validate searches stats lint format typecheck test migrations check
+.PHONY: install migrate scrape render validate searches stats lint format typecheck test migrations docs check
 
 install:
 	uv sync --dev
@@ -38,4 +38,7 @@ test:
 migrations:
 	uv run python scripts/check_migrations.py
 
-check: lint typecheck test migrations
+docs:
+	uv run python scripts/check_docs.py
+
+check: lint typecheck test migrations docs

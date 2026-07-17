@@ -31,9 +31,11 @@ def test_readme_contains_exactly_four_columns_and_escapes_values(tmp_path: Path)
     metadata = ReadmeMetadata(open_internships=1, last_successful_collection=now)
     table = markdown_table([job])
     block = markdown_block([job], metadata)
-    assert table.startswith("| Company | Title | Location | Link |\n|---|---|---|---|\n")
+    assert table.startswith("| Company | Title | Location | Listing |\n|---|---|---|---|\n")
     assert "**Open internships:** 1" in block
     assert "**Last successful collection:** July 15, 2026 at 00:00 UTC" in block
+    assert "https://internship2027.simonesiega.com/" in block
+    assert "Showing the 1 most recently discovered of 1 open internships" in block
     assert "Category" not in table
     assert "Example \\| Technology" in table
 
@@ -48,8 +50,36 @@ def test_readme_contains_exactly_four_columns_and_escapes_values(tmp_path: Path)
     assert validate_readme(readme, [job], metadata) == []
 
 
+def test_readme_preview_is_bounded() -> None:
+    now = datetime(2026, 7, 15, tzinfo=UTC)
+    jobs = [
+        StoredJob(
+            linkedin_job_id=str(1_000_000_000 + index),
+            company=f"Company {index}",
+            title=f"Software Engineering Intern 2027 #{index}",
+            location="London, UK",
+            link=f"https://www.linkedin.com/jobs/view/{1_000_000_000 + index}",
+            category=InternshipCategory.SOFTWARE_ENGINEERING,
+            first_seen_at=now,
+            last_seen_at=now,
+            updated_at=now,
+            status=JobStatus.OPEN,
+        )
+        for index in range(12)
+    ]
+
+    block = markdown_block(jobs, ReadmeMetadata(12, now))
+
+    assert "Showing the 10 most recently discovered of 12 open internships" in block
+    assert "| Company 11 |" in block
+    assert "| Company 2 |" in block
+    assert "| Company 1 |" not in block
+
+
 def test_empty_database_still_renders_table_header() -> None:
-    assert markdown_table([]) == "| Company | Title | Location | Link |\n|---|---|---|---|\n"
-    assert markdown_block([], ReadmeMetadata(0, None)).startswith(
+    assert markdown_table([]) == "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
+    block = markdown_block([], ReadmeMetadata(0, None))
+    assert block.startswith(
         "**Open internships:** 0<br>\n**Last successful collection:** Never\n\n"
     )
+    assert "Showing the 0 most recently discovered of 0 open internships" in block

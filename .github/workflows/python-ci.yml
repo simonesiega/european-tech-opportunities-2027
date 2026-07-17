@@ -43,6 +43,8 @@ jobs:
         run: uv run pytest -m "not live"
       - name: Check migration consistency
         run: uv run python scripts/check_migrations.py
+      - name: Check documentation links
+        run: uv run python scripts/check_docs.py
       - name: Smoke-test migration and rendering
         env:
           INTERNSHIPS_DATABASE_URL: sqlite:///data/ci.db

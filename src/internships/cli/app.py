@@ -107,7 +107,7 @@ def scrape(
             render_readme(
                 settings.readme_path,
                 repository.list_open_jobs(),
-                _readme_metadata(repository, configured_searches=len(configured)),
+                _readme_metadata(repository),
             )
             render_search_registry_docs(
                 _search_registry_docs_path(settings), settings.search_config_dir
@@ -158,12 +158,12 @@ def render(ctx: typer.Context) -> None:
     repository, engine = _repository(settings)
     _require_migrations(engine)
     try:
-        configured = _configured_searches(settings)
+        _configured_searches(settings)
         open_jobs = repository.list_open_jobs()
         render_readme(
             settings.readme_path,
             open_jobs,
-            _readme_metadata(repository, configured_searches=len(configured)),
+            _readme_metadata(repository),
         )
         render_search_registry_docs(
             _search_registry_docs_path(settings), settings.search_config_dir
@@ -234,12 +234,12 @@ def validate(ctx: typer.Context) -> None:
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     _require_migrations(engine)
-    configured = _configured_searches(settings)
+    _configured_searches(settings)
     open_jobs = repository.list_open_jobs()
     errors = validate_readme(
         settings.readme_path,
         open_jobs,
-        _readme_metadata(repository, configured_searches=len(configured)),
+        _readme_metadata(repository),
     )
     errors.extend(
         validate_search_registry_docs(
@@ -283,18 +283,15 @@ def _repository(settings: Settings) -> tuple[Repository, Engine]:
 
 def _search_registry_docs_path(settings: Settings) -> Path:
     """Resolve registry documentation beside the configured README."""
-    return settings.readme_path.parent / "docs" / "search-registry.md"
+    return settings.readme_path.parent / "docs" / "md" / "user-guide" / "search-registry.md"
 
 
-def _readme_metadata(
-    repository: Repository, *, configured_searches: int | None = None
-) -> ReadmeMetadata:
+def _readme_metadata(repository: Repository) -> ReadmeMetadata:
     """Build README metadata from database statistics."""
     snapshot = repository.stats()
     return ReadmeMetadata(
         open_internships=snapshot.open,
         last_successful_collection=snapshot.last_success_at,
-        configured_searches=configured_searches,
     )
 
 

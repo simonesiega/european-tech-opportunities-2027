@@ -28,6 +28,15 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
         "# Test\n\n<!-- BEGIN INTERNSHIPS -->\nold\n<!-- END INTERNSHIPS -->\n",
         encoding="utf-8",
     )
+    docs_path = tmp_path / "docs" / "md" / "user-guide" / "search-registry.md"
+    docs_path.parent.mkdir(parents=True)
+    docs_path.write_text(
+        "# Search registry\n\n```text\nconfigs/searches/\n"
+        "├── roles/       # 0 technology paths\n"
+        "├── companies/   # 0 targeted employers\n"
+        "└── countries/   # 0 country partitions\n```\n",
+        encoding="utf-8",
+    )
     before = runner.invoke(app, ["stats"], env=environment)
     assert before.exit_code == 3
 
@@ -35,7 +44,8 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     rendered = runner.invoke(app, ["render"], env=environment)
     assert rendered.exit_code == 0, rendered.output
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
-    assert "| Company | Title | Location | Link |" in readme
+    assert "| Company | Title | Location | Listing |" in readme
+    assert "# 23 technology paths" in docs_path.read_text(encoding="utf-8")
 
     statistics = runner.invoke(app, ["stats"], env=environment)
     assert statistics.exit_code == 0
