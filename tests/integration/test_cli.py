@@ -41,9 +41,6 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     assert before.exit_code == 3
 
     assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
-    backfill = runner.invoke(app, ["backfill-posted-at", "--dry-run"], env=environment)
-    assert backfill.exit_code == 0, backfill.output
-    assert "Dry run" in backfill.output
     rendered = runner.invoke(app, ["render"], env=environment)
     assert rendered.exit_code == 0, rendered.output
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")

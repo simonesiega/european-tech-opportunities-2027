@@ -127,7 +127,7 @@ Preserve these invariants:
 
 1. **SQLite is canonical.** README rows and browser state are never lifecycle sources.
 2. **Numeric job IDs are canonical identities.** Similar display fields do not merge distinct IDs.
-3. **Acceptance remains strict.** Ambiguous posting date, employment type, cycle, role, seniority, or geography means exclusion for new listings.
+3. **Acceptance remains strict.** Ambiguous posting date, employment type, role, seniority, or geography means exclusion for new listings; a missing cycle is allowed only for an eligible posting date, while a conflicting explicit cycle is rejected.
 4. **Closure remains conservative.** Search-page absence cannot close a job.
 5. **Search outcomes remain isolated.** A failed search cannot mutate that search’s lifecycle state.
 6. **The README remains bounded.** It contains one generated marker pair and at most ten internships plus ten New Grad positions.

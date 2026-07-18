@@ -220,35 +220,6 @@ class Repository:
             rows = session.scalars(select(JobRow).order_by(JobRow.linkedin_job_id)).all()
             return [_stored_job(row) for row in rows]
 
-    def list_open_jobs_for_backfill(self, limit: int, *, offset: int = 0) -> list[StoredJob]:
-        """Return a bounded, deterministic set of open jobs for maintenance."""
-        with self.factory() as session:
-            rows = session.scalars(
-                select(JobRow)
-                .where(JobRow.status == JobStatus.OPEN.value)
-                .order_by(JobRow.linkedin_job_id)
-                .offset(offset)
-                .limit(limit)
-            ).all()
-            return [_stored_job(row) for row in rows]
-
-    def backfill_first_seen(self, updates: dict[str, datetime]) -> int:
-        """Apply safe one-time backward corrections to job publication timestamps."""
-        changed = 0
-        with self.factory.begin() as session:
-            for job_id, proposed_at in updates.items():
-                row = session.get(JobRow, job_id)
-                if row is None or row.status != JobStatus.OPEN.value:
-                    continue
-                proposed = ensure_utc(proposed_at)
-                if proposed >= ensure_utc(row.first_seen_at):
-                    continue
-                if proposed > ensure_utc(row.last_seen_at):
-                    continue
-                row.first_seen_at = proposed
-                changed += 1
-        return changed
-
     def stats(self) -> DatabaseStats:
         """Display aggregate pipeline and database statistics."""
         with self.factory() as session:

@@ -202,6 +202,7 @@ class CollectionPipeline:
                     title=title,
                     description=raw.description,
                     location=location,
+                    posted_at=raw.posted_at,
                 )
                 if not decision.include:
                     excluded += 1

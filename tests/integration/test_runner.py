@@ -146,11 +146,7 @@ def test_overlapping_search_timestamps_remain_monotonic(
     repository.persist_success(
         run_id="00000000-0000-0000-0000-000000000002",
         search=second,
-        jobs=[
-            job.model_copy(
-                update={"industries": None, "start_date": None, "posted_at": later}
-            )
-        ],
+        jobs=[job.model_copy(update={"industries": None, "start_date": None, "posted_at": later})],
         confirmed_unavailable_ids=(),
         found_count=1,
         excluded_count=0,
@@ -165,11 +161,6 @@ def test_overlapping_search_timestamps_remain_monotonic(
     assert stored.industries == "Software Development"
     assert stored.employment_type == EmploymentType.INTERNSHIP
     assert stored.start_date == "Summer 2027"
-
-    corrected_at = posted_at - timedelta(days=1)
-    assert repository.backfill_first_seen({job.linkedin_job_id: corrected_at}) == 1
-    assert repository.backfill_first_seen({job.linkedin_job_id: later}) == 0
-    assert repository.list_open_jobs()[0].first_seen_at == corrected_at
 
     health = repository.search_health()
     assert set(health) == {search.slug, second.slug}

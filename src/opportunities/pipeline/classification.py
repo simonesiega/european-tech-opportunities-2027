@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import datetime
 
+from opportunities.config.policy import MINIMUM_POSTED_AT
 from opportunities.config.rules import ClassificationRules
 from opportunities.models.enums import EmploymentType, InternshipCategory
 from opportunities.normalization.location import EUROPEAN_COUNTRY_CODES, LocationResult
 from opportunities.utils.text import html_to_text, normalized_key
+from opportunities.utils.time import ensure_utc
 
 _YEAR_RE = re.compile(r"\b20[2-4]\d\b")
 _CONTEXTUAL_YEAR_RE = re.compile(
@@ -96,6 +99,7 @@ class Classifier:
         title: str,
         description: str | None,
         location: LocationResult,
+        posted_at: datetime | None = None,
     ) -> ClassificationDecision:
         """Apply strict opportunity type, role, cycle, and geography checks."""
         title_key = normalized_key(title)
@@ -120,13 +124,23 @@ class Classifier:
             return self._exclude("title has no technology-role signal")
 
         cycle = self.classify_cycle(title_key, description_key, employment_type)
-        if cycle != str(self.target_cycle):
-            reason = (
-                f"listing is for the {cycle} cycle"
-                if cycle != "unknown"
-                else f"opportunity cycle is not explicitly {self.target_cycle}"
-            )
-            return ClassificationDecision(False, category, employment_type, reason)
+        target_cycle = str(self.target_cycle)
+        if cycle != target_cycle:
+            if cycle != "unknown":
+                return ClassificationDecision(
+                    False,
+                    category,
+                    employment_type,
+                    f"listing is for the {cycle} cycle",
+                )
+            if posted_at is None or ensure_utc(posted_at) < MINIMUM_POSTED_AT:
+                return ClassificationDecision(
+                    False,
+                    category,
+                    employment_type,
+                    f"opportunity cycle is not explicitly {self.target_cycle} and posting "
+                    "date is not eligible",
+                )
 
         explicit_europe = bool(set(location.country_codes) & EUROPEAN_COUNTRY_CODES)
         # An explicit European country overrides broad text such as a global or mixed
@@ -174,18 +188,22 @@ class Classifier:
         target = str(self.target_cycle)
         # Title evidence has priority over description context; accepting a body year
         # first could misclassify an explicitly advertised internship cycle.
+        conflicting_title_year = next((year for year in title_years if year != target), None)
+        if conflicting_title_year is not None:
+            return conflicting_title_year
         if target in title_years:
             return target
-        if title_years:
-            return title_years[0]
         contextual_years: list[str] = []
         for match in _CONTEXTUAL_YEAR_RE.finditer(description_key):
             group = 1 if match.group(1) else 2
             if not _is_eligibility_year(description_key, match.start(group)):
                 contextual_years.append(str(match.group(group)))
-        if target in contextual_years:
-            return target
-        return contextual_years[0] if contextual_years else "unknown"
+        conflicting_contextual_year = next(
+            (year for year in contextual_years if year != target), None
+        )
+        if conflicting_contextual_year is not None:
+            return conflicting_contextual_year
+        return target if target in contextual_years else "unknown"
 
     @staticmethod
     def _description_can_define_category(title_key: str) -> bool:

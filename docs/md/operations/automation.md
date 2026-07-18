@@ -31,7 +31,6 @@ Validation and collection remain separate: normal CI is offline and never contac
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, and the Next.js production build |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Pipeline and website image builds plus migrated read-only SQLite smoke tests |
 | `scrape.yml` | Every six hours, manual | Permission-gated collection, validation, state preservation, optional README pull request, and optional VPS deployment |
-| `backfill-posted-at.yml` | Manual | Preview or apply bounded first-seen corrections from current VPS state, preserve artifacts, cache corrected state, and optionally deploy it |
 | `clear-database-columns.yml` | Manual | Bounded cleanup of selected optional fields, validation, preservation, and optional deployment |
 
 Workflow files under `.github/workflows/` are the executable source of truth. Update this guide when triggers, inputs, outputs, retention, or deployment behavior changes.
@@ -237,24 +236,6 @@ The website opens a new read-only SQLite connection on the next request and obse
 Compose topology, volume permissions, Dokploy routing, and container diagnostics belong to the [Docker and deployment guide](docker.md).
 
 ## Database maintenance
-
-### Posting-date backfill
-
-Use **Actions → Backfill LinkedIn posting dates → Run workflow** after the backfill code is merged to `main`. The workflow always downloads current canonical state directly from the VPS rather than preferring an Actions cache.
-
-Run `mode: dry-run` first. Review the logs and download the `opportunities-before-posting-backfill-<run-id>` artifact. Dry-run mode never saves a cache or deploys state.
-
-Then run `mode: apply` from `main`. Keep `limit` at `250` for the current database, use `offset` only for additional deterministic batches, and enable `deploy_to_vps` only after reviewing the preview. Apply mode:
-
-1. migrates the isolated working copy;
-2. runs `internships backfill-posted-at`;
-3. validates the database and generated README;
-4. checkpoints and integrity-checks SQLite;
-5. retains before-and-after artifacts;
-6. saves corrected state under the normal `opportunities-db-` cache prefix;
-7. optionally uses the same checksum, lock, previous-file backup, and atomic replacement contract as collection deployment.
-
-After a successful apply, manually rerun `scrape.yml`. Request VPS deployment on that collection run if the backfill workflow did not already deploy. The collection workflow restores the corrected cache, performs complete collection, validates the result, and refreshes normal canonical continuity.
 
 ### Optional-field cleanup
 

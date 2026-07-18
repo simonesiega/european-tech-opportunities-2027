@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
+
 from opportunities.config.rules import ClassificationRules
 from opportunities.models.enums import EmploymentType, InternshipCategory
 from opportunities.normalization.location import normalize_locations
@@ -12,11 +14,13 @@ def classify(
     title: str,
     description: str = "",
     locations: list[str] | None = None,
+    posted_at: datetime | None = None,
 ) -> ClassificationDecision:
     return Classifier(rules, target_cycle=2027).classify(
         title=title,
         description=description,
         location=normalize_locations(locations or ["London, UK"]),
+        posted_at=posted_at,
     )
 
 
@@ -40,8 +44,60 @@ def test_cycle_must_be_explicit_and_not_only_graduation_year(
     assert not class_of.include
 
 
+def test_missing_cycle_is_accepted_for_recent_posting(rules: ClassificationRules) -> None:
+    result = classify(
+        rules,
+        title="Graduate Software Engineer",
+        posted_at=datetime(2026, 5, 1, tzinfo=UTC),
+    )
+
+    assert result.include
+    assert result.employment_type == EmploymentType.NEW_GRAD
+    assert result.category == InternshipCategory.SOFTWARE_ENGINEERING
+
+
 def test_wrong_cycle_is_excluded(rules: ClassificationRules) -> None:
-    result = classify(rules, title="Software Engineering Internship 2026")
+    result = classify(
+        rules,
+        title="Software Engineering Internship 2026",
+        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
+    )
+    assert not result.include
+    assert result.exclusion_reason == "listing is for the 2026 cycle"
+
+
+def test_conflicting_cycle_evidence_is_rejected(rules: ClassificationRules) -> None:
+    conflicting_title = classify(
+        rules,
+        title="Graduate Software Engineer 2026/2027",
+    )
+    conflicting_description = classify(
+        rules,
+        title="Graduate Software Engineer",
+        description=(
+            "Our 2026 graduate programme remains open. The 2027 graduate programme is now open."
+        ),
+    )
+
+    assert not conflicting_title.include
+    assert conflicting_title.exclusion_reason == "listing is for the 2026 cycle"
+    assert not conflicting_description.include
+    assert conflicting_description.exclusion_reason == "listing is for the 2026 cycle"
+
+
+def test_canonical_2025_2026_graduate_listing_is_rejected(
+    rules: ClassificationRules,
+) -> None:
+    result = classify(
+        rules,
+        title="Graduate Software Engineer, Open Source and Linux, Canonical Ubuntu",
+        description=(
+            "We are hiring 2025 and 2026 Graduate Software Engineers into engineering "
+            "teams around the world."
+        ),
+        locations=["EMEA"],
+    )
+
     assert not result.include
     assert result.exclusion_reason == "listing is for the 2026 cycle"
 

@@ -23,7 +23,6 @@ The database and SQLite sidecars are ignored by Git.
 - [Successful search transaction](#successful-search-transaction)
 - [Closure lifecycle](#closure-lifecycle)
 - [Timestamp invariants](#timestamp-invariants)
-- [First-seen backfill](#first-seen-backfill)
 - [One-writer model](#one-writer-model)
 - [Migrations](#migrations)
 - [Backup](#backup)
@@ -193,19 +192,6 @@ last_seen_at >= first_seen_at
 ```
 
 `first_seen_at` remains immutable after insertion. If posting metadata is unavailable, known jobs may still be rechecked safely, but a new listing is not admitted without posting-date evidence on or after May 1, 2026.
-
-## First-seen backfill
-
-Existing open rows created before posting-age extraction can be corrected with the authorized maintenance command:
-
-```bash
-uv run internships backfill-posted-at --dry-run
-uv run internships backfill-posted-at
-```
-
-Back up `data/opportunities.db` and its active sidecars before applying changes. The command inspects at most 250 open jobs per invocation; use `--limit` and `--offset` for additional deterministic batches. Only inferred timestamps earlier than the stored `first_seen_at` and no later than `last_seen_at` are applied. Missing, malformed, unavailable, or likely repost metadata leaves the row unchanged.
-
-The command changes only `jobs.first_seen_at`. It does not rewrite `job_searches.first_seen_at`, because provenance continues to represent when a specific search actually observed the listing.
 
 ## One-writer model
 

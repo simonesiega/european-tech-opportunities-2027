@@ -29,19 +29,16 @@ from opportunities.database.session import (
     database_revision,
     missing_tables,
 )
-from opportunities.models.job import DiscoveredJob, StoredJob
+from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
-from opportunities.pipeline.backfill import PostingBackfillResult, inspect_posting_dates
 from opportunities.pipeline.runner import CollectionPipeline, PipelineResult
 from opportunities.readme import ReadmeMetadata, render_readme, validate_readme
-from opportunities.scrapers.http import HttpFetcher
 from opportunities.search_registry_docs import (
     render_search_registry_docs,
     validate_search_registry_docs,
 )
 from opportunities.utils.logging import configure_logging
 from opportunities.utils.paths import find_project_root
-from opportunities.utils.time import utc_now
 
 # App context and console for output. The ROOT path is used to locate the migrations directory.
 ROOT = find_project_root(Path(__file__))
@@ -122,48 +119,6 @@ def scrape(
     finally:
         engine.dispose()
     raise typer.Exit(result.exit_code)
-
-
-@app.command("backfill-posted-at")
-def backfill_posted_at(
-    ctx: typer.Context,
-    dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Inspect without updating SQLite or README.")
-    ] = False,
-    limit: Annotated[
-        int, typer.Option(min=1, max=250, help="Maximum open jobs to inspect.")
-    ] = 250,
-    offset: Annotated[
-        int, typer.Option(min=0, help="Skip this many open jobs in LinkedIn ID order.")
-    ] = 0,
-    no_render: Annotated[
-        bool, typer.Option("--no-render", help="Do not update README after applying changes.")
-    ] = False,
-) -> None:
-    """Backfill open-job first-seen timestamps from LinkedIn posting ages."""
-    settings = _settings(ctx)
-    _require_linkedin_permission(settings)
-    repository, engine = _repository(settings)
-    _require_migrations(engine)
-    try:
-        jobs = repository.list_open_jobs_for_backfill(limit, offset=offset)
-        result = asyncio.run(_inspect_posting_dates(jobs, settings))
-        applied = 0
-        if not dry_run and result.updates:
-            applied = repository.backfill_first_seen(
-                {update.linkedin_job_id: update.first_seen_at for update in result.updates}
-            )
-            if not no_render:
-                render_readme(
-                    settings.readme_path,
-                    repository.list_open_jobs(),
-                    _readme_metadata(repository),
-                )
-        _print_backfill_result(result, applied=applied, dry_run=dry_run)
-    finally:
-        engine.dispose()
-    if result.failed:
-        raise typer.Exit(2)
 
 
 @app.command("search-test")
@@ -305,19 +260,6 @@ def validate(ctx: typer.Context) -> None:
     console.print(f"Valid: {len(jobs)} database position(s) and README checked.")
 
 
-async def _inspect_posting_dates(
-    jobs: list[StoredJob], settings: Settings
-) -> PostingBackfillResult:
-    """Inspect posting metadata through the standard authorized HTTP transport."""
-    async with HttpFetcher(settings) as fetcher:
-        return await inspect_posting_dates(
-            jobs,
-            fetcher,
-            observed_at=utc_now(),
-            max_concurrency=settings.max_concurrency,
-        )
-
-
 def _configured_searches(settings: Settings) -> list[LinkedInSearchConfig]:
     """Load configured searches with runtime overrides."""
     return apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
@@ -373,26 +315,6 @@ def _print_result(result: PipelineResult) -> None:
         f"closed {result.summary.closed}, reopened {result.summary.reopened}, "
         f"excluded {result.excluded}."
     )
-
-
-def _print_backfill_result(
-    result: PostingBackfillResult, *, applied: int, dry_run: bool
-) -> None:
-    """Display a concise posting-date backfill summary."""
-    table = Table(title="LinkedIn posting-date backfill")
-    table.add_column("Metric")
-    table.add_column("Count", justify="right")
-    table.add_row("Scanned", str(result.scanned))
-    table.add_row("Parsed", str(result.parsed))
-    table.add_row("Missing posting age", str(result.missing))
-    table.add_row("Unavailable", str(result.unavailable))
-    table.add_row("Failed", str(result.failed))
-    table.add_row("Unchanged", str(result.unchanged))
-    update_count = len(result.updates) if dry_run else applied
-    table.add_row("Would update" if dry_run else "Updated", str(update_count))
-    console.print(table)
-    if dry_run:
-        console.print("Dry run: SQLite and README were not modified.")
 
 
 def _print_jobs(jobs: list[DiscoveredJob]) -> None:

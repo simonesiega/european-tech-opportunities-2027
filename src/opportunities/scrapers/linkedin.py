@@ -6,12 +6,13 @@ import asyncio
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Protocol
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup, Tag
 
+from opportunities.config.policy import MINIMUM_POSTED_AT
 from opportunities.models.raw import KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.scrapers.http import FetchError
@@ -22,7 +23,6 @@ LINKEDIN_SEARCH_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/seeMore
 LINKEDIN_DETAIL_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 LINKEDIN_PAGE_SIZE = 25
-MINIMUM_POSTED_AT = datetime(2026, 5, 1, tzinfo=UTC)
 _JOB_ID_RE = re.compile(r"jobPosting:([0-9]+)$")
 _RELATIVE_POSTED_RE = re.compile(
     r"^(?:reposted\s+)?(?P<count>\d+)\+?\s+"
@@ -337,8 +337,7 @@ class LinkedInScraper:
                     positions.append(job)
                 else:
                     warnings.append(
-                        "LinkedIn job detail skipped: posting date is missing or before "
-                        "2026-05-01"
+                        "LinkedIn job detail skipped: posting date is missing or before 2026-05-01"
                     )
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:

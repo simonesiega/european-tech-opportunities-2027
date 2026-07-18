@@ -127,11 +127,11 @@ A listing is published only when all six checks pass:
 | Employment type | The title explicitly identifies either an internship (including placement or co-op) or a New Grad role. Internship terminology takes precedence if both appear. |
 | Posting date | LinkedIn’s relative posting age resolves to May 1, 2026 or later; missing or older posting metadata is excluded for new listings. |
 | Seniority | The title contains no configured senior-level or management terminology. |
-| 2027 cycle | `2027` appears in the title or explicit opportunity-cycle context; graduation-year eligibility alone is ignored for internships. |
+| 2027 cycle | Explicit `2027` evidence is accepted; an otherwise eligible listing with no explicit cycle year is accepted when posted on or after May 1, 2026, while any conflicting explicit cycle year is rejected. Graduation-year eligibility alone is ignored for internships. |
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous posting date, employment type, cycle, role, seniority, or geography is excluded for new listings. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
+Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
 
 ## How it works
 
