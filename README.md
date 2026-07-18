@@ -74,17 +74,27 @@ Browse every internship and New Grad listing currently marked open at [internshi
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open positions:** 51 (Internships: 51 · New Grad: 0)<br>
-**Last successful collection:** July 18, 2026 at 13:11 UTC
+**Open positions:** 64 (Internships: 51 · New Grad: 13)<br>
+**Last successful collection:** July 18, 2026 at 18:01 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 0 most recently discovered of 0 open New Grad positions:
+Showing the 10 most recently discovered of 13 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Revolut | Graduate Programme 2027: Software Engineer \(Java\) | Poland | [View](<https://www.linkedin.com/jobs/view/4418821996>) |
+| Revolut | Graduate Programme 2027: Data Scientist and Analyst | Poland | [View](<https://www.linkedin.com/jobs/view/4418835525>) |
+| Revolut | Graduate Programme 2027: Data Scientist and Analyst | Spain | [View](<https://www.linkedin.com/jobs/view/4418827620>) |
+| Revolut | Graduate Programme 2027: Software Engineer \(iOS\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419301372>) |
+| Revolut | Graduate Programme 2027: Software Engineer \(Python\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4418831595>) |
+| Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433229338>) |
+| Revolut | Graduate Programme 2027: Software Engineer \(Android\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418844091>) |
+| Revolut | Graduate Programme 2027: Software Engineer \(iOS\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418837401>) |
+| Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Portugal | [View](<https://www.linkedin.com/jobs/view/4433217750>) |
+| Revolut | Graduate Programme 2027: Software Engineer \(iOS\) | Portugal | [View](<https://www.linkedin.com/jobs/view/4418822810>) |
 
 ### Latest internships
 
