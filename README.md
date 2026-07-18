@@ -74,31 +74,31 @@ Browse every internship and New Grad listing currently marked open at [internshi
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open positions:** 86 (Internships: 54 · New Grad: 32)<br>
-**Last successful collection:** July 18, 2026 at 22:21 UTC
+**Open positions:** 131 (Internships: 58 · New Grad: 73)<br>
+**Last successful collection:** July 18, 2026 at 22:50 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 32 open New Grad positions:
+Showing the 10 most recently posted of 73 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433222747>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433218761>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433212965>) |
+| TNO | Entry-level Machine Learning Engineer | Groningen, Groningen, Netherlands | [View](<https://www.linkedin.com/jobs/view/4433880753>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433224580>) |
+| NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4255725429>) |
+| AVEVA | Cloud Operations &amp; Infrastructure Graduate | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4392878156>) |
+| Autodesk | Graduate Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441161003>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433229338>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Portugal | [View](<https://www.linkedin.com/jobs/view/4433217750>) |
-| Revolut | Graduate Programme 2027: Software Engineer \(iOS\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419301372>) |
-| Revolut | Graduate Programme 2027: Software Engineer \(Android\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4419097468>) |
-| Revolut | Graduate Programme 2027: Software Engineer \(Android\) | Spain | [View](<https://www.linkedin.com/jobs/view/4418844091>) |
-| Revolut | Graduate Programme 2027: Software Engineer \(iOS\) | Poland | [View](<https://www.linkedin.com/jobs/view/4418843146>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 54 open internships:
+Showing the 10 most recently posted of 58 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
