@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -34,6 +35,7 @@ class RawJob(BaseModel):
     description: str | None = None
     industries: str | None = Field(default=None, max_length=500)
     start_date: str | None = Field(default=None, max_length=100)
+    posted_at: datetime | None = None
 
     @field_validator("source_job_id", "company", "title", mode="before")
     @classmethod

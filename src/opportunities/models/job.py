@@ -25,6 +25,7 @@ class DiscoveredJob(BaseModel):
     industries: str | None = Field(default=None, max_length=500)
     employment_type: EmploymentType
     start_date: str | None = Field(default=None, max_length=100)
+    posted_at: datetime | None = None
 
     @field_validator("company", "title", "location", mode="before")
     @classmethod

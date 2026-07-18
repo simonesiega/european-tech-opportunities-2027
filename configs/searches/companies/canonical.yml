@@ -1,0 +1,15 @@
+name: Canonical European technology internships and New Grad roles 2027
+slug: company-canonical
+keywords: 'Canonical (intern OR "new grad" OR graduate OR "early career" OR "entry level") 2027'
+location: Europe
+geo_id: "91000000"
+company_names:
+  - Canonical
+workplace: any
+date_posted: any
+max_pages: 2
+max_results: 50
+max_rechecks: 10
+enabled: true
+verified_at: 2026-07-18
+notes: Specialized employer tier; added after reviewing public graduate engineering hiring.

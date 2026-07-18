@@ -51,7 +51,7 @@ General job searches frequently mix different hiring cycles, senior roles, non-E
 ## Engineering highlights
 
 - **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
-- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify cycle, technology category, seniority, and European location.
+- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
 - **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, and conservative closure handling.
 - **Production workflow:** strict typing, offline tests, Alembic migrations, Docker builds, scheduled collection, validation, backups, and atomic deployment.
 
@@ -81,7 +81,7 @@ Browse and filter the complete directory at **[https://internship2027.simonesieg
 
 ### Latest New Grad positions
 
-Showing the 10 most recently discovered of 32 open New Grad positions:
+Showing the 10 most recently posted of 32 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -98,7 +98,7 @@ Showing the 10 most recently discovered of 32 open New Grad positions:
 
 ### Latest internships
 
-Showing the 10 most recently discovered of 54 open internships:
+Showing the 10 most recently posted of 54 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -120,17 +120,18 @@ Missing a relevant position? [Suggest a listing](https://github.com/simonesiega/
 
 ## Publication rules
 
-A listing is published only when all five checks pass:
+A listing is published only when all six checks pass:
 
 | Check | Required evidence |
 |---|---|
 | Employment type | The title explicitly identifies either an internship (including placement or co-op) or a New Grad role. Internship terminology takes precedence if both appear. |
+| Posting date | LinkedIn’s relative posting age resolves to May 1, 2026 or later; missing or older posting metadata is excluded for new listings. |
 | Seniority | The title contains no configured senior-level or management terminology. |
 | 2027 cycle | `2027` appears in the title or explicit opportunity-cycle context; graduation-year eligibility alone is ignored for internships. |
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous employment type, cycle, role, seniority, or geography is excluded. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
+Ambiguous posting date, employment type, cycle, role, seniority, or geography is excluded for new listings. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
 
 ## How it works
 

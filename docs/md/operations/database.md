@@ -23,6 +23,7 @@ The database and SQLite sidecars are ignored by Git.
 - [Successful search transaction](#successful-search-transaction)
 - [Closure lifecycle](#closure-lifecycle)
 - [Timestamp invariants](#timestamp-invariants)
+- [First-seen backfill](#first-seen-backfill)
 - [One-writer model](#one-writer-model)
 - [Migrations](#migrations)
 - [Backup](#backup)
@@ -60,7 +61,7 @@ Important `jobs` fields:
 | `industries` | Structured source industries criterion, when available |
 | `employment_type` | Required deterministic type: `internship` or `new-grad` |
 | `start_date` | Explicit month or season plus year, when available |
-| `first_seen_at` | First accepted observation; immutable |
+| `first_seen_at` | Inferred LinkedIn publication time for new rows; immutable |
 | `last_seen_at` | Latest accepted observation; monotonic |
 | `updated_at` | Latest material field change, reopen, or close |
 | `status` | `open` or `closed` |
@@ -183,7 +184,7 @@ Persistence therefore uses monotonic timestamp updates:
 next timestamp = max(existing timestamp, observed timestamp)
 ```
 
-This applies to job and association observations and prevents state from moving backwards.
+This applies to job and association observations and prevents state from moving backwards. On a job’s first insert, `first_seen_at` is initialized from LinkedIn’s relative posting age; later observations never rewrite it. Provenance timestamps continue to represent actual search observations.
 
 Validation requires:
 
@@ -191,7 +192,20 @@ Validation requires:
 last_seen_at >= first_seen_at
 ```
 
-`first_seen_at` remains immutable after the first accepted observation.
+`first_seen_at` remains immutable after insertion. If posting metadata is unavailable, known jobs may still be rechecked safely, but a new listing is not admitted without posting-date evidence on or after May 1, 2026.
+
+## First-seen backfill
+
+Existing open rows created before posting-age extraction can be corrected with the authorized maintenance command:
+
+```bash
+uv run internships backfill-posted-at --dry-run
+uv run internships backfill-posted-at
+```
+
+Back up `data/opportunities.db` and its active sidecars before applying changes. The command inspects at most 250 open jobs per invocation; use `--limit` and `--offset` for additional deterministic batches. Only inferred timestamps earlier than the stored `first_seen_at` and no later than `last_seen_at` are applied. Missing, malformed, unavailable, or likely repost metadata leaves the row unchanged.
+
+The command changes only `jobs.first_seen_at`. It does not rewrite `job_searches.first_seen_at`, because provenance continues to represent when a specific search actually observed the listing.
 
 ## One-writer model
 
@@ -314,7 +328,7 @@ The website contract belongs to the [website guide](../user-guide/website.md#rea
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered open internships and ten recently discovered open New Grad positions.
+- at most ten recently posted open internships and ten recently posted open New Grad positions.
 
 The renderer owns only the marked internship block and replaces it atomically.
 

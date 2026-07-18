@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import asyncio
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 from urllib.parse import urlencode
 
@@ -14,12 +16,27 @@ from opportunities.models.raw import KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.scrapers.http import FetchError
 from opportunities.utils.text import clean_text, normalized_key
+from opportunities.utils.time import ensure_utc, utc_now
 
 LINKEDIN_SEARCH_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
 LINKEDIN_DETAIL_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 LINKEDIN_PAGE_SIZE = 25
+MINIMUM_POSTED_AT = datetime(2026, 5, 1, tzinfo=UTC)
 _JOB_ID_RE = re.compile(r"jobPosting:([0-9]+)$")
+_RELATIVE_POSTED_RE = re.compile(
+    r"^(?:reposted\s+)?(?P<count>\d+)\+?\s+"
+    r"(?P<unit>minute|hour|day|week|month|year)s?\s+ago$",
+    re.IGNORECASE,
+)
+_RELATIVE_POSTED_UNITS = {
+    "minute": timedelta(minutes=1),
+    "hour": timedelta(hours=1),
+    "day": timedelta(days=1),
+    "week": timedelta(weeks=1),
+    "month": timedelta(days=31),
+    "year": timedelta(days=365),
+}
 _BLOCK_MARKERS = (
     "captcha-internal",
     "challenge-page",
@@ -157,7 +174,12 @@ def parse_search_page(html: str) -> SearchPageResult:
     return SearchPageResult(cards=tuple(cards), warnings=tuple(warnings))
 
 
-def parse_job_detail(html: str, card: LinkedInSearchCard) -> RawJob:
+def parse_job_detail(
+    html: str,
+    card: LinkedInSearchCard,
+    *,
+    observed_at: datetime | None = None,
+) -> RawJob:
     """Parse a LinkedIn detail page with card data as fallback."""
     _reject_blocked_document(html)
     soup = BeautifulSoup(html, "html.parser")
@@ -188,7 +210,23 @@ def parse_job_detail(html: str, card: LinkedInSearchCard) -> RawJob:
         description=description,
         industries=_extract_criterion(soup, "industries"),
         start_date=_extract_start_date(title, description),
+        posted_at=_extract_posted_at(soup, observed_at or utc_now()),
     )
+
+
+def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime | None:
+    """Infer the publication timestamp from LinkedIn's relative posting age."""
+    value = _optional_text(soup, ".posted-time-ago__text")
+    if not value:
+        return None
+    normalized = normalized_key(value)
+    if normalized in {"just now", "today"}:
+        return ensure_utc(observed_at)
+    match = _RELATIVE_POSTED_RE.fullmatch(normalized)
+    if match is None:
+        return None
+    duration = _RELATIVE_POSTED_UNITS[match.group("unit").casefold()]
+    return ensure_utc(observed_at) - int(match.group("count")) * duration
 
 
 def _extract_criterion(soup: BeautifulSoup, expected_heading: str) -> str | None:
@@ -235,12 +273,14 @@ class LinkedInScraper:
         self,
         internship_title_terms: tuple[str, ...] = _DEFAULT_INTERNSHIP_TITLE_TERMS,
         new_grad_title_terms: tuple[str, ...] = _DEFAULT_NEW_GRAD_TITLE_TERMS,
+        clock: Callable[[], datetime] = utc_now,
     ) -> None:
         """Initialize the instance dependencies and state."""
         self._opportunity_title_patterns = tuple(
             re.compile(rf"(?:^|\s){re.escape(normalized_key(term))}(?:$|\s)")
             for term in (*internship_title_terms, *new_grad_title_terms)
         )
+        self._clock = clock
         # Searches overlap heavily, so share each in-flight detail request by job ID.
         self._detail_tasks: dict[str, asyncio.Task[str]] = {}
         self._detail_lock = asyncio.Lock()
@@ -255,6 +295,8 @@ class LinkedInScraper:
         """Collect internship and new-grad candidates from one bounded search."""
         cards: dict[str, LinkedInSearchCard] = {}
         seen_search_ids: set[str] = set()
+        known_job_ids = frozenset(job.source_job_id for job in known_jobs)
+        observed_at = ensure_utc(self._clock())
         allowed_companies = frozenset(normalized_key(name) for name in search.company_names)
         warnings: list[str] = []
         pages_fetched = 0
@@ -290,7 +332,14 @@ class LinkedInScraper:
         for card in selected_cards:
             try:
                 html = await self._detail(card.job_id, fetcher)
-                positions.append(parse_job_detail(html, card))
+                job = parse_job_detail(html, card, observed_at=observed_at)
+                if card.job_id in known_job_ids or _posting_is_eligible(job.posted_at):
+                    positions.append(job)
+                else:
+                    warnings.append(
+                        "LinkedIn job detail skipped: posting date is missing or before "
+                        "2026-05-01"
+                    )
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
@@ -322,7 +371,7 @@ class LinkedInScraper:
             )
             try:
                 html = await self._detail(known.source_job_id, fetcher)
-                positions.append(parse_job_detail(html, fallback))
+                positions.append(parse_job_detail(html, fallback, observed_at=observed_at))
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
@@ -351,6 +400,11 @@ class LinkedInScraper:
                 )
                 self._detail_tasks[job_id] = task
         return await task
+
+
+def _posting_is_eligible(posted_at: datetime | None) -> bool:
+    """Allow only listings with posting evidence on or after the fixed cutoff."""
+    return posted_at is not None and ensure_utc(posted_at) >= MINIMUM_POSTED_AT
 
 
 def _required_text(node: Tag, selector: str) -> str:

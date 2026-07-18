@@ -76,7 +76,7 @@ Run broader checks when a change crosses component boundaries. Documentation-onl
 
 High-value contributions include:
 
-- correcting strict internship/New Grad type, cycle, technology, seniority, or geography classification;
+- correcting strict posting-date, internship/New Grad type, cycle, technology, seniority, or geography classification;
 - adding a focused role, employer, or country search with justified limits;
 - improving parser resilience with sanitized fixture HTML;
 - strengthening database lifecycle, migration, or recovery safety;
@@ -127,7 +127,7 @@ Preserve these invariants:
 
 1. **SQLite is canonical.** README rows and browser state are never lifecycle sources.
 2. **Numeric job IDs are canonical identities.** Similar display fields do not merge distinct IDs.
-3. **Acceptance remains strict.** Ambiguous employment type, cycle, role, seniority, or geography means exclusion.
+3. **Acceptance remains strict.** Ambiguous posting date, employment type, cycle, role, seniority, or geography means exclusion for new listings.
 4. **Closure remains conservative.** Search-page absence cannot close a job.
 5. **Search outcomes remain isolated.** A failed search cannot mutate that search’s lifecycle state.
 6. **The README remains bounded.** It contains one generated marker pair and at most ten internships plus ten New Grad positions.

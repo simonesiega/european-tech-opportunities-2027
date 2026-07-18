@@ -220,6 +220,35 @@ class Repository:
             rows = session.scalars(select(JobRow).order_by(JobRow.linkedin_job_id)).all()
             return [_stored_job(row) for row in rows]
 
+    def list_open_jobs_for_backfill(self, limit: int, *, offset: int = 0) -> list[StoredJob]:
+        """Return a bounded, deterministic set of open jobs for maintenance."""
+        with self.factory() as session:
+            rows = session.scalars(
+                select(JobRow)
+                .where(JobRow.status == JobStatus.OPEN.value)
+                .order_by(JobRow.linkedin_job_id)
+                .offset(offset)
+                .limit(limit)
+            ).all()
+            return [_stored_job(row) for row in rows]
+
+    def backfill_first_seen(self, updates: dict[str, datetime]) -> int:
+        """Apply safe one-time backward corrections to job publication timestamps."""
+        changed = 0
+        with self.factory.begin() as session:
+            for job_id, proposed_at in updates.items():
+                row = session.get(JobRow, job_id)
+                if row is None or row.status != JobStatus.OPEN.value:
+                    continue
+                proposed = ensure_utc(proposed_at)
+                if proposed >= ensure_utc(row.first_seen_at):
+                    continue
+                if proposed > ensure_utc(row.last_seen_at):
+                    continue
+                row.first_seen_at = proposed
+                changed += 1
+        return changed
+
     def stats(self) -> DatabaseStats:
         """Display aggregate pipeline and database statistics."""
         with self.factory() as session:
@@ -311,6 +340,13 @@ class Repository:
         row = session.get(JobRow, incoming.linkedin_job_id)
         summary = PersistSummary()
         if row is None:
+            # LinkedIn exposes only relative posting age. Preserve its inferred
+            # publication timestamp on first insert without ever moving lifecycle
+            # state later than the actual observation.
+            first_seen_at = min(
+                ensure_utc(incoming.posted_at or observed_at),
+                ensure_utc(observed_at),
+            )
             row = JobRow(
                 linkedin_job_id=incoming.linkedin_job_id,
                 company=incoming.company,
@@ -321,7 +357,7 @@ class Repository:
                 industries=incoming.industries,
                 employment_type=incoming.employment_type.value,
                 start_date=incoming.start_date,
-                first_seen_at=observed_at,
+                first_seen_at=first_seen_at,
                 last_seen_at=observed_at,
                 updated_at=observed_at,
                 status=JobStatus.OPEN.value,

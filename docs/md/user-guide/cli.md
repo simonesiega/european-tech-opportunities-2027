@@ -31,6 +31,7 @@ The global `--settings` option must appear before the command name.
 - [`searches`](#searches)
 - [`search-test`](#search-test)
 - [`scrape`](#scrape)
+- [`backfill-posted-at`](#backfill-posted-at)
 - [`render`](#render)
 - [`stats`](#stats)
 - [`validate`](#validate)
@@ -46,6 +47,7 @@ The global `--settings` option must appear before the command name.
 | `searches` | Inspect the effective search registry and available run health |
 | `search-test` | Run one authorized search without persistence |
 | `scrape` | Run authorized collection and persist independent search outcomes |
+| `backfill-posted-at` | Correct existing open jobs from LinkedIn posting-age metadata |
 | `render` | Regenerate the bounded README projection from SQLite |
 | `stats` | Display aggregate canonical state |
 | `validate` | Check schema, lifecycle invariants, and generated projections |
@@ -157,6 +159,27 @@ Use `--no-render` where canonical state should change without modifying the Git 
 
 The collection lifecycle is documented in [Architecture](../development/architecture.md#failure-isolation) and [Database lifecycle](../operations/database.md#successful-search-transaction).
 
+## `backfill-posted-at`
+
+Preview a bounded batch without changing state:
+
+```bash
+uv run internships backfill-posted-at --dry-run
+```
+
+Apply safe corrections and regenerate the README:
+
+```bash
+uv run internships backfill-posted-at
+```
+
+The command requires the LinkedIn authorization interlock and inspects open jobs through the same bounded, paced guest-detail transport as collection. For each successfully parsed relative posting age, it proposes a correction only when the inferred timestamp is earlier than the existing `first_seen_at` and no later than `last_seen_at`. It never moves timestamps forward, changes lifecycle status, or modifies provenance timestamps.
+
+Use `--limit` (1–250) and `--offset` to process deterministic batches in LinkedIn ID order. Use `--no-render` when applying corrections without changing the README. A dry run never writes SQLite or documentation.
+
+> [!IMPORTANT]
+> Back up the canonical database before applying this one-time maintenance command. Missing metadata, `404`/`410` responses, malformed pages, and likely repost dates remain unchanged rather than being guessed.
+
 ## `render`
 
 ```bash
@@ -170,7 +193,7 @@ The README projection includes:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered internships and ten recently discovered New Grad positions.
+- at most ten recently posted internships and ten recently posted New Grad positions.
 
 Generated search-registry counts are also updated where owned by the rendering path.
 
@@ -228,7 +251,7 @@ For diagnosis, use [Troubleshooting](../operations/troubleshooting.md).
 |---:|---|
 | `0` | Command completed successfully |
 | `1` | Every selected search failed, or validation found an inconsistency |
-| `2` | Partial scrape, invalid command input, or configuration rejection |
+| `2` | Partial scrape/backfill, invalid command input, or configuration rejection |
 | `3` | Required database tables are missing or the schema is not at migration head |
 
 After a partial scrape with exit code `2`:
@@ -249,6 +272,8 @@ GitHub Actions handling of these codes is documented in [Automation](../operatio
 | `search-test` | Yes, after authorization gate | No | No |
 | `scrape` | Yes, after authorization gate | Yes | Normally |
 | `scrape --no-render` | Yes, after authorization gate | Yes | No |
+| `backfill-posted-at --dry-run` | Yes, after authorization gate | No | No |
+| `backfill-posted-at` | Yes, after authorization gate | Yes | Normally |
 | `render` | No | No | Yes |
 | `stats` | No | No | No |
 | `validate` | No | No | No |
@@ -292,6 +317,14 @@ Validation assumes that the configured SQLite database and generated README repr
 ```bash
 uv run internships scrape --no-render
 uv run internships stats
+```
+
+### Backfill existing posting timestamps
+
+```bash
+uv run internships backfill-posted-at --dry-run
+uv run internships backfill-posted-at
+uv run internships validate
 ```
 
 ### Regenerate documentation from representative state

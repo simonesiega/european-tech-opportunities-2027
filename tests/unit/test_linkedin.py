@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import Callable, Mapping
+from datetime import UTC, datetime
 
 import pytest
 
@@ -69,6 +70,21 @@ def test_linkedin_job_detail_parser_extracts_description(
     assert "Summer 2027" in job.description
     assert job.start_date == "Summer 2027"
     assert job.industries == "Software Development"
+
+
+def test_linkedin_job_detail_infers_posted_at_from_relative_age(
+    fixture_html: Callable[[str], str],
+) -> None:
+    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
+    observed_at = datetime(2026, 7, 18, 12, 30, tzinfo=UTC)
+
+    job = parse_job_detail(
+        fixture_html("linkedin_job_detail_1111111111.html"),
+        card,
+        observed_at=observed_at,
+    )
+
+    assert job.posted_at == datetime(2026, 7, 13, 12, 30, tzinfo=UTC)
 
 
 def test_linkedin_job_detail_extracts_criteria_without_linkedin_classes(
@@ -167,6 +183,7 @@ def test_title_prefilter_selects_new_grad_cards() -> None:
     detail = """<!doctype html>
       <h1 class="top-card-layout__title">Graduate Software Engineer 2027</h1>
       <a class="topcard__org-name-link">New Technology</a>
+      <span class="posted-time-ago__text topcard__flavor--metadata">5 days ago</span>
       <div class="show-more-less-html__markup">A graduate software role.</div>"""
     fetcher = FixtureFetcher(
         {
@@ -208,6 +225,42 @@ def test_title_prefilter_continues_to_later_search_pages(
         "3333333333",
     }
     assert all("2222222222" not in call for call in fetcher.calls)
+
+
+def test_linkedin_scraper_rejects_postings_before_may_cutoff() -> None:
+    search = configured_search(max_pages=1, max_results=25)
+    page = """<!doctype html>
+    <div class="base-search-card" data-entity-urn="urn:li:jobPosting:1111111111">
+      <h3 class="base-search-card__title">Software Engineering Intern 2027</h3>
+      <h4 class="base-search-card__subtitle">Test Technology</h4>
+      <span class="job-search-card__location">Berlin, Germany</span>
+    </div>
+    <div class="base-search-card" data-entity-urn="urn:li:jobPosting:2222222222">
+      <h3 class="base-search-card__title">Software Engineering Intern 2027</h3>
+      <h4 class="base-search-card__subtitle">Test Technology</h4>
+      <span class="job-search-card__location">Berlin, Germany</span>
+    </div>"""
+
+    def detail(age: str) -> str:
+        return f"""<!doctype html>
+        <h1 class="top-card-layout__title">Software Engineering Intern 2027</h1>
+        <a class="topcard__org-name-link">Test Technology</a>
+        <span class="posted-time-ago__text topcard__flavor--metadata">{age}</span>"""
+
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): page,
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111"): detail("5 days ago"),
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id="2222222222"): detail("6 days ago"),
+        }
+    )
+    scraper = LinkedInScraper(clock=lambda: datetime(2026, 5, 6, tzinfo=UTC))
+
+    result = asyncio.run(scraper.scrape(search, fetcher))
+
+    assert [job.source_job_id for job in result.positions] == ["1111111111"]
+    assert result.positions[0].posted_at == datetime(2026, 5, 1, tzinfo=UTC)
+    assert any("before 2026-05-01" in warning for warning in result.warnings)
 
 
 def test_linkedin_company_filter_is_applied_before_detail_fetch(

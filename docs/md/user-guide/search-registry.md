@@ -2,7 +2,7 @@
 
 [← Documentation](../README.md) · [CLI reference](cli.md) · [Architecture](../development/architecture.md)
 
-The search registry controls **discovery**, not publication. Every candidate found through LinkedIn guest search must still pass deterministic employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
+The search registry controls **discovery**, not publication. Every new candidate found through LinkedIn guest search must still pass deterministic posting-date, employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
 
 <p align="center">
   <img
@@ -35,7 +35,7 @@ The loader scans `configs/searches/` recursively:
 ```text
 configs/searches/
 ├── roles/       # 23 technology paths
-├── companies/   # 12 targeted employers
+├── companies/   # 13 targeted employers
 └── countries/   # 33 country partitions
 ```
 

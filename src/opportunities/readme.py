@@ -51,11 +51,11 @@ def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
         f"{markdown_metadata(metadata, internship_count, new_grad_count)}\n"
         f"Browse and filter the complete directory at **[{DIRECTORY_URL}]({DIRECTORY_URL})**.\n\n"
         f"### Latest New Grad positions\n\n"
-        f"Showing the {len(new_grad)} most recently discovered of {new_grad_count} open "
+        f"Showing the {len(new_grad)} most recently posted of {new_grad_count} open "
         f"New Grad positions:\n\n"
         f"{markdown_table(new_grad)}\n"
         f"### Latest internships\n\n"
-        f"Showing the {len(internships)} most recently discovered of {internship_count} open "
+        f"Showing the {len(internships)} most recently posted of {internship_count} open "
         f"internships:\n\n"
         f"{markdown_table(internships)}"
     )

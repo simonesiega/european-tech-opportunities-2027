@@ -98,7 +98,9 @@ class CollectionPipeline:
         self.repository = repository
         self.classifier = Classifier(rules, settings.target_cycle)
         self.scraper = scraper or LinkedInScraper(
-            rules.internship_keywords, rules.new_grad_keywords
+            rules.internship_keywords,
+            rules.new_grad_keywords,
+            clock=clock,
         )
         self.clock = clock
 
@@ -218,6 +220,7 @@ class CollectionPipeline:
                     industries=raw.industries,
                     employment_type=decision.employment_type,
                     start_date=raw.start_date,
+                    posted_at=raw.posted_at,
                 )
             except (ValidationError, ValueError):
                 excluded += 1

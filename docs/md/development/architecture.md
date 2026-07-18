@@ -206,7 +206,7 @@ The renderer creates a deterministic bounded projection containing:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered internships and ten recently discovered New Grad positions.
+- at most ten recently posted internships and ten recently posted New Grad positions.
 
 The renderer owns one marked block and replaces it atomically. Validation reconstructs the expected projection from SQLite and requires exact equality.
 
