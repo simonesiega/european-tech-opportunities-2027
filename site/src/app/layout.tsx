@@ -1,5 +1,5 @@
 import type {Metadata} from "next";
-import Script from "next/script";
+import {ThemeProvider} from "next-themes";
 import type {ReactNode} from "react";
 import "./globals.css";
 
@@ -35,28 +35,27 @@ export const metadata: Metadata = {
   robots: {index: true, follow: true},
 };
 
-const themeScript = `
-  try {
-    var savedTheme = localStorage.getItem("internships-theme");
-    var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
-  } catch (_) {}
-`;
-
 export default function RootLayout({children}: Readonly<{children: ReactNode}>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
         <script
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id="e3733fba-21a0-4663-9e54-9e6adab3e0d5"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeProvider
+          attribute="data-theme"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          storageKey="internships-theme"
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

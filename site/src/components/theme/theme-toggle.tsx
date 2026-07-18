@@ -1,5 +1,7 @@
 "use client";
 
+import {useTheme} from "next-themes";
+
 function ThemeIcon() {
   return (
     <span className="theme-icon" aria-hidden="true">
@@ -15,15 +17,10 @@ function ThemeIcon() {
 }
 
 export function ThemeToggle() {
+  const {resolvedTheme, setTheme} = useTheme();
+
   function toggleTheme() {
-    const root = document.documentElement;
-    const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
-    root.dataset.theme = nextTheme;
-    try {
-      localStorage.setItem("internships-theme", nextTheme);
-    } catch {
-      // The visual toggle still works when storage is blocked by browser policy.
-    }
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
   }
 
   return (
