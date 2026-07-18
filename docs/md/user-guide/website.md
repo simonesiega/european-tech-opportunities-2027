@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Website Guide
+# European Tech Opportunities 2027 Website Guide
 
 [← Documentation](../README.md) · [Open the live site](https://internship2027.simonesiega.com/)
 
@@ -24,12 +24,12 @@ The [live website](https://internship2027.simonesiega.com/) is the project’s p
 <p align="center">
   <img
     src="../../photo/sites/White_theme.webp"
-    alt="European Tech Internships directory in light theme"
+    alt="European Tech Opportunities directory in light theme"
     width="49%"
   />
   <img
     src="../../photo/sites/Dark_theme.webp"
-    alt="European Tech Internships directory in dark theme"
+    alt="European Tech Opportunities directory in dark theme"
     width="49%"
   />
 </p>
@@ -222,14 +222,14 @@ The root Dockerfile’s `site` target:
 2. builds Next.js standalone output under Node 26;
 3. copies only required standalone and static output into the final image;
 4. runs as UID/GID `10001:10001`;
-5. reads `/app/data/internships.db` from a read-only volume;
+5. reads `/app/data/opportunities.db` from a read-only volume;
 6. listens on container port `3000`.
 
 Production variables:
 
 ```dotenv
 SITE_URL=https://internship2027.simonesiega.com
-INTERNSHIPS_DATABASE_PATH=/app/data/internships.db
+INTERNSHIPS_DATABASE_PATH=/app/data/opportunities.db
 ```
 
 `SITE_URL` defines the canonical public origin used by website metadata.

@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Development Guide
+# European Tech Opportunities 2027 Development Guide
 
 [← Documentation](../README.md) · [Architecture](architecture.md) · [Contributing](../../../CONTRIBUTING.md)
 

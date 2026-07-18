@@ -4,7 +4,7 @@ import type {ReactNode} from "react";
 import "./globals.css";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
-const title = "European Tech Internships 2027";
+const title = "European Tech Opportunities 2027";
 const description =
   "Search and filter 2027 technology internships and New Grad positions across Europe.";
 

@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Architecture
+# European Tech Opportunities 2027 Architecture
 
 [← Documentation](../README.md) · [Database lifecycle](../operations/database.md) · [Development guide](development.md)
 

@@ -7,12 +7,12 @@ export function SiteHeader() {
       <header className="min-h-18 w-full border-b border-[var(--border)] max-[639px]:min-h-22">
         <div className="mx-auto flex min-h-18 w-[min(calc(100%_-_40px),1376px)] items-center justify-between max-[760px]:w-[min(calc(100%_-_28px),1376px)] max-[639px]:min-h-22">
           <p className="text-xl leading-none font-[550] tracking-[-0.025em] max-[639px]:text-lg max-[520px]:max-w-[130px] max-[520px]:overflow-hidden max-[520px]:text-[15px] max-[520px]:leading-[1.2] max-[520px]:text-ellipsis max-[520px]:whitespace-nowrap">
-            Internships ’27
+            Opportunities ’27
           </p>
           <div className="flex items-center gap-8 max-[520px]:gap-2.5">
             <a
               className="flex items-center text-base leading-none font-medium text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)] max-[520px]:text-[13px]"
-              href="https://github.com/simonesiega/european-tech-internships-2027/issues/new?template=add-position.yml"
+              href="https://github.com/simonesiega/european-tech-opportunities-27/issues/new?template=add-position.yml"
               target="_blank"
               rel="noreferrer"
             >
@@ -24,7 +24,7 @@ export function SiteHeader() {
                 "flex items-center text-base leading-none font-medium text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)] max-[520px]:text-[13px]",
                 "gap-1"
               )}
-              href="https://github.com/simonesiega/european-tech-internships-2027"
+              href="https://github.com/simonesiega/european-tech-opportunities-27"
               target="_blank"
               rel="noreferrer"
             >

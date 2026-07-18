@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Database and Lifecycle Guide
+# European Tech Opportunities 2027 Database and Lifecycle Guide
 
 [← Documentation](../README.md) · [Architecture](../development/architecture.md) · [Automation](automation.md)
 
@@ -7,8 +7,10 @@ SQLite is the project’s canonical operational state. Search YAML defines disco
 Default database path:
 
 ```text
-data/internships.db
+data/opportunities.db
 ```
+
+Deployments created before the Opportunities rename must stop all writers and rename `internships.db` to `opportunities.db` before starting the updated pipeline or website. Move any active `-wal` and `-shm` sidecars together, or checkpoint WAL before renaming.
 
 The database and SQLite sidecars are ignored by Git.
 
@@ -243,7 +245,7 @@ Contributor expectations are summarized in [`CONTRIBUTING.md`](../../../CONTRIBU
 When SQLite may still be open, use the backup API:
 
 ```bash
-uv run python -c "import sqlite3; s=sqlite3.connect('data/internships.db'); d=sqlite3.connect('data/internships.backup.db'); s.backup(d); d.close(); s.close()"
+uv run python -c "import sqlite3; s=sqlite3.connect('data/opportunities.db'); d=sqlite3.connect('data/opportunities.backup.db'); s.backup(d); d.close(); s.close()"
 ```
 
 Store backups outside normal repository cleanup paths.
@@ -258,7 +260,7 @@ For a cold filesystem copy:
 GitHub Actions checkpoints WAL before cache or artifact publication. VPS deployment also preserves the previous canonical file as:
 
 ```text
-internships.db.previous
+opportunities.db.previous
 ```
 
 Workflow cache, artifacts, and deployment sequencing are documented in [Automation](automation.md#state-continuity-and-artifacts).

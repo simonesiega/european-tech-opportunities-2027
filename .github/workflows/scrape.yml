@@ -62,9 +62,9 @@ jobs:
         id: db-cache
         uses: actions/cache/restore@v4
         with:
-          path: data/internships.db
-          key: internship-db-${{ github.run_id }}
-          restore-keys: internship-db-
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
+          restore-keys: opportunities-db-
 
       - name: Configure VPS SSH access for bootstrap
         if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
@@ -90,7 +90,7 @@ jobs:
           VPS_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
         shell: bash
         run: |
-          if [ -s data/internships.db ]; then
+          if [ -s data/opportunities.db ]; then
             echo "Using canonical state restored from the GitHub Actions cache."
             exit 0
           fi
@@ -104,9 +104,9 @@ jobs:
           mkdir -p data
           ssh -i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes \
             "${VPS_USER}@${VPS_HOST}" \
-            "cat /srv/european-tech-internships/data/internships.db" \
-            > data/internships.db
-          uv run python -c "import sqlite3; db=sqlite3.connect('file:data/internships.db?mode=ro', uri=True); result=db.execute('PRAGMA integrity_check').fetchone(); db.close(); assert result == ('ok',), result"
+            "cat /srv/european-tech-opportunities-27/data/opportunities.db" \
+            > data/opportunities.db
+          uv run python -c "import sqlite3; db=sqlite3.connect('file:data/opportunities.db?mode=ro', uri=True); result=db.execute('PRAGMA integrity_check').fetchone(); db.close(); assert result == ('ok',), result"
 
       - name: Remove bootstrap SSH credentials
         if: always() && (inputs.deploy_to_vps || github.event_name == 'schedule')
@@ -120,7 +120,7 @@ jobs:
             exit 0
           fi
           if [ "${{ inputs.allow_state_rebuild }}" = "true" ]; then
-            rm -f data/internships.db data/internships.db-*
+            rm -f data/opportunities.db data/opportunities.db-*
             uv run internships db-upgrade
           else
             echo "Migration failed; use allow_state_rebuild only after backing up state."
@@ -143,20 +143,20 @@ jobs:
       - name: Validate database and README
         run: uv run internships validate
       - name: Checkpoint SQLite
-        run: uv run python -c "import sqlite3; db=sqlite3.connect('data/internships.db'); db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
+        run: uv run python -c "import sqlite3; db=sqlite3.connect('data/opportunities.db'); db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
 
       - name: Save canonical SQLite state
         uses: actions/cache/save@v4
         with:
-          path: data/internships.db
-          key: internship-db-${{ github.run_id }}
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
       - name: Upload database backup and README
         uses: actions/upload-artifact@v4
         with:
-          name: internship-state-${{ github.run_id }}
+          name: opportunities-state-${{ github.run_id }}
           retention-days: 30
           path: |
-            data/internships.db
+            data/opportunities.db
             README.md
 
       - name: Open or update README pull request
@@ -221,18 +221,18 @@ jobs:
             exit 1
           fi
 
-          remote_dir="/srv/european-tech-internships/data"
-          remote_database="$remote_dir/internships.db"
-          remote_previous="$remote_dir/internships.db.previous"
+          remote_dir="/srv/european-tech-opportunities-27/data"
+          remote_database="$remote_dir/opportunities.db"
+          remote_previous="$remote_dir/opportunities.db.previous"
           remote_upload="$remote_dir/.internships-${GITHUB_RUN_ID}.db.upload"
-          remote_lock="/srv/european-tech-internships/.database-deploy.lock"
+          remote_lock="/srv/european-tech-opportunities-27/.database-deploy.lock"
 
-          database_sha=$(sha256sum data/internships.db | cut -d ' ' -f 1)
+          database_sha=$(sha256sum data/opportunities.db | cut -d ' ' -f 1)
           ssh_target="${VPS_USER}@${VPS_HOST}"
           ssh_options=(-i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes)
 
           scp -i "$HOME/.ssh/id_ed25519" -P "$VPS_PORT" -o BatchMode=yes \
-            data/internships.db "${ssh_target}:${remote_upload}"
+            data/opportunities.db "${ssh_target}:${remote_upload}"
 
           remote_sha=$(ssh "${ssh_options[@]}" "$ssh_target" \
             "sha256sum '$remote_upload' | cut -d ' ' -f 1")

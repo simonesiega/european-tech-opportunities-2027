@@ -1,5 +1,5 @@
 # Optional YAML alternative to .env. Process environment values take precedence.
-database_url: sqlite:///data/internships.db
+database_url: sqlite:///data/opportunities.db
 readme_path: README.md
 search_config_dir: configs/searches
 category_config_path: configs/categories.yml
@@ -16,5 +16,5 @@ max_concurrency: 3
 max_response_bytes: 15000000
 closure_confirmation_runs: 2
 linkedin_crawl_authorized: false
-user_agent: european-tech-internships-2027/0.1 (+https://github.com/simonesiega/european-tech-internships-2027)
+user_agent: european-tech-opportunities-27/0.1 (+https://github.com/simonesiega/european-tech-opportunities-27)
 log_level: INFO

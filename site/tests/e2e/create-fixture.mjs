@@ -3,7 +3,7 @@ import path from "node:path";
 import {Database} from "bun:sqlite";
 
 const fixtureDirectory = path.resolve("tests/e2e/.tmp");
-const databasePath = path.join(fixtureDirectory, "internships.db");
+const databasePath = path.join(fixtureDirectory, "opportunities.db");
 
 mkdirSync(fixtureDirectory, {recursive: true});
 rmSync(databasePath, {force: true});

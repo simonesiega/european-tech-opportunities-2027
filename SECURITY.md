@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-  Responsible disclosure and security boundaries for European Tech Internships 2027.
+  Responsible disclosure and security boundaries for European Tech Opportunities 2027.
 </p>
 
 <p align="center">
@@ -17,7 +17,7 @@
   />
   <a href="LICENSE">
     <img
-      src="https://img.shields.io/github/license/simonesiega/european-tech-internships-2027?color=blue"
+      src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-27?color=blue"
       alt="MIT license"
     />
   </a>
@@ -53,7 +53,7 @@ Report privately through either channel:
 
 | Channel | Contact |
 |---|---|
-| GitHub private vulnerability reporting | [Open a private security advisory](https://github.com/simonesiega/european-tech-internships-2027/security/advisories/new) |
+| GitHub private vulnerability reporting | [Open a private security advisory](https://github.com/simonesiega/european-tech-opportunities-27/security/advisories/new) |
 | Email | [simonesiega1@gmail.com](mailto:simonesiega1@gmail.com) |
 
 Suggested email subject:
@@ -145,7 +145,7 @@ An upstream block or challenge is a stop condition, not a problem to evade.
 
 ### Data and website boundary
 
-`data/internships.db` contains public listing metadata plus operational lifecycle history. It should never contain credentials, sessions, or authenticated HTML, but it is still sensitive operational state.
+`data/opportunities.db` contains public listing metadata plus operational lifecycle history. It should never contain credentials, sessions, or authenticated HTML, but it is still sensitive operational state.
 
 The website must remain a read-only projection:
 

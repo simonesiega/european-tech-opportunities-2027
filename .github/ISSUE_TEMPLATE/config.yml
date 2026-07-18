@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability
-    url: https://github.com/simonesiega/european-tech-internships-2027/security/advisories/new
+    url: https://github.com/simonesiega/european-tech-opportunities-27/security/advisories/new
     about: Report vulnerabilities privately. Do not include sensitive details in a public issue.
   - name: Read the documentation
-    url: https://github.com/simonesiega/european-tech-internships-2027/tree/main/docs/md
+    url: https://github.com/simonesiega/european-tech-opportunities-27/tree/main/docs/md
     about: Check setup, operation, website, and troubleshooting guidance before opening an issue.

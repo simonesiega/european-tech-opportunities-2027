@@ -1,7 +1,7 @@
 import path from "node:path";
 import {defineConfig, devices} from "@playwright/test";
 
-const testDatabasePath = path.resolve("tests/e2e/.tmp/internships.db");
+const testDatabasePath = path.resolve("tests/e2e/.tmp/opportunities.db");
 
 export default defineConfig({
   testDir: "./tests/e2e",

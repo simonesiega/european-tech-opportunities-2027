@@ -29,7 +29,7 @@ type DirectoryData = {
 };
 
 export function getDirectoryData(): DirectoryData {
-  const databasePath = process.env.INTERNSHIPS_DATABASE_PATH ?? "../data/internships.db";
+  const databasePath = process.env.INTERNSHIPS_DATABASE_PATH ?? "../data/opportunities.db";
   const database = new DatabaseSync(databasePath, {readOnly: true});
 
   try {

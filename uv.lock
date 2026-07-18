@@ -83,7 +83,7 @@ wheels = [
 ]
 
 [[package]]
-name = "european-tech-internships-2027"
+name = "european-tech-opportunities-27"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

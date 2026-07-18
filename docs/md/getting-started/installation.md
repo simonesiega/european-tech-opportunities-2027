@@ -1,6 +1,6 @@
-# European Tech Internships 2027 Installation Guide
+# European Tech Opportunities 2027 Installation Guide
 
-[← Documentation](../README.md) · [Configuration](configuration.md) · [Open the internship directory](https://internship2027.simonesiega.com/)
+[← Documentation](../README.md) · [Configuration](configuration.md) · [Open the opportunity directory](https://internship2027.simonesiega.com/)
 
 You do not need to install the project to browse internships. Use the [live directory](https://internship2027.simonesiega.com/).
 
@@ -30,8 +30,8 @@ Docker is not required for ordinary local Python or website development.
 ## Clone the repository
 
 ```bash
-git clone https://github.com/simonesiega/european-tech-internships-2027.git
-cd european-tech-internships-2027
+git clone https://github.com/simonesiega/european-tech-opportunities-27.git
+cd european-tech-opportunities-27
 ```
 
 Run the remaining Python commands from the repository root unless a section explicitly changes directory.
@@ -84,7 +84,7 @@ uv run internships stats
 The default database is created at:
 
 ```text
-data/internships.db
+data/opportunities.db
 ```
 
 A new local database is expected to contain no listings. Use the hosted directory for current public data.

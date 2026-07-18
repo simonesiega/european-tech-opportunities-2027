@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Configuration Guide
+# European Tech Opportunities 2027 Configuration Guide
 
 [← Documentation](../README.md) · [Installation](installation.md) · [CLI reference](../user-guide/cli.md)
 
@@ -65,7 +65,7 @@ Relative paths resolve from the current working directory. Run commands from the
 A typical local `.env` contains:
 
 ```dotenv
-INTERNSHIPS_DATABASE_URL=sqlite:///data/internships.db
+INTERNSHIPS_DATABASE_URL=sqlite:///data/opportunities.db
 INTERNSHIPS_README_PATH=README.md
 INTERNSHIPS_SEARCH_CONFIG_DIR=configs/searches
 INTERNSHIPS_CATEGORY_CONFIG_PATH=configs/categories.yml
@@ -85,7 +85,7 @@ Do not commit, paste, or attach them to public issues.
 
 | Variable | Default | Validation and behavior |
 |---|---:|---|
-| `INTERNSHIPS_DATABASE_URL` | `sqlite:///data/internships.db` | SQLAlchemy URL containing `://` |
+| `INTERNSHIPS_DATABASE_URL` | `sqlite:///data/opportunities.db` | SQLAlchemy URL containing `://` |
 | `INTERNSHIPS_SEARCH_CONFIG_DIR` | `configs/searches` | Recursive YAML search-registry directory |
 | `INTERNSHIPS_CATEGORY_CONFIG_PATH` | `configs/categories.yml` | Classification-rules file |
 | `INTERNSHIPS_README_PATH` | `README.md` | Existing UTF-8 file containing exactly one internship marker pair |
@@ -128,7 +128,7 @@ Environment strings are converted into their declared types by Pydantic. Invalid
 Start from `configs/settings.example.yml`:
 
 ```yaml
-database_url: sqlite:///data/internships.db
+database_url: sqlite:///data/opportunities.db
 readme_path: README.md
 search_config_dir: configs/searches
 category_config_path: configs/categories.yml
@@ -214,19 +214,19 @@ Do not increase concurrency, retries, or request limits to bypass throttling, ac
 ### Relative SQLite path
 
 ```dotenv
-INTERNSHIPS_DATABASE_URL=sqlite:///data/internships.db
+INTERNSHIPS_DATABASE_URL=sqlite:///data/opportunities.db
 ```
 
 ### Absolute Linux path
 
 ```dotenv
-INTERNSHIPS_DATABASE_URL=sqlite:////srv/internships/internships.db
+INTERNSHIPS_DATABASE_URL=sqlite:////srv/internships/opportunities.db
 ```
 
 ### Absolute Windows path
 
 ```dotenv
-INTERNSHIPS_DATABASE_URL=sqlite:///C:/data/internships.db
+INTERNSHIPS_DATABASE_URL=sqlite:///C:/data/opportunities.db
 ```
 
 The engine creates the parent directory and enables SQLite foreign keys.
@@ -241,7 +241,7 @@ The Next.js website uses two runtime or build variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `INTERNSHIPS_DATABASE_PATH` | `../data/internships.db` | Read-only SQLite file used by server requests |
+| `INTERNSHIPS_DATABASE_PATH` | `../data/opportunities.db` | Read-only SQLite file used by server requests |
 | `SITE_URL` | `http://localhost:3000` | Canonical public origin used by metadata |
 
 Create the local website environment file:
@@ -254,14 +254,14 @@ cp .env.example .env.local
 The production container reads:
 
 ```text
-/app/data/internships.db
+/app/data/opportunities.db
 ```
 
 Production uses:
 
 ```dotenv
 SITE_URL=https://internship2027.simonesiega.com
-INTERNSHIPS_DATABASE_PATH=/app/data/internships.db
+INTERNSHIPS_DATABASE_PATH=/app/data/opportunities.db
 ```
 
 The website must retain read-only database access.

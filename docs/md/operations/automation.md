@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Automation Guide
+# European Tech Opportunities 2027 Automation Guide
 
 [← Documentation](../README.md) · [Database lifecycle](database.md) · [Docker and deployment](docker.md)
 
@@ -156,26 +156,26 @@ Command-level semantics are documented in the [CLI reference](../user-guide/cli.
 The workflow restores the newest compatible cache using:
 
 ```text
-internship-db-
+opportunities-db-
 ```
 
 New cache keys are run-specific:
 
 ```text
-internship-db-<run-id>
+opportunities-db-<run-id>
 ```
 
 A cache supports continuity and performance, but is not a durable backup.
 
 After checkpointing SQLite write-ahead state, the workflow uploads an artifact containing:
 
-- `data/internships.db`;
+- `data/opportunities.db`;
 - `README.md`.
 
 Artifact name:
 
 ```text
-internship-state-<run-id>
+opportunities-state-<run-id>
 ```
 
 The configured retention period is 30 days.
@@ -223,7 +223,7 @@ The workflow:
 1. uploads the validated database to a run-specific remote temporary path;
 2. compares local and remote SHA-256 checksums;
 3. acquires a VPS `flock`;
-4. preserves the current canonical file as `internships.db.previous`;
+4. preserves the current canonical file as `opportunities.db.previous`;
 5. copies the upload to a temporary file inside the Docker volume;
 6. applies UID/GID `10001:10001` and mode `0640`;
 7. removes stale SQLite sidecars while no database connection is writing;

@@ -17,7 +17,7 @@ jobs:
 
       - name: Prepare CI database bind mount
         run: |
-          sudo install -d -m 2770 -o 10001 -g 10001 /srv/european-tech-internships/data
+          sudo install -d -m 2770 -o 10001 -g 10001 /srv/european-tech-opportunities-27/data
 
       - name: Build production images
         run: docker compose build

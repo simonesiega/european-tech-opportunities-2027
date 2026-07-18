@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 
 DEFAULT_USER_AGENT = (
-    "european-tech-internships-2027/0.1 "
-    "(+https://github.com/simonesiega/european-tech-internships-2027)"
+    "european-tech-opportunities-27/0.1 "
+    "(+https://github.com/simonesiega/european-tech-opportunities-27)"
 )
 
 
@@ -26,7 +26,7 @@ class Settings(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    database_url: str = "sqlite:///data/internships.db"
+    database_url: str = "sqlite:///data/opportunities.db"
     search_config_dir: Path = Path("configs/searches")
     category_config_path: Path = Path("configs/categories.yml")
     readme_path: Path = Path("README.md")

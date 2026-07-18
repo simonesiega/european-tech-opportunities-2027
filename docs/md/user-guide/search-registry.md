@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Search Registry Guide
+# European Tech Opportunities 2027 Search Registry Guide
 
 [← Documentation](../README.md) · [CLI reference](cli.md) · [Architecture](../development/architecture.md)
 

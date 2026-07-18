@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Docker and Deployment Guide
+# European Tech Opportunities 2027 Docker and Deployment Guide
 
 [← Documentation](../README.md) · [Website](../user-guide/website.md) · [Automation](automation.md)
 
@@ -45,7 +45,7 @@ Build the pipeline image:
 ```bash
 docker build \
   --target internships \
-  --tag european-tech-internships-2027-cli:local \
+  --tag european-tech-opportunities-27-cli:local \
   .
 ```
 
@@ -53,7 +53,7 @@ Verify its entry point:
 
 ```bash
 docker run --rm \
-  european-tech-internships-2027-cli:local \
+  european-tech-opportunities-27-cli:local \
   --help
 ```
 
@@ -62,7 +62,7 @@ Build the website image:
 ```bash
 docker build \
   --target site \
-  --tag european-tech-internships-2027-site:local \
+  --tag european-tech-opportunities-27-site:local \
   .
 ```
 
@@ -99,8 +99,8 @@ The Compose startup path applies the idempotent database upgrade before the webs
 Expected container database URLs:
 
 ```text
-pipeline: sqlite:////app/data/internships.db
-website:  /app/data/internships.db
+pipeline: sqlite:////app/data/opportunities.db
+website:  /app/data/opportunities.db
 ```
 
 Only the controlled pipeline service may mutate canonical state.
@@ -209,7 +209,7 @@ Required website environment:
 
 ```dotenv
 SITE_URL=https://internship2027.simonesiega.com
-INTERNSHIPS_DATABASE_PATH=/app/data/internships.db
+INTERNSHIPS_DATABASE_PATH=/app/data/opportunities.db
 ```
 
 The site service must receive the database volume as read-only.
@@ -274,7 +274,7 @@ docker run --rm \
   -v internships-data:/app/data \
   -v "$(pwd)/configs:/app/configs:ro" \
   -v "$(pwd):/workspace" \
-  european-tech-internships-2027-cli:local \
+  european-tech-opportunities-27-cli:local \
   db-upgrade
 ```
 
@@ -286,7 +286,7 @@ docker run --rm \
   -v internships-data:/app/data \
   -v "$(pwd)/configs:/app/configs:ro" \
   -v "$(pwd):/workspace" \
-  european-tech-internships-2027-cli:local \
+  european-tech-opportunities-27-cli:local \
   stats
 ```
 

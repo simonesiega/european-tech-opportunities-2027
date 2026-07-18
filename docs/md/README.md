@@ -1,6 +1,6 @@
-# European Tech Internships 2027 Documentation
+# European Tech Opportunities 2027 Documentation
 
-[← Project README](../../README.md) · [Open the internship directory](https://internship2027.simonesiega.com/)
+[← Project README](../../README.md) · [Open the opportunity directory](https://internship2027.simonesiega.com/)
 
 This documentation is organized by task. The website is the primary public interface; the remaining guides explain how to run, operate, and extend the data pipeline safely.
 

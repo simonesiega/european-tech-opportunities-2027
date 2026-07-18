@@ -1,11 +1,11 @@
 [project]
-name = "european-tech-internships-2027"
+name = "european-tech-opportunities-27"
 version = "0.1.0"
 description = "Pipeline for 2027 European technology internships and new-grad roles"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
-authors = [{ name = "European Tech Internships contributors" }]
+authors = [{ name = "European Tech Opportunities contributors" }]
 keywords = ["internships", "new-grad", "europe", "data-pipeline", "scraping"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -26,8 +26,8 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/simonesiega/european-tech-internships-2027"
-Issues = "https://github.com/simonesiega/european-tech-internships-2027/issues"
+Repository = "https://github.com/simonesiega/european-tech-opportunities-27"
+Issues = "https://github.com/simonesiega/european-tech-opportunities-27/issues"
 
 [project.scripts]
 internships = "internships.cli.app:app"

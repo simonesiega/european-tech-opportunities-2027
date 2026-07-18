@@ -46,7 +46,7 @@ def search() -> LinkedInSearchConfig:
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
     return Settings(
-        database_url=f"sqlite:///{(tmp_path / 'internships.db').as_posix()}",
+        database_url=f"sqlite:///{(tmp_path / 'opportunities.db').as_posix()}",
         search_config_dir=ROOT / "configs" / "searches",
         category_config_path=ROOT / "configs" / "categories.yml",
         readme_path=tmp_path / "README.md",

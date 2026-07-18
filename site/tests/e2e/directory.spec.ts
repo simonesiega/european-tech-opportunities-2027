@@ -93,7 +93,7 @@ test("paginates results and persists the selected theme", async ({page}) => {
 test("publishes canonical SEO and crawler metadata", async ({page, request}) => {
   await page.goto("/?company=Acme+Labs");
 
-  await expect(page).toHaveTitle("European Tech Internships 2027");
+  await expect(page).toHaveTitle("European Tech Opportunities 2027");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     "href",
     "http://127.0.0.1:3100"
@@ -114,8 +114,8 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
     id: "/",
     scope: "/",
     start_url: "/",
-    name: "European Tech Internships 2027",
-    short_name: "Internships ’27",
+    name: "European Tech Opportunities 2027",
+    short_name: "Opportunities ’27",
     lang: "en-GB",
     dir: "ltr",
   });

@@ -59,7 +59,7 @@ ENV NODE_ENV=production \
     HOSTNAME=0.0.0.0 \
     PORT=3000 \
     SITE_URL=https://internship2027.simonesiega.com \
-    INTERNSHIPS_DATABASE_PATH=/app/data/internships.db
+    INTERNSHIPS_DATABASE_PATH=/app/data/opportunities.db
 
 RUN addgroup --system --gid 10001 nodejs \
     && adduser --system --uid 10001 --ingroup nodejs nextjs \

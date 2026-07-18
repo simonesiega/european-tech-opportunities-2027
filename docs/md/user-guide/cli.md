@@ -1,4 +1,4 @@
-# European Tech Internships 2027 CLI Reference
+# European Tech Opportunities 2027 CLI Reference
 
 [← Documentation](../README.md) · [Installation](../getting-started/installation.md) · [Configuration](../getting-started/configuration.md)
 

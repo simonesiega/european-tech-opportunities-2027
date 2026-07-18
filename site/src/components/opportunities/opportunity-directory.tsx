@@ -36,7 +36,7 @@ export function OpportunityDirectory({opportunities}: OpportunityDirectoryProps)
             id="opportunities-title"
             className="text-[26px] leading-[1.2] font-[650] tracking-[-0.035em] max-[600px]:text-[23px]"
           >
-            Internship directory
+            Opportunity directory
           </h1>
           <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
             Discover open 2027 technology internships and New Grad roles across Europe.

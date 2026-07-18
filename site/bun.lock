@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "european-tech-internships-2027-site",
+      "name": "european-tech-opportunities-27-site",
       "dependencies": {
         "@tanstack/react-table": "^8.21.3",
         "clsx": "^2.1.1",

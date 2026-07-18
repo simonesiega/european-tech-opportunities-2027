@@ -13,7 +13,7 @@ ROOT = find_project_root(Path(__file__))
 
 def cli_env(tmp_path: Path) -> dict[str, str]:
     return {
-        "INTERNSHIPS_DATABASE_URL": f"sqlite:///{(tmp_path / 'internships.db').as_posix()}",
+        "INTERNSHIPS_DATABASE_URL": f"sqlite:///{(tmp_path / 'opportunities.db').as_posix()}",
         "INTERNSHIPS_SEARCH_CONFIG_DIR": str(ROOT / "configs" / "searches"),
         "INTERNSHIPS_CATEGORY_CONFIG_PATH": str(ROOT / "configs" / "categories.yml"),
         "INTERNSHIPS_README_PATH": str(tmp_path / "README.md"),

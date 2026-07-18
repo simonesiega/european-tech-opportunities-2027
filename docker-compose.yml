@@ -3,21 +3,21 @@ services:
     build:
       context: .
       target: internships
-    image: european-tech-internships-2027-cli:local
+    image: european-tech-opportunities-27-cli:local
 
     env_file:
       - path: .env
         required: false
 
     environment:
-      INTERNSHIPS_DATABASE_URL: sqlite:////app/data/internships.db
+      INTERNSHIPS_DATABASE_URL: sqlite:////app/data/opportunities.db
       INTERNSHIPS_SEARCH_CONFIG_DIR: /app/configs/searches
       INTERNSHIPS_CATEGORY_CONFIG_PATH: /app/configs/categories.yml
       INTERNSHIPS_README_PATH: /workspace/README.md
       INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: "${INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED:-false}"
 
     volumes:
-      - /srv/european-tech-internships/data:/app/data
+      - /srv/european-tech-opportunities-27/data:/app/data
       - ./configs:/app/configs:ro
       - ./:/workspace
 
@@ -30,14 +30,14 @@ services:
       target: site
       args:
         SITE_URL: "${SITE_URL:-https://internship2027.simonesiega.com}"
-    image: european-tech-internships-2027-site:local
+    image: european-tech-opportunities-27-site:local
 
     environment:
       SITE_URL: "${SITE_URL:-https://internship2027.simonesiega.com}"
-      INTERNSHIPS_DATABASE_PATH: /app/data/internships.db
+      INTERNSHIPS_DATABASE_PATH: /app/data/opportunities.db
 
     volumes:
-      - /srv/european-tech-internships/data:/app/data:ro
+      - /srv/european-tech-opportunities-27/data:/app/data:ro
 
     depends_on:
       internships:

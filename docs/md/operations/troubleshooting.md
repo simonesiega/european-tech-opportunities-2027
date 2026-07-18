@@ -1,4 +1,4 @@
-# European Tech Internships 2027 Troubleshooting Guide
+# European Tech Opportunities 2027 Troubleshooting Guide
 
 [← Documentation](../README.md) · [CLI reference](../user-guide/cli.md) · [Database lifecycle](database.md)
 
@@ -381,7 +381,7 @@ Cache is not durable backup.
 
 Use, in order of availability:
 
-1. the latest retained `internship-state-<run-id>` artifact;
+1. the latest retained `opportunities-state-<run-id>` artifact;
 2. the canonical VPS database;
 3. a separately maintained backup.
 
@@ -412,7 +412,7 @@ Check:
 - UID/GID and file mode;
 - whether atomic rename completed;
 - whether stale sidecars remain;
-- whether the website reads `/app/data/internships.db`.
+- whether the website reads `/app/data/opportunities.db`.
 
 Deployment sequencing is documented in [Automation](automation.md#vps-deployment).
 
@@ -442,7 +442,7 @@ docker compose run --rm internships stats
 Expected pipeline database URL:
 
 ```text
-sqlite:////app/data/internships.db
+sqlite:////app/data/opportunities.db
 ```
 
 ### Database appears empty
@@ -466,7 +466,7 @@ Check:
 - the website mount is read-only;
 - the database exists;
 - UID `10001` has read permission;
-- the configured path is `/app/data/internships.db`;
+- the configured path is `/app/data/opportunities.db`;
 - database and sidecars were not copied inconsistently.
 
 ### README rendering fails in Docker
