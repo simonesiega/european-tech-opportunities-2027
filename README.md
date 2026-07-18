@@ -75,7 +75,7 @@ The repository shows only the bounded preview below so the landing page remains 
 
 <!-- BEGIN INTERNSHIPS -->
 **Open internships:** 51<br>
-**Last successful collection:** July 17, 2026 at 23:33 UTC
+**Last successful collection:** July 18, 2026 at 07:48 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
