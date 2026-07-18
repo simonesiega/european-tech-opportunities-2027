@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from internships.config.rules import ClassificationRules
-from internships.models.enums import InternshipCategory
+from internships.models.enums import EmploymentType, InternshipCategory
 from internships.normalization.location import normalize_locations
 from internships.pipeline.classification import ClassificationDecision, Classifier
 
@@ -24,6 +24,7 @@ def test_explicit_2027_software_internship_is_accepted(rules: ClassificationRule
     result = classify(rules, title="Backend Software Engineering Intern 2027")
     assert result.include
     assert result.category == InternshipCategory.SOFTWARE_ENGINEERING
+    assert result.employment_type == EmploymentType.INTERNSHIP
 
 
 def test_cycle_must_be_explicit_and_not_only_graduation_year(
@@ -54,7 +55,35 @@ def test_full_time_title_is_rejected_even_if_description_mentions_internships(
         description="Our company operates a large internship programme.",
     )
     assert not result.include
-    assert result.exclusion_reason == "title does not explicitly identify an internship"
+    assert (
+        result.exclusion_reason
+        == "title does not explicitly identify an internship or new-grad role"
+    )
+
+
+def test_explicit_2027_new_grad_role_is_accepted(rules: ClassificationRules) -> None:
+    result = classify(rules, title="Software Engineer, University Graduate 2027")
+
+    assert result.include
+    assert result.category == InternshipCategory.SOFTWARE_ENGINEERING
+    assert result.employment_type == EmploymentType.NEW_GRAD
+
+
+def test_new_grad_cycle_and_seniority_remain_strict(rules: ClassificationRules) -> None:
+    wrong_cycle = classify(rules, title="Graduate Data Engineer 2026")
+    senior = classify(rules, title="Senior New Grad Software Engineer 2027")
+
+    assert not wrong_cycle.include
+    assert wrong_cycle.exclusion_reason == "listing is for the 2026 cycle"
+    assert not senior.include
+    assert senior.exclusion_reason == "title contains excluded seniority terminology"
+
+
+def test_title_with_both_types_is_categorized_as_internship(rules: ClassificationRules) -> None:
+    result = classify(rules, title="Graduate Software Engineering Internship 2027")
+
+    assert result.include
+    assert result.employment_type == EmploymentType.INTERNSHIP
 
 
 def test_senior_intern_title_is_excluded(rules: ClassificationRules) -> None:

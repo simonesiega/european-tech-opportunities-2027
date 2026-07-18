@@ -15,7 +15,7 @@ test("filters opportunities and writes shareable URL parameters", async ({page})
 
   await expect(page).toHaveURL(/company=Acme\+Labs/);
   await expectRoleCount(page, 2);
-  await expect(page.getByRole("link", {name: "Data Analyst Intern 2027"})).toHaveCount(0);
+  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toHaveCount(0);
 
   await page.getByLabel("Category").selectOption("cybersecurity");
   await expect(page).toHaveURL(/category=cybersecurity/);
@@ -23,13 +23,28 @@ test("filters opportunities and writes shareable URL parameters", async ({page})
   await expect(page.getByRole("link", {name: "Cybersecurity Intern 2027"})).toBeVisible();
 });
 
+test("filters one employment type at a time", async ({page}) => {
+  await page.goto("/");
+
+  await page.getByLabel("Employment type").selectOption("new-grad");
+  await expect(page).toHaveURL(/type=new-grad/);
+  await expectRoleCount(page, 1);
+  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toBeVisible();
+
+  await page.getByLabel("Employment type").selectOption("internship");
+  await expect(page).toHaveURL(/type=internship/);
+  await expect(page).not.toHaveURL(/new-grad/);
+  await expectRoleCount(page, 11);
+});
+
 test("restores filters from a shared URL and browser history", async ({page}) => {
-  await page.goto("/?q=analyst&country=France");
+  await page.goto("/?q=analyst&country=France&type=new-grad");
 
   await expect(page.getByLabel("Search")).toHaveValue("analyst");
   await expect(page.getByLabel("Location")).toHaveValue("France");
+  await expect(page.getByLabel("Employment type")).toHaveValue("new-grad");
   await expectRoleCount(page, 1);
-  await expect(page.getByRole("link", {name: "Data Analyst Intern 2027"})).toBeVisible();
+  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toBeVisible();
 
   await page.getByLabel("Location").selectOption("Germany");
   await expectRoleCount(page, 0);
@@ -61,10 +76,10 @@ test("paginates results and persists the selected theme", async ({page}) => {
   await page.goto("/");
 
   await expect(page.getByText("Page 1 of 2")).toBeVisible();
-  await expect(page.getByRole("link", {name: "Data Analyst Intern 2027"})).toHaveCount(0);
+  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toHaveCount(0);
   await page.getByRole("button", {name: "Next page"}).click();
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
-  await expect(page.getByRole("link", {name: "Data Analyst Intern 2027"})).toBeVisible();
+  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toBeVisible();
 
   await page.getByRole("button", {name: "Toggle color theme"}).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");

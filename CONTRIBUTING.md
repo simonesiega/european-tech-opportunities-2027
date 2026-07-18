@@ -76,7 +76,7 @@ Run broader checks when a change crosses component boundaries. Documentation-onl
 
 High-value contributions include:
 
-- correcting strict internship, cycle, technology, seniority, or geography classification;
+- correcting strict internship/New Grad type, cycle, technology, seniority, or geography classification;
 - adding a focused role, employer, or country search with justified limits;
 - improving parser resilience with sanitized fixture HTML;
 - strengthening database lifecycle, migration, or recovery safety;
@@ -127,10 +127,10 @@ Preserve these invariants:
 
 1. **SQLite is canonical.** README rows and browser state are never lifecycle sources.
 2. **Numeric job IDs are canonical identities.** Similar display fields do not merge distinct IDs.
-3. **Acceptance remains strict.** Ambiguous cycle, role, seniority, or geography means exclusion.
+3. **Acceptance remains strict.** Ambiguous employment type, cycle, role, seniority, or geography means exclusion.
 4. **Closure remains conservative.** Search-page absence cannot close a job.
 5. **Search outcomes remain isolated.** A failed search cannot mutate that search’s lifecycle state.
-6. **The README remains bounded.** It contains one generated marker pair and at most ten jobs.
+6. **The README remains bounded.** It contains one generated marker pair and at most ten internships plus ten New Grad positions.
 7. **Source access remains permission-gated and unauthenticated.**
 8. **Requests and processing remain bounded and deterministic.**
 9. **The website remains a read-only projection.**
@@ -165,7 +165,7 @@ A search contribution must:
 - use the correct role, company, or country directory;
 - keep a stable, unique lowercase kebab-case slug;
 - use an effective query identity not already present;
-- include explicit internship terminology and `2027`;
+- include the standard internship and New Grad query terms plus `2027`;
 - use exact normalized company names for employer searches;
 - avoid invented geography IDs;
 - start with the smallest defensible request tier;
@@ -195,7 +195,7 @@ A classification change must:
 
 1. describe the false positive or false negative;
 2. add nearby acceptance and rejection tests;
-3. preserve title-explicit internship evidence;
+3. preserve title-explicit Internship or New Grad evidence and deterministic type assignment;
 4. preserve explicit target-cycle evidence;
 5. preserve explicit European geography;
 6. verify that senior and non-technical roles remain excluded;
@@ -244,6 +244,7 @@ Website contributions must preserve:
 - responsive layouts;
 - semantic HTML and keyboard accessibility;
 - safe public HTTPS listing links;
+- Tailwind utility-based component styling and minimal global CSS;
 - strict TypeScript and production build behavior.
 
 Run:

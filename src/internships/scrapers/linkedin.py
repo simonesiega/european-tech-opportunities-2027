@@ -10,7 +10,6 @@ from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup, Tag
 
-from internships.models.enums import EmploymentType
 from internships.models.raw import KnownJob, RawJob
 from internships.models.search import LinkedInSearchConfig
 from internships.scrapers.http import FetchError
@@ -44,15 +43,6 @@ _CONTEXTUAL_START_DATE_RE = re.compile(
     rf"\b(?P<before>{_START_DATE_VALUE})\s+(?:start|intake|internship|programme|program)\b)",
     re.IGNORECASE,
 )
-_EMPLOYMENT_TYPE_VALUES = {
-    "full time": EmploymentType.FULL_TIME,
-    "part time": EmploymentType.PART_TIME,
-    "contract": EmploymentType.CONTRACT,
-    "temporary": EmploymentType.TEMPORARY,
-    "internship": EmploymentType.INTERNSHIP,
-    "volunteer": EmploymentType.VOLUNTEER,
-    "other": EmploymentType.OTHER,
-}
 _DEFAULT_INTERNSHIP_TITLE_TERMS = (
     "intern",
     "internship",
@@ -61,6 +51,16 @@ _DEFAULT_INTERNSHIP_TITLE_TERMS = (
     "university placement",
     "co-op",
     "coop",
+)
+_DEFAULT_NEW_GRAD_TITLE_TERMS = (
+    "new grad",
+    "new graduate",
+    "graduate",
+    "university graduate",
+    "recent graduate",
+    "early career",
+    "entry level",
+    "entry-level",
 )
 
 
@@ -187,7 +187,6 @@ def parse_job_detail(html: str, card: LinkedInSearchCard) -> RawJob:
         application_url=card.application_url,
         description=description,
         industries=_extract_criterion(soup, "industries"),
-        employment_type=_extract_employment_type(soup),
         start_date=_extract_start_date(title, description),
     )
 
@@ -216,12 +215,6 @@ def _extract_criterion(soup: BeautifulSoup, expected_heading: str) -> str | None
     return None
 
 
-def _extract_employment_type(soup: BeautifulSoup) -> EmploymentType | None:
-    """Extract LinkedIn's structured Employment type criterion."""
-    value = normalized_key(_extract_criterion(soup, "employment type") or "")
-    return _EMPLOYMENT_TYPE_VALUES.get(value)
-
-
 def _extract_start_date(title: str, description: str | None) -> str | None:
     """Extract explicit start metadata without treating unrelated dates as starts."""
     title_match = _START_DATE_RE.search(title)
@@ -239,12 +232,14 @@ class LinkedInScraper:
     """Collect paginated cards and details through one provider-specific path."""
 
     def __init__(
-        self, internship_title_terms: tuple[str, ...] = _DEFAULT_INTERNSHIP_TITLE_TERMS
+        self,
+        internship_title_terms: tuple[str, ...] = _DEFAULT_INTERNSHIP_TITLE_TERMS,
+        new_grad_title_terms: tuple[str, ...] = _DEFAULT_NEW_GRAD_TITLE_TERMS,
     ) -> None:
         """Initialize the instance dependencies and state."""
-        self._internship_title_patterns = tuple(
+        self._opportunity_title_patterns = tuple(
             re.compile(rf"(?:^|\s){re.escape(normalized_key(term))}(?:$|\s)")
-            for term in internship_title_terms
+            for term in (*internship_title_terms, *new_grad_title_terms)
         )
         # Searches overlap heavily, so share each in-flight detail request by job ID.
         self._detail_tasks: dict[str, asyncio.Task[str]] = {}
@@ -257,7 +252,7 @@ class LinkedInScraper:
         *,
         known_jobs: tuple[KnownJob, ...] = (),
     ) -> LinkedInScrapeResult:
-        """Collect internships and optionally refresh generated documentation."""
+        """Collect internship and new-grad candidates from one bounded search."""
         cards: dict[str, LinkedInSearchCard] = {}
         seen_search_ids: set[str] = set()
         allowed_companies = frozenset(normalized_key(name) for name in search.company_names)
@@ -282,7 +277,7 @@ class LinkedInScraper:
                 card
                 for card in parsed.cards
                 if _company_allowed(card.company, allowed_companies)
-                and _title_allowed(card.title, self._internship_title_patterns)
+                and _title_allowed(card.title, self._opportunity_title_patterns)
             ]
             for card in page_cards:
                 cards.setdefault(card.job_id, card)
@@ -373,7 +368,7 @@ def _optional_text(node: BeautifulSoup | Tag, selector: str) -> str:
 
 
 def _title_allowed(title: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
-    """Check whether a search card title has internship terminology."""
+    """Check whether a search-card title has a supported opportunity term."""
     key = normalized_key(title)
     return any(pattern.search(key) for pattern in patterns)
 

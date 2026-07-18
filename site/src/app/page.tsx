@@ -6,13 +6,13 @@ import {getDirectoryData} from "@/lib/internships";
 export const dynamic = "force-dynamic";
 
 export default function Home() {
-  const {internships, lastUpdatedAt} = getDirectoryData();
+  const {opportunities, lastUpdatedAt} = getDirectoryData();
 
   return (
     <div className="mx-auto flex min-h-svh w-[min(calc(100%_-_40px),1376px)] flex-col pt-18 max-[760px]:w-[min(calc(100%_-_28px),1376px)] max-[639px]:pt-22">
       <SiteHeader />
       <main className="flex-1">
-        <OpportunityDirectory internships={internships} />
+        <OpportunityDirectory opportunities={opportunities} />
       </main>
       <SiteFooter lastUpdatedAt={lastUpdatedAt} />
     </div>

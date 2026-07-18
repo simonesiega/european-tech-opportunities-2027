@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from internships.models.enums import InternshipCategory, JobStatus
+from internships.models.enums import EmploymentType, InternshipCategory, JobStatus
 from internships.models.job import StoredJob
 from internships.readme import (
     ReadmeMetadata,
@@ -14,27 +14,39 @@ from internships.readme import (
 )
 
 
-def test_readme_contains_exactly_four_columns_and_escapes_values(tmp_path: Path) -> None:
-    now = datetime(2026, 7, 15, tzinfo=UTC)
-    job = StoredJob(
-        linkedin_job_id="1111111111",
-        company="Example | Technology",
-        title="Software [Engineering] Intern 2027",
+def stored_job(index: int, employment_type: EmploymentType, first_seen_at: datetime) -> StoredJob:
+    return StoredJob(
+        linkedin_job_id=str(1_000_000_000 + index),
+        company=f"Company {index}",
+        title=f"Software Engineer 2027 #{index}",
         location="London, UK",
-        link="https://www.linkedin.com/jobs/view/1111111111",
+        link=f"https://www.linkedin.com/jobs/view/{1_000_000_000 + index}",
         category=InternshipCategory.SOFTWARE_ENGINEERING,
-        first_seen_at=now,
-        last_seen_at=now,
-        updated_at=now,
+        employment_type=employment_type,
+        first_seen_at=first_seen_at,
+        last_seen_at=first_seen_at,
+        updated_at=first_seen_at,
         status=JobStatus.OPEN,
     )
-    metadata = ReadmeMetadata(open_internships=1, last_successful_collection=now)
+
+
+def test_readme_contains_type_sections_and_escapes_values(tmp_path: Path) -> None:
+    now = datetime(2026, 7, 15, tzinfo=UTC)
+    job = stored_job(1, EmploymentType.INTERNSHIP, now).model_copy(
+        update={
+            "company": "Example | Technology",
+            "title": "Software [Engineering] Intern 2027",
+        }
+    )
+    metadata = ReadmeMetadata(open_positions=1, last_successful_collection=now)
     table = markdown_table([job])
     block = markdown_block([job], metadata)
+
     assert table.startswith("| Company | Title | Location | Listing |\n|---|---|---|---|\n")
-    assert "**Open internships:** 1" in block
+    assert "**Open positions:** 1 (Internships: 1 · New Grad: 0)" in block
     assert "**Last successful collection:** July 15, 2026 at 00:00 UTC" in block
-    assert "https://internship2027.simonesiega.com/" in block
+    assert "### Latest New Grad positions" in block
+    assert "### Latest internships" in block
     assert "Showing the 1 most recently discovered of 1 open internships" in block
     assert "Category" not in table
     assert "Example \\| Technology" in table
@@ -50,36 +62,32 @@ def test_readme_contains_exactly_four_columns_and_escapes_values(tmp_path: Path)
     assert validate_readme(readme, [job], metadata) == []
 
 
-def test_readme_preview_is_bounded() -> None:
+def test_readme_preview_is_bounded_to_ten_positions_per_type() -> None:
     now = datetime(2026, 7, 15, tzinfo=UTC)
-    jobs = [
-        StoredJob(
-            linkedin_job_id=str(1_000_000_000 + index),
-            company=f"Company {index}",
-            title=f"Software Engineering Intern 2027 #{index}",
-            location="London, UK",
-            link=f"https://www.linkedin.com/jobs/view/{1_000_000_000 + index}",
-            category=InternshipCategory.SOFTWARE_ENGINEERING,
-            first_seen_at=now,
-            last_seen_at=now,
-            updated_at=now,
-            status=JobStatus.OPEN,
-        )
+    internships = [
+        stored_job(index, EmploymentType.INTERNSHIP, now + timedelta(minutes=index))
+        for index in range(12)
+    ]
+    new_grad = [
+        stored_job(index + 100, EmploymentType.NEW_GRAD, now + timedelta(minutes=index))
         for index in range(12)
     ]
 
-    block = markdown_block(jobs, ReadmeMetadata(12, now))
+    block = markdown_block(internships + new_grad, ReadmeMetadata(24, now))
 
     assert "Showing the 10 most recently discovered of 12 open internships" in block
+    assert "Showing the 10 most recently discovered of 12 open New Grad positions" in block
     assert "| Company 11 |" in block
-    assert "| Company 2 |" in block
+    assert "| Company 111 |" in block
     assert "| Company 1 |" not in block
+    assert "| Company 101 |" not in block
 
 
-def test_empty_database_still_renders_table_header() -> None:
+def test_empty_database_still_renders_both_table_headers() -> None:
     assert markdown_table([]) == "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
     block = markdown_block([], ReadmeMetadata(0, None))
     assert block.startswith(
-        "**Open internships:** 0<br>\n**Last successful collection:** Never\n\n"
+        "**Open positions:** 0 (Internships: 0 · New Grad: 0)<br>\n"
+        "**Last successful collection:** Never\n\n"
     )
-    assert "Showing the 0 most recently discovered of 0 open internships" in block
+    assert block.count("| Company | Title | Location | Listing |") == 2

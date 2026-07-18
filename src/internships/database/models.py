@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from internships.database.base import Base
@@ -59,14 +59,20 @@ class JobRow(Base):
     link: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     category: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     industries: Mapped[str | None] = mapped_column(String(500))
-    employment_type: Mapped[str | None] = mapped_column(String(30))
+    employment_type: Mapped[str] = mapped_column(String(30), nullable=False, index=True)
     start_date: Mapped[str | None] = mapped_column(String(100))
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
 
-    __table_args__ = (Index("ix_jobs_readme", "status", "company", "title"),)
+    __table_args__ = (
+        CheckConstraint(
+            "employment_type IN ('internship', 'new-grad')",
+            name="ck_jobs_employment_type",
+        ),
+        Index("ix_jobs_readme", "status", "company", "title"),
+    )
 
 
 class JobSearchRow(Base):

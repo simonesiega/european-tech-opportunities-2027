@@ -7,13 +7,25 @@ import {ALL_FILTER_VALUE, formatCategory} from "@/lib/opportunity-presentation";
 
 type OpportunityFiltersProps = {
   searchInputRef: RefObject<HTMLInputElement | null>;
-  filters: {query: string; company: string; location: string; category: string};
-  options: {companies: string[]; locations: string[]; categories: string[]};
+  filters: {
+    query: string;
+    company: string;
+    location: string;
+    category: string;
+    employmentType: string;
+  };
+  options: {
+    companies: string[];
+    locations: string[];
+    categories: string[];
+    employmentTypes: string[];
+  };
   hasActiveFilters: boolean;
   onQueryChange: (value: string) => void;
   onCompanyChange: (value: string) => void;
   onLocationChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
+  onEmploymentTypeChange: (value: string) => void;
   onClear: () => void;
 };
 
@@ -37,7 +49,9 @@ function FilterSelect({label, value, options, onChange}: FilterSelectProps) {
           <option value={ALL_FILTER_VALUE}>All</option>
           {options.map((option) => (
             <option key={option} value={option}>
-              {label === "Category" ? formatCategory(option) : option}
+              {label === "Category" || label === "Employment type"
+                ? formatCategory(option)
+                : option}
             </option>
           ))}
         </select>
@@ -59,11 +73,12 @@ export function OpportunityFilters({
   onCompanyChange,
   onLocationChange,
   onCategoryChange,
+  onEmploymentTypeChange,
   onClear,
 }: OpportunityFiltersProps) {
   return (
     <div
-      className="mt-7 grid grid-cols-[minmax(280px,1.6fr)_repeat(3,minmax(140px,0.7fr))_auto] gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_1px_2px_rgb(0_0_0/3%)] max-[1040px]:grid-cols-3 max-[620px]:grid-cols-1 max-[620px]:p-3.5"
+      className="mt-7 grid grid-cols-[minmax(260px,1.5fr)_repeat(4,minmax(130px,0.7fr))_auto] gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[0_1px_2px_rgb(0_0_0/3%)] max-[1040px]:grid-cols-3 max-[620px]:grid-cols-1 max-[620px]:p-3.5"
       aria-label="Opportunity filters"
     >
       <label
@@ -106,6 +121,12 @@ export function OpportunityFilters({
         value={filters.category}
         options={options.categories}
         onChange={onCategoryChange}
+      />
+      <FilterSelect
+        label="Employment type"
+        value={filters.employmentType}
+        options={options.employmentTypes}
+        onChange={onEmploymentTypeChange}
       />
 
       {hasActiveFilters ? (

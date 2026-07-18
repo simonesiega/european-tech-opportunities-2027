@@ -1,4 +1,4 @@
-"""Strict deterministic scope checks for 2027 European technology internships."""
+"""Strict deterministic checks for 2027 European tech internships and new-grad roles."""
 
 from __future__ import annotations
 
@@ -6,17 +6,35 @@ import re
 from dataclasses import dataclass
 
 from internships.config.rules import ClassificationRules
-from internships.models.enums import InternshipCategory
+from internships.models.enums import EmploymentType, InternshipCategory
 from internships.normalization.location import EUROPEAN_COUNTRY_CODES, LocationResult
 from internships.utils.text import html_to_text, normalized_key
 
 _YEAR_RE = re.compile(r"\b20[2-4]\d\b")
 _CONTEXTUAL_YEAR_RE = re.compile(
-    r"(?:internship|intern|summer|placement|programme|program|cycle)\W{0,24}(20[2-4]\d)|"
-    r"(20[2-4]\d)\W{0,24}(?:internship|intern|summer|placement|programme|program|cycle)"
+    r"(?:internship|intern|summer|placement|programme|program|cycle|graduate|new\s+grad|"
+    r"early\s+career|entry\s+level)\W{0,24}(20[2-4]\d)|"
+    r"(20[2-4]\d)\W{0,24}(?:internship|intern|summer|placement|programme|program|cycle|"
+    r"graduate|new\s+grad|early\s+career|entry\s+level)"
 )
 _TITLE_SCOPE_NOISE = frozenset(
-    {"co", "coop", "intern", "internship", "placement", "student", "summer", "university"}
+    {
+        "career",
+        "co",
+        "coop",
+        "early",
+        "entry",
+        "grad",
+        "graduate",
+        "intern",
+        "internship",
+        "level",
+        "new",
+        "placement",
+        "student",
+        "summer",
+        "university",
+    }
 )
 _DESCRIPTION_CATEGORY_TITLE_WORDS = frozenset(
     {
@@ -48,11 +66,12 @@ class ClassificationDecision:
 
     include: bool
     category: InternshipCategory
+    employment_type: EmploymentType | None = None
     exclusion_reason: str | None = None
 
 
 class Classifier:
-    """Accept only title-explicit internships in the target cycle and geography."""
+    """Accept only title-explicit internships or new-grad roles in scope."""
 
     def __init__(self, rules: ClassificationRules, target_cycle: int) -> None:
         """Initialize the instance dependencies and state."""
@@ -62,6 +81,7 @@ class Classifier:
         self._internship_keywords = tuple(
             normalized_key(item) for item in rules.internship_keywords
         )
+        self._new_grad_keywords = tuple(normalized_key(item) for item in rules.new_grad_keywords)
         self._excluded_role_keywords = tuple(
             normalized_key(item) for item in rules.excluded_role_keywords
         )
@@ -77,12 +97,15 @@ class Classifier:
         description: str | None,
         location: LocationResult,
     ) -> ClassificationDecision:
-        """Apply strict internship, role, cycle, and geography checks."""
+        """Apply strict opportunity type, role, cycle, and geography checks."""
         title_key = normalized_key(title)
         description_key = normalized_key(html_to_text(description))
 
-        if not self._contains_any(title_key, self._internship_keywords):
-            return self._exclude("title does not explicitly identify an internship")
+        employment_type = self.classify_employment_type(title_key)
+        if employment_type is None:
+            return self._exclude(
+                "title does not explicitly identify an internship or new-grad role"
+            )
         if self._contains_any(title_key, self._excluded_role_keywords):
             return self._exclude("title contains excluded seniority terminology")
 
@@ -96,24 +119,37 @@ class Classifier:
         if category == InternshipCategory.UNKNOWN:
             return self._exclude("title has no technology-role signal")
 
-        cycle = self.classify_cycle(title_key, description_key)
+        cycle = self.classify_cycle(title_key, description_key, employment_type)
         if cycle != str(self.target_cycle):
             reason = (
                 f"listing is for the {cycle} cycle"
                 if cycle != "unknown"
-                else f"internship cycle is not explicitly {self.target_cycle}"
+                else f"opportunity cycle is not explicitly {self.target_cycle}"
             )
-            return ClassificationDecision(False, category, reason)
+            return ClassificationDecision(False, category, employment_type, reason)
 
         explicit_europe = bool(set(location.country_codes) & EUROPEAN_COUNTRY_CODES)
         # An explicit European country overrides broad text such as a global or mixed
         # location description; otherwise a clear non-European signal is rejected.
         if location.non_europe_signal and not explicit_europe:
-            return ClassificationDecision(False, category, "location is outside Europe")
+            return ClassificationDecision(
+                False, category, employment_type, "location is outside Europe"
+            )
         if not (explicit_europe or location.europe_signal):
-            return ClassificationDecision(False, category, "location is not explicitly European")
+            return ClassificationDecision(
+                False, category, employment_type, "location is not explicitly European"
+            )
 
-        return ClassificationDecision(True, category)
+        return ClassificationDecision(True, category, employment_type)
+
+    def classify_employment_type(self, title_key: str) -> EmploymentType | None:
+        """Categorize a title into exactly one published opportunity type."""
+        # Internship takes precedence for titles such as "graduate software intern".
+        if self._contains_any(title_key, self._internship_keywords):
+            return EmploymentType.INTERNSHIP
+        if self._contains_any(title_key, self._new_grad_keywords):
+            return EmploymentType.NEW_GRAD
+        return None
 
     def classify_category(self, title_key: str, description_key: str = "") -> InternshipCategory:
         """Return the first configured category found in title-first order."""
@@ -125,12 +161,15 @@ class Classifier:
             return InternshipCategory.OTHER_TECH
         return InternshipCategory.UNKNOWN
 
-    def classify_cycle(self, title_key: str, description_key: str) -> str:
-        """Resolve the internship cycle while ignoring graduation-year eligibility."""
+    def classify_cycle(
+        self, title_key: str, description_key: str, employment_type: EmploymentType
+    ) -> str:
+        """Resolve the opportunity cycle without confusing internship eligibility text."""
         title_years = [
             match.group()
             for match in _YEAR_RE.finditer(title_key)
-            if not _is_eligibility_year(title_key, match.start())
+            if employment_type == EmploymentType.NEW_GRAD
+            or not _is_eligibility_year(title_key, match.start())
         ]
         target = str(self.target_cycle)
         # Title evidence has priority over description context; accepting a body year
@@ -161,7 +200,11 @@ class Classifier:
     @staticmethod
     def _exclude(reason: str) -> ClassificationDecision:
         """Build an excluded classification decision."""
-        return ClassificationDecision(False, InternshipCategory.UNKNOWN, reason)
+        return ClassificationDecision(
+            include=False,
+            category=InternshipCategory.UNKNOWN,
+            exclusion_reason=reason,
+        )
 
 
 def _contains_phrase(text: str, phrase: str) -> bool:

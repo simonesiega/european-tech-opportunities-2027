@@ -1,4 +1,4 @@
-name: Collect internships
+name: Collect internships and New Grad roles
 
 on:
   schedule:
@@ -175,10 +175,10 @@ jobs:
           git fetch origin "$branch:refs/remotes/origin/$branch" || true
           git checkout -B "$branch"
           git add README.md
-          git commit -m "data: update internship table"
+          git commit -m "data: update position tables"
           git push --force-with-lease --set-upstream origin "$branch"
           if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
-            gh pr create --title "data: update internship table" \
+            gh pr create --title "data: update position tables" \
               --body "Validated LinkedIn → SQLite → README update from automated collection." \
               --base main --head "$branch"
           fi

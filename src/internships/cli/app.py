@@ -47,7 +47,7 @@ error_console = Console(stderr=True)
 app = typer.Typer(
     no_args_is_help=True,
     help=(
-        "Collect strict 2027 European technology internships from LinkedIn into SQLite and README."
+        "Collect strict 2027 European tech internships and new-grad roles into SQLite and README."
     ),
 )
 
@@ -86,7 +86,7 @@ def scrape(
         bool, typer.Option("--no-render", help="Do not update README after persistence.")
     ] = False,
 ) -> None:
-    """Collect internships and optionally refresh generated documentation."""
+    """Collect internships and new-grad roles, then optionally refresh documentation."""
     settings = _settings(ctx)
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
@@ -290,7 +290,7 @@ def _readme_metadata(repository: Repository) -> ReadmeMetadata:
     """Build README metadata from database statistics."""
     snapshot = repository.stats()
     return ReadmeMetadata(
-        open_internships=snapshot.open,
+        open_positions=snapshot.open,
         last_successful_collection=snapshot.last_success_at,
     )
 
@@ -319,11 +319,11 @@ def _print_result(result: PipelineResult) -> None:
 
 def _print_jobs(jobs: list[DiscoveredJob]) -> None:
     """Display discovered jobs in a terminal table."""
-    table = Table(title="Accepted internships")
-    for heading in ("Company", "Title", "Location", "Link"):
+    table = Table(title="Accepted positions")
+    for heading in ("Type", "Company", "Title", "Location", "Link"):
         table.add_column(heading)
     for job in jobs:
-        table.add_row(job.company, job.title, job.location, job.link)
+        table.add_row(job.employment_type.value, job.company, job.title, job.location, job.link)
     console.print(table)
 
 

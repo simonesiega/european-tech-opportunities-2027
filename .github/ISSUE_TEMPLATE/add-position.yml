@@ -1,10 +1,20 @@
-name: Add an internship
-description: Suggest a European technology internship for the 2027 cycle.
-title: "[Internship]: "
+name: Add a position
+description: Suggest a European technology internship or New Grad role for the 2027 cycle.
+title: "[Position]: "
 body:
   - type: markdown
     attributes:
       value: Thanks for helping keep the directory useful and up to date.
+
+  - type: dropdown
+    id: employment-type
+    attributes:
+      label: Employment type
+      options:
+        - Internship
+        - New Grad
+    validations:
+      required: true
 
   - type: input
     id: company
@@ -43,7 +53,7 @@ body:
     attributes:
       label: Checks
       options:
-        - label: This internship is based in Europe and is intended for the 2027 cycle.
+        - label: This position is based in Europe and is intended for the 2027 cycle.
           required: true
         - label: I searched the directory and existing issues for duplicates.
           required: true

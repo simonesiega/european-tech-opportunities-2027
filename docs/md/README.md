@@ -6,7 +6,7 @@ This documentation is organized by task. The website is the primary public inter
 
 ## Start here
 
-- **Looking for an internship?** Open the [live directory](https://internship2027.simonesiega.com/) or read the [website guide](user-guide/website.md).
+- **Looking for an internship or New Grad role?** Open the [live directory](https://internship2027.simonesiega.com/) or read the [website guide](user-guide/website.md).
 - **Running the project locally?** Start with [installation](getting-started/installation.md) and [configuration](getting-started/configuration.md).
 - **Operating a deployment?** Read [automation](operations/automation.md), [database](operations/database.md), and [Docker and deployment](operations/docker.md).
 - **Contributing code?** Begin with [architecture](development/architecture.md) and [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
@@ -22,7 +22,7 @@ This documentation is organized by task. The website is the primary public inter
 
 | Guide | Covers |
 |---|---|
-| [Website](user-guide/website.md) | Search, filters, sorting, pagination, themes, public data, and read-only local or production behavior. |
+| [Website](user-guide/website.md) | Internship/New Grad filtering, search, sorting, pagination, themes, public data, and read-only behavior. |
 | [CLI reference](user-guide/cli.md) | Commands, options, network behavior, and exit codes. |
 | [Search registry](user-guide/search-registry.md) | Search groups, YAML schema, validation, tiers, and adding a query. |
 

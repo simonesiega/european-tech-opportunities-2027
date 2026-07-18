@@ -73,6 +73,8 @@ INTERNSHIPS_TARGET_CYCLE=2027
 INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED=false
 ```
 
+`configs/categories.yml` defines separate title keywords for internships and New Grad roles. Accepted employment types are fixed to `internship` and `new-grad`; source-site full-time, part-time, or contract criteria are not published as employment types.
+
 `.env` and `configs/settings.yml` are ignored by Git, but may still contain operationally sensitive values.
 
 Do not commit, paste, or attach them to public issues.

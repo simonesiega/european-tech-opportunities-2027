@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 internship_keywords:
   - intern
   - internship
@@ -8,6 +8,17 @@ internship_keywords:
   - university placement
   - co-op
   - coop
+new_grad_keywords:
+  - new grad
+  - new graduate
+  - graduate
+  - graduate programme
+  - graduate program
+  - university graduate
+  - recent graduate
+  - early career
+  - entry level
+  - entry-level
 excluded_role_keywords:
   - senior
   - staff

@@ -14,19 +14,19 @@ import {opportunityColumns} from "@/components/opportunities/opportunity-columns
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {cn} from "@/lib/cn";
-import type {Internship} from "@/types/internship";
+import type {Opportunity} from "@/types/opportunity";
 
 type OpportunityListProps = {
-  internships: Internship[];
+  opportunities: Opportunity[];
   onReset: () => void;
 };
 
-export function OpportunityList({internships, onReset}: OpportunityListProps) {
+export function OpportunityList({opportunities, onReset}: OpportunityListProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   // TanStack Table intentionally returns non-memoizable functions as part of its API.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: internships,
+    data: opportunities,
     columns: opportunityColumns,
     state: {sorting},
     onSortingChange: setSorting,

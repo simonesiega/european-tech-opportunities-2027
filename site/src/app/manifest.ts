@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     name: "European Tech Internships 2027",
     short_name: "Internships ’27",
-    description: "Open European technology internships for the 2027 cycle.",
+    description: "Open European technology internships and New Grad roles for 2027.",
     lang: "en-GB",
     dir: "ltr",
     display: "standalone",

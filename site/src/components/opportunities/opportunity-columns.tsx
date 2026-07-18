@@ -5,16 +5,15 @@ import type {Column, ColumnDef} from "@tanstack/react-table";
 import {ArrowUpDown, ArrowUpRight} from "lucide-react";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
-import {cn} from "@/lib/cn";
 import {
   formatCategory,
   formatPublishedDate,
   getCategoryHue,
   getEmploymentTypeHue,
 } from "@/lib/opportunity-presentation";
-import type {Internship} from "@/types/internship";
+import type {Opportunity} from "@/types/opportunity";
 
-function SortableHeader({column, label}: {column: Column<Internship>; label: string}) {
+function SortableHeader({column, label}: {column: Column<Opportunity>; label: string}) {
   return (
     <Button
       variant="ghost"
@@ -28,7 +27,7 @@ function SortableHeader({column, label}: {column: Column<Internship>; label: str
   );
 }
 
-export const opportunityColumns: ColumnDef<Internship>[] = [
+export const opportunityColumns: ColumnDef<Opportunity>[] = [
   {
     id: "open",
     enableSorting: false,
@@ -90,23 +89,15 @@ export const opportunityColumns: ColumnDef<Internship>[] = [
     header: "Employment type",
     cell: ({row}) => (
       <Badge
-        className={cn(
-          row.original.employmentType
-            ? "border-[hsl(var(--badge-hue)_38%_82%)] bg-[hsl(var(--badge-hue)_55%_93%)] text-[hsl(var(--badge-hue)_38%_32%)] dark:border-[hsl(var(--badge-hue)_25%_28%)] dark:bg-[hsl(var(--badge-hue)_28%_18%)] dark:text-[hsl(var(--badge-hue)_45%_76%)]"
-            : "text-[var(--text-faint)]"
-        )}
+        className="border-[hsl(var(--badge-hue)_38%_82%)] bg-[hsl(var(--badge-hue)_55%_93%)] text-[hsl(var(--badge-hue)_38%_32%)] dark:border-[hsl(var(--badge-hue)_25%_28%)] dark:bg-[hsl(var(--badge-hue)_28%_18%)] dark:text-[hsl(var(--badge-hue)_45%_76%)]"
         variant="outline"
         style={
-          row.original.employmentType
-            ? ({
-                "--badge-hue": getEmploymentTypeHue(row.original.employmentType),
-              } as CSSProperties)
-            : undefined
+          {
+            "--badge-hue": getEmploymentTypeHue(row.original.employmentType),
+          } as CSSProperties
         }
       >
-        {row.original.employmentType
-          ? formatCategory(row.original.employmentType)
-          : "Not specified"}
+        {formatCategory(row.original.employmentType)}
       </Badge>
     ),
   },

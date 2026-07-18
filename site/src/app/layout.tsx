@@ -6,7 +6,7 @@ import "./globals.css";
 const siteUrl = process.env.SITE_URL ?? "http://localhost:3000";
 const title = "European Tech Internships 2027";
 const description =
-  "Search and filter open software, data, security, and technology internships across Europe for the 2027 cycle.";
+  "Search and filter 2027 technology internships and New Grad positions across Europe.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

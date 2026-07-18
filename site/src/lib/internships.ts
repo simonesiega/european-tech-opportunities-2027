@@ -1,12 +1,12 @@
 import {DatabaseSync} from "node:sqlite";
-import type {Internship} from "@/types/internship";
+import type {Opportunity} from "@/types/opportunity";
 
 const LAST_UPDATED_QUERY = `
   SELECT MAX(finished_at) AS lastUpdatedAt
   FROM search_runs
 `;
 
-const OPEN_INTERNSHIPS_QUERY = `
+const OPEN_OPPORTUNITIES_QUERY = `
   SELECT
     linkedin_job_id AS linkedinJobId,
     company,
@@ -24,7 +24,7 @@ const OPEN_INTERNSHIPS_QUERY = `
 `;
 
 type DirectoryData = {
-  internships: Internship[];
+  opportunities: Opportunity[];
   lastUpdatedAt: string | null;
 };
 
@@ -36,11 +36,11 @@ export function getDirectoryData(): DirectoryData {
     const {lastUpdatedAt} = database.prepare(LAST_UPDATED_QUERY).get() as {
       lastUpdatedAt: string | null;
     };
-    const rows = database.prepare(OPEN_INTERNSHIPS_QUERY).all() as Internship[];
+    const rows = database.prepare(OPEN_OPPORTUNITIES_QUERY).all() as Opportunity[];
 
     // node:sqlite rows have a null prototype and cannot cross the Server Component boundary.
-    const internships = rows.map((row) => ({...row}));
-    return {internships, lastUpdatedAt};
+    const opportunities = rows.map((row) => ({...row}));
+    return {opportunities, lastUpdatedAt};
   } finally {
     database.close();
   }

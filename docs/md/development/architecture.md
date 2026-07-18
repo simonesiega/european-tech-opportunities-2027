@@ -39,7 +39,7 @@ search YAML + classification rules
 ↓
 bounded LinkedIn guest search HTML
 ↓
-internship-title prefilter
+internship/new-grad title prefilter
 ↓
 LinkedIn guest detail HTML
 ↓
@@ -50,7 +50,7 @@ transactional SQLite lifecycle state
 ┌─────────┴─────────┐
 │                   │
 searchable website     README preview
-all open roles         10 recent roles
+all open roles         10 recent roles/type
 </pre>
 </div>
 
@@ -78,7 +78,7 @@ These are design contracts, not implementation suggestions. Changes that violate
 | CLI | `src/internships/cli/app.py` | Preconditions, orchestration, output, and exit codes |
 | Settings | `src/internships/config/settings.py` | Layered and validated runtime configuration |
 | Search registry | `src/internships/config/search_registry.py` | Recursive YAML loading, duplicate rejection, and search selection |
-| Classification rules | `src/internships/config/rules.py` and `configs/categories.yml` | Internship, seniority, category, cycle, and geography signals |
+| Classification rules | `src/internships/config/rules.py` and `configs/categories.yml` | Employment type, seniority, category, cycle, and geography signals |
 | HTTP transport | `src/internships/scrapers/http.py` | Authorization gate, pacing, timeouts, retries, bounds, and sanitized errors |
 | LinkedIn adapter | `src/internships/scrapers/linkedin.py` | Guest URLs, cards, details, structured criteria, and explicit unavailability |
 | Pipeline runner | `src/internships/pipeline/runner.py` | Bounded fetching, isolated outcomes, classification, and serialized persistence |
@@ -101,7 +101,7 @@ Persistence     → canonical jobs and lifecycle evidence
 Projection      → website and README
 ```
 
-The search that found a listing establishes provenance. It does not prove that the listing is a valid 2027 European technology internship.
+The search that found a listing establishes provenance. It does not prove that the listing is a valid 2027 European technology internship or New Grad position.
 
 Search configuration controls where the pipeline looks; classification controls what may be published.
 
@@ -123,13 +123,13 @@ Overlapping searches may discover the same job. The numeric LinkedIn ID keeps th
 
 Classification checks require explicit evidence for:
 
-- internship terminology;
+- exactly one normalized employment type: `internship` or `new-grad` (internship wins if both title signals appear);
 - absence of configured seniority exclusions;
 - a supported technology category;
-- the target internship cycle;
+- the target opportunity cycle;
 - a European location.
 
-Graduation-year language is not internship-cycle evidence. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
+Graduation-year eligibility language is not internship-cycle evidence. For title-explicit New Grad roles, a title year identifies the hiring cycle. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
 
 Search schema and pagination rules are documented in the [search registry guide](../user-guide/search-registry.md).
 
@@ -206,7 +206,7 @@ The renderer creates a deterministic bounded projection containing:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered open jobs.
+- at most ten recently discovered internships and ten recently discovered New Grad positions.
 
 The renderer owns one marked block and replaces it atomically. Validation reconstructs the expected projection from SQLite and requires exact equality.
 

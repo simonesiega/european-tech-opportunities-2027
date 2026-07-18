@@ -97,7 +97,9 @@ class CollectionPipeline:
         self.settings = settings
         self.repository = repository
         self.classifier = Classifier(rules, settings.target_cycle)
-        self.scraper = scraper or LinkedInScraper(rules.internship_keywords)
+        self.scraper = scraper or LinkedInScraper(
+            rules.internship_keywords, rules.new_grad_keywords
+        )
         self.clock = clock
 
     async def run(
@@ -203,7 +205,7 @@ class CollectionPipeline:
                     excluded += 1
                     continue
                 display_location = "; ".join(location.locations)
-                if not display_location:
+                if not display_location or decision.employment_type is None:
                     excluded += 1
                     continue
                 jobs[raw.source_job_id] = DiscoveredJob(
@@ -214,7 +216,7 @@ class CollectionPipeline:
                     link=raw.application_url,
                     category=decision.category,
                     industries=raw.industries,
-                    employment_type=raw.employment_type,
+                    employment_type=decision.employment_type,
                     start_date=raw.start_date,
                 )
             except (ValidationError, ValueError):

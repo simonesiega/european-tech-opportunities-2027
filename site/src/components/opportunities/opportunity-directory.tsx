@@ -5,16 +5,16 @@ import {OpportunityFilters} from "@/components/opportunities/opportunity-filters
 import {OpportunityList} from "@/components/opportunities/opportunity-list";
 import {useOpportunityFilters} from "@/components/opportunities/use-opportunity-filters";
 import {Badge} from "@/components/ui/badge";
-import type {Internship} from "@/types/internship";
+import type {Opportunity} from "@/types/opportunity";
 
 type OpportunityDirectoryProps = {
-  internships: Internship[];
+  opportunities: Opportunity[];
 };
 
-export function OpportunityDirectory({internships}: OpportunityDirectoryProps) {
+export function OpportunityDirectory({opportunities}: OpportunityDirectoryProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const {filters, setters, options, filteredInternships, hasActiveFilters, clearFilters} =
-    useOpportunityFilters(internships);
+  const {filters, setters, options, filteredOpportunities, hasActiveFilters, clearFilters} =
+    useOpportunityFilters(opportunities);
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -38,8 +38,8 @@ export function OpportunityDirectory({internships}: OpportunityDirectoryProps) {
           >
             Internship directory
           </h1>
-          <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[260px] max-[600px]:text-[13px] max-[600px]:leading-normal">
-            Discover open 2027 technology internships across Europe.
+          <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
+            Discover open 2027 technology internships and New Grad roles across Europe.
           </p>
         </div>
         <Badge
@@ -48,10 +48,10 @@ export function OpportunityDirectory({internships}: OpportunityDirectoryProps) {
           aria-live="polite"
         >
           <strong className="text-base font-bold tracking-[-0.03em] text-[var(--text)]">
-            {filteredInternships.length}
+            {filteredOpportunities.length}
           </strong>
           <span className="text-[11px] text-[var(--text-soft)]">
-            open {filteredInternships.length === 1 ? "role" : "roles"}
+            open {filteredOpportunities.length === 1 ? "role" : "roles"}
           </span>
         </Badge>
       </div>
@@ -65,9 +65,10 @@ export function OpportunityDirectory({internships}: OpportunityDirectoryProps) {
         onCompanyChange={setters.setCompany}
         onLocationChange={setters.setLocation}
         onCategoryChange={setters.setCategory}
+        onEmploymentTypeChange={setters.setEmploymentType}
         onClear={clearFilters}
       />
-      <OpportunityList internships={filteredInternships} onReset={clearFilters} />
+      <OpportunityList opportunities={filteredOpportunities} onReset={clearFilters} />
     </section>
   );
 }

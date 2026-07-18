@@ -170,7 +170,7 @@ The README projection includes:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered open jobs.
+- at most ten recently discovered internships and ten recently discovered New Grad positions.
 
 Generated search-registry counts are also updated where owned by the rendering path.
 

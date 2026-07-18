@@ -1,12 +1,12 @@
 [project]
 name = "european-tech-internships-2027"
 version = "0.1.0"
-description = "LinkedIn to SQLite to README pipeline for 2027 European technology internships"
+description = "Pipeline for 2027 European technology internships and new-grad roles"
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
 authors = [{ name = "European Tech Internships contributors" }]
-keywords = ["internships", "europe", "data-pipeline", "scraping"]
+keywords = ["internships", "new-grad", "europe", "data-pipeline", "scraping"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "License :: OSI Approved :: MIT License",

@@ -17,13 +17,8 @@ export function getCategoryHue(category: string): number {
 
 export function getEmploymentTypeHue(employmentType: string): number {
   const hues: Record<string, number> = {
-    "full-time": 215,
-    "part-time": 185,
     internship: 265,
-    contract: 35,
-    temporary: 50,
-    volunteer: 330,
-    other: 210,
+    "new-grad": 145,
   };
   return hues[employmentType] ?? 210;
 }

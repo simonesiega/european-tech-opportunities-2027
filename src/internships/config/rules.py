@@ -17,10 +17,13 @@ class ClassificationRules(BaseModel):
 
     schema_version: int = Field(ge=1)
     internship_keywords: tuple[str, ...]
+    new_grad_keywords: tuple[str, ...]
     excluded_role_keywords: tuple[str, ...]
     categories: dict[InternshipCategory, tuple[str, ...]]
 
-    @field_validator("internship_keywords", "excluded_role_keywords", mode="before")
+    @field_validator(
+        "internship_keywords", "new_grad_keywords", "excluded_role_keywords", mode="before"
+    )
     @classmethod
     def normalize_keywords(cls, value: object) -> object:
         """Normalize and deduplicate configured keyword lists."""

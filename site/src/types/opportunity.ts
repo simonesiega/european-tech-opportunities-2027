@@ -1,4 +1,6 @@
-export type Internship = {
+export type EmploymentType = "internship" | "new-grad";
+
+export type Opportunity = {
   linkedinJobId: string;
   company: string;
   title: string;
@@ -6,7 +8,7 @@ export type Internship = {
   link: string;
   category: string;
   industries: string | null;
-  employmentType: string | null;
+  employmentType: EmploymentType;
   startDate: string | null;
   firstSeenAt: string;
 };

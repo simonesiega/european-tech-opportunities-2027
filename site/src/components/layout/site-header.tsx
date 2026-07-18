@@ -12,11 +12,11 @@ export function SiteHeader() {
           <div className="flex items-center gap-8 max-[520px]:gap-2.5">
             <a
               className="flex items-center text-base leading-none font-medium text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)] max-[520px]:text-[13px]"
-              href="https://github.com/simonesiega/european-tech-internships-2027/issues/new?template=add-internship.yml"
+              href="https://github.com/simonesiega/european-tech-internships-2027/issues/new?template=add-position.yml"
               target="_blank"
               rel="noreferrer"
             >
-              <span className="max-[520px]:hidden">Add an internship</span>
+              <span className="max-[520px]:hidden">Add a position</span>
               <span className="hidden max-[520px]:inline">Add</span>
             </a>
             <a

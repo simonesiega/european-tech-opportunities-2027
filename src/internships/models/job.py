@@ -12,7 +12,7 @@ from internships.utils.url import canonicalize_url
 
 
 class DiscoveredJob(BaseModel):
-    """A strict 2027 European technology internship ready for persistence."""
+    """A strict 2027 European technology opportunity ready for persistence."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -23,7 +23,7 @@ class DiscoveredJob(BaseModel):
     link: str
     category: InternshipCategory
     industries: str | None = Field(default=None, max_length=500)
-    employment_type: EmploymentType | None = None
+    employment_type: EmploymentType
     start_date: str | None = Field(default=None, max_length=100)
 
     @field_validator("company", "title", "location", mode="before")

@@ -144,9 +144,7 @@ def test_overlapping_search_timestamps_remain_monotonic(
     repository.persist_success(
         run_id="00000000-0000-0000-0000-000000000002",
         search=second,
-        jobs=[
-            job.model_copy(update={"industries": None, "employment_type": None, "start_date": None})
-        ],
+        jobs=[job.model_copy(update={"industries": None, "start_date": None})],
         confirmed_unavailable_ids=(),
         found_count=1,
         excluded_count=0,
@@ -183,6 +181,7 @@ def test_distinct_linkedin_ids_are_not_fuzzy_merged_and_explicit_404s_close(
             location=location,
             link=f"https://www.linkedin.com/jobs/view/{job_id}",
             category=InternshipCategory.SOFTWARE_ENGINEERING,
+            employment_type=EmploymentType.INTERNSHIP,
         )
         for job_id, location in (
             ("1111111111", "London, UK"),

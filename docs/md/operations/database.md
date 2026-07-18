@@ -56,7 +56,7 @@ Important `jobs` fields:
 | `company`, `title`, `location`, `link` | Normalized public listing data |
 | `category` | Deterministic internal technology category |
 | `industries` | Structured source industries criterion, when available |
-| `employment_type` | Normalized structured employment type, when available |
+| `employment_type` | Required deterministic type: `internship` or `new-grad` |
 | `start_date` | Explicit month or season plus year, when available |
 | `first_seen_at` | First accepted observation; immutable |
 | `last_seen_at` | Latest accepted observation; monotonic |
@@ -65,7 +65,7 @@ Important `jobs` fields:
 
 Distinct LinkedIn IDs remain distinct jobs even when their display fields match.
 
-Missing optional metadata does not erase a previously observed value.
+Every accepted row has one employment type. The migration introducing New Grad support backfills all pre-existing rows as `internship`, because the former classifier accepted internships only. Missing optional metadata does not erase a previously observed value.
 
 ## Search state and runs
 
@@ -312,7 +312,7 @@ The website contract belongs to the [website guide](../user-guide/website.md#rea
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently discovered open jobs.
+- at most ten recently discovered open internships and ten recently discovered open New Grad positions.
 
 The renderer owns only the marked internship block and replaces it atomically.
 

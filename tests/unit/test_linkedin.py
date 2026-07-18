@@ -69,17 +69,6 @@ def test_linkedin_job_detail_parser_extracts_description(
     assert "Summer 2027" in job.description
     assert job.start_date == "Summer 2027"
     assert job.industries == "Software Development"
-    assert job.employment_type == "internship"
-
-
-def test_linkedin_job_detail_extracts_structured_employment_type(
-    fixture_html: Callable[[str], str],
-) -> None:
-    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[1]
-    job = parse_job_detail(fixture_html("linkedin_job_detail_2222222222.html"), card)
-
-    assert job.employment_type == "full-time"
-    assert job.industries is None
 
 
 def test_linkedin_job_detail_extracts_criteria_without_linkedin_classes(
@@ -97,7 +86,6 @@ def test_linkedin_job_detail_extracts_criteria_without_linkedin_classes(
 
     job = parse_job_detail(html, card)
 
-    assert job.employment_type == "volunteer"
     assert job.industries == "Software Development"
 
 
@@ -166,6 +154,30 @@ def test_linkedin_scraper_paginates_and_deduplicates_job_ids(
         job for job in result.positions if job.source_job_id == "3333333333"
     )
     assert job_without_industries.industries is None
+
+
+def test_title_prefilter_selects_new_grad_cards() -> None:
+    search = configured_search(max_pages=1, max_results=25)
+    job_id = "4444444444"
+    page = f"""<!doctype html><div class="base-search-card"
+      data-entity-urn="urn:li:jobPosting:{job_id}">
+      <h3 class="base-search-card__title">Graduate Software Engineer 2027</h3>
+      <h4 class="base-search-card__subtitle">New Technology</h4>
+      <span class="job-search-card__location">Berlin, Germany</span></div>"""
+    detail = """<!doctype html>
+      <h1 class="top-card-layout__title">Graduate Software Engineer 2027</h1>
+      <a class="topcard__org-name-link">New Technology</a>
+      <div class="show-more-less-html__markup">A graduate software role.</div>"""
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): page,
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): detail,
+        }
+    )
+
+    result = asyncio.run(LinkedInScraper().scrape(search, fetcher))
+
+    assert [job.source_job_id for job in result.positions] == [job_id]
 
 
 def test_title_prefilter_continues_to_later_search_pages(

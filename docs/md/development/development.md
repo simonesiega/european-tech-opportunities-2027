@@ -22,7 +22,7 @@ This guide covers the local engineering workflow, repository structure, coding s
 - Python 3.12 and `uv` 0.11.6;
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
 - pytest, Ruff, and strict mypy;
-- Bun 1.3.14, strict TypeScript, ESLint, Prettier, and Next.js 16;
+- Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
 - Docker for container and production-path validation.
 
 Install the locked dependencies:
@@ -212,6 +212,7 @@ git diff --check
 - Keep server and SQLite access under `site/src/lib`.
 - Keep browser interaction in client components.
 - Keep SQLite read-only and TypeScript strict.
+- Use Tailwind utility classes for component styling; keep `globals.css` limited to Tailwind import, shared tokens, theme state, and base document rules.
 - Preserve semantic HTML, keyboard access, responsive layouts, and validated HTTPS links.
 - Do not add lifecycle mutation APIs, forms, authentication, or user-provided content without architecture and security review.
 
@@ -271,7 +272,7 @@ These variables do not grant permission. CI does not run live tests, and an acce
 
 ## README and documentation changes
 
-The root README contains one generated internship marker pair. The renderer owns the open-job metadata, latest successful collection time, website link, and bounded ten-row preview.
+The root README contains one generated marker pair. The renderer owns the open-position metadata, latest successful collection time, website link, and bounded previews of ten internships and ten New Grad positions.
 
 Do not edit generated rows or include a second complete marker pair in examples.
 

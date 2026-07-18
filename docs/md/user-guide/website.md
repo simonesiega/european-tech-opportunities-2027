@@ -2,7 +2,7 @@
 
 [← Documentation](../README.md) · [Open the live site](https://internship2027.simonesiega.com/)
 
-The [live website](https://internship2027.simonesiega.com/) is the project’s primary public interface. It displays every currently open internship in canonical SQLite state, while the root README intentionally shows only a bounded ten-row preview.
+The [live website](https://internship2027.simonesiega.com/) is the project’s primary public interface. It displays every currently open internship and New Grad position in canonical SQLite state, while the root README intentionally shows bounded previews for both types.
 
 ## Contents
 
@@ -37,7 +37,7 @@ The [live website](https://internship2027.simonesiega.com/) is the project’s p
 The directory provides:
 
 - free-text search;
-- company, country, and technology-category filters;
+- company, country, technology-category, and employment-type filters;
 - sortable columns;
 - pagination with selectable page size;
 - light and dark themes stored as browser preferences;
@@ -63,7 +63,8 @@ Filters can be combined by:
 
 - company;
 - country;
-- technology category.
+- technology category;
+- employment type, using a single-select choice of Internship or New Grad.
 
 Sortable columns include:
 
@@ -86,7 +87,7 @@ A browser interaction or URL state is not lifecycle evidence, collection input, 
 | Role | Normalized detail title, with search-card fallback |
 | Category | Deterministic internal technology classification |
 | Industries | Structured LinkedIn `Industries` criterion |
-| Employment type | Structured LinkedIn `Employment type` criterion |
+| Employment type | Deterministic title classification; always `Internship` or `New Grad` |
 | Location | Normalized explicit detail or search-card location |
 | Start date | Explicit month or season plus year from title or narrow start-date context |
 | First seen | First accepted observation in canonical SQLite state |
@@ -97,7 +98,7 @@ External application links must remain validated public HTTPS URLs.
 
 ## Data interpretation
 
-`Not specified` means that a structured field was absent, unsupported, or not accepted by the parser.
+`Not specified` means that optional structured metadata such as industries was absent, unsupported, or not accepted by the parser. Employment type is required for every published row.
 
 The project does not infer structured values from arbitrary description keywords merely to fill missing cells.
 
@@ -142,6 +143,7 @@ The directory recognizes these query parameters:
 | `company` | Exact company option |
 | `country` | Exact country option |
 | `category` | Exact internal technology category |
+| `type` | Exact normalized employment type: `internship` or `new-grad` |
 
 For example:
 
@@ -151,7 +153,7 @@ https://internship2027.simonesiega.com/?q=security&country=Germany
 
 Selecting a filter adds it to browser history, clearing a filter removes its parameter, and browser back/forward navigation restores earlier filter selections. Search typing replaces the current history entry to avoid creating one entry per keystroke. Reset removes only directory-owned parameters.
 
-A company, country, or category value that is not present in the current open dataset is ignored. Query parameters are untrusted presentation input and never reach a database write path.
+A company, country, category, or employment-type value that is not present in the current open dataset is ignored. Query parameters are untrusted presentation input and never reach a database write path.
 
 ## Search and social metadata
 
@@ -198,7 +200,7 @@ A fresh local database may contain no listings, and the website must render that
 
 For installation, database initialization, environment-file creation, and first launch, use [Installation](../getting-started/installation.md#run-the-website).
 
-Website runtime variables are documented in [Configuration](../getting-started/configuration.md#website-settings).
+Website runtime variables are documented in [Configuration](../getting-started/configuration.md#website-settings). Components use Tailwind CSS utility classes; `site/src/app/globals.css` owns only the Tailwind import, shared design tokens, theme selectors, and base document rules.
 
 Install the Playwright Chromium browser once, then run the complete website checks:
 

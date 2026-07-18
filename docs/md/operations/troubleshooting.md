@@ -185,7 +185,7 @@ The generated block contains:
 - open-job metadata;
 - latest successful collection time;
 - the public website link;
-- at most ten jobs.
+- at most ten internships and ten New Grad positions.
 
 Do not edit generated rows manually.
 
@@ -293,13 +293,13 @@ Confirm authorization remains valid. Investigate legitimate parser changes only 
 
 Verify explicit evidence for every required rule:
 
-- internship terminology in the title;
+- internship or New Grad terminology in the title;
 - no configured seniority exclusion;
 - recognized technology category;
 - explicit 2027 cycle;
 - explicit European location.
 
-Description or employment metadata alone cannot convert a non-internship title into an accepted listing.
+Description or source employment metadata alone cannot convert a title without Internship or New Grad evidence into an accepted listing.
 
 When authorized, inspect one search without persistence:
 
@@ -309,31 +309,30 @@ uv run internships search-test <slug>
 
 Prefer a focused regression test over weakening a global rule.
 
-### Structured fields show `Not specified`
+### Industries shows `Not specified`
 
-`Employment type` and `Industries` come from structured source criteria.
+`Industries` comes from structured source criteria. Employment type is instead required and classified from the title as Internship or New Grad.
 
 Confirm that:
 
 - the deployed collector includes the current parser;
 - collection ran after the field was cleared;
-- the source contains structured evidence.
+- the source contains structured industries evidence.
 
 Expected structure resembles:
 
 ```text
-Employment type  → Full-time
-Industries       → Software Development
+Industries → Software Development
 ```
 
-When parsing still fails:
+When industries parsing still fails:
 
 1. reproduce only with express authorization;
 2. reduce the markup to a minimal sanitized fixture;
 3. add a failing parser regression test;
 4. update the parser without broad description-keyword fallbacks.
 
-The website should continue showing `Not specified` when structured evidence is absent.
+The website should continue showing `Not specified` for industries when structured evidence is absent. A missing or unsupported employment type excludes the listing instead of publishing an unspecified value.
 
 ### Guest markup changed
 

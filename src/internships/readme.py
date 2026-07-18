@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from internships.models.enums import EmploymentType
 from internships.models.job import StoredJob
 
 BEGIN_MARKER = "<!-- BEGIN INTERNSHIPS -->"
@@ -21,7 +22,7 @@ DIRECTORY_URL = "https://internship2027.simonesiega.com/"
 class ReadmeMetadata:
     """Hold generated README counters and timestamps."""
 
-    open_internships: int
+    open_positions: int
     last_successful_collection: datetime | None
 
 
@@ -41,32 +42,48 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
 
 
 def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
-    """Build a bounded README preview that directs readers to the website."""
-    preview = sorted(
-        jobs,
-        key=lambda job: (job.first_seen_at, job.linkedin_job_id),
-        reverse=True,
-    )[:README_PREVIEW_LIMIT]
+    """Build bounded previews for both supported opportunity types."""
+    internships = _latest(jobs, EmploymentType.INTERNSHIP)
+    new_grad = _latest(jobs, EmploymentType.NEW_GRAD)
+    internship_count = sum(job.employment_type == EmploymentType.INTERNSHIP for job in jobs)
+    new_grad_count = sum(job.employment_type == EmploymentType.NEW_GRAD for job in jobs)
     return (
-        f"{markdown_metadata(metadata)}\n"
+        f"{markdown_metadata(metadata, internship_count, new_grad_count)}\n"
         f"Browse and filter the complete directory at **[{DIRECTORY_URL}]({DIRECTORY_URL})**.\n\n"
-        f"Showing the {len(preview)} most recently discovered of "
-        f"{metadata.open_internships} open internships:\n\n"
-        f"{markdown_table(preview)}"
+        f"### Latest New Grad positions\n\n"
+        f"Showing the {len(new_grad)} most recently discovered of {new_grad_count} open "
+        f"New Grad positions:\n\n"
+        f"{markdown_table(new_grad)}\n"
+        f"### Latest internships\n\n"
+        f"Showing the {len(internships)} most recently discovered of {internship_count} open "
+        f"internships:\n\n"
+        f"{markdown_table(internships)}"
     )
 
 
-def markdown_metadata(metadata: ReadmeMetadata) -> str:
-    """Build README collection metadata."""
+def markdown_metadata(
+    metadata: ReadmeMetadata, internship_count: int = 0, new_grad_count: int = 0
+) -> str:
+    """Build README collection metadata and per-type counters."""
     last_collection = (
         _format_collection_time(metadata.last_successful_collection)
         if metadata.last_successful_collection is not None
         else "Never"
     )
     return (
-        f"**Open internships:** {metadata.open_internships}<br>\n"
+        f"**Open positions:** {metadata.open_positions} "
+        f"(Internships: {internship_count} · New Grad: {new_grad_count})<br>\n"
         f"**Last successful collection:** {last_collection}\n"
     )
+
+
+def _latest(jobs: list[StoredJob], employment_type: EmploymentType) -> list[StoredJob]:
+    """Return the bounded newest-first preview for one opportunity type."""
+    return sorted(
+        (job for job in jobs if job.employment_type == employment_type),
+        key=lambda job: (job.first_seen_at, job.linkedin_job_id),
+        reverse=True,
+    )[:README_PREVIEW_LIMIT]
 
 
 def markdown_table(jobs: list[StoredJob]) -> str:
@@ -103,7 +120,7 @@ def validate_readme(
         return errors
     block = content.split(BEGIN_MARKER, 1)[1].split(END_MARKER, 1)[0].strip()
     if TABLE_HEADER.strip() not in block:
-        errors.append("README internship table must have Company, Title, Location, Link columns")
+        errors.append("README position tables must have Company, Title, Location, Link columns")
     if (
         jobs is not None
         and metadata is not None

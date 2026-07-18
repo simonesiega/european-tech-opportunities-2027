@@ -30,6 +30,8 @@ def test_production_search_registry_is_bounded_and_scope_specific() -> None:
     for search in searches:
         assert "2027" in search.keywords
         assert "intern" in search.keywords.casefold()
+        assert "new grad" in search.keywords.casefold()
+        assert "graduate" in search.keywords.casefold()
         assert 1 <= search.max_pages <= 4
         assert search.max_results == search.max_pages * 25
         assert 5 <= search.max_rechecks <= 25

@@ -2,7 +2,7 @@
 
 [← Documentation](../README.md) · [CLI reference](cli.md) · [Architecture](../development/architecture.md)
 
-The search registry controls **discovery**, not publication. Every candidate found through LinkedIn guest search must still pass the same deterministic internship, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
+The search registry controls **discovery**, not publication. Every candidate found through LinkedIn guest search must still pass deterministic employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
 
 <p align="center">
   <img
@@ -60,9 +60,9 @@ A listing discovered by several searches keeps each provenance association but r
 Example role search:
 
 ```yaml
-name: European software testing internships 2027
+name: European software testing internships and New Grad roles 2027
 slug: software-testing
-keywords: software test intern 2027
+keywords: 'software test (intern OR "new grad" OR graduate OR "early career" OR "entry level") 2027'
 location: Europe
 geo_id: "91000000"
 company_names: []
@@ -114,7 +114,7 @@ Conventions:
 
 - filenames and slugs remain stable lowercase kebab-case;
 - role filenames map to `InternshipCategory`;
-- keywords contain explicit internship terminology and `2027`;
+- keywords request both internship and New Grad terminology and include `2027`;
 - employer searches use exact normalized `company_names`;
 - country searches use explicit country location text;
 - numeric geography IDs are never invented;
@@ -165,12 +165,12 @@ Collection stops when:
 - the eligible-result limit is reached;
 - the page limit is reached.
 
-A page containing cards but no title-explicit internship matches does **not** stop pagination.
+A page containing cards but no title-explicit internship or New Grad matches does **not** stop pagination.
 
 Before detail requests, cards pass two low-cost checks:
 
 1. exact normalized employer allowlist matching, when configured;
-2. explicit internship terminology in the title.
+2. explicit internship or New Grad terminology in the title.
 
 These checks reduce unnecessary detail requests. Final acceptance still occurs only after detail parsing, normalization, and deterministic classification.
 
@@ -205,7 +205,7 @@ Global diagnostic overrides belong to [Configuration](../getting-started/configu
 
 1. Create `configs/searches/roles/<slug>.yml`.
 2. Choose one coherent technology discipline.
-3. Include explicit internship terminology and `2027` in `keywords`.
+3. Include the standard internship/New Grad Boolean terms and `2027` in `keywords`.
 4. Use the verified Europe geography configuration for Europe-wide discovery.
 5. Start with the smallest defensible tier.
 6. Explain role scope and tuning in `notes`.
@@ -231,7 +231,7 @@ configs/searches/companies/
 Requirements:
 
 - prefix the slug with `company-`;
-- use broad but explicit keywords such as `Company intern 2027`;
+- use broad but explicit keywords that include both internship and New Grad terms;
 - list legitimate LinkedIn employer-name variants in `company_names`;
 - retain exact matching after normalization;
 - do not use substring matching;
@@ -240,9 +240,9 @@ Requirements:
 Example:
 
 ```yaml
-name: Amazon internships 2027
+name: Amazon internships and New Grad roles 2027
 slug: company-amazon
-keywords: Amazon intern 2027
+keywords: 'Amazon (intern OR "new grad" OR graduate OR "early career" OR "entry level") 2027'
 location: Europe
 geo_id: "91000000"
 company_names:
@@ -273,16 +273,16 @@ Requirements:
 - prefix the slug with `country-`;
 - use the explicit country name as `location`;
 - omit `geo_id` unless independently verified;
-- include internship terminology and `2027`;
+- include both internship and New Grad terminology plus `2027`;
 - start unobserved or low-volume countries at the minimal tier;
 - avoid claiming complete national coverage.
 
 Example:
 
 ```yaml
-name: Portugal technology internships 2027
+name: Portugal technology internships and New Grad roles 2027
 slug: country-portugal
-keywords: software intern 2027
+keywords: 'software (intern OR "new grad" OR graduate OR "early career" OR "entry level") 2027'
 location: Portugal
 geo_id: null
 company_names: []

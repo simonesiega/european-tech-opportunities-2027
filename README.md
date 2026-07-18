@@ -1,11 +1,11 @@
 <h1 align="center">European Tech Internships 2027</h1>
 
 <p align="center">
-  An open-source directory and data pipeline for discovering 2027 technology internships across Europe through conservative, rule-based filtering.
+  An open-source directory and data pipeline for discovering 2027 technology internships and New Grad positions across Europe through conservative, rule-based filtering.
 </p>
 
 <p align="center">
-  <a href="https://internship2027.simonesiega.com/"><strong>Open the internship directory →</strong></a>
+  <a href="https://internship2027.simonesiega.com/"><strong>Open the opportunity directory →</strong></a>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <sub>Python 3.12 · TypeScript · Next.js 16 · SQLite · Bun · Docker · GitHub Actions</sub>
+  <sub>Python 3.12 · TypeScript · Next.js 16 · Tailwind CSS 4 · SQLite · Bun · Docker · GitHub Actions</sub>
 </p>
 
 ## Website preview
@@ -42,22 +42,22 @@
   />
 </p>
 
-The website is the primary way to use the project. It provides full-text search, filters, sorting, pagination, light and dark themes, and direct links to the original listings.
+The website is the primary way to use the project. It provides full-text search, an Internship/New Grad filter, company, location, and category filters, sorting, pagination, themes, and direct links to the original listings.
 
 ## Why this project exists
 
-General job searches frequently mix different internship cycles, senior roles, non-European locations, and unrelated positions. This project favors precision over coverage: listings with ambiguous year, role, seniority, or location evidence are excluded instead of being guessed.
+General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated positions. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
 
 ## Engineering highlights
 
 - **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
-- **Deterministic filtering:** explicit rules for internship type, cycle, technology category, seniority, and European location.
+- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify cycle, technology category, seniority, and European location.
 - **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, and conservative closure handling.
 - **Production workflow:** strict typing, offline tests, Alembic migrations, Docker builds, scheduled collection, validation, backups, and atomic deployment.
 
 ## Contents
 
-- [Internship directory](#internship-directory)
+- [Opportunity directory](#opportunity-directory)
 - [Publication rules](#publication-rules)
 - [How it works](#how-it-works)
 - [Run locally](#run-locally)
@@ -67,17 +67,26 @@ General job searches frequently mix different internship cycles, senior roles, n
 - [License](#license)
 - [Contributors](#contributors)
 
-## Internship directory
+## Opportunity directory
 
-Browse every listing currently marked open at [internship2027.simonesiega.com](https://internship2027.simonesiega.com/). Coverage is intentionally conservative rather than exhaustive: listings outside the configured searches, or without sufficient explicit evidence, may not appear.
+Browse every internship and New Grad listing currently marked open at [internship2027.simonesiega.com](https://internship2027.simonesiega.com/). Coverage is intentionally conservative rather than exhaustive: listings outside the configured searches, or without sufficient explicit evidence, may not appear.
 
-The repository shows only the bounded preview below so the landing page remains readable as canonical state grows.
+The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open internships:** 51<br>
+**Open positions:** 51 (Internships: 51 · New Grad: 0)<br>
 **Last successful collection:** July 18, 2026 at 13:11 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
+
+### Latest New Grad positions
+
+Showing the 0 most recently discovered of 0 open New Grad positions:
+
+| Company | Title | Location | Listing |
+|---|---|---|---|
+
+### Latest internships
 
 Showing the 10 most recently discovered of 51 open internships:
 
@@ -97,7 +106,7 @@ Showing the 10 most recently discovered of 51 open internships:
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
 
-Missing a relevant internship? [Suggest a listing](https://github.com/simonesiega/european-tech-internships-2027/issues/new?template=add-internship.yml).
+Missing a relevant position? [Suggest a listing](https://github.com/simonesiega/european-tech-internships-2027/issues/new?template=add-position.yml).
 
 ## Publication rules
 
@@ -105,13 +114,13 @@ A listing is published only when all five checks pass:
 
 | Check | Required evidence |
 |---|---|
-| Internship | The title explicitly contains configured internship, placement, or co-op terminology. |
+| Employment type | The title explicitly identifies either an internship (including placement or co-op) or a New Grad role. Internship terminology takes precedence if both appear. |
 | Seniority | The title contains no configured senior-level or management terminology. |
-| 2027 cycle | `2027` appears in the title or explicit internship-cycle context; graduation year alone is ignored. |
+| 2027 cycle | `2027` appears in the title or explicit opportunity-cycle context; graduation-year eligibility alone is ignored for internships. |
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous cycle, role, seniority, or geography is excluded. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
+Ambiguous employment type, cycle, role, seniority, or geography is excluded. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
 
 ## How it works
 
@@ -121,13 +130,13 @@ validated search definitions
 ↓
 bounded LinkedIn guest HTML collection
 ↓
-strict deterministic classification
+strict type and technology classification
 ↓
 transactional SQLite lifecycle state
 ↓
 ┌──────────────────────┬──────────────────────┐
 │ searchable website   │ README preview       │
-│ all open roles       │ 10 recent roles      │
+│ all open roles       │ 10/type recent roles │
 └──────────────────────┴──────────────────────┘
 </pre>
 </div>

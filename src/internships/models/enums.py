@@ -40,15 +40,10 @@ class InternshipCategory(StrEnum):
 
 
 class EmploymentType(StrEnum):
-    """Enumerate normalized LinkedIn employment types."""
+    """Enumerate the two opportunity types published by the directory."""
 
-    FULL_TIME = "full-time"
-    PART_TIME = "part-time"
-    CONTRACT = "contract"
-    TEMPORARY = "temporary"
     INTERNSHIP = "internship"
-    VOLUNTEER = "volunteer"
-    OTHER = "other"
+    NEW_GRAD = "new-grad"
 
 
 class JobStatus(StrEnum):

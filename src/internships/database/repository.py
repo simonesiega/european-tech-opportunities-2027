@@ -319,9 +319,7 @@ class Repository:
                 link=incoming.link,
                 category=incoming.category.value,
                 industries=incoming.industries,
-                employment_type=(
-                    incoming.employment_type.value if incoming.employment_type else None
-                ),
+                employment_type=incoming.employment_type.value,
                 start_date=incoming.start_date,
                 first_seen_at=observed_at,
                 last_seen_at=observed_at,
@@ -336,9 +334,7 @@ class Repository:
             # Missing optional metadata is not evidence that a previously observed
             # value became invalid; public detail markup can omit fields temporarily.
             next_industries = incoming.industries or row.industries
-            next_employment_type = (
-                incoming.employment_type.value if incoming.employment_type else row.employment_type
-            )
+            next_employment_type = incoming.employment_type.value
             next_start_date = incoming.start_date or row.start_date
             changed = any(
                 (

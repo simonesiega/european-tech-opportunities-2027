@@ -2,7 +2,7 @@
 
 [← Documentation](../README.md) · [Database lifecycle](database.md) · [Docker and deployment](docker.md)
 
-This guide documents the GitHub Actions workflows that validate the project, collect internship data, preserve canonical SQLite state, update the README preview, perform bounded maintenance, and optionally deploy validated state to the VPS.
+This guide documents the GitHub Actions workflows that validate the project, collect internship and New Grad data, preserve canonical SQLite state, update the README preview, perform bounded maintenance, and optionally deploy validated state to the VPS.
 
 Validation and collection remain separate: normal CI is offline and never contacts LinkedIn.
 
