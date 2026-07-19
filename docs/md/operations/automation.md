@@ -30,7 +30,9 @@ Validation and collection remain separate: normal CI is offline and never contac
 | `python-ci.yml` | Push to `main`, pull request, manual | Python formatting, linting, typing, offline tests, migrations, and generated-document checks |
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, and the Next.js production build |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Pipeline and website image builds plus migrated read-only SQLite smoke tests |
-| `scrape.yml` | Every six hours, manual | Permission-gated collection, validation, state preservation, optional README pull request, and optional VPS deployment |
+| `nightly.yml` | 03:00 UTC daily | Availability audit followed by scrape, with one combined review pull request |
+| `scrape.yml` | Manual | Scrape-only update with its own review pull request; reviewed deployment |
+| `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
 | `clear-database-columns.yml` | Manual | Bounded cleanup of selected optional fields, validation, preservation, and optional deployment |
 
 Workflow files under `.github/workflows/` are the executable source of truth. Update this guide when triggers, inputs, outputs, retention, or deployment behavior changes.
@@ -49,7 +51,7 @@ Equivalent local commands are documented in the [development guide](../developme
 
 ## Collection authorization
 
-The collection workflow requires this repository variable:
+The nightly, scrape-only, and availability-only workflows require this repository variable:
 
 ```text
 LINKEDIN_CRAWL_AUTHORIZED=true
@@ -64,43 +66,37 @@ Local and Docker interlocks are documented in [Configuration](../getting-started
 
 ## Schedule and concurrency
 
-The collection workflow uses:
+The nightly full update runs once per day:
 
 ```yaml
 schedule:
-  - cron: "0 */6 * * *"
+  - cron: "0 3 * * *"
 
 concurrency:
   group: internship-collection
   cancel-in-progress: false
 ```
 
-Nominal scheduled times are:
-
-- 00:00 UTC;
-- 06:00 UTC;
-- 12:00 UTC;
-- 18:00 UTC.
-
-GitHub Actions may start scheduled jobs later than the configured time.
+The nominal scheduled time is 03:00 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time.
 
 Collection and database-maintenance workflows share `internship-collection`. This prevents overlapping canonical writers while allowing the read-only website to continue serving requests.
 
 ## Manual collection inputs
 
-Run the workflow from:
+Two workflows can be run independently from the Actions tab:
 
-**Actions → Collect internships → Run workflow**
+- **Check job availability** checks all existing rows and opens an availability-only pull request.
+- **Scrape jobs only** runs only the scrape and opens a scrape-only pull request.
+
+The scrape workflow inputs are:
 
 | Input | Default | Effect |
 |---|---:|---|
-| `open_pull_request` | `false` | Create or update the generated README-preview pull request |
+| `open_pull_request` | `true` | Create or update the scrape-only README pull request |
 | `allow_state_rebuild` | `false` | Permit fresh-state recovery after available sources are reviewed |
-| `deploy_to_vps` | `false` | Atomically deploy the validated SQLite database to the configured VPS volume |
+| `deploy_to_vps` | `false` | Skip collection and atomically deploy reviewed cached SQLite state that validates against `main` |
 
-VPS deployment is allowed only from `main`.
-
-Enable only the outputs needed for the run. A normal manual collection should not request a rebuild or deployment without a specific operational reason.
+The availability workflow exposes only the guarded `allow_state_rebuild` recovery input and always proposes changes in its own pull request. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs stop after preserving state and opening the combined review pull request.
 
 ## Collection workflow
 
@@ -118,6 +114,10 @@ optional VPS bootstrap when cache is absent
 ↓
 database migration
 ↓
+check every stored job's LinkedIn detail page
+↓
+delete explicit 404/410 rows and refresh README
+↓
 bounded collection + classification
 ↓
 isolated transactional persistence
@@ -134,9 +134,11 @@ optional atomic VPS deployment
 </pre>
 </div>
 
-The workflow validates resulting state before publication or deployment.
+The scheduled workflow validates resulting state only after both ordered phases complete, then opens one combined pull request. A manual invocation of either workflow runs and proposes only that workflow's phase.
 
 A partial collection preserves successful search transactions. Failed searches record diagnostics but do not apply absence, unavailability, or closure evidence.
+
+The availability pass visits the LinkedIn detail page for every stored job. A valid HTML response keeps or reopens the row, while an explicit HTTP `404` or `410` deletes it and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
 ## Exit-code handling
 
@@ -144,7 +146,7 @@ A partial collection preserves successful search transactions. Failed searches r
 |---:|---|
 | `0` | Continue after complete success |
 | `1` | Stop because every selected search failed |
-| `2` | Continue after partial success; successful search transactions remain valid |
+| `2` | Continue after a partial scrape or availability audit; confirmed changes remain valid and inconclusive rows are preserved |
 | `3` | Stop because schema or state preconditions failed |
 
 Validation must pass after complete or partial success.
@@ -153,7 +155,7 @@ Command-level semantics are documented in the [CLI reference](../user-guide/cli.
 
 ## State continuity and artifacts
 
-The workflow restores the newest compatible cache using:
+Each state-writing workflow restores the newest compatible cache using:
 
 ```text
 opportunities-db-
@@ -172,10 +174,12 @@ After checkpointing SQLite write-ahead state, the workflow uploads an artifact c
 - `data/opportunities.db`;
 - `README.md`.
 
-Artifact name:
+Artifact names are:
 
 ```text
+opportunities-nightly-state-<run-id>
 opportunities-state-<run-id>
+opportunities-availability-state-<run-id>
 ```
 
 The configured retention period is 30 days.
@@ -186,17 +190,19 @@ Canonical backup, sidecar, migration, and restoration rules belong to the [datab
 
 ## README update pull requests
 
-When `open_pull_request=true`, the workflow updates the reusable branch:
+Each path uses a separate reusable review branch:
 
 ```text
-automated/readme-update
+automated/nightly-full-update  # availability followed by scrape
+automated/availability-update  # manually requested availability only
+automated/scrape-update        # manually requested scrape only
 ```
 
 Only `README.md` is committed. SQLite state is never committed.
 
 The generated block remains bounded to ten recently posted open jobs, regardless of the size of canonical state.
 
-Review the pull request normally before merging. Do not edit generated rows manually; change the renderer or canonical state instead.
+Review and merge the pull request manually. Scheduled runs do not deploy to the VPS. After accepting the pull request, start a manual run from `main` with `deploy_to_vps=true` to publish the reviewed canonical state. Deployment-mode runs skip collection and availability requests, then require the merged README to validate exactly against restored cached SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains in the protected cache/artifact/deployment path and is never committed. Do not edit generated rows manually; change the renderer or canonical state instead.
 
 ## VPS deployment
 
@@ -218,7 +224,7 @@ Review the pull request normally before merging. Do not edit generated rows manu
 
 ### Deployment sequence
 
-The workflow:
+After a review pull request is merged, a deployment-mode run restores its cached database, skips all new collection, and validates it against `main`. It then:
 
 1. uploads the validated database to a run-specific remote temporary path;
 2. compares local and remote SHA-256 checksums;

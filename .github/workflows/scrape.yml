@@ -1,14 +1,12 @@
-name: Collect internships and New Grad roles
+name: Scrape jobs only
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"
   workflow_dispatch:
     inputs:
       open_pull_request:
-        description: "Open a pull request when README changes"
+        description: "Open a scrape-only pull request when README changes"
         required: false
-        default: false
+        default: true
         type: boolean
       allow_state_rebuild:
         description: "Allow rebuilding SQLite when cached state is incompatible"
@@ -16,7 +14,7 @@ on:
         default: false
         type: boolean
       deploy_to_vps:
-        description: "Atomically deploy the validated database to the VPS"
+        description: "Deploy reviewed cached state from main (skips collection)"
         required: false
         default: false
         type: boolean
@@ -37,7 +35,7 @@ jobs:
       INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
     steps:
       - name: Verify LinkedIn crawl authorization
-        if: vars.LINKEDIN_CRAWL_AUTHORIZED != 'true'
+        if: inputs.deploy_to_vps != true && vars.LINKEDIN_CRAWL_AUTHORIZED != 'true'
         run: |
           echo "Set the repository variable LINKEDIN_CRAWL_AUTHORIZED=true before collecting."
           exit 1
@@ -53,7 +51,7 @@ jobs:
       - run: uv sync --frozen --dev
 
       - name: Require main branch for VPS deployment
-        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref != 'refs/heads/main'
+        if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
         run: |
           echo "VPS deployment is permitted only from the main branch."
           exit 1
@@ -67,14 +65,17 @@ jobs:
           restore-keys: opportunities-db-
 
       - name: Configure VPS SSH access for bootstrap
-        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
         shell: bash
         run: |
+          if [ -s data/opportunities.db ]; then
+            echo "Canonical state was restored from cache; VPS credentials are not needed."
+            exit 0
+          fi
           if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
-            echo "VPS SSH key and verified known_hosts entry are required."
+            echo "VPS SSH key and verified known_hosts entry are required when cache is empty."
             exit 1
           fi
           install -d -m 700 "$HOME/.ssh"
@@ -83,7 +84,6 @@ jobs:
           chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
       - name: Bootstrap canonical state from VPS
-        if: inputs.deploy_to_vps || github.event_name == 'schedule'
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
@@ -109,7 +109,7 @@ jobs:
           uv run python -c "import sqlite3; db=sqlite3.connect('file:data/opportunities.db?mode=ro', uri=True); result=db.execute('PRAGMA integrity_check').fetchone(); db.close(); assert result == ('ok',), result"
 
       - name: Remove bootstrap SSH credentials
-        if: always() && (inputs.deploy_to_vps || github.event_name == 'schedule')
+        if: always()
         shell: bash
         run: rm -f "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
@@ -128,6 +128,7 @@ jobs:
           fi
 
       - name: Scrape, persist, and render README
+        if: inputs.deploy_to_vps != true
         shell: bash
         run: |
           set +e
@@ -140,6 +141,7 @@ jobs:
           if [ "$code" -eq 2 ]; then
             echo "Partial success: successful searches were persisted; failed searches changed nothing."
           fi
+
       - name: Validate database and README
         run: uv run internships validate
       - name: Checkpoint SQLite
@@ -159,8 +161,8 @@ jobs:
             data/opportunities.db
             README.md
 
-      - name: Open or update README pull request
-        if: inputs.open_pull_request || github.event_name == 'schedule'
+      - name: Open or update scrape-only pull request
+        if: inputs.open_pull_request
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -169,7 +171,9 @@ jobs:
             echo "No README changes."
             exit 0
           fi
-          branch="automated/readme-update"
+          branch="automated/scrape-update"
+          title="data: scrape position updates"
+          body="Manual scrape-only update. Merge remains manual."
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$branch:refs/remotes/origin/$branch" || true
@@ -178,13 +182,13 @@ jobs:
           git commit -m "data: update position tables"
           git push --force-with-lease --set-upstream origin "$branch"
           if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
-            gh pr create --title "data: update position tables" \
-              --body "Validated LinkedIn → SQLite → README update from automated collection." \
+            gh pr create --title "$title" \
+              --body "$body" \
               --base main --head "$branch"
           fi
 
       - name: Configure VPS SSH access for deployment
-        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
         env:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
@@ -200,7 +204,7 @@ jobs:
           chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
       - name: Deploy validated database to VPS
-        if: (inputs.deploy_to_vps || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+        if: inputs.deploy_to_vps && github.ref == 'refs/heads/main'
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}

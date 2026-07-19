@@ -43,6 +43,9 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
     rendered = runner.invoke(app, ["render"], env=environment)
     assert rendered.exit_code == 0, rendered.output
+    availability = runner.invoke(app, ["check-availability"], env=environment)
+    assert availability.exit_code == 0, availability.output
+    assert "Checked 0 position(s)" in availability.output
     readme = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "| Company | Title | Location | Listing |" in readme
     assert "# 23 technology paths" in docs_path.read_text(encoding="utf-8")

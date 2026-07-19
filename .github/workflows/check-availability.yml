@@ -1,0 +1,165 @@
+name: Check job availability
+
+on:
+  workflow_dispatch:
+    inputs:
+      allow_state_rebuild:
+        description: "Allow rebuilding SQLite when cached state is incompatible"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: internship-collection
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-availability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
+    steps:
+      - name: Verify LinkedIn crawl authorization
+        if: vars.LINKEDIN_CRAWL_AUTHORIZED != 'true'
+        run: |
+          echo "Set the repository variable LINKEDIN_CRAWL_AUTHORIZED=true before checking listings."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.6"
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --frozen --dev
+
+      - name: Restore canonical SQLite state
+        uses: actions/cache/restore@v4
+        with:
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
+          restore-keys: opportunities-db-
+
+      - name: Configure VPS SSH access for bootstrap
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          if [ -s data/opportunities.db ]; then
+            echo "Canonical state was restored from cache; VPS credentials are not needed."
+            exit 0
+          fi
+          if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
+            echo "VPS SSH key and verified known_hosts entry are required when cache is empty."
+            exit 1
+          fi
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Bootstrap canonical state from VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+        shell: bash
+        run: |
+          if [ -s data/opportunities.db ]; then
+            exit 0
+          fi
+          if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
+            || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            echo "VPS bootstrap configuration is missing or invalid."
+            exit 1
+          fi
+
+          mkdir -p data
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes \
+            "${VPS_USER}@${VPS_HOST}" \
+            "cat /srv/european-tech-opportunities-27/data/opportunities.db" \
+            > data/opportunities.db
+          uv run python -c "import sqlite3; db=sqlite3.connect('file:data/opportunities.db?mode=ro', uri=True); result=db.execute('PRAGMA integrity_check').fetchone(); db.close(); assert result == ('ok',), result"
+
+      - name: Remove bootstrap SSH credentials
+        if: always()
+        shell: bash
+        run: rm -f "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Migrate database
+        shell: bash
+        run: |
+          if uv run internships db-upgrade; then
+            exit 0
+          fi
+          if [ "${{ inputs.allow_state_rebuild }}" = "true" ]; then
+            rm -f data/opportunities.db data/opportunities.db-*
+            uv run internships db-upgrade
+          else
+            echo "Migration failed; use allow_state_rebuild only after backing up state."
+            exit 1
+          fi
+
+      - name: Check every stored job detail page
+        shell: bash
+        run: |
+          set +e
+          uv run internships check-availability
+          code=$?
+          set -e
+          if [ "$code" -eq 2 ]; then
+            echo "Partial availability audit: inconclusive responses were preserved."
+          elif [ "$code" -ne 0 ]; then
+            exit "$code"
+          fi
+
+      - name: Validate database and README
+        run: uv run internships validate
+      - name: Checkpoint SQLite
+        run: uv run python -c "import sqlite3; db=sqlite3.connect('data/opportunities.db'); db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
+
+      - name: Save canonical SQLite state
+        uses: actions/cache/save@v4
+        with:
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
+      - name: Upload availability audit state
+        uses: actions/upload-artifact@v4
+        with:
+          name: opportunities-availability-state-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            data/opportunities.db
+            README.md
+
+      - name: Open or update availability pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if git diff --quiet -- README.md; then
+            echo "No availability changes to propose."
+            exit 0
+          fi
+          branch="automated/availability-update"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$branch:refs/remotes/origin/$branch" || true
+          git checkout -B "$branch"
+          git add README.md
+          git commit -m "data: remove unavailable positions"
+          git push --force-with-lease --set-upstream origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --title "data: remove unavailable positions" \
+              --body "Manual full-database availability audit. Explicit 404/410 listings were removed; merge remains manual." \
+              --base main --head "$branch"
+          fi

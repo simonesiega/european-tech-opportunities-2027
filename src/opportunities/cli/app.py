@@ -31,6 +31,7 @@ from opportunities.database.session import (
 )
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.pipeline.availability import audit_job_availability
 from opportunities.pipeline.runner import CollectionPipeline, PipelineResult
 from opportunities.readme import ReadmeMetadata, render_readme, validate_readme
 from opportunities.search_registry_docs import (
@@ -116,6 +117,39 @@ def scrape(
     except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
         error_console.print(f"[red]Scrape failed:[/red] {exc}")
         raise typer.Exit(2) from exc
+    finally:
+        engine.dispose()
+    raise typer.Exit(result.exit_code)
+
+
+@app.command("check-availability")
+def check_availability(
+    ctx: typer.Context,
+    no_render: Annotated[
+        bool, typer.Option("--no-render", help="Do not update README after the audit.")
+    ] = False,
+) -> None:
+    """Check every stored job page and delete explicitly unavailable rows."""
+    settings = _settings(ctx)
+    _require_linkedin_permission(settings)
+    repository, engine = _repository(settings)
+    _require_migrations(engine)
+    try:
+        result = asyncio.run(audit_job_availability(settings=settings, repository=repository))
+        if not no_render:
+            render_readme(
+                settings.readme_path,
+                repository.list_open_jobs(),
+                _readme_metadata(repository),
+            )
+            render_search_registry_docs(
+                _search_registry_docs_path(settings), settings.search_config_dir
+            )
+        console.print(
+            f"Checked {result.checked} position(s): {result.available} available, "
+            f"{result.deleted} deleted, {result.reopened} reopened, "
+            f"{len(result.inconclusive_ids)} inconclusive."
+        )
     finally:
         engine.dispose()
     raise typer.Exit(result.exit_code)

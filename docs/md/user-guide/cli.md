@@ -31,6 +31,7 @@ The global `--settings` option must appear before the command name.
 - [`searches`](#searches)
 - [`search-test`](#search-test)
 - [`scrape`](#scrape)
+- [`check-availability`](#check-availability)
 - [`render`](#render)
 - [`stats`](#stats)
 - [`validate`](#validate)
@@ -46,6 +47,7 @@ The global `--settings` option must appear before the command name.
 | `searches` | Inspect the effective search registry and available run health |
 | `search-test` | Run one authorized search without persistence |
 | `scrape` | Run authorized collection and persist independent search outcomes |
+| `check-availability` | Check every stored LinkedIn detail page and delete explicit 404/410 rows |
 | `render` | Regenerate the bounded README projection from SQLite |
 | `stats` | Display aggregate canonical state |
 | `validate` | Check schema, lifecycle invariants, and generated projections |
@@ -157,6 +159,26 @@ Use `--no-render` where canonical state should change without modifying the Git 
 
 The collection lifecycle is documented in [Architecture](../development/architecture.md#failure-isolation) and [Database lifecycle](../operations/database.md#successful-search-transaction).
 
+## `check-availability`
+
+```bash
+uv run internships check-availability
+```
+
+Check canonical state without updating generated documentation:
+
+```bash
+uv run internships check-availability --no-render
+```
+
+The command requires the LinkedIn authorization interlock and requests the LinkedIn detail page for every job row, including rows currently marked closed. It then applies one transaction:
+
+- a valid HTML response keeps the row open or reopens it;
+- HTTP `404` or `410` permanently deletes the job and cascading search provenance;
+- authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
+
+The command exits with code `2` when one or more checks are inconclusive. Confirmed results remain committed, and the default path refreshes the README projection. The nightly workflow runs this full audit once per day before scraping and opens or updates one combined pull request for manual review. The availability-only workflow can run the same command manually and opens its own pull request.
+
 ## `render`
 
 ```bash
@@ -228,7 +250,7 @@ For diagnosis, use [Troubleshooting](../operations/troubleshooting.md).
 |---:|---|
 | `0` | Command completed successfully |
 | `1` | Every selected search failed, or validation found an inconsistency |
-| `2` | Partial scrape, invalid command input, or configuration rejection |
+| `2` | Partial scrape or availability audit, invalid command input, or configuration rejection |
 | `3` | Required database tables are missing or the schema is not at migration head |
 
 After a partial scrape with exit code `2`:
@@ -249,6 +271,8 @@ GitHub Actions handling of these codes is documented in [Automation](../operatio
 | `search-test` | Yes, after authorization gate | No | No |
 | `scrape` | Yes, after authorization gate | Yes | Normally |
 | `scrape --no-render` | Yes, after authorization gate | Yes | No |
+| `check-availability` | Yes, after authorization gate | Yes | Normally |
+| `check-availability --no-render` | Yes, after authorization gate | Yes | No |
 | `render` | No | No | Yes |
 | `stats` | No | No | No |
 | `validate` | No | No | No |

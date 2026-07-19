@@ -276,7 +276,7 @@ The local application and Docker pipeline use:
 INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED=true
 ```
 
-The GitHub collection workflow uses the repository variable:
+The GitHub nightly, scrape-only, and availability-only workflows use the repository variable:
 
 ```text
 LINKEDIN_CRAWL_AUTHORIZED=true

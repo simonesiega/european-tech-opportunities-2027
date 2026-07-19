@@ -97,7 +97,7 @@ Local or Docker collection requires:
 INTERNSHIPS_LINKEDIN_CRAWL_AUTHORIZED=true
 ```
 
-GitHub Actions collection requires:
+GitHub Actions collection and availability auditing require:
 
 ```text
 LINKEDIN_CRAWL_AUTHORIZED=true
@@ -105,7 +105,7 @@ LINKEDIN_CRAWL_AUTHORIZED=true
 
 Neither value grants permission.
 
-When the GitHub variable is missing or different, collection stops before LinkedIn network access. Leave the interlocks disabled unless express authorization exists.
+When the GitHub variable is missing or different, collection and availability workflows stop before LinkedIn network access. Leave the interlocks disabled unless express authorization exists.
 
 ### `setup-uv` cannot determine a version
 
@@ -381,7 +381,7 @@ Cache is not durable backup.
 
 Use, in order of availability:
 
-1. the latest retained `opportunities-state-<run-id>` artifact;
+1. the retained artifact matching the accepted update (`opportunities-nightly-state-<run-id>`, `opportunities-state-<run-id>`, or `opportunities-availability-state-<run-id>`);
 2. the canonical VPS database;
 3. a separately maintained backup.
 

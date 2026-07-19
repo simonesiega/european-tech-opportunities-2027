@@ -52,7 +52,7 @@ General job searches frequently mix different hiring cycles, senior roles, non-E
 
 - **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
 - **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
-- **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, and conservative closure handling.
+- **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
 - **Production workflow:** strict typing, offline tests, Alembic migrations, Docker builds, scheduled collection, validation, backups, and atomic deployment.
 
 ## Contents
@@ -131,7 +131,7 @@ A listing is published only when all six checks pass:
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role; closure requires repeated explicit detail-page `404` or `410` evidence across every active search association.
+Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role. Collection closure requires repeated explicit detail-page `404` or `410` evidence across every active search association; a separate daily audit checks the LinkedIn detail page for every stored row and deletes rows only after an explicit `404` or `410`. Other HTTP or transport failures are preserved for later review.
 
 ## How it works
 

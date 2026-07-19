@@ -39,6 +39,14 @@ class PersistSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class AvailabilityChanges:
+    """Summarize changes made by a complete availability audit."""
+
+    deleted: int = 0
+    reopened: int = 0
+
+
+@dataclass(frozen=True, slots=True)
 class DatabaseStats:
     """Summarize aggregate database statistics."""
 
@@ -219,6 +227,55 @@ class Repository:
         with self.factory() as session:
             rows = session.scalars(select(JobRow).order_by(JobRow.linkedin_job_id)).all()
             return [_stored_job(row) for row in rows]
+
+    def apply_availability_audit(
+        self,
+        *,
+        available_ids: tuple[str, ...],
+        unavailable_ids: tuple[str, ...],
+        observed_at: datetime,
+    ) -> AvailabilityChanges:
+        """Reopen available jobs and permanently remove explicit 404/410 jobs."""
+        available = set(available_ids)
+        unavailable = set(unavailable_ids)
+        if available & unavailable:
+            raise ValueError("a job cannot be both available and unavailable")
+
+        reopened = 0
+        deleted = 0
+        with self.factory.begin() as session:
+            if available:
+                available_jobs = session.scalars(
+                    select(JobRow).where(JobRow.linkedin_job_id.in_(available))
+                ).all()
+                for job in available_jobs:
+                    effective_time = max(ensure_utc(job.last_seen_at), ensure_utc(observed_at))
+                    if job.status == JobStatus.CLOSED.value:
+                        job.status = JobStatus.OPEN.value
+                        job.updated_at = max(ensure_utc(job.updated_at), effective_time)
+                        reopened += 1
+                    job.last_seen_at = effective_time
+
+                # A successful direct detail-page check supersedes older closure
+                # evidence without pretending that the job appeared in a new search.
+                aliases = session.scalars(
+                    select(JobSearchRow).where(JobSearchRow.linkedin_job_id.in_(available))
+                ).all()
+                for alias in aliases:
+                    alias.unavailable_confirmations = 0
+                    alias.active = True
+
+            if unavailable:
+                unavailable_jobs = session.scalars(
+                    select(JobRow).where(JobRow.linkedin_job_id.in_(unavailable))
+                ).all()
+                deleted = len(unavailable_jobs)
+                for job in unavailable_jobs:
+                    # Foreign-key cascades remove job_searches provenance. Search and
+                    # run history remain intact for operational diagnostics.
+                    session.delete(job)
+
+        return AvailabilityChanges(deleted=deleted, reopened=reopened)
 
     def stats(self) -> DatabaseStats:
         """Display aggregate pipeline and database statistics."""

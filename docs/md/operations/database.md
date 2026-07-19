@@ -22,6 +22,7 @@ The database and SQLite sidecars are ignored by Git.
 - [Provenance](#provenance)
 - [Successful search transaction](#successful-search-transaction)
 - [Closure lifecycle](#closure-lifecycle)
+- [Daily full-state availability audit](#daily-full-state-availability-audit)
 - [Timestamp invariants](#timestamp-invariants)
 - [One-writer model](#one-writer-model)
 - [Migrations](#migrations)
@@ -172,6 +173,22 @@ no active association      → job closes
 Deleting or disabling search YAML does not close jobs.
 
 The confirmation threshold is configured through `INTERNSHIPS_CLOSURE_CONFIRMATION_RUNS`; see [Configuration](../getting-started/configuration.md#environment-reference).
+
+## Daily full-state availability audit
+
+The scheduled workflow runs `internships check-availability` once per day before collection. Unlike bounded per-search rechecks, this pass requests the LinkedIn detail page for every row, including closed rows.
+
+Results are deliberately narrow:
+
+```text
+valid HTML response → keep or reopen the job
+HTTP 404 or 410     → delete the job and cascading job_searches rows
+anything else       → preserve the job as inconclusive
+```
+
+The auditor collects every response before applying confirmed changes in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
+
+The README is regenerated after the transaction. The nightly workflow includes the audit result in its combined pull request, while a manual availability-only run uses a separate review pull request. SQLite itself remains canonical runtime state and is not committed to Git.
 
 ## Timestamp invariants
 

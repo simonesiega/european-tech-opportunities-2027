@@ -177,7 +177,7 @@ A successful search transaction atomically:
 
 Search-page absence is never closure evidence.
 
-A later valid rediscovery can reactivate provenance and reopen a job.
+A later valid rediscovery can reactivate provenance and reopen a job. Separately, a daily full-state auditor checks the LinkedIn detail page for every stored job in a single pass: valid pages preserve or reopen the corresponding record, explicit `404` or `410` responses delete it, and ambiguous failures leave its state unchanged.
 
 Concurrent searches may finish out of order, so persisted observation timestamps use monotonic maximums rather than completion order.
 

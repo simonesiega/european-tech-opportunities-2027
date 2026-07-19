@@ -214,7 +214,7 @@ INTERNSHIPS_DATABASE_PATH=/app/data/opportunities.db
 
 The site service must receive the database volume as read-only.
 
-The GitHub Actions collection workflow replaces the SQLite file inside the named volume through verified SSH, checksum comparison, locking, correct ownership, and atomic rename.
+The manual deployment mode in `scrape.yml` replaces the SQLite file inside the named volume through verified SSH, checksum comparison, locking, correct ownership, and atomic rename.
 
 The website opens a new short-lived read-only connection for each server request, so deployed state becomes visible without:
 
