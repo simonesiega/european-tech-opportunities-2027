@@ -74,14 +74,14 @@ Browse every internship and New Grad listing currently marked open at [internshi
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open positions:** 354 (Internships: 211 · New Grad: 143)<br>
-**Last successful collection:** July 19, 2026 at 14:16 UTC
+**Open positions:** 361 (Internships: 212 · New Grad: 149)<br>
+**Last successful collection:** July 19, 2026 at 18:19 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 143 open New Grad positions:
+Showing the 10 most recently posted of 149 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -98,7 +98,7 @@ Showing the 10 most recently posted of 143 open New Grad positions:
 
 ### Latest internships
 
-Showing the 10 most recently posted of 211 open internships:
+Showing the 10 most recently posted of 212 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
