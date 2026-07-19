@@ -251,6 +251,7 @@ The supported architecture requires:
 - sanitized diagnostics without response-body logging;
 - one canonical SQLite writer;
 - read-only website database access;
+- versioned, checksum-verified SQLite snapshots with automated restore tests;
 - atomic README replacement;
 - offline deterministic tests by default.
 

@@ -1,0 +1,130 @@
+name: Verify canonical state recovery
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: opportunity-collection
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          version: "0.11.6"
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --frozen --dev
+
+      - name: Restore canonical SQLite cache accelerator
+        uses: actions/cache/restore@v4
+        with:
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
+          restore-keys: opportunities-db-
+
+      - name: Configure restricted VPS snapshot access
+        env:
+          VPS_BACKUP_SSH_PRIVATE_KEY: ${{ secrets.VPS_BACKUP_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          if [ -z "$VPS_BACKUP_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
+            echo "Restricted backup key and verified known_hosts entry are required."
+            exit 1
+          fi
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$VPS_BACKUP_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_backup_ed25519"
+          printf '%s\n' "$VPS_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Reconcile cache with verified VPS snapshot
+        env:
+          VPS_BACKUP_HOST: ${{ secrets.VPS_HOST }}
+          VPS_BACKUP_USER: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
+          VPS_BACKUP_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+        shell: bash
+        run: bash scripts/canonical_state_store.sh restore
+
+      - name: Configure live-database bootstrap access
+        env:
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+        shell: bash
+        run: |
+          if [ -s data/opportunities.db ]; then
+            exit 0
+          fi
+          if [ -z "$VPS_SSH_PRIVATE_KEY" ] || [ -z "$VPS_SSH_KNOWN_HOSTS" ]; then
+            echo "VPS bootstrap credentials are required for the first snapshot."
+            exit 1
+          fi
+          printf '%s\n' "$VPS_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+
+      - name: Bootstrap first snapshot from live database
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+        shell: bash
+        run: |
+          if [ -s data/opportunities.db ]; then
+            exit 0
+          fi
+          if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
+            || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            echo "VPS bootstrap configuration is invalid."
+            exit 1
+          fi
+          mkdir -p data
+          ssh -i "$HOME/.ssh/id_ed25519" -p "$VPS_PORT" -o BatchMode=yes \
+            "${VPS_USER}@${VPS_HOST}" \
+            "cat /srv/european-tech-opportunities-2027/data/opportunities.db" \
+            > data/opportunities.db
+
+      - name: Migrate and validate recovered state
+        run: |
+          uv run opportunities db-upgrade
+          uv run opportunities validate
+          uv run python -c "import sqlite3; db=sqlite3.connect('data/opportunities.db'); db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
+
+      - name: Publish and round-trip recovery snapshot
+        id: canonical-snapshot
+        env:
+          VPS_BACKUP_HOST: ${{ secrets.VPS_HOST }}
+          VPS_BACKUP_USER: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
+          VPS_BACKUP_PORT: ${{ vars.VPS_SSH_PORT || '22' }}
+          CANONICAL_STATE_RETENTION_DAYS: ${{ vars.CANONICAL_STATE_RETENTION_DAYS || '365' }}
+        shell: bash
+        run: bash scripts/canonical_state_store.sh publish
+
+      - name: Save verified cache accelerator
+        uses: actions/cache/save@v4
+        with:
+          path: data/opportunities.db
+          key: opportunities-db-${{ github.run_id }}
+
+      - name: Upload verified recovery bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: opportunities-recovery-drill-${{ github.run_id }}
+          retention-days: 30
+          path: |
+            ${{ steps.canonical-snapshot.outputs.snapshot_database }}
+            ${{ steps.canonical-snapshot.outputs.snapshot_manifest }}
+
+      - name: Remove SSH credentials
+        if: always()
+        shell: bash
+        run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"

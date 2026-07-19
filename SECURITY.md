@@ -116,7 +116,7 @@ read-only website + bounded README preview
 | Persistence | SQLite is canonical; writes use controlled repository transactions and migrations |
 | Website | Read-only SQLite access; no lifecycle mutation API |
 | README | Bounded generated projection written through atomic replacement |
-| Automation | Offline validation CI remains separate from permission-gated collection |
+| Automation | Offline validation CI remains separate from permission-gated collection; restricted VPS snapshots are checksum- and restore-verified |
 | Containers | Unprivileged processes and explicit mounts do not expand source authorization |
 
 The detailed runtime behavior is documented in the [architecture](docs/md/development/architecture.md), [configuration](docs/md/getting-started/configuration.md), [database](docs/md/operations/database.md), [automation](docs/md/operations/automation.md), and [Docker](docs/md/operations/docker.md) guides.
@@ -172,7 +172,7 @@ Relevant security reports include:
 - failed searches incorrectly mutating or closing jobs;
 - migrations corrupting or silently discarding canonical state;
 - workflows publishing `.env`, SQLite state, credentials, or sensitive artifacts unexpectedly;
-- unsafe artifact, cache, backup, or deployment access controls;
+- unsafe VPS snapshot, artifact, cache, backup, or deployment access controls;
 - dependency, workflow, or container compromise affecting a supported execution path;
 - stored or reflected script injection in the website;
 - unsafe rendering of listing fields;
@@ -228,7 +228,7 @@ Deleting a secret in a later commit is not sufficient.
 - Run the validation paths relevant to the release.
 - Do not publish packages, images, or deployment artifacts from a dirty or unvalidated tree.
 - Keep release and version references synchronized across project metadata, lockfiles, user agents, and documentation.
-- Protect package-publishing credentials, deployment keys, workflow environments, artifacts, caches, and backups with least-privilege access.
+- Protect package-publishing credentials, deployment keys, workflow environments, durable snapshots, artifacts, caches, and backups with least-privilege access.
 
 ## Responsible disclosure
 

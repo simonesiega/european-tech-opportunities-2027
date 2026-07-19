@@ -30,8 +30,8 @@ This documentation is organized by task. The website is the primary public inter
 
 | Guide | Covers |
 |---|---|
-| [Automation](operations/automation.md) | Validation CI, permission-gated scheduled collection, manual dispatch, caching, artifacts, and VPS deployment. |
-| [Database](operations/database.md) | Schema, lifecycle, provenance, migrations, backup, and restore. |
+| [Automation](operations/automation.md) | Validation CI, scheduled collection, durable snapshots, cache accelerators, artifacts, and VPS deployment. |
+| [Database](operations/database.md) | Schema, lifecycle, provenance, migrations, durable backup, and restore. |
 | [Docker and deployment](operations/docker.md) | Production images, Compose, volumes, Dokploy, and permissions. |
 | [Troubleshooting](operations/troubleshooting.md) | Exit codes, common failures, diagnosis, and safe recovery. |
 

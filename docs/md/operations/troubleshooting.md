@@ -377,15 +377,34 @@ Do not manually rewrite timestamps or status values without preserving evidence.
 
 ### Collection cache is missing
 
-Cache is not durable backup.
+Cache is only an accelerator. No manual action is needed when restricted VPS snapshot storage is healthy: the workflow downloads `latest.json`, verifies its timestamped SQLite file, and replaces the missing cache. It writes a new byte-identical cache only after round-trip restore verification.
 
-Use, in order of availability:
-
-1. the retained artifact matching the accepted update (`opportunities-nightly-state-<run-id>`, `opportunities-state-<run-id>`, or `opportunities-availability-state-<run-id>`);
-2. the canonical VPS database;
-3. a separately maintained backup.
+If both cache and `latest.json` are absent during initial rollout and the snapshot directory is empty, the workflow can seed from the live VPS database. If timestamped snapshots exist but the pointer is missing, automation stops so the pointer can be recovered instead of starting an unrelated history.
 
 The README cannot reconstruct canonical state.
+
+### VPS snapshot restore or publication fails
+
+Do not bypass host-key, manifest, checksum, or restore checks to finish a collection run.
+
+Check, without printing credentials:
+
+- `VPS_HOST`, `VPS_BACKUP_USER`, and `VPS_SSH_PORT`;
+- the `VPS_BACKUP_SSH_PRIVATE_KEY` secret and verified `VPS_SSH_KNOWN_HOSTS` entry;
+- SFTP-only account access to `/state`;
+- absence of shell, sudo, forwarding, `opportunities-site` membership, and live-database access;
+- database size, SHA-256, schema revision, and collection timestamp against the manifest;
+- SQLite `integrity_check`, `foreign_key_check`, and required tables.
+
+A publication failure before latest-pointer promotion leaves the prior snapshot authoritative. Preserve failed-run logs and inspect newly uploaded timestamped files; do not repoint `latest.json` manually until the pair passes:
+
+```bash
+uv run python scripts/canonical_snapshot.py verify \
+  --database /safe/recovery/opportunities.db \
+  --manifest /safe/recovery/manifest.json
+```
+
+For recovery, walk the manifest `previous_snapshot` references newest to oldest. A manifest or checksum failure is a stop condition, not permission to use unverified bytes. Restricted account setup and required settings are documented in [Automation](automation.md#restricted-vps-snapshot-configuration).
 
 ### SSH or VPS deployment fails
 
@@ -416,13 +435,13 @@ Deployment sequencing is documented in [Automation](automation.md#vps-deployment
 
 ### State rebuild was requested unexpectedly
 
-`allow_state_rebuild=true` can discard incompatible cached state and sidecars.
+`allow_state_rebuild=true` can discard incompatible restored state and sidecars.
 
 Before allowing it:
 
 - confirm the run was intentional;
-- preserve the current artifact or VPS database;
-- verify that no compatible cache or backup should be restored instead;
+- preserve the current VPS snapshot, artifact, and live database;
+- verify that no compatible timestamped snapshot or backup should be restored instead;
 - understand that first-seen history, provenance, closure evidence, and diagnostics will be lost.
 
 Recovery policy is documented in [Automation](automation.md#recovery-and-state-rebuilds).

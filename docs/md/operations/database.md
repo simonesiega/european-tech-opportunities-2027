@@ -274,22 +274,34 @@ For a cold filesystem copy:
 3. checkpoint write-ahead logging;
 4. copy the database and any required sidecars together.
 
-GitHub Actions checkpoints WAL before cache or artifact publication. VPS deployment also preserves the previous canonical file as:
+GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and minimum retention policy. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. Cache is only an accelerator, and 30-day artifacts are a secondary short-term copy.
+
+VPS deployment also preserves the previous canonical file as:
 
 ```text
 opportunities.db.previous
 ```
 
-Workflow cache, artifacts, and deployment sequencing are documented in [Automation](automation.md#state-continuity-and-artifacts).
+Restricted VPS snapshot storage, cache, artifacts, retention, and deployment sequencing are documented in [Automation](automation.md#state-continuity-and-artifacts).
 
 ## Restore
 
 1. Stop every process that may write the database.
 2. Stop or restart readers that could retain stale file handles.
 3. Preserve the current or damaged state separately.
-4. Restore a known-good backup.
-5. Remove stale sidecars only while no SQLite connection is open.
-6. Run:
+4. Select a timestamped durable snapshot; inspect its collection time, schema revision, checksum, and previous-snapshot link.
+5. Download both the immutable database object and its manifest.
+6. Verify the manifest and database before replacement:
+
+```bash
+uv run python scripts/canonical_snapshot.py verify \
+  --database /safe/recovery/opportunities.db \
+  --manifest /safe/recovery/manifest.json
+```
+
+7. Restore the verified database atomically.
+8. Remove stale sidecars only while no SQLite connection is open.
+9. Run:
 
 ```bash
 uv run opportunities db-upgrade
@@ -362,6 +374,7 @@ Do not commit databases or sidecars, and do not attach production state to publi
 
 Restrict access to:
 
+- restricted VPS snapshots and manifests;
 - backups;
 - GitHub Actions artifacts;
 - workflow caches;

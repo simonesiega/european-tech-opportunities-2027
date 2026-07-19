@@ -16,6 +16,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 - [Collection workflow](#collection-workflow)
 - [Exit-code handling](#exit-code-handling)
 - [State continuity and artifacts](#state-continuity-and-artifacts)
+- [Restricted VPS snapshot configuration](#restricted-vps-snapshot-configuration)
 - [README update pull requests](#readme-update-pull-requests)
 - [VPS deployment](#vps-deployment)
 - [Recovery and state rebuilds](#recovery-and-state-rebuilds)
@@ -29,6 +30,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `python-ci.yml` | Push to `main`, pull request, manual | Python formatting, linting, typing, offline tests, migrations, and generated-document checks |
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, the Next.js production build, unit tests, and browser checks against synthetic SQLite state |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Pipeline and website image builds plus migrated read-only SQLite smoke tests |
+| `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access |
 | `nightly.yml` | 03:00 UTC daily | Availability audit followed by scrape, with one combined review pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request; reviewed deployment |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
@@ -92,7 +94,7 @@ The scrape workflow inputs are:
 |---|---:|---|
 | `open_pull_request` | `true` | Create or update the scrape-only README pull request |
 | `allow_state_rebuild` | `false` | Permit fresh-state recovery after available sources are reviewed |
-| `deploy_to_vps` | `false` | Skip collection and atomically deploy reviewed cached SQLite state that validates against `main` |
+| `deploy_to_vps` | `false` | Skip collection and atomically deploy reviewed durable SQLite state that validates against `main` |
 
 The availability workflow exposes only the guarded `allow_state_rebuild` recovery input and always proposes changes in its own pull request. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs stop after preserving state and opening the combined review pull request.
 
@@ -104,11 +106,11 @@ authorization check
 ↓
 checkout + pinned runtime setup
 ↓
-optional verified SSH setup
+restore SQLite cache accelerator
 ↓
-restore compatible SQLite cache
+reconcile it with the latest restricted VPS snapshot manifest
 ↓
-optional VPS bootstrap when cache is absent
+optional verified SSH + VPS bootstrap when neither source exists
 ↓
 database migration
 ↓
@@ -124,7 +126,9 @@ README projection + validation
 ↓
 SQLite WAL checkpoint
 ↓
-cache + retained artifact
+timestamped SFTP snapshot + round-trip restore verification
+↓
+cache accelerator + retained artifact
 ↓
 optional README pull request
 ↓
@@ -153,38 +157,49 @@ Command-level semantics are documented in the [CLI reference](../user-guide/cli.
 
 ## State continuity and artifacts
 
-Each state-writing workflow restores the newest compatible cache using:
+A dedicated, chrooted, SFTP-only VPS account stores recovery snapshots. GitHub Actions cache remains only an accelerator. Each state-writing workflow first restores the newest cache key matching:
 
 ```text
 opportunities-db-
 ```
 
-New cache keys are run-specific:
+It then downloads `/state/canonical-state/latest.json`. A cached database is used only when its size, SHA-256 checksum, schema revision, and collection timestamp match that manifest and SQLite integrity and foreign-key checks pass. Otherwise, the timestamped database named by the manifest replaces the cache. Authentication, host-key, transfer, manifest, checksum, or integrity failures stop the workflow rather than silently using stale state.
+
+After validation and WAL checkpointing, publication creates a consistent SQLite backup through the SQLite backup API. Snapshot paths resemble:
 
 ```text
-opportunities-db-<run-id>
+/state/canonical-state/snapshots/2026/07/20/20260720T030000.000000Z-run-123-attempt-1.db
+/state/canonical-state/snapshots/2026/07/20/20260720T030000.000000Z-run-123-attempt-1.manifest.json
 ```
 
-A cache supports continuity and performance, but is not a durable backup.
+Every strict JSON manifest records the database path, byte size, SHA-256, Alembic revision, collection and creation timestamps, preceding database and manifest references, workflow source, and retention metadata.
 
-After checkpointing SQLite write-ahead state, the workflow uploads an artifact containing:
+Publication uploads new paths, downloads both files into a clean directory, verifies SQLite and application readability, and only then atomically renames a temporary `latest.json`. Cache, artifact, and deployment copies are byte-identical to the verified download. A failed transfer or verification leaves the prior pointer in place. The restricted account has no shell, sudo, forwarding, application-database access, or membership in `opportunities-site`.
 
-- `data/opportunities.db`;
-- `README.md`.
-
-Artifact names are:
-
-```text
-opportunities-nightly-state-<run-id>
-opportunities-state-<run-id>
-opportunities-availability-state-<run-id>
-```
-
-The configured retention period is 30 days.
-
-When VPS deployment is requested and no compatible cache exists, the workflow can bootstrap from the current VPS database after verifying SQLite integrity.
+GitHub artifacts remain a 30-day secondary recovery path and contain the exact database snapshot, manifest, and `README.md`. VPS manifests declare a minimum 365-day retention window; automation does not delete older snapshots. Capacity must be monitored and expiry reviewed manually after `retain_until`. Because this storage is on the same VPS as production, it protects against cache expiry and accidental database replacement but not complete VPS, disk, or provider loss. Replication to an independent host remains the recommended next durability layer.
 
 Canonical backup, sidecar, migration, and restoration rules belong to the [database lifecycle guide](database.md).
+
+## Restricted VPS snapshot configuration
+
+The account is expected to be named `opportunities-backup`, chrooted at `/srv/opportunities-backup`, and forced into `internal-sftp -d /state`. Its writable directory is `/srv/opportunities-backup/state` with mode `0700`. The account must use a dedicated key, must not have sudo or shell access, and must not belong to `opportunities-site`.
+
+### Required snapshot secret
+
+| Secret | Purpose |
+|---|---|
+| `VPS_BACKUP_SSH_PRIVATE_KEY` | Dedicated unencrypted Ed25519 private key for the SFTP-only account |
+
+The workflows reuse existing `VPS_HOST`, `VPS_SSH_KNOWN_HOSTS`, and `VPS_SSH_PORT` settings. The verified known-hosts entry is mandatory and host-key checking is strict.
+
+### Snapshot repository variables
+
+| Variable | Required | Default |
+|---|---:|---|
+| `VPS_BACKUP_USER` | No | `opportunities-backup` |
+| `CANONICAL_STATE_RETENTION_DAYS` | No | `365` |
+
+The private key is written only for restore/publication steps and removed with `known_hosts` afterward. The normal VPS deployment key remains separate. After configuring GitHub, run **Verify canonical state recovery** manually once; it performs no LinkedIn access and seeds the first snapshot from the reviewed live database only when both snapshot storage and cache are empty.
 
 ## README update pull requests
 
@@ -200,7 +215,7 @@ Only `README.md` is committed. SQLite state is never committed.
 
 The generated block remains bounded to ten recently posted open jobs, regardless of the size of canonical state.
 
-Review and merge the pull request manually. Scheduled runs do not deploy to the VPS. After accepting the pull request, start a manual run from `main` with `deploy_to_vps=true` to publish the reviewed canonical state. Deployment-mode runs skip collection and availability requests, then require the merged README to validate exactly against restored cached SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains in the protected cache/artifact/deployment path and is never committed. Do not edit generated rows manually; change the renderer or canonical state instead.
+Review and merge the pull request manually. Scheduled runs do not deploy to the VPS. After accepting the pull request, start a manual run from `main` with `deploy_to_vps=true` to publish the reviewed canonical state. Deployment-mode runs skip collection and availability requests, then require the merged README to validate exactly against restored durable SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains in the protected VPS snapshot/cache/artifact/deployment path and is never committed. Do not edit generated rows manually; change the renderer or canonical state instead.
 
 ## VPS deployment
 
@@ -247,7 +262,7 @@ uv run opportunities db-upgrade
 
 A migration failure stops the workflow.
 
-Setting `allow_state_rebuild=true` permits incompatible cached state and sidecars to be discarded before creating a new database. A rebuild loses:
+Setting `allow_state_rebuild=true` permits incompatible restored state and sidecars to be discarded before creating a new database. A rebuild loses:
 
 - original first-seen history;
 - search provenance;
@@ -256,7 +271,7 @@ Setting `allow_state_rebuild=true` permits incompatible cached state and sidecar
 
 Treat rebuilding as emergency recovery, never routine migration.
 
-Before enabling it, review the newest compatible cache, retained artifacts, the VPS canonical file, and separately maintained backups. Follow [Database lifecycle](database.md#restore) and [Troubleshooting](troubleshooting.md#github-actions-and-deployment).
+Before enabling it, review durable snapshot history and manifests first, followed by retained artifacts, the VPS canonical file, and cache accelerators. Follow [Database lifecycle](database.md#restore) and [Troubleshooting](troubleshooting.md#github-actions-and-deployment).
 
 ## Disabling collection
 
@@ -279,7 +294,8 @@ Before changing or manually running automation, confirm:
 - [ ] Nightly, scrape-only, and availability-only runs retain the shared one-writer concurrency group.
 - [ ] Third-party actions remain pinned where practical.
 - [ ] Logs contain no secrets, GitHub contexts, HTML bodies, `.env` values, or database rows.
-- [ ] SQLite is checkpointed and validated before cache, artifact, or deployment publication.
+- [ ] SQLite is checkpointed and validated before durable snapshot, cache, artifact, or deployment publication.
+- [ ] The SFTP-only account restrictions, host-key checks, manifest checksums, retention metadata, and automated restore verification remain enforced.
 - [ ] State-rebuild operations have a reviewed recovery source.
 - [ ] VPS host keys are pre-verified.
 - [ ] Deployment remains checksum-verified, locked, and atomic.

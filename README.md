@@ -53,7 +53,7 @@ General job searches frequently mix different hiring cycles, senior roles, non-E
 - **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
 - **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
 - **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
-- **Production workflow:** strict typing, offline tests, Alembic migrations, Docker builds, scheduled collection, validation, backups, and atomic deployment.
+- **Production workflow:** strict typing, offline tests, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
 
 ## Contents
 

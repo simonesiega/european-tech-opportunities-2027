@@ -315,7 +315,7 @@ Workflow behavior is documented in [Automation](../operations/automation.md#coll
 - keep request limits conservative;
 - preserve the one-writer model;
 - back up SQLite before recovery or rebuild operations;
-- review artifact, cache, deployment, and secret visibility.
+- configure the restricted SFTP-only VPS snapshot account and review snapshot, artifact, cache, deployment, and secret visibility.
 
 ### Production website
 
