@@ -74,18 +74,19 @@ Browse every internship and New Grad listing currently marked open at [internshi
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open positions:** 361 (Internships: 212 · New Grad: 149)<br>
-**Last successful collection:** July 19, 2026 at 18:19 UTC
+**Open positions:** 371 (Internships: 218 · New Grad: 153)<br>
+**Last successful collection:** July 19, 2026 at 22:00 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 149 open New Grad positions:
+Showing the 10 most recently posted of 153 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
 | WEBB TRADERS B.V | Graduate Quantitative \(C++\) Developer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4439658569>) |
+| targetjobs UK | Graduate Software Engineer - UI | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441700344>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433231287>) |
 | NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Naples, Campania, Italy | [View](<https://www.linkedin.com/jobs/view/4255725430>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433222747>) |
@@ -94,14 +95,15 @@ Showing the 10 most recently posted of 149 open New Grad positions:
 | TNO | Entry-level Machine Learning Engineer | Groningen, Groningen, Netherlands | [View](<https://www.linkedin.com/jobs/view/4433880753>) |
 | NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Bologna, Emilia-Romagna, Italy | [View](<https://www.linkedin.com/jobs/view/4255722735>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433224580>) |
-| NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4255725429>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 212 open internships:
+Showing the 10 most recently posted of 218 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442535965>) |
+| Cadence | Intern | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4414499720>) |
 | REVEL | Robotics Software Intern \(ROS\) | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442529516>) |
 | REVEL | Robotics Hardware Intern | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442530452>) |
 | NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395386086>) |
@@ -110,8 +112,6 @@ Showing the 10 most recently posted of 212 open internships:
 | Siemens | Mandatory Internship – Data Science and Deep Learning for Energy Systems | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4441330005>) |
 | fifty-five | Data Science Consultant Intern \(H/F\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442113190>) |
 | Roche | Cyber Security Compliance Intern | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442125082>) |
-| Saipem | Cybersecurity Governance Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4410028472>) |
-| Hypersolid | Internship Platform Engineer | Alkmaar, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4429971020>) |
 <!-- END INTERNSHIPS -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
