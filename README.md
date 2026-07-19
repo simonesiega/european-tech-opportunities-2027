@@ -74,17 +74,18 @@ Browse every internship and New Grad listing currently marked open at [internshi
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN INTERNSHIPS -->
-**Open positions:** 131 (Internships: 58 · New Grad: 73)<br>
-**Last successful collection:** July 18, 2026 at 22:50 UTC
+**Open positions:** 144 (Internships: 67 · New Grad: 77)<br>
+**Last successful collection:** July 19, 2026 at 08:19 UTC
 
 Browse and filter the complete directory at **[https://internship2027.simonesiega.com/](https://internship2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 73 open New Grad positions:
+Showing the 10 most recently posted of 77 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433231287>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433222747>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433218761>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433212965>) |
@@ -94,24 +95,23 @@ Showing the 10 most recently posted of 73 open New Grad positions:
 | AVEVA | Cloud Operations &amp; Infrastructure Graduate | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4392878156>) |
 | Autodesk | Graduate Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441161003>) |
 | Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433229338>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Portugal | [View](<https://www.linkedin.com/jobs/view/4433217750>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 58 open internships:
+Showing the 10 most recently posted of 67 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
 | Revolut | Internship Programme 2027: Information Security Engineer \(Appsec\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4433230351>) |
+| Rivian and Volkswagen Group Technologies | Software Integration Engineering Intern \(Fall-Spring\) | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4424466797>) |
 | Susquehanna International Group | Equity Research Internship: Summer 2027 | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4439268761>) |
 | Autodesk | Software Engineering Intern Summer 2027 | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441319217>) |
 | Autodesk | Software Engineering Intern Summer 2027 | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4441306714>) |
 | Revolut | Internship Programme 2027: Information Security Engineer \(Operations\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433230335>) |
 | hackajob | Internship Programme 2027: Software Engineer \(Java\) | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4429227768>) |
+| Susquehanna International Group | Quantitative Research Internship: Summer 2027 | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4438415619>) |
 | Susquehanna International Group | Quantitative Research Internship: Summer 2027 | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4438405881>) |
 | Revolut | Internship Programme 2027: Information Security Engineer \(Operations\) | Portugal | [View](<https://www.linkedin.com/jobs/view/4433234118>) |
-| Revolut | Internship Programme 2027: Information Security Engineer \(Operations\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433229421>) |
-| Revolut | Internship Programme 2027: Information Security Engineer \(Appsec\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433220754>) |
 <!-- END INTERNSHIPS -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
