@@ -36,6 +36,8 @@ opportunities = "opportunities.cli.app:app"
 dev = [
   "mypy>=1.11.1,<2",
   "pytest>=8.3.2,<9",
+  "pytest-benchmark>=5.2.0,<6",
+  "pytest-cov>=7.0.0,<8",
   "ruff>=0.6.2,<1",
   "types-beautifulsoup4>=4.12.0.20240511",
   "types-pyyaml>=6.0.12.20240808",
@@ -77,10 +79,25 @@ exclude = ["migrations/versions"]
 module = ["bs4.*"]
 ignore_missing_imports = true
 
+[tool.coverage.run]
+branch = true
+source = [
+  "opportunities.database.repository",
+  "opportunities.pipeline.availability",
+  "opportunities.pipeline.classification",
+  "opportunities.pipeline.runner",
+]
+
+[tool.coverage.report]
+fail_under = 85
+precision = 1
+show_missing = true
+
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
 markers = [
   "live: optional tests that access public websites (disabled unless explicitly selected)",
+  "performance: offline parsing and classification microbenchmarks",
 ]
 filterwarnings = ["error"]

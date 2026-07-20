@@ -21,7 +21,7 @@ This guide covers the local engineering workflow, repository structure, coding s
 
 - Python 3.12 and `uv` 0.11.6;
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
-- pytest, Ruff, and strict mypy;
+- pytest with branch coverage and microbenchmarks, Ruff, and strict mypy;
 - Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
 - Docker for container and production-path validation.
 
@@ -96,7 +96,9 @@ Keep pull requests focused. Avoid combining unrelated parser, schema, search, we
 | `make format` | Apply Ruff formatting and safe fixes |
 | `make lint` | Run Ruff formatting and lint checks |
 | `make typecheck` | Run strict mypy |
-| `make test` | Run offline pytest |
+| `make test` | Run offline functional pytest |
+| `make coverage` | Enforce critical lifecycle/classification branch coverage and write reports |
+| `make benchmark` | Measure offline LinkedIn parsing and classification performance |
 | `make test-live` | Explicitly select authorization-gated live tests |
 | `make migrations` | Check Alembic and ORM consistency |
 | `make docs` | Validate documentation links, images, and anchors |
@@ -122,7 +124,7 @@ uv lock --check
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src tests scripts
-uv run pytest -m "not live"
+uv run pytest -m "not live and not performance" --cov
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
 git diff --check
@@ -188,7 +190,8 @@ uv lock --check
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src tests scripts
-uv run pytest -m "not live"
+uv run pytest -m "not live and not performance" --cov
+uv run pytest tests/benchmarks --benchmark-only
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
 cd site && bun run ci && cd ..
@@ -240,6 +243,18 @@ Integration coverage includes:
 - closure confirmation and rediscovery;
 - README rendering and validation;
 - ORM and Alembic agreement.
+
+`make coverage` measures branch coverage for classification, collection orchestration,
+availability auditing, and repository lifecycle state. The combined threshold is 85%; terminal,
+XML, JSON, and HTML reports are written under the ignored `quality-reports/` directory. CI also
+publishes these files as a 30-day artifact and includes the coverage table in its job summary.
+The current measured values are summarized in the root
+[Python quality baseline](../../../README.md#python-quality-baseline).
+
+`make benchmark` runs two offline microbenchmarks against representative fixtures: LinkedIn
+search-page parsing and a complete classifier decision. Benchmark JSON is written to
+`quality-reports/benchmark.json` and published with the CI quality reports. Results are intended
+for trend comparison across equivalent runners, not as portable absolute timing guarantees.
 
 Website changes must preserve read-only access, empty state, shareable URL filters, search, sorting, pagination, accessibility, responsive behavior, safe URLs, crawler metadata, and the production build. Playwright coverage should assert observable browser behavior against synthetic offline data.
 

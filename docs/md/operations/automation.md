@@ -27,7 +27,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 
 | Workflow | Trigger | Responsibility |
 |---|---|---|
-| `python-ci.yml` | Push to `main`, pull request, manual | Python formatting, linting, typing, offline tests, migrations, and generated-document checks |
+| `python-ci.yml` | Push to `main`, pull request, manual | Python formatting, linting, typing, thresholded branch coverage, parsing/classification benchmarks, migrations, and generated-document checks |
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, the Next.js production build, unit tests, and browser checks against synthetic SQLite state |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Pipeline and website image builds plus migrated read-only SQLite smoke tests |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access |
@@ -41,7 +41,7 @@ Workflow files under `.github/workflows/` are the executable source of truth. Up
 
 The three validation workflows require no LinkedIn access:
 
-- **Python CI** validates the pipeline, CLI, migrations, lifecycle behavior, README projection, and documentation contracts.
+- **Python CI** validates the pipeline, CLI, migrations, lifecycle behavior, README projection, and documentation contracts; it publishes critical-path coverage and benchmark reports for 30 days. Current measured values are summarized in the root [Python quality baseline](../../../README.md#python-quality-baseline).
 - **Site CI** validates formatting, linting, strict TypeScript, the production Next.js build, unit tests, and Playwright behavior against synthetic SQLite state.
 - **Docker CI** validates supported container builds and read-only website access to migrated SQLite state.
 

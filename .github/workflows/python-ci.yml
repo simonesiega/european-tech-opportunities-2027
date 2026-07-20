@@ -39,8 +39,27 @@ jobs:
         run: uv sync --frozen --dev
       - name: Check types
         run: uv run mypy src tests scripts
-      - name: Run offline tests
-        run: uv run pytest -m "not live"
+      - name: Run offline tests with critical-path branch coverage
+        run: |
+          mkdir -p quality-reports
+          uv run pytest -m "not live and not performance" --cov \
+            --cov-report=term-missing \
+            --cov-report=xml:quality-reports/coverage.xml \
+            --cov-report=json:quality-reports/coverage.json \
+            --cov-report=html:quality-reports/coverage-html
+      - name: Add coverage report to job summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f .coverage ]; then
+            echo "## Critical Python coverage" >> "$GITHUB_STEP_SUMMARY"
+            uv run coverage report --format=markdown --fail-under=0 >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Benchmark parsing and classification
+        run: |
+          mkdir -p quality-reports
+          uv run pytest tests/benchmarks --benchmark-only \
+            --benchmark-json=quality-reports/benchmark.json
       - name: Check migration consistency
         run: uv run python scripts/check_migrations.py
       - name: Check documentation links
@@ -53,3 +72,11 @@ jobs:
           uv run opportunities db-upgrade
           uv run opportunities render
           uv run opportunities validate
+      - name: Publish coverage and benchmark reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: python-quality-reports-${{ github.run_id }}
+          path: quality-reports/
+          if-no-files-found: warn
+          retention-days: 30

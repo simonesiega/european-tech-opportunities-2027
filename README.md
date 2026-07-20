@@ -24,6 +24,12 @@
 </p>
 
 <p align="center">
+  <a href="#python-quality-baseline">
+    <img src="https://img.shields.io/badge/critical_path_coverage-89.3%25_%7C_81.5%25_branches-brightgreen" alt="Critical path coverage: 89.3%, including 81.5% branch coverage" />
+  </a>
+</p>
+
+<p align="center">
   <sub>Python 3.12 · TypeScript · Next.js 16 · Tailwind CSS 4 · SQLite · Bun · Docker · GitHub Actions</sub>
 </p>
 
@@ -53,10 +59,27 @@ General job searches frequently mix different hiring cycles, senior roles, non-E
 - **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
 - **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
 - **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
-- **Production workflow:** strict typing, offline tests, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
+- **Production workflow:** strict typing, thresholded branch coverage with published reports, parsing/classification benchmarks, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
+
+### Python quality baseline
+
+The current offline suite reports the following coverage for the critical classification and
+lifecycle paths:
+
+| Metric | Current | Required |
+|---|---:|---:|
+| Combined statement and branch coverage | 89.3% | ≥ 85.0% |
+| Branch coverage | 81.5% | Reported |
+| Classifier branch coverage | 95.0% | Reported |
+
+[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml)
+publishes the complete HTML, XML, and JSON coverage reports plus parsing and classification
+benchmark results for every run. Benchmark timings remain in the reports because absolute values
+vary by runner; compare them only across equivalent environments.
 
 ## Contents
 
+- [Python quality baseline](#python-quality-baseline)
 - [Opportunity directory](#opportunity-directory)
 - [Publication rules](#publication-rules)
 - [How it works](#how-it-works)

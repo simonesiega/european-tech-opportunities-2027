@@ -1,4 +1,4 @@
-.PHONY: install lock migrate scrape render validate searches stats lint format typecheck test test-live migrations docs check
+.PHONY: install lock migrate scrape render validate searches stats lint format typecheck test coverage benchmark test-live migrations docs check
 
 install:
 	uv sync --dev
@@ -36,7 +36,15 @@ typecheck:
 	uv run mypy src tests scripts
 
 test:
-	uv run pytest -m "not live"
+	uv run pytest -m "not live and not performance"
+
+coverage:
+	mkdir -p quality-reports
+	uv run pytest -m "not live and not performance" --cov --cov-report=term-missing --cov-report=xml:quality-reports/coverage.xml --cov-report=json:quality-reports/coverage.json --cov-report=html:quality-reports/coverage-html
+
+benchmark:
+	mkdir -p quality-reports
+	uv run pytest tests/benchmarks --benchmark-only --benchmark-json=quality-reports/benchmark.json
 
 test-live:
 	uv run pytest -m "live"
@@ -47,4 +55,4 @@ migrations:
 docs:
 	uv run python scripts/check_docs.py
 
-check: lock lint typecheck test migrations docs
+check: lock lint typecheck coverage migrations docs

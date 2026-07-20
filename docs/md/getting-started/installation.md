@@ -148,7 +148,7 @@ From the repository root, verify the Python project:
 ```bash
 uv run opportunities --help
 uv run opportunities stats
-uv run pytest -m "not live"
+uv run pytest -m "not live and not performance"
 ```
 
 Verify the website:

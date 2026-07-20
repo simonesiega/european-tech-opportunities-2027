@@ -88,7 +88,7 @@ These are design contracts, not implementation suggestions. Changes that violate
 | ORM and migrations | `src/opportunities/database/` and `migrations/` | Current schema intent and upgrade history |
 | README renderer | `src/opportunities/readme.py` | Deterministic bounded projection and atomic replacement |
 | Website | `site/src/` | Read-only server queries and client-side directory interaction |
-| Tests | `tests/` | Offline unit, integration, migration, rendering, and lifecycle coverage |
+| Tests | `tests/` | Offline unit, integration, migration, rendering, lifecycle coverage, and performance benchmarks |
 
 ## Discovery is not acceptance
 

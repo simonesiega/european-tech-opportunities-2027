@@ -278,6 +278,9 @@ Common minimum checks:
 make check
 ```
 
+`make check` enforces the critical Python lifecycle/classification coverage threshold. Run
+`make benchmark` as well when changing parsing, normalization, or classification hot paths.
+
 ```bash
 cd site && bun run ci
 ```
