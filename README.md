@@ -74,31 +74,31 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 371 (Internships: 218 · New Grad: 153)<br>
-**Last successful collection:** July 19, 2026 at 22:00 UTC
+**Open positions:** 389 (Internships: 225 · New Grad: 164)<br>
+**Last successful collection:** July 20, 2026 at 07:06 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 153 open New Grad positions:
+Showing the 10 most recently posted of 164 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4442022266>) |
+| Bending Spoons | Graduate data scientist | France | [View](<https://www.linkedin.com/jobs/view/4442016497>) |
+| Bending Spoons | Graduate data scientist | Spain | [View](<https://www.linkedin.com/jobs/view/4442000380>) |
+| Bending Spoons | Graduate data scientist | Italy | [View](<https://www.linkedin.com/jobs/view/4441784968>) |
+| Bending Spoons | Graduate data scientist | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4441797524>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4441791786>) |
+| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4442005081>) |
+| ION | Software Developer/Engineer - Graduate Development Program | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4354651927>) |
 | WEBB TRADERS B.V | Graduate Quantitative \(C++\) Developer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4439658569>) |
 | targetjobs UK | Graduate Software Engineer - UI | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441700344>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433231287>) |
-| NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Naples, Campania, Italy | [View](<https://www.linkedin.com/jobs/view/4255725430>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433222747>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Appsec\) | Poland | [View](<https://www.linkedin.com/jobs/view/4433218761>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4433212965>) |
-| TNO | Entry-level Machine Learning Engineer | Groningen, Groningen, Netherlands | [View](<https://www.linkedin.com/jobs/view/4433880753>) |
-| NTT DATA Europe &amp; Latam | New Graduate - Information Technology/STEM | Bologna, Emilia-Romagna, Italy | [View](<https://www.linkedin.com/jobs/view/4255722735>) |
-| Revolut | Graduate Programme 2027: Information Security Engineer \(Operations\) | Spain | [View](<https://www.linkedin.com/jobs/view/4433224580>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 218 open internships:
+Showing the 10 most recently posted of 225 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
