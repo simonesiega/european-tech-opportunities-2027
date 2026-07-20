@@ -97,44 +97,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 389 (Internships: 225 · New Grad: 164)<br>
-**Last successful collection:** July 20, 2026 at 07:06 UTC
+**Open positions:** 416 (Internships: 241 · New Grad: 175)<br>
+**Last successful collection:** July 20, 2026 at 13:06 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 164 open New Grad positions:
+Showing the 10 most recently posted of 175 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442010651>) |
 | Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4442022266>) |
 | Bending Spoons | Graduate data scientist | France | [View](<https://www.linkedin.com/jobs/view/4442016497>) |
 | Bending Spoons | Graduate data scientist | Spain | [View](<https://www.linkedin.com/jobs/view/4442000380>) |
 | Bending Spoons | Graduate data scientist | Italy | [View](<https://www.linkedin.com/jobs/view/4441784968>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4441796543>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4441791785>) |
+| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4441784965>) |
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4441782968>) |
 | Bending Spoons | Graduate data scientist | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4441797524>) |
-| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4441791786>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4442005081>) |
-| ION | Software Developer/Engineer - Graduate Development Program | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4354651927>) |
-| WEBB TRADERS B.V | Graduate Quantitative \(C++\) Developer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4439658569>) |
-| targetjobs UK | Graduate Software Engineer - UI | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441700344>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 225 open internships:
+Showing the 10 most recently posted of 241 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| IGEL Technology | Working Student/Intern, Quality Assurance \(m/f/d\) | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4442068468>) |
+| Dassault Systèmes | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442710159>) |
+| Toyota Motor Europe | Data Science internship | Evere, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4433637570>) |
+| onsemi | INTERN | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4440124621>) |
+| NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395383181>) |
+| Miele | UX Research Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4442023636>) |
+| Pluxbox | React Developer Intern | Hilversum, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4440104998>) |
+| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442572981>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442535965>) |
 | Cadence | Intern | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4414499720>) |
-| REVEL | Robotics Software Intern \(ROS\) | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442529516>) |
-| REVEL | Robotics Hardware Intern | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442530452>) |
-| NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395386086>) |
-| NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395378321>) |
-| Shure Nordic | Engineering Internship | Copenhagen Metropolitan Area | [View](<https://www.linkedin.com/jobs/view/4330236803>) |
-| Siemens | Mandatory Internship – Data Science and Deep Learning for Energy Systems | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4441330005>) |
-| fifty-five | Data Science Consultant Intern \(H/F\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442113190>) |
-| Roche | Cyber Security Compliance Intern | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442125082>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
