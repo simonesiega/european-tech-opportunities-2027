@@ -4,8 +4,20 @@
   An open-source directory and data pipeline for discovering 2027 technology internships and New Grad positions across Europe through conservative, rule-based filtering.
 </p>
 
+<!-- BEGIN OPPORTUNITY COUNTS -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Total%20opportunities-416-2563eb?style=for-the-badge" alt="Total opportunities: 416" />
+  <img src="https://img.shields.io/badge/Internships-241-16a34a?style=for-the-badge" alt="Internships: 241" />
+  <img src="https://img.shields.io/badge/New%20Grad-175-9333ea?style=for-the-badge" alt="New Grad opportunities: 175" />
+</p>
+<!-- END OPPORTUNITY COUNTS -->
+
 <p align="center">
   <a href="https://opportunities2027.simonesiega.com/"><strong>Open the opportunity directory →</strong></a>
+</p>
+
+<p align="center">
+  <a href="#opportunity-directory"><strong>View the opportunity directory in this README ↓</strong></a>
 </p>
 
 <p align="center">

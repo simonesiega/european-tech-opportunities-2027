@@ -12,6 +12,8 @@ from opportunities.models.job import StoredJob
 from opportunities.utils.files import atomic_write_text
 from opportunities.utils.time import ensure_utc
 
+SUMMARY_BEGIN_MARKER = "<!-- BEGIN OPPORTUNITY COUNTS -->"
+SUMMARY_END_MARKER = "<!-- END OPPORTUNITY COUNTS -->"
 BEGIN_MARKER = "<!-- BEGIN OPPORTUNITIES -->"
 END_MARKER = "<!-- END OPPORTUNITIES -->"
 TABLE_HEADER = "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
@@ -33,7 +35,21 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
         raise ValueError(f"README does not exist: {path}")
     content = path.read_text(encoding="utf-8")
     begin, end = _marker_bounds(content)
-    # Replace only the generated marker range; all hand-written documentation remains intact.
+    summary_begin, summary_end = _marker_bounds(
+        content, SUMMARY_BEGIN_MARKER, SUMMARY_END_MARKER
+    )
+    internship_count, new_grad_count = _type_counts(jobs)
+    summary = opportunity_count_cards(metadata.open_positions, internship_count, new_grad_count)
+    content = (
+        content[:summary_begin]
+        + SUMMARY_BEGIN_MARKER
+        + "\n"
+        + summary
+        + SUMMARY_END_MARKER
+        + content[summary_end + len(SUMMARY_END_MARKER) :]
+    )
+    # Summary replacement does not change the offsets of the later opportunity block.
+    begin, end = _marker_bounds(content)
     before = content[:begin]
     after = content[end + len(END_MARKER) :]
     block = markdown_block(jobs, metadata)
@@ -45,8 +61,7 @@ def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
     """Build bounded previews for both supported opportunity types."""
     internships = _latest(jobs, EmploymentType.INTERNSHIP)
     new_grad = _latest(jobs, EmploymentType.NEW_GRAD)
-    internship_count = sum(job.employment_type == EmploymentType.INTERNSHIP for job in jobs)
-    new_grad_count = sum(job.employment_type == EmploymentType.NEW_GRAD for job in jobs)
+    internship_count, new_grad_count = _type_counts(jobs)
     return (
         f"{markdown_metadata(metadata, internship_count, new_grad_count)}\n"
         f"Browse and filter the complete directory at **[{DIRECTORY_URL}]({DIRECTORY_URL})**.\n\n"
@@ -58,6 +73,24 @@ def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
         f"Showing the {len(internships)} most recently posted of {internship_count} open "
         f"internships:\n\n"
         f"{markdown_table(internships)}"
+    )
+
+
+def opportunity_count_cards(total: int, internships: int, new_grad: int) -> str:
+    """Build three colored, generated count cards for the README header."""
+    return (
+        '<p align="center">\n'
+        f'  <img src="https://img.shields.io/badge/Total%20opportunities-{total}-2563eb?style=for-the-badge" alt="Total opportunities: {total}" />\n'
+        f'  <img src="https://img.shields.io/badge/Internships-{internships}-16a34a?style=for-the-badge" alt="Internships: {internships}" />\n'
+        f'  <img src="https://img.shields.io/badge/New%20Grad-{new_grad}-9333ea?style=for-the-badge" alt="New Grad opportunities: {new_grad}" />\n'
+        '</p>\n'
+    )
+
+
+def _type_counts(jobs: list[StoredJob]) -> tuple[int, int]:
+    return (
+        sum(job.employment_type == EmploymentType.INTERNSHIP for job in jobs),
+        sum(job.employment_type == EmploymentType.NEW_GRAD for job in jobs),
     )
 
 
@@ -117,10 +150,23 @@ def validate_readme(
     errors: list[str] = []
     try:
         begin, end = _marker_bounds(content)
+        summary_begin, summary_end = _marker_bounds(
+            content, SUMMARY_BEGIN_MARKER, SUMMARY_END_MARKER
+        )
     except ValueError as exc:
         errors.append(str(exc))
         return errors
     block = content[begin + len(BEGIN_MARKER) : end].strip()
+    if jobs is not None and metadata is not None:
+        internship_count, new_grad_count = _type_counts(jobs)
+        summary = content[
+            summary_begin + len(SUMMARY_BEGIN_MARKER) : summary_end
+        ].strip()
+        expected_summary = opportunity_count_cards(
+            metadata.open_positions, internship_count, new_grad_count
+        ).strip()
+        if summary != expected_summary:
+            errors.append("README opportunity count cards do not match open jobs in SQLite")
     if TABLE_HEADER.strip() not in block:
         errors.append("README position tables must have Company, Title, Location, Listing columns")
     if (
@@ -155,12 +201,15 @@ def _format_collection_time(value: datetime) -> str:
     )
 
 
-def _marker_bounds(content: str) -> tuple[int, int]:
+def _marker_bounds(
+    content: str, begin_marker: str = BEGIN_MARKER, end_marker: str = END_MARKER
+) -> tuple[int, int]:
     """Return one correctly ordered generated marker pair."""
-    if content.count(BEGIN_MARKER) != 1 or content.count(END_MARKER) != 1:
-        raise ValueError("README must contain exactly one opportunity marker pair")
-    begin = content.index(BEGIN_MARKER)
-    end = content.index(END_MARKER)
+    marker_name = "opportunity" if begin_marker == BEGIN_MARKER else "opportunity count"
+    if content.count(begin_marker) != 1 or content.count(end_marker) != 1:
+        raise ValueError(f"README must contain exactly one {marker_name} marker pair")
+    begin = content.index(begin_marker)
+    end = content.index(end_marker)
     if begin >= end:
-        raise ValueError("README opportunity markers are out of order")
+        raise ValueError(f"README {marker_name} markers are out of order")
     return begin, end

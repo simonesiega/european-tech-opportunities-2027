@@ -55,7 +55,9 @@ def test_readme_contains_type_sections_and_escapes_values(tmp_path: Path) -> Non
 
     readme = tmp_path / "README.md"
     readme.write_text(
-        "# Test\n\n<!-- BEGIN OPPORTUNITIES -->\nold\n<!-- END OPPORTUNITIES -->\n",
+        "# Test\n\n<!-- BEGIN OPPORTUNITY COUNTS -->\nold\n"
+        "<!-- END OPPORTUNITY COUNTS -->\n\n<!-- BEGIN OPPORTUNITIES -->\nold\n"
+        "<!-- END OPPORTUNITIES -->\n",
         encoding="utf-8",
     )
     render_readme(readme, [job], metadata)
@@ -88,7 +90,9 @@ def test_readme_preview_is_bounded_to_ten_positions_per_type() -> None:
 def test_readme_rejects_reversed_generated_markers(tmp_path: Path) -> None:
     readme = tmp_path / "README.md"
     readme.write_text(
-        "# Test\n\n<!-- END OPPORTUNITIES -->\nold\n<!-- BEGIN OPPORTUNITIES -->\n",
+        "# Test\n\n<!-- BEGIN OPPORTUNITY COUNTS -->\nold\n"
+        "<!-- END OPPORTUNITY COUNTS -->\n\n<!-- END OPPORTUNITIES -->\nold\n"
+        "<!-- BEGIN OPPORTUNITIES -->\n",
         encoding="utf-8",
     )
 

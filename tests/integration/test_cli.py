@@ -31,7 +31,9 @@ def cli_env(tmp_path: Path) -> dict[str, str]:
 def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     environment = cli_env(tmp_path)
     (tmp_path / "README.md").write_text(
-        "# Test\n\n<!-- BEGIN OPPORTUNITIES -->\nold\n<!-- END OPPORTUNITIES -->\n",
+        "# Test\n\n<!-- BEGIN OPPORTUNITY COUNTS -->\nold\n"
+        "<!-- END OPPORTUNITY COUNTS -->\n\n<!-- BEGIN OPPORTUNITIES -->\nold\n"
+        "<!-- END OPPORTUNITIES -->\n",
         encoding="utf-8",
     )
     docs_path = tmp_path / "docs" / "md" / "user-guide" / "search-registry.md"
