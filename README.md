@@ -25,7 +25,7 @@
 
 <p align="center">
   <a href="#python-quality-baseline">
-    <img src="https://img.shields.io/badge/critical_path_coverage-89.3%25_%7C_81.5%25_branches-brightgreen" alt="Critical path coverage: 89.3%, including 81.5% branch coverage" />
+    <img src="https://img.shields.io/badge/critical_path_coverage-89.8%25_%7C_81.5%25_branches-brightgreen" alt="Critical path coverage: 89.8%, including 81.5% branch coverage" />
   </a>
 </p>
 
@@ -68,7 +68,7 @@ lifecycle paths:
 
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 89.3% | ≥ 85.0% |
+| Combined statement and branch coverage | 89.8% | ≥ 85.0% |
 | Branch coverage | 81.5% | Reported |
 | Classifier branch coverage | 95.0% | Reported |
 

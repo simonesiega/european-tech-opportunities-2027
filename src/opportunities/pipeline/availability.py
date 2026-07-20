@@ -11,7 +11,7 @@ from opportunities.config.settings import Settings
 from opportunities.database.repository import Repository
 from opportunities.models.job import StoredJob
 from opportunities.scrapers.http import FetchError, HttpFetcher
-from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT
+from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT, validate_job_detail_page
 from opportunities.utils.time import utc_now
 
 
@@ -87,7 +87,10 @@ async def _audit_jobs(
     async def check(job: StoredJob) -> tuple[str, str]:
         async with semaphore:
             try:
-                await fetcher.get_text(LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id))
+                html = await fetcher.get_text(
+                    LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id)
+                )
+                validate_job_detail_page(html)
             except FetchError as exc:
                 if exc.status_code in {404, 410}:
                     return job.linkedin_job_id, "unavailable"

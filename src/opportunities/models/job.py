@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.utils.text import clean_text
-from opportunities.utils.url import canonicalize_url
+from opportunities.utils.url import canonicalize_url, validate_linkedin_job_url
 
 
 class DiscoveredJob(BaseModel):
@@ -20,7 +20,7 @@ class DiscoveredJob(BaseModel):
     company: str = Field(min_length=1, max_length=200)
     title: str = Field(min_length=1, max_length=500)
     location: str = Field(min_length=1, max_length=500)
-    link: str
+    link: str = Field(max_length=2_048)
     category: OpportunityCategory
     industries: str | None = Field(default=None, max_length=500)
     employment_type: EmploymentType
@@ -49,6 +49,12 @@ class DiscoveredJob(BaseModel):
     def normalize_link(cls, value: str) -> str:
         """Canonicalize the job application URL."""
         return canonicalize_url(value)
+
+    @model_validator(mode="after")
+    def validate_link_identity(self) -> DiscoveredJob:
+        """Ensure the published link belongs to the canonical LinkedIn job ID."""
+        validate_linkedin_job_url(self.link, self.linkedin_job_id)
+        return self
 
 
 class StoredJob(DiscoveredJob):

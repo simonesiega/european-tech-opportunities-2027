@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import StoredJob
 from opportunities.readme import (
@@ -81,6 +83,18 @@ def test_readme_preview_is_bounded_to_ten_positions_per_type() -> None:
     assert "| Company 111 |" in block
     assert "| Company 1 |" not in block
     assert "| Company 101 |" not in block
+
+
+def test_readme_rejects_reversed_generated_markers(tmp_path: Path) -> None:
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "# Test\n\n<!-- END OPPORTUNITIES -->\nold\n<!-- BEGIN OPPORTUNITIES -->\n",
+        encoding="utf-8",
+    )
+
+    assert validate_readme(readme) == ["README opportunity markers are out of order"]
+    with pytest.raises(ValueError, match="out of order"):
+        render_readme(readme, [], ReadmeMetadata(0, None))
 
 
 def test_empty_database_still_renders_both_table_headers() -> None:

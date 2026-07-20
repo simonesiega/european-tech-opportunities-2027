@@ -123,6 +123,25 @@ def test_snapshot_links_to_previous_immutable_objects(tmp_path: Path) -> None:
     assert second.previous_snapshot.manifest_key == first.manifest_key
 
 
+def test_snapshot_creation_rejects_a_missing_previous_manifest(tmp_path: Path) -> None:
+    database = tmp_path / "source.db"
+    _database(database)
+
+    with pytest.raises(SnapshotError, match="previous snapshot manifest does not exist"):
+        create_snapshot(
+            database,
+            tmp_path / "snapshot.db",
+            tmp_path / "manifest.json",
+            key_prefix="opportunities/canonical-state",
+            retention_days=365,
+            repository="example/opportunities",
+            run_id="missing-previous",
+            run_attempt=1,
+            previous_manifest_path=tmp_path / "missing.json",
+            created_at=CREATED_AT,
+        )
+
+
 def test_snapshot_verification_rejects_tampered_database(tmp_path: Path) -> None:
     snapshot, manifest = _create_bundle(tmp_path)
     with snapshot.open("ab") as handle:
@@ -130,6 +149,16 @@ def test_snapshot_verification_rejects_tampered_database(tmp_path: Path) -> None
 
     with pytest.raises(SnapshotError, match="size does not match"):
         verify_snapshot(snapshot, manifest)
+
+
+def test_snapshot_manifest_requires_timezone_aware_timestamps(tmp_path: Path) -> None:
+    _snapshot, manifest_path = _create_bundle(tmp_path)
+    value = json.loads(manifest_path.read_text(encoding="utf-8"))
+    value["created_at"] = "2026-07-20T03:30:00"
+    manifest_path.write_text(json.dumps(value), encoding="utf-8")
+
+    with pytest.raises(SnapshotError, match="created_at must include a timezone"):
+        load_manifest(manifest_path)
 
 
 def test_snapshot_manifest_rejects_unknown_fields(tmp_path: Path) -> None:

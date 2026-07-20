@@ -213,7 +213,7 @@ Possible causes:
 
 - no current listing passes strict rules;
 - title-prefilter rejection;
-- missing explicit 2027 evidence;
+- a conflicting cycle year, or a missing cycle combined with ineligible posting-date evidence;
 - unknown technology category;
 - unknown or non-European location;
 - employer allowlist mismatch;
@@ -296,7 +296,7 @@ Verify explicit evidence for every required rule:
 - internship or New Grad terminology in the title;
 - no configured seniority exclusion;
 - recognized technology category;
-- explicit 2027 cycle;
+- explicit 2027 cycle, or no conflicting cycle plus posting-date evidence on or after May 1, 2026;
 - explicit European location.
 
 Description or source employment metadata alone cannot convert a title without Internship or New Grad evidence into an accepted listing.

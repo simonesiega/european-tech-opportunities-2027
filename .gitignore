@@ -9,6 +9,7 @@ dist/
 .pytest_cache/
 .ruff_cache/
 .coverage
+.benchmarks/
 htmlcov/
 quality-reports/
 
@@ -23,6 +24,13 @@ site/tests/e2e/.tmp/
 
 # Local configuration and secrets
 .env
+.env.*
+!.env.example
+!site/.env.example
+.npmrc
+.pypirc
+*.key
+*.pem
 configs/settings.yml
 
 # Runtime state

@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING
 import yaml
 from dotenv import dotenv_values
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from sqlalchemy.engine import make_url
+from sqlalchemy.exc import ArgumentError
 
 if TYPE_CHECKING:
     from opportunities.models.search import LinkedInSearchConfig
@@ -19,6 +21,8 @@ DEFAULT_USER_AGENT = (
     "european-tech-opportunities-2027/0.1 "
     "(+https://github.com/simonesiega/european-tech-opportunities-2027)"
 )
+_PACKAGED_CONFIG_DIR = Path(__file__).resolve().parents[1] / "resources" / "configs"
+_DEFAULT_CONFIG_DIR = _PACKAGED_CONFIG_DIR if _PACKAGED_CONFIG_DIR.is_dir() else Path("configs")
 
 
 class Settings(BaseModel):
@@ -27,8 +31,8 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     database_url: str = "sqlite:///data/opportunities.db"
-    search_config_dir: Path = Path("configs/searches")
-    category_config_path: Path = Path("configs/categories.yml")
+    search_config_dir: Path = _DEFAULT_CONFIG_DIR / "searches"
+    category_config_path: Path = _DEFAULT_CONFIG_DIR / "categories.yml"
     readme_path: Path = Path("README.md")
     target_cycle: int = Field(default=2027, ge=2020, le=2100)
     search_max_pages: int | None = Field(default=None, ge=1, le=10)
@@ -49,16 +53,48 @@ class Settings(BaseModel):
     @field_validator("database_url")
     @classmethod
     def validate_database_url(cls, value: str) -> str:
-        """Validate the configured SQLAlchemy database URL."""
-        if "://" not in value:
-            raise ValueError("database_url must be a SQLAlchemy URL")
+        """Validate the canonical SQLite database URL."""
+        normalized = value.strip()
+        try:
+            url = make_url(normalized)
+        except (ArgumentError, ValueError) as exc:
+            raise ValueError("database_url must be a valid SQLAlchemy URL") from exc
+        if url.get_backend_name() != "sqlite":
+            raise ValueError("database_url must use SQLite")
+        return normalized
+
+    @field_validator(
+        "search_config_dir",
+        "category_config_path",
+        "readme_path",
+        mode="before",
+    )
+    @classmethod
+    def validate_path(cls, value: object) -> object:
+        """Reject empty path strings before Pydantic converts them to the current directory."""
+        if isinstance(value, str):
+            normalized = value.strip()
+            if not normalized:
+                raise ValueError("path settings cannot be empty")
+            return normalized
         return value
+
+    @field_validator("user_agent", mode="before")
+    @classmethod
+    def normalize_user_agent(cls, value: object) -> str:
+        """Reject request-header control characters and trim YAML values."""
+        if not isinstance(value, str):
+            raise ValueError("user_agent must be a string")
+        normalized = value.strip()
+        if any(ord(character) < 32 or ord(character) == 127 for character in normalized):
+            raise ValueError("user_agent cannot contain control characters")
+        return normalized
 
     @field_validator("log_level")
     @classmethod
     def normalize_log_level(cls, value: str) -> str:
         """Normalize the configured logging level."""
-        normalized = value.upper()
+        normalized = value.strip().upper()
         if normalized not in {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}:
             raise ValueError("log_level must be a standard Python logging level")
         return normalized
@@ -116,7 +152,10 @@ def load_settings(path: Path | None = None, *, dotenv_path: Path = Path(".env"))
     if configured_path is not None:
         if not configured_path.is_file():
             raise ValueError(f"settings file does not exist: {configured_path}")
-        loaded = yaml.safe_load(configured_path.read_text(encoding="utf-8"))
+        try:
+            loaded = yaml.safe_load(configured_path.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError) as exc:
+            raise ValueError(f"could not read settings file: {configured_path}") from exc
         if loaded is not None and not isinstance(loaded, dict):
             raise ValueError("settings YAML must contain a mapping")
         values.update(loaded or {})

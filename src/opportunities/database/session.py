@@ -37,6 +37,17 @@ def create_database_engine(database_url: str, *, echo: bool = False) -> Engine:
     return engine
 
 
+def database_exists(database_url: str) -> bool:
+    """Return whether a file-backed SQLite database already exists."""
+    url = make_url(database_url)
+    database_path = url.database
+    if url.get_backend_name() != "sqlite" or database_path is None:
+        return True
+    if database_path in {"", ":memory:"}:
+        return True
+    return Path(database_path).is_file()
+
+
 def create_session_factory(engine: Engine) -> sessionmaker[Session]:
     """Create the database session factory."""
     return sessionmaker(bind=engine, class_=Session, expire_on_commit=False, autoflush=False)

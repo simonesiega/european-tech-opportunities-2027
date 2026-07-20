@@ -12,9 +12,10 @@ from typing import Protocol
 from urllib.parse import urlencode
 
 from bs4 import BeautifulSoup, Tag
+from pydantic import ValidationError
 
 from opportunities.config.policy import MINIMUM_POSTED_AT
-from opportunities.models.raw import KnownJob, RawJob
+from opportunities.models.raw import MAX_DESCRIPTION_CHARS, KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.scrapers.http import FetchError
 from opportunities.utils.text import clean_text, normalized_key
@@ -24,9 +25,11 @@ LINKEDIN_SEARCH_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/seeMore
 LINKEDIN_DETAIL_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
 LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 LINKEDIN_PAGE_SIZE = 25
-_JOB_ID_RE = re.compile(r"jobPosting:([0-9]+)$")
+_JOB_ID_RE = re.compile(r"jobPosting:([0-9]{1,30})$")
 _RELATIVE_POSTED_RE = re.compile(
-    r"^(?:reposted\s+)?(?P<count>\d+)\+?\s+"
+    # A value such as "30+ days ago" has no usable upper age bound, so it is
+    # deliberately left unmatched rather than converted into false recency evidence.
+    r"^(?:reposted\s+)?(?P<count>\d+)\s+"
     r"(?P<unit>minute|hour|day|week|month|year)s?\s+ago$",
     re.IGNORECASE,
 )
@@ -168,6 +171,8 @@ def parse_search_page(html: str) -> SearchPageResult:
             title = _required_text(node, ".base-search-card__title")
             company = _required_text(node, ".base-search-card__subtitle")
             location = _required_text(node, ".job-search-card__location")
+            if len(title) > 500 or len(company) > 200 or len(location) > 500:
+                raise ValueError("search card fields exceed safe limits")
             cards.append(
                 LinkedInSearchCard(
                     job_id=job_id,
@@ -205,29 +210,52 @@ def parse_job_detail(
     )
     if not title or not company:
         raise LinkedInPayloadError("LinkedIn detail page is missing title or company")
+    if len(title) > 500 or len(company) > 200 or len(location) > 500:
+        raise LinkedInPayloadError("LinkedIn detail page fields exceed safe limits")
     description_node = soup.select_one(".show-more-less-html__markup")
     description = (
         clean_text(description_node.get_text(" ", strip=True))
         if isinstance(description_node, Tag)
         else None
     )
-    return RawJob(
-        source_job_id=card.job_id,
-        company=company,
-        title=title,
-        locations=[location] if location else [],
-        application_url=card.application_url,
-        description=description,
-        industries=_extract_criterion(soup, "industries"),
-        start_date=_extract_start_date(title, description),
-        posted_at=_extract_posted_at(soup, observed_at or utc_now()),
-    )
+    if description is not None and len(description) > MAX_DESCRIPTION_CHARS:
+        raise LinkedInPayloadError("LinkedIn detail page description exceeds the safe limit")
+    try:
+        return RawJob(
+            source_job_id=card.job_id,
+            company=company,
+            title=title,
+            locations=[location] if location else [],
+            application_url=card.application_url,
+            description=description,
+            industries=_extract_criterion(soup, "industries"),
+            start_date=_extract_start_date(title, description),
+            posted_at=_extract_posted_at(soup, observed_at or utc_now()),
+        )
+    except ValidationError as exc:
+        raise LinkedInPayloadError("LinkedIn detail page contains invalid fields") from exc
+
+
+def validate_job_detail_page(html: str) -> None:
+    """Require recognizable listing fields before treating a detail page as available."""
+    _reject_blocked_document(html)
+    soup = BeautifulSoup(html, "html.parser")
+    title = _optional_text(soup, ".top-card-layout__title, .topcard__title")
+    company = _optional_text(soup, ".topcard__org-name-link")
+    if not title or not company:
+        raise LinkedInPayloadError("LinkedIn detail page is missing listing identity fields")
+    if len(title) > 500 or len(company) > 200:
+        raise LinkedInPayloadError("LinkedIn detail page identity fields exceed safe limits")
 
 
 def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime | None:
     """Infer the publication timestamp from LinkedIn's relative posting age."""
     value = _optional_text(soup, ".posted-time-ago__text")
     if not value:
+        return None
+    # `normalized_key` removes punctuation, so reject lower-bound ages before
+    # normalization rather than accidentally treating `30+ days` as exactly 30.
+    if "+" in value:
         return None
     normalized = normalized_key(value)
     if normalized in {"just now", "today"}:
@@ -344,6 +372,7 @@ class LinkedInScraper:
 
         selected_cards = list(cards.values())[: search.max_results]
         positions: list[RawJob] = []
+        confirmed_unavailable: list[str] = []
         malformed_details = 0
         for card in selected_cards:
             try:
@@ -358,8 +387,10 @@ class LinkedInScraper:
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
-                # Search-card disappearance does not close jobs; only explicit detail
-                # responses count as unavailability evidence.
+                # A stale card is not closure evidence, but its explicit detail response
+                # is. Only known jobs already associated with this search can advance.
+                if card.job_id in known_job_ids:
+                    confirmed_unavailable.append(card.job_id)
                 warnings.append("LinkedIn job detail skipped: listing no longer available")
             except LinkedInPayloadError:
                 malformed_details += 1
@@ -369,7 +400,6 @@ class LinkedInScraper:
                 "LinkedIn search rejected: most job detail pages were malformed"
             )
 
-        confirmed_unavailable: list[str] = []
         # Bound rechecks deterministically by job ID so repeated runs inspect the same
         # subset until those jobs are observed again or explicitly become unavailable.
         absent_known = sorted(
@@ -404,9 +434,11 @@ class LinkedInScraper:
         )
 
     async def _detail(self, job_id: str, fetcher: TextFetcher) -> str:
-        """Fetch and parse one LinkedIn job detail page."""
+        """Fetch one detail page while deduplicating only concurrent requests."""
         # Protect task creation rather than the network wait: concurrent searches share
         # one request for the same job without serializing requests for different jobs.
+        # Completed tasks are evicted immediately so their potentially large HTML bodies
+        # are not retained for the lifetime of a pipeline instance.
         async with self._detail_lock:
             task = self._detail_tasks.get(job_id)
             if task is None:
@@ -414,7 +446,14 @@ class LinkedInScraper:
                     fetcher.get_text(LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id))
                 )
                 self._detail_tasks[job_id] = task
-        return await task
+
+                def discard(completed: asyncio.Task[str]) -> None:
+                    if self._detail_tasks.get(job_id) is completed:
+                        self._detail_tasks.pop(job_id, None)
+
+                task.add_done_callback(discard)
+        # One cancelled search must not cancel a detail request shared by another search.
+        return await asyncio.shield(task)
 
 
 def _posting_is_eligible(posted_at: datetime | None) -> bool:

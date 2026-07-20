@@ -14,11 +14,9 @@ from opportunities.utils.text import html_to_text, normalized_key
 from opportunities.utils.time import ensure_utc
 
 _YEAR_RE = re.compile(r"\b20[2-4]\d\b")
-_CONTEXTUAL_YEAR_RE = re.compile(
-    r"(?:internship|intern|summer|placement|programme|program|cycle|graduate|new\s+grad|"
-    r"early\s+career|entry\s+level)\W{0,24}(20[2-4]\d)|"
-    r"(20[2-4]\d)\W{0,24}(?:internship|intern|summer|placement|programme|program|cycle|"
-    r"graduate|new\s+grad|early\s+career|entry\s+level)"
+_OPPORTUNITY_CONTEXT_RE = re.compile(
+    r"\b(?:internship|intern|summer|placement|programme|program|cycle|graduate|"
+    r"new\s+grad|early\s+career|entry\s+level)\b"
 )
 _TITLE_SCOPE_NOISE = frozenset(
     {
@@ -193,11 +191,10 @@ class Classifier:
             return conflicting_title_year
         if target in title_years:
             return target
-        contextual_years: list[str] = []
-        for match in _CONTEXTUAL_YEAR_RE.finditer(description_key):
-            group = 1 if match.group(1) else 2
-            if not _is_eligibility_year(description_key, match.start(group)):
-                contextual_years.append(str(match.group(group)))
+        contextual_years = _contextual_years(
+            description_key,
+            ignore_eligibility=employment_type == EmploymentType.INTERNSHIP,
+        )
         conflicting_contextual_year = next(
             (year for year in contextual_years if year != target), None
         )
@@ -230,7 +227,33 @@ def _contains_phrase(text: str, phrase: str) -> bool:
     return bool(phrase and re.search(rf"(?:^|\s){re.escape(phrase)}(?:$|\s)", text))
 
 
+def _contextual_years(text: str, *, ignore_eligibility: bool) -> list[str]:
+    """Return every year within the narrow opportunity-context window."""
+    years: list[str] = []
+    for year in _YEAR_RE.finditer(text):
+        # Search only around this year. This stays linear for unusually repetitive
+        # descriptions instead of comparing every year with every context term.
+        window_start = max(0, year.start() - 48)
+        window_end = min(len(text), year.end() + 48)
+        has_context = any(
+            0 <= year.start() - context.end() <= 24 or 0 <= context.start() - year.end() <= 24
+            for context in _OPPORTUNITY_CONTEXT_RE.finditer(text, window_start, window_end)
+        )
+        if has_context and (not ignore_eligibility or not _is_eligibility_year(text, year.start())):
+            years.append(year.group())
+    return years
+
+
 def _is_eligibility_year(text: str, year_start: int) -> bool:
-    """Check whether a year reference only describes candidate eligibility."""
-    prefix = text[max(0, year_start - 40) : year_start]
-    return bool(re.search(r"(?:class\s+of|graduat\w*)(?:\s+\w+){0,4}\s*$", prefix))
+    """Check whether a year reference narrowly describes candidate eligibility."""
+    prefix = text[max(0, year_start - 64) : year_start]
+    return bool(
+        re.search(
+            r"(?:class\s+of|"
+            r"(?:must|should|will|to|expected\s+to|planning\s+to|eligible\s+to)\s+"
+            r"graduate(?:\s+(?:in|by))?|"
+            r"graduating(?:\s+(?:in|by))?|"
+            r"graduation(?:\s+date)?(?:\s+(?:in|by))?)\s*$",
+            prefix,
+        )
+    )

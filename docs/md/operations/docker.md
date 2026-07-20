@@ -26,7 +26,7 @@ The root `Dockerfile` produces two final targets:
 
 | Target | Runtime | Responsibility |
 |---|---|---|
-| `opportunities` | Python 3.12 through the configured `uv` base image | CLI commands, migrations, collection, validation, and README rendering |
+| `opportunities` | Python 3.12.13 with the pinned `uv` 0.11.6 binary | CLI commands, migrations, collection, validation, and README rendering |
 | `site` | Node 26 Alpine with Next.js standalone output | Read-only website server on port `3000` |
 
 Both final images run as an unprivileged user:
@@ -35,6 +35,8 @@ Both final images run as an unprivileged user:
 UID 10001
 GID 10001
 ```
+
+The Compose services also drop all Linux capabilities and set `no-new-privileges`.
 
 The images install only the dependencies required by their target and use the committed lockfiles for reproducible builds.
 

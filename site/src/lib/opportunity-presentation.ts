@@ -1,5 +1,12 @@
 export const ALL_FILTER_VALUE = "all";
 
+const PUBLISHED_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 export function getCountries(location: string): string[] {
   return [
     ...new Set(
@@ -34,10 +41,5 @@ export function formatPublishedDate(value: string): string {
   const isoValue = value.replace(" ", "T");
   const date = new Date(/(?:Z|[+-]\d{2}:\d{2})$/.test(isoValue) ? isoValue : `${isoValue}Z`);
 
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
+  return PUBLISHED_DATE_FORMATTER.format(date);
 }

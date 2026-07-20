@@ -44,6 +44,18 @@ def test_cycle_must_be_explicit_and_not_only_graduation_year(
     assert not class_of.include
 
 
+def test_new_grad_graduation_year_is_cycle_evidence(rules: ClassificationRules) -> None:
+    result = classify(
+        rules,
+        title="Graduate Software Engineer",
+        description="Applicants must graduate in 2026.",
+        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
+    )
+
+    assert not result.include
+    assert result.exclusion_reason == "listing is for the 2026 cycle"
+
+
 def test_missing_cycle_is_accepted_for_recent_posting(rules: ClassificationRules) -> None:
     result = classify(
         rules,
@@ -85,6 +97,20 @@ def test_conflicting_cycle_evidence_is_rejected(rules: ClassificationRules) -> N
     assert conflicting_description.exclusion_reason == "listing is for the 2026 cycle"
 
 
+def test_program_year_is_not_mistaken_for_graduation_eligibility(
+    rules: ClassificationRules,
+) -> None:
+    result = classify(
+        rules,
+        title="Graduate Software Engineer",
+        description="Our graduate programme starts in 2026.",
+        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
+    )
+
+    assert not result.include
+    assert result.exclusion_reason == "listing is for the 2026 cycle"
+
+
 def test_canonical_2025_2026_graduate_listing_is_rejected(
     rules: ClassificationRules,
 ) -> None:
@@ -100,7 +126,7 @@ def test_canonical_2025_2026_graduate_listing_is_rejected(
     )
 
     assert not result.include
-    assert result.exclusion_reason == "listing is for the 2026 cycle"
+    assert result.exclusion_reason == "listing is for the 2025 cycle"
 
 
 def test_full_time_title_is_rejected_even_if_description_mentions_internships(
@@ -158,8 +184,20 @@ def test_non_technology_and_non_european_jobs_are_excluded(
         title="Software Engineering Intern 2027",
         locations=["New York, United States"],
     )
+    european_city_namesake = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["London, Ontario, Canada"],
+    )
+    abbreviated_namesake = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["Paris, TX"],
+    )
     assert not finance.include
     assert not usa.include
+    assert not european_city_namesake.include
+    assert not abbreviated_namesake.include
 
 
 def test_description_can_classify_generic_technical_internship(

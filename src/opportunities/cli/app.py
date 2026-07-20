@@ -27,6 +27,7 @@ from opportunities.database.repository import Repository, SearchHealth
 from opportunities.database.session import (
     create_database_engine,
     create_session_factory,
+    database_exists,
     database_revision,
     missing_tables,
 )
@@ -42,8 +43,14 @@ from opportunities.search_registry_docs import (
 from opportunities.utils.logging import configure_logging
 from opportunities.utils.paths import find_project_root
 
-# App context and console for output. The ROOT path is used to locate the migrations directory.
-ROOT = find_project_root(Path(__file__))
+# App context and console for output. ROOT locates source-checkout or wheel-packaged migrations.
+try:
+    ROOT = find_project_root(Path(__file__))
+except RuntimeError:
+    packaged_root = Path(__file__).resolve().parents[1] / "resources"
+    if not all((packaged_root / marker).exists() for marker in ("alembic.ini", "migrations")):
+        raise
+    ROOT = packaged_root
 console = Console()
 error_console = Console(stderr=True)
 app = typer.Typer(
@@ -213,31 +220,40 @@ def render(ctx: typer.Context) -> None:
 def searches(ctx: typer.Context) -> None:
     """Display configured searches and their latest health."""
     settings = _settings(ctx)
-    configured = apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
-    health: dict[str, SearchHealth] = {}
-    repository, engine = _repository(settings)
     try:
-        if not missing_tables(engine) and database_revision(engine) == migration_head(
-            repository_root=ROOT
-        ):
-            health = repository.search_health()
-        table = Table(title="LinkedIn searches")
-        table.add_column("Slug", no_wrap=True)
-        for heading in ("Scope", "Limits P/R/C", "Last", "F/A"):
-            table.add_column(heading)
-        for item in configured:
-            state = health.get(item.slug)
-            status = state.status if state else "never-run"
-            table.add_row(
-                item.slug,
-                item.location,
-                f"{item.max_pages}/{item.max_results}/{item.max_rechecks}",
-                status,
-                f"{state.found_count}/{state.accepted_count}" if state else "-/-",
-            )
-        console.print(table)
-    finally:
-        _dispose_engine(engine)
+        configured = apply_search_overrides(
+            load_search_registry(settings.search_config_dir), settings
+        )
+    except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
+        error_console.print(f"[red]Search configuration error:[/red] {exc}")
+        raise typer.Exit(2) from exc
+    health: dict[str, SearchHealth] = {}
+    if database_exists(settings.database_url):
+        repository, engine = _repository(settings)
+        try:
+            if not missing_tables(engine) and database_revision(engine) == migration_head(
+                repository_root=ROOT
+            ):
+                health = repository.search_health()
+        finally:
+            _dispose_engine(engine)
+
+    table = Table(title="LinkedIn searches")
+    table.add_column("Slug", no_wrap=True)
+    for heading in ("Scope", "Enabled", "Limits P/R/C", "Last", "F/A"):
+        table.add_column(heading)
+    for item in configured:
+        state = health.get(item.slug)
+        status = state.status if state else "never-run"
+        table.add_row(
+            item.slug,
+            item.location,
+            "yes" if item.enabled else "no",
+            f"{item.max_pages}/{item.max_results}/{item.max_rechecks}",
+            status,
+            f"{state.found_count}/{state.accepted_count}" if state else "-/-",
+        )
+    console.print(table)
 
 
 @app.command()

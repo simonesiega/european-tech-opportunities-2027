@@ -83,7 +83,7 @@ notes: Medium role tier covering QA and test automation.
 | `keywords` | String, 2–300 characters | LinkedIn keyword query |
 | `location` | String, 1–200 characters | Europe or explicit country location text |
 | `geo_id` | Numeric string or `null` | Optional independently verified LinkedIn geography ID |
-| `company_names` | List of strings | Exact normalized employer allowlist |
+| `company_names` | Up to 50 strings, each 1–200 characters | Exact normalized employer allowlist |
 | `workplace` | `any`, `on-site`, `remote`, `hybrid` | Optional workplace filter |
 | `date_posted` | `any`, `day`, `week`, `month`, `cycle` | Listing-age filter; `cycle` dynamically covers every posting since May 1, 2026 |
 | `max_pages` | Integer, 1–10 | Maximum number of 25-card result pages |

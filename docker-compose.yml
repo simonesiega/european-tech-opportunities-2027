@@ -23,6 +23,10 @@ services:
 
     command: ["db-upgrade"]
     init: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
 
   site:
     build:
@@ -48,3 +52,7 @@ services:
 
     init: true
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

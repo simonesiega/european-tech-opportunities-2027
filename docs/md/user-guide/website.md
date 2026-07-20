@@ -44,7 +44,7 @@ The directory provides:
 - direct links to public source listings;
 - shareable filter URLs;
 - the current open-role count;
-- the latest completed collection time.
+- the latest successful collection time.
 
 The website supports browsing and comparison only. Applications are completed through the original employer or LinkedIn listing.
 
@@ -94,7 +94,7 @@ A browser interaction or URL state is not lifecycle evidence, collection input, 
 
 The website renders normalized publication fields rather than raw source HTML.
 
-External application links must remain validated public HTTPS URLs.
+External application links are validated canonical LinkedIn HTTPS URLs whose numeric path matches the stored job identity.
 
 ## Data interpretation
 
@@ -177,7 +177,7 @@ site/src/lib/
 
 `site/src/lib/opportunities.ts` opens SQLite in read-only mode and queries currently open jobs in stable publication order.
 
-It also reads the latest completed collection timestamp from `search_runs` for public status metadata.
+It also reads the latest successful collection timestamp from `search_runs` for public status metadata; a later failed run cannot make the displayed data appear fresher.
 
 Each server request uses a short-lived database connection that is then closed.
 

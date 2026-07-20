@@ -63,7 +63,7 @@ Use the [installation guide](docs/md/getting-started/installation.md) for local 
 
 | Change | Canonical guide | Minimum validation |
 |---|---|---|
-| Python pipeline, CLI, classification, or persistence | [Development](docs/md/development/development.md) | `make check` |
+| Python pipeline, CLI, classification, or persistence | [Development](docs/md/development/development.md) | `make check` or its documented `uv` equivalent |
 | Website or UI | [Website](docs/md/user-guide/website.md) and [Development](docs/md/development/development.md) | `cd site && bun run ci` |
 | Search configuration | [Search registry](docs/md/user-guide/search-registry.md) | `opportunities searches` and focused config tests |
 | Database schema or migrations | [Database lifecycle](docs/md/operations/database.md) | Migration consistency and upgrade tests |
@@ -89,7 +89,7 @@ Additional providers, authenticated or browser-based collection, private endpoin
 
 ## Issues and design changes
 
-Search [existing issues](https://github.com/simonesiega/european-tech-opportunities-2027/issues) before opening a duplicate. Use the repository’s issue forms for internship suggestions, bug reports, and feature requests; security reports belong in a private GitHub security advisory.
+Search [existing issues](https://github.com/simonesiega/european-tech-opportunities-2027/issues) before opening a duplicate. Use the repository’s issue forms for position suggestions, bug reports, and feature requests; security reports belong in a private GitHub security advisory.
 
 A useful bug report includes:
 
@@ -272,7 +272,7 @@ General expectations:
 - test fresh and representative databases for migrations;
 - update generated files only through their owning commands.
 
-Common minimum checks:
+Common minimum checks (use the equivalent direct `uv` sequence in the development guide when GNU Make is unavailable):
 
 ```bash
 make check

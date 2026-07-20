@@ -38,6 +38,31 @@ def test_linkedin_http_is_blocked_without_explicit_authorization() -> None:
     asyncio.run(run())
 
 
+def test_http_fetcher_rejects_non_linkedin_or_non_https_urls_without_network() -> None:
+    requests = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal requests
+        requests += 1
+        return httpx.Response(200, text="<html></html>", request=request)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(rate_limit_seconds=0, linkedin_crawl_authorized=True)
+
+    async def run() -> None:
+        async with client:
+            fetcher = HttpFetcher(settings, client=client)
+            for url in (
+                "https://example.com/jobs",
+                "http://www.linkedin.com/jobs-guest/jobs/api/search",
+            ):
+                with pytest.raises(FetchError, match="approved LinkedIn HTTPS endpoint"):
+                    await fetcher.get_text(url)
+
+    asyncio.run(run())
+    assert requests == 0
+
+
 def test_http_fetcher_retries_transient_linkedin_response() -> None:
     attempts = 0
 

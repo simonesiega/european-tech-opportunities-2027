@@ -13,7 +13,8 @@ const database = new Database(databasePath, {create: true, strict: true});
 database.run(`
   CREATE TABLE search_runs (
     id INTEGER PRIMARY KEY,
-    finished_at TEXT
+    status TEXT NOT NULL,
+    finished_at TEXT NOT NULL
   )
 `);
 database.run(`
@@ -32,8 +33,11 @@ database.run(`
   )
 `);
 
-database.run("INSERT INTO search_runs (id, finished_at) VALUES (1, ?)", [
+database.run("INSERT INTO search_runs (id, status, finished_at) VALUES (1, 'success', ?)", [
   "2026-07-17T12:00:00+00:00",
+]);
+database.run("INSERT INTO search_runs (id, status, finished_at) VALUES (2, 'failed', ?)", [
+  "2026-07-19T12:00:00+00:00",
 ]);
 
 const insertJob = database.prepare(`

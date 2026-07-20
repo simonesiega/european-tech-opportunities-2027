@@ -85,7 +85,7 @@ Do not commit, paste, or attach them to public issues.
 
 | Variable | Default | Validation and behavior |
 |---|---:|---|
-| `OPPORTUNITIES_DATABASE_URL` | `sqlite:///data/opportunities.db` | SQLAlchemy URL containing `://` |
+| `OPPORTUNITIES_DATABASE_URL` | `sqlite:///data/opportunities.db` | Valid SQLite SQLAlchemy URL; other database backends are rejected |
 | `OPPORTUNITIES_SEARCH_CONFIG_DIR` | `configs/searches` | Recursive YAML search-registry directory |
 | `OPPORTUNITIES_CATEGORY_CONFIG_PATH` | `configs/categories.yml` | Classification-rules file |
 | `OPPORTUNITIES_README_PATH` | `README.md` | Existing UTF-8 file containing exactly one opportunity marker pair |
@@ -198,6 +198,7 @@ A valid `Retry-After` value can add at most 60 seconds.
 
 The transport also enforces:
 
+- the fixed `www.linkedin.com` HTTPS host before any request;
 - disabled redirects;
 - bounded connection and overall timeouts;
 - bounded concurrency and same-host pacing;
@@ -229,7 +230,7 @@ OPPORTUNITIES_DATABASE_URL=sqlite:////srv/opportunities/opportunities.db
 OPPORTUNITIES_DATABASE_URL=sqlite:///C:/data/opportunities.db
 ```
 
-The engine creates the parent directory and enables SQLite foreign keys.
+Only SQLite URLs are supported. The engine creates the parent directory and enables SQLite foreign keys.
 
 Do not run independent writers against the same canonical SQLite file. The website opens the database read-only.
 

@@ -121,15 +121,15 @@ For each enabled search, the pipeline:
 
 Overlapping searches may discover the same job. The numeric LinkedIn ID keeps the listing canonical, while provenance remains associated with every search that found it.
 
-Classification checks require explicit evidence for:
+Classification checks require evidence for:
 
 - exactly one normalized employment type: `internship` or `new-grad` (internship wins if both title signals appear);
 - absence of configured seniority exclusions;
 - a supported technology category;
-- the target opportunity cycle;
+- either the explicit target cycle or no conflicting cycle plus eligible posting-date evidence;
 - a European location.
 
-Graduation-year eligibility language is not internship-cycle evidence. For title-explicit New Grad roles, a title or contextual opportunity year identifies the hiring cycle, so explicit 2025 or 2026 roles are rejected. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
+Graduation-year eligibility language is not internship-cycle evidence. For title-explicit New Grad roles, a title or contextual opportunity year identifies the hiring cycle, so explicit 2025 or 2026 roles are rejected. A yearless listing is eligible only when its resolved posting date is May 1, 2026 or later. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
 
 Search schema and pagination rules are documented in the [search registry guide](../user-guide/search-registry.md).
 
@@ -193,7 +193,7 @@ The Next.js website:
 
 - opens short-lived read-only SQLite connections;
 - returns every currently open listing;
-- reads the latest completed collection time;
+- reads the latest successful collection time;
 - performs search, filtering, sorting, and pagination as presentation behavior;
 - never runs collection, classification, migrations, or lifecycle writes.
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import codecs
 import logging
+import math
 import time
 from collections.abc import Awaitable, Callable
 from email.utils import parsedate_to_datetime
@@ -17,6 +18,7 @@ from opportunities.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 Sleep = Callable[[float], Awaitable[None]]
+_LINKEDIN_HOST = "www.linkedin.com"
 
 
 class FetchError(RuntimeError):
@@ -81,12 +83,26 @@ class HttpFetcher:
             await self._client.aclose()
 
     async def get_text(self, url: str) -> str:
-        """Fetch HTML/text, retrying timeout, transport, 429, and 5xx failures."""
-        hostname = (urlsplit(url).hostname or "").casefold()
-        # Enforce authorization before creating any network traffic, including retries.
+        """Fetch approved LinkedIn HTML with bounded transient retries."""
+        try:
+            parsed = urlsplit(url)
+            port = parsed.port
+        except ValueError as exc:
+            raise FetchError("invalid_url", "LinkedIn request URL is malformed") from exc
+        hostname = (parsed.hostname or "").casefold().rstrip(".")
         if (
-            hostname == "linkedin.com" or hostname.endswith(".linkedin.com")
-        ) and not self.settings.linkedin_crawl_authorized:
+            parsed.scheme.casefold() != "https"
+            or hostname != _LINKEDIN_HOST
+            or parsed.username is not None
+            or parsed.password is not None
+            or port not in {None, 443}
+        ):
+            raise FetchError(
+                "invalid_url",
+                "request URL is not an approved LinkedIn HTTPS endpoint",
+            )
+        # Enforce authorization before creating any network traffic, including retries.
+        if not self.settings.linkedin_crawl_authorized:
             raise FetchError(
                 "crawl_not_authorized",
                 "LinkedIn crawling is disabled until express permission is configured",
@@ -211,7 +227,8 @@ def _retry_after_seconds(value: str | None) -> float | None:
     if not value:
         return None
     try:
-        return max(float(value), 0.0)
+        seconds = float(value)
+        return max(seconds, 0.0) if math.isfinite(seconds) else None
     except ValueError:
         try:
             retry_at = parsedate_to_datetime(value)

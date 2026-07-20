@@ -15,6 +15,7 @@ from typing import Final
 
 FORMAT_VERSION: Final = 1
 RETENTION_POLICY: Final = "restricted-vps-sftp"
+MAX_MANIFEST_BYTES: Final = 64 * 1024
 EXPECTED_TABLES: Final = frozenset(
     {"alembic_version", "searches", "search_runs", "jobs", "job_searches"}
 )
@@ -56,7 +57,7 @@ class SnapshotSource:
 
 @dataclass(frozen=True)
 class SnapshotManifest:
-    """Metadata required to authenticate and recover one SQLite snapshot."""
+    """Metadata required to verify and recover one SQLite snapshot."""
 
     format_version: int
     manifest_key: str
@@ -190,7 +191,7 @@ class SnapshotManifest:
                 retain_until=retain_until,
             ),
             source=SnapshotSource(
-                repository=_string(source_data["repository"], "source.repository"),
+                repository=_repository_identifier(source_data["repository"], "source.repository"),
                 run_id=_run_identifier(source_data["run_id"], "source.run_id"),
                 run_attempt=_integer(source_data["run_attempt"], "source.run_attempt", minimum=1),
             ),
@@ -226,10 +227,16 @@ def create_snapshot(
     if run_attempt < 1:
         raise SnapshotError("run_attempt must be positive")
     _run_identifier(run_id, "run_id")
-    if not repository or any(character in repository for character in "\r\n\0"):
-        raise SnapshotError("repository is invalid")
-    if database_path.resolve() == snapshot_path.resolve():
-        raise SnapshotError("snapshot output must differ from the source database")
+    _repository_identifier(repository, "repository")
+    resolved_paths = {
+        database_path.resolve(),
+        snapshot_path.resolve(),
+        manifest_path.resolve(),
+    }
+    if len(resolved_paths) != 3:
+        raise SnapshotError("database, snapshot, and manifest paths must be distinct")
+    if snapshot_path.exists() or manifest_path.exists():
+        raise SnapshotError("snapshot outputs must not already exist")
 
     normalized_prefix = _key_prefix(key_prefix)
     created = _utc(created_at or datetime.now(UTC), "created_at")
@@ -242,7 +249,11 @@ def create_snapshot(
     manifest_key = f"{object_stem}.manifest.json"
 
     previous: PreviousSnapshot | None = None
-    if previous_manifest_path is not None and previous_manifest_path.is_file():
+    if previous_manifest_path is not None:
+        if not previous_manifest_path.is_file():
+            raise SnapshotError(
+                f"previous snapshot manifest does not exist: {previous_manifest_path}"
+            )
         prior = load_manifest(previous_manifest_path)
         if prior.created_at > created:
             raise SnapshotError("previous snapshot cannot be newer than the new snapshot")
@@ -265,21 +276,19 @@ def create_snapshot(
             closing(sqlite3.connect(temporary_snapshot)) as destination,
         ):
             source.backup(destination)
-        os.replace(temporary_snapshot, snapshot_path)
-
-        database_metadata = inspect_database(snapshot_path)
+        database_metadata = inspect_database(temporary_snapshot)
         if (
             database_metadata.collection_timestamp is not None
             and database_metadata.collection_timestamp > created
         ):
             raise SnapshotError("database collection timestamp cannot follow snapshot creation")
-        digest = sha256_file(snapshot_path)
+        digest = sha256_file(temporary_snapshot)
         manifest = SnapshotManifest(
             format_version=FORMAT_VERSION,
             manifest_key=manifest_key,
             database_key=database_key,
             sha256=digest,
-            size_bytes=snapshot_path.stat().st_size,
+            size_bytes=temporary_snapshot.stat().st_size,
             schema_revision=database_metadata.schema_revision,
             created_at=created,
             collection_timestamp=database_metadata.collection_timestamp,
@@ -299,11 +308,16 @@ def create_snapshot(
             json.dumps(manifest.to_dict(), ensure_ascii=True, indent=2, sort_keys=True) + "\n"
         )
         temporary_manifest.write_text(serialized, encoding="utf-8", newline="\n")
+        os.replace(temporary_snapshot, snapshot_path)
         os.replace(temporary_manifest, manifest_path)
         return manifest
     except BaseException:
         temporary_snapshot.unlink(missing_ok=True)
         temporary_manifest.unlink(missing_ok=True)
+        # Outputs are required not to pre-exist, so removing a partially promoted pair
+        # cannot destroy an older snapshot.
+        snapshot_path.unlink(missing_ok=True)
+        manifest_path.unlink(missing_ok=True)
         raise
 
 
@@ -356,7 +370,11 @@ def inspect_database(database_path: Path) -> DatabaseMetadata:
 
     raw_collection = collection_row[0] if collection_row is not None else None
     collection_timestamp = (
-        _timestamp(str(raw_collection), "database collection timestamp")
+        _timestamp(
+            str(raw_collection),
+            "database collection timestamp",
+            assume_naive_utc=True,
+        )
         if raw_collection is not None
         else None
     )
@@ -402,10 +420,12 @@ def verify_snapshot(
 
 
 def load_manifest(path: Path) -> SnapshotManifest:
-    """Read and validate one snapshot manifest."""
+    """Read and validate one bounded snapshot manifest."""
     try:
+        if path.stat().st_size > MAX_MANIFEST_BYTES:
+            raise SnapshotError("snapshot manifest exceeds the size limit")
         value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+    except (OSError, UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise SnapshotError(f"cannot read snapshot manifest: {exc}") from exc
     return SnapshotManifest.from_dict(value)
 
@@ -442,7 +462,7 @@ def _mapping(value: object, label: str, expected_keys: set[str]) -> dict[str, ob
 def _string(value: object, label: str) -> str:
     if not isinstance(value, str) or not value:
         raise SnapshotError(f"{label} must be a non-empty string")
-    if any(character in value for character in "\r\n\0"):
+    if any(ord(character) < 32 or ord(character) == 127 for character in value):
         raise SnapshotError(f"{label} contains control characters")
     return value
 
@@ -453,13 +473,22 @@ def _integer(value: object, label: str, *, minimum: int) -> int:
     return value
 
 
-def _timestamp(value: object, label: str) -> datetime:
+def _timestamp(
+    value: object,
+    label: str,
+    *,
+    assume_naive_utc: bool = False,
+) -> datetime:
     text = _string(value, label)
     try:
         parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError as exc:
         raise SnapshotError(f"{label} must be an ISO-8601 timestamp") from exc
     if parsed.tzinfo is None:
+        if not assume_naive_utc:
+            raise SnapshotError(f"{label} must include a timezone")
+        # SQLAlchemy's SQLite adapter stores UTC values without an offset. This is the
+        # only legacy boundary where a naive timestamp has defined UTC semantics.
         parsed = parsed.replace(tzinfo=UTC)
     return parsed.astimezone(UTC)
 
@@ -482,6 +511,8 @@ def _utc(value: datetime, label: str) -> datetime:
 
 def _object_key(value: object, label: str) -> str:
     key = _string(value, label)
+    if len(key) > 1_024:
+        raise SnapshotError(f"{label} is too long")
     if key.startswith("/") or "//" in key or not _KEY_RE.fullmatch(key):
         raise SnapshotError(f"{label} is not a safe object key")
     if ".." in key.split("/"):
@@ -495,8 +526,15 @@ def _key_prefix(value: str) -> str:
     return prefix
 
 
+def _repository_identifier(value: object, label: str) -> str:
+    identifier = _string(value, label)
+    if len(identifier) > 256:
+        raise SnapshotError(f"{label} is too long")
+    return identifier
+
+
 def _run_identifier(value: object, label: str) -> str:
     identifier = _string(value, label)
-    if not _RUN_ID_RE.fullmatch(identifier):
+    if len(identifier) > 128 or not _RUN_ID_RE.fullmatch(identifier):
         raise SnapshotError(f"{label} contains unsupported characters")
     return identifier

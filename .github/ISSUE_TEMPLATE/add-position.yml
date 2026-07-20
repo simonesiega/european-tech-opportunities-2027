@@ -43,8 +43,9 @@ body:
   - type: input
     id: application-url
     attributes:
-      label: Official application URL
-      placeholder: https://...
+      label: Public LinkedIn listing URL
+      description: Use the unauthenticated HTTPS listing URL without tracking parameters.
+      placeholder: https://www.linkedin.com/jobs/view/1234567890
     validations:
       required: true
 

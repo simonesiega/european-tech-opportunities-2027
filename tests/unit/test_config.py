@@ -5,8 +5,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from opportunities.config.rules import load_classification_rules
 from opportunities.config.search_registry import SearchRegistryError, load_search_registry
-from opportunities.config.settings import apply_search_overrides, load_settings
+from opportunities.config.settings import Settings, apply_search_overrides, load_settings
 from opportunities.models.enums import OpportunityCategory
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.utils.paths import find_project_root
@@ -99,3 +100,48 @@ def test_invalid_search_and_duplicate_query_are_rejected(tmp_path: Path) -> None
         (tmp_path / f"{number}.yml").write_text(body.format(n=number), encoding="utf-8")
     with pytest.raises(SearchRegistryError, match="duplicate LinkedIn search"):
         load_search_registry(tmp_path)
+
+
+def test_duplicate_query_identity_ignores_company_allowlist_order(tmp_path: Path) -> None:
+    body = (
+        "name: Search {number}\nslug: search-{number}\nkeywords: software intern\n"
+        "location: Europe\ncompany_names:\n{companies}"
+    )
+    (tmp_path / "one.yml").write_text(
+        body.format(number=1, companies="  - Example One\n  - Example Two\n"),
+        encoding="utf-8",
+    )
+    (tmp_path / "two.yml").write_text(
+        body.format(number=2, companies="  - Example Two\n  - Example One\n"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(SearchRegistryError, match="duplicate LinkedIn search"):
+        load_search_registry(tmp_path)
+
+
+def test_settings_and_classification_yaml_fail_closed(tmp_path: Path) -> None:
+    malformed = tmp_path / "malformed.yml"
+    malformed.write_text("value: [unterminated\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="could not read settings file"):
+        load_settings(malformed, dotenv_path=tmp_path / "missing.env")
+    with pytest.raises(ValueError, match="could not read classification rules"):
+        load_classification_rules(malformed)
+
+    invalid_rules = tmp_path / "rules.yml"
+    invalid_rules.write_text(
+        "schema_version: 2\ninternship_keywords: [intern]\n"
+        "new_grad_keywords: [graduate]\nexcluded_role_keywords: [senior]\n"
+        "categories:\n  software-engineering: not-a-list\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValidationError, match="keyword configuration must be a list"):
+        load_classification_rules(invalid_rules)
+
+
+def test_settings_require_sqlite_and_safe_header_values() -> None:
+    with pytest.raises(ValidationError, match="must use SQLite"):
+        Settings(database_url="postgresql://user:password@example.com/opportunities")
+    with pytest.raises(ValidationError, match="control characters"):
+        Settings(user_agent="valid-user-agent-value\r\nInjected: true")

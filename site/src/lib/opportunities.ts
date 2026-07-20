@@ -1,9 +1,11 @@
 import {DatabaseSync} from "node:sqlite";
+import {isCanonicalListingUrl} from "@/lib/listing-url";
 import type {Opportunity} from "@/types/opportunity";
 
 const LAST_UPDATED_QUERY = `
   SELECT MAX(finished_at) AS lastUpdatedAt
   FROM search_runs
+  WHERE status = 'success'
 `;
 
 const OPEN_OPPORTUNITIES_QUERY = `
@@ -39,7 +41,13 @@ export function getDirectoryData(): DirectoryData {
     const rows = database.prepare(OPEN_OPPORTUNITIES_QUERY).all() as Opportunity[];
 
     // node:sqlite rows have a null prototype and cannot cross the Server Component boundary.
-    const opportunities = rows.map((row) => ({...row}));
+    const opportunities = rows.map((row) => {
+      const opportunity = {...row};
+      if (!isCanonicalListingUrl(opportunity.link, opportunity.linkedinJobId)) {
+        throw new Error("Opportunity database contains an invalid listing URL");
+      }
+      return opportunity;
+    });
     return {opportunities, lastUpdatedAt};
   } finally {
     database.close();

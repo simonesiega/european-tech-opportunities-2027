@@ -35,7 +35,7 @@ opportunities = "opportunities.cli.app:app"
 [dependency-groups]
 dev = [
   "mypy>=1.11.1,<2",
-  "pytest>=8.3.2,<9",
+  "pytest>=9.0.3,<10",
   "pytest-benchmark>=5.2.0,<6",
   "pytest-cov>=7.0.0,<8",
   "ruff>=0.6.2,<1",
@@ -44,11 +44,16 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling==1.31.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/opportunities"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"alembic.ini" = "opportunities/resources/alembic.ini"
+"configs" = "opportunities/resources/configs"
+"migrations" = "opportunities/resources/migrations"
 
 [tool.ruff]
 target-version = "py312"

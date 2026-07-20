@@ -22,8 +22,8 @@ This guide covers the local engineering workflow, repository structure, coding s
 - Python 3.12 and `uv` 0.11.6;
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
 - pytest with branch coverage and microbenchmarks, Ruff, and strict mypy;
-- Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
-- Docker for container and production-path validation.
+- Node.js 20.9 or newer, Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
+- GNU Make for optional command shortcuts, and Docker for container and production-path validation.
 
 Install the locked dependencies:
 
@@ -83,6 +83,8 @@ review the diff for secrets and generated state
 Keep pull requests focused. Avoid combining unrelated parser, schema, search, website, deployment, and formatting changes.
 
 ## Make commands
+
+GNU Make provides the shortcuts below. On Windows or another environment without Make, use the equivalent `uv` commands in [Validation paths](#validation-paths).
 
 | Command | Purpose |
 |---|---|

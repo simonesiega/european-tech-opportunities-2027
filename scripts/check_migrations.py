@@ -26,7 +26,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory() as directory:
         database = Path(directory) / "migration-check.db"
         url = f"sqlite:///{database.as_posix()}"
-        upgrade_database(url)
+        upgrade_database(url, repository_root=repository_root)
         engine = create_engine(url)
         with engine.connect() as connection:
             version = connection.scalar(text("SELECT version_num FROM alembic_version"))

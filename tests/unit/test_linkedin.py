@@ -87,6 +87,25 @@ def test_linkedin_job_detail_infers_posted_at_from_relative_age(
     assert job.posted_at == datetime(2026, 7, 13, 12, 30, tzinfo=UTC)
 
 
+def test_lower_bound_posting_age_is_not_treated_as_exact_recency(
+    fixture_html: Callable[[str], str],
+) -> None:
+    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
+    html = """<!doctype html>
+    <h1 class="top-card-layout__title">Software Engineering Intern 2027</h1>
+    <a class="topcard__org-name-link">Test Technology</a>
+    <span class="posted-time-ago__text">30+ days ago</span>
+    """
+
+    job = parse_job_detail(
+        html,
+        card,
+        observed_at=datetime(2026, 7, 18, 12, 30, tzinfo=UTC),
+    )
+
+    assert job.posted_at is None
+
+
 def test_linkedin_job_detail_extracts_criteria_without_linkedin_classes(
     fixture_html: Callable[[str], str],
 ) -> None:
@@ -170,6 +189,53 @@ def test_linkedin_scraper_paginates_and_deduplicates_job_ids(
         job for job in result.positions if job.source_job_id == "3333333333"
     )
     assert job_without_industries.industries is None
+
+
+def test_concurrent_searches_share_an_inflight_detail_request(
+    fixture_html: Callable[[str], str],
+) -> None:
+    first = configured_search(max_pages=1, max_results=25)
+    second = first.model_copy(
+        update={"slug": "second-search", "keywords": "engineering intern 2027"}
+    )
+    detail_url = LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111")
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(first, start=0): fixture_html("linkedin_search_page_1.html"),
+            build_search_url(second, start=0): fixture_html("linkedin_search_page_1.html"),
+            detail_url: fixture_html("linkedin_job_detail_1111111111.html"),
+        }
+    )
+    scraper = LinkedInScraper()
+
+    async def run() -> None:
+        await asyncio.gather(scraper.scrape(first, fetcher), scraper.scrape(second, fetcher))
+
+    asyncio.run(run())
+
+    assert fetcher.calls.count(detail_url) == 1
+
+
+def test_completed_detail_requests_are_not_retained_between_scrapes(
+    fixture_html: Callable[[str], str],
+) -> None:
+    search = configured_search(max_pages=1, max_results=25)
+    detail_url = LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111")
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): fixture_html("linkedin_search_page_1.html"),
+            detail_url: fixture_html("linkedin_job_detail_1111111111.html"),
+        }
+    )
+    scraper = LinkedInScraper()
+
+    async def run() -> None:
+        await scraper.scrape(search, fetcher)
+        await scraper.scrape(search, fetcher)
+
+    asyncio.run(run())
+
+    assert fetcher.calls.count(detail_url) == 2
 
 
 def test_cycle_search_url_covers_every_posting_since_may_cutoff() -> None:
@@ -293,6 +359,32 @@ def test_linkedin_company_filter_is_applied_before_detail_fetch(
     result = asyncio.run(LinkedInScraper().scrape(search, fetcher))
     assert [job.company for job in result.positions] == ["Test Technology"]
     assert all("2222222222" not in call for call in fetcher.calls)
+
+
+def test_stale_search_card_detail_404_confirms_known_job_unavailability(
+    fixture_html: Callable[[str], str],
+) -> None:
+    search = configured_search(max_pages=1, max_results=25)
+    job_id = "1111111111"
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): fixture_html("linkedin_search_page_1.html"),
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): FetchError(
+                "http_status", "not found", status_code=404
+            ),
+        }
+    )
+    known = KnownJob(
+        source_job_id=job_id,
+        company="Test Technology",
+        title="Software Engineering Intern 2027",
+        locations=("London, UK",),
+        application_url=f"https://www.linkedin.com/jobs/view/{job_id}",
+    )
+
+    result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
+
+    assert result.confirmed_unavailable_ids == (job_id,)
 
 
 def test_known_job_404_is_reported_as_confirmed_unavailable() -> None:

@@ -9,6 +9,7 @@ import yaml
 from pydantic import ValidationError
 
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.utils.text import normalized_key
 
 
 class SearchRegistryError(ValueError):
@@ -48,7 +49,7 @@ def load_search_registry(
                 search.geo_id or "",
                 search.workplace,
                 search.date_posted,
-                ",".join(company.casefold() for company in search.company_names),
+                ",".join(sorted(normalized_key(company) for company in search.company_names)),
             )
         )
         for search in searches

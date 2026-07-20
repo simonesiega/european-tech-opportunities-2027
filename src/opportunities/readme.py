@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import html
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from opportunities.models.enums import EmploymentType
 from opportunities.models.job import StoredJob
+from opportunities.utils.files import atomic_write_text
+from opportunities.utils.time import ensure_utc
 
 BEGIN_MARKER = "<!-- BEGIN OPPORTUNITIES -->"
 END_MARKER = "<!-- END OPPORTUNITIES -->"
@@ -31,14 +32,13 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
     if not path.is_file():
         raise ValueError(f"README does not exist: {path}")
     content = path.read_text(encoding="utf-8")
-    if content.count(BEGIN_MARKER) != 1 or content.count(END_MARKER) != 1:
-        raise ValueError("README must contain exactly one opportunity marker pair")
+    begin, end = _marker_bounds(content)
     # Replace only the generated marker range; all hand-written documentation remains intact.
-    before, remainder = content.split(BEGIN_MARKER, 1)
-    _old, after = remainder.split(END_MARKER, 1)
+    before = content[:begin]
+    after = content[end + len(END_MARKER) :]
     block = markdown_block(jobs, metadata)
     rendered = f"{before}{BEGIN_MARKER}\n{block}{END_MARKER}{after}"
-    _atomic_write(path, rendered)
+    atomic_write_text(path, rendered)
 
 
 def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
@@ -115,12 +115,14 @@ def validate_readme(
         return [f"README does not exist: {path}"]
     content = path.read_text(encoding="utf-8")
     errors: list[str] = []
-    if content.count(BEGIN_MARKER) != 1 or content.count(END_MARKER) != 1:
-        errors.append("README must contain exactly one opportunity marker pair")
+    try:
+        begin, end = _marker_bounds(content)
+    except ValueError as exc:
+        errors.append(str(exc))
         return errors
-    block = content.split(BEGIN_MARKER, 1)[1].split(END_MARKER, 1)[0].strip()
+    block = content[begin + len(BEGIN_MARKER) : end].strip()
     if TABLE_HEADER.strip() not in block:
-        errors.append("README position tables must have Company, Title, Location, Link columns")
+        errors.append("README position tables must have Company, Title, Location, Listing columns")
     if (
         jobs is not None
         and metadata is not None
@@ -145,12 +147,20 @@ def _safe_url(value: str) -> str:
 
 def _format_collection_time(value: datetime) -> str:
     """Format a collection timestamp for README display."""
-    month = value.strftime("%B")
-    return f"{month} {value.day}, {value.year} at {value.hour:02d}:{value.minute:02d} UTC"
+    normalized = ensure_utc(value)
+    month = normalized.strftime("%B")
+    return (
+        f"{month} {normalized.day}, {normalized.year} at "
+        f"{normalized.hour:02d}:{normalized.minute:02d} UTC"
+    )
 
 
-def _atomic_write(path: Path, content: str) -> None:
-    """Replace a file atomically with UTF-8 content."""
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    temporary.write_text(content, encoding="utf-8", newline="\n")
-    os.replace(temporary, path)
+def _marker_bounds(content: str) -> tuple[int, int]:
+    """Return one correctly ordered generated marker pair."""
+    if content.count(BEGIN_MARKER) != 1 or content.count(END_MARKER) != 1:
+        raise ValueError("README must contain exactly one opportunity marker pair")
+    begin = content.index(BEGIN_MARKER)
+    end = content.index(END_MARKER)
+    if begin >= end:
+        raise ValueError("README opportunity markers are out of order")
+    return begin, end

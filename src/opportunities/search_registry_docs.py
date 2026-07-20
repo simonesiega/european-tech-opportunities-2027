@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from opportunities.utils.files import atomic_write_text
+
 _LAYOUT_PATTERN = re.compile(
     r"```text\n"
     r"configs/searches/\n"
@@ -40,7 +42,7 @@ def render_search_registry_docs(path: Path, search_config_dir: Path) -> None:
         return
     content = path.read_text(encoding="utf-8")
     rendered = _render_layout_block(content, search_registry_layout(search_config_dir))
-    path.write_text(rendered, encoding="utf-8", newline="\n")
+    atomic_write_text(path, rendered)
 
 
 def validate_search_registry_docs(path: Path, search_config_dir: Path) -> list[str]:

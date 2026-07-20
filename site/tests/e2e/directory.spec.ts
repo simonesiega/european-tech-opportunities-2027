@@ -128,6 +128,7 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   );
   await expect(page.locator('meta[name="author"]')).toHaveAttribute("content", "Simone Siega");
   await expect(page.locator('script[src="https://cloud.umami.is/script.js"]')).toHaveCount(0);
+  await expect(page.getByText("Last updated: 17 Jul 2026")).toBeVisible();
 
   const manifestResponse = await request.get("/manifest.webmanifest");
   expect(manifestResponse.ok()).toBeTruthy();

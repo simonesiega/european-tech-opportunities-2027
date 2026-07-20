@@ -67,7 +67,9 @@ def test_searches_works_without_database(tmp_path: Path) -> None:
     result = runner.invoke(app, ["searches"], env=cli_env(tmp_path))
     assert result.exit_code == 0, result.output
     assert "LinkedIn searches" in result.output
+    assert "Enabled" in result.output
     assert "robotics" in result.output
+    assert not (tmp_path / "opportunities.db").exists()
 
 
 @pytest.mark.parametrize(
@@ -115,6 +117,7 @@ def test_scrape_preserves_unexpected_migration_error(
 def test_searches_disposes_engine_when_database_inspection_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    (tmp_path / "opportunities.db").touch()
     engine = Mock(spec=Engine)
     engine.dispose.side_effect = RuntimeError("cleanup failed")
     monkeypatch.setattr(cli_app_module, "create_database_engine", lambda _url: engine)

@@ -82,7 +82,7 @@ uv run opportunities searches
 
 Displays the effective search registry, including:
 
-- enabled search slugs;
+- configured search slugs and whether each is enabled;
 - location scope;
 - effective page, result, and recheck limits;
 - latest run status;

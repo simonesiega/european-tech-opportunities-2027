@@ -21,7 +21,8 @@ fi
 
 if [[ ! "$VPS_BACKUP_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
   || [[ ! "$VPS_BACKUP_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
-  || [[ ! "$VPS_BACKUP_PORT" =~ ^[0-9]{1,5}$ ]]; then
+  || [[ ! "$VPS_BACKUP_PORT" =~ ^[0-9]{1,5}$ ]] \
+  || ((10#$VPS_BACKUP_PORT < 1 || 10#$VPS_BACKUP_PORT > 65535)); then
   echo "VPS backup SSH configuration is invalid." >&2
   exit 2
 fi
@@ -38,8 +39,8 @@ if [[ ! "$CANONICAL_STATE_PREFIX" =~ ^[A-Za-z0-9._/-]+$ ]] \
   echo "CANONICAL_STATE_PREFIX is invalid." >&2
   exit 2
 fi
-if [[ ! "$CANONICAL_STATE_RETENTION_DAYS" =~ ^[0-9]+$ ]] \
-  || ((CANONICAL_STATE_RETENTION_DAYS < 1 || CANONICAL_STATE_RETENTION_DAYS > 3650)); then
+if [[ ! "$CANONICAL_STATE_RETENTION_DAYS" =~ ^[0-9]{1,4}$ ]] \
+  || ((10#$CANONICAL_STATE_RETENTION_DAYS < 1 || 10#$CANONICAL_STATE_RETENTION_DAYS > 3650)); then
   echo "CANONICAL_STATE_RETENTION_DAYS must be between 1 and 3650." >&2
   exit 2
 fi

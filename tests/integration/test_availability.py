@@ -26,7 +26,12 @@ class FakeAvailabilityFetcher:
             raise FetchError("http_status", "not found", status_code=404)
         if url.endswith("3333333333"):
             raise FetchError("transient_http", "server error", status_code=503)
-        return "<html><h1>Available job</h1></html>"
+        if url.endswith("4444444444"):
+            return "<html><body>Security verification challenge-page</body></html>"
+        return (
+            '<h1 class="top-card-layout__title">Software Engineering Intern 2027</h1>'
+            '<a class="topcard__org-name-link">Example Technology</a>'
+        )
 
 
 def test_availability_audit_checks_every_row_deletes_only_explicit_unavailability(
@@ -47,7 +52,7 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
             category=OpportunityCategory.SOFTWARE_ENGINEERING,
             employment_type=EmploymentType.INTERNSHIP,
         )
-        for job_id in ("1111111111", "2222222222", "3333333333")
+        for job_id in ("1111111111", "2222222222", "3333333333", "4444444444")
     ]
     repository.persist_success(
         run_id="00000000-0000-0000-0000-000000000001",
@@ -80,11 +85,11 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
         )
     )
 
-    assert result.checked == 3
+    assert result.checked == 4
     assert result.available == 1
     assert result.deleted == 1
     assert result.reopened == 1
-    assert result.inconclusive_ids == ("3333333333",)
+    assert result.inconclusive_ids == ("3333333333", "4444444444")
     assert result.exit_code == 2
     assert set(fetcher.requested) == {
         LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id) for job in jobs
@@ -92,10 +97,12 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
     assert {job.linkedin_job_id for job in repository.list_all_jobs()} == {
         "1111111111",
         "3333333333",
+        "4444444444",
     }
     assert {job.linkedin_job_id for job in repository.list_open_jobs()} == {
         "1111111111",
         "3333333333",
+        "4444444444",
     }
     with session_factory() as session:
         reopened_alias = session.get(JobSearchRow, (search.slug, "1111111111"))

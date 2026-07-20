@@ -149,17 +149,24 @@ _CITY_COUNTRIES: dict[str, str] = {
     "zurich": "CH",
 }
 
+_NON_EUROPEAN_REGION_CODES = frozenset({"GA", "NH", "OH", "ON", "TX"})
+
 _NON_EUROPEAN_MARKERS = frozenset(
     {
         "australia",
         "austin",
         "brazil",
         "canada",
+        "georgia",
         "india",
+        "new hampshire",
         "new york",
+        "ohio",
+        "ontario",
         "san francisco",
         "seattle",
         "singapore",
+        "texas",
         "united states",
         "us remote",
         "usa",
@@ -189,21 +196,28 @@ def normalize_locations(values: list[str]) -> LocationResult:
         if location and location not in locations:
             locations.append(location)
         key = normalized_key(raw_value)
+        uppercase_codes = set(re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", raw_value))
+        has_non_european_marker = bool(uppercase_codes & _NON_EUROPEAN_REGION_CODES) or any(
+            _contains_phrase(key, marker) for marker in _NON_EUROPEAN_MARKERS
+        )
         for alias, country_code in _COUNTRY_ALIASES.items():
             if _contains_phrase(key, alias):
                 codes.add(country_code)
-        for city, country_code in _CITY_COUNTRIES.items():
-            if _contains_phrase(key, city):
-                codes.add(country_code)
+        # City-only inference is a fallback. A clear non-European country or market
+        # qualifier prevents namesakes such as London, Ontario from becoming UK evidence.
+        if not has_non_european_marker:
+            for city, country_code in _CITY_COUNTRIES.items():
+                if _contains_phrase(key, city):
+                    codes.add(country_code)
         # Two-letter codes are recognized only when the source writes uppercase ISO
         # tokens. Lowercased matching would mistake common words such as "at" or "it"
         # for Austria and Italy.
-        for code in re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", raw_value):
+        for code in uppercase_codes:
             if code in EUROPEAN_COUNTRY_CODES:
                 codes.add(code)
         if any(marker in key for marker in ("europe", "european union", "emea")):
             europe_signal = True
-        if any(_contains_phrase(key, marker) for marker in _NON_EUROPEAN_MARKERS):
+        if has_non_european_marker:
             non_europe_signal = True
 
     if codes & EUROPEAN_COUNTRY_CODES:

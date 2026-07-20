@@ -49,9 +49,13 @@ class LinkedInSearchConfig(BaseModel):
             return ()
         if not isinstance(value, (list, tuple)):
             raise ValueError("company_names must be a list")
-        companies = tuple(clean_text(str(item)) for item in value)
-        if any(not company for company in companies):
-            raise ValueError("company_names cannot contain empty values")
+        if len(value) > 50:
+            raise ValueError("company_names cannot contain more than 50 values")
+        if any(not isinstance(item, str) for item in value):
+            raise ValueError("company_names must contain strings")
+        companies = tuple(clean_text(item) for item in value)
+        if any(not company or len(company) > 200 for company in companies):
+            raise ValueError("company_names must contain non-empty values up to 200 characters")
         unique: dict[str, str] = {}
         for company in companies:
             unique.setdefault(normalized_key(company), company)

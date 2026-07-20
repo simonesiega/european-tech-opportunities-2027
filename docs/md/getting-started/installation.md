@@ -13,7 +13,9 @@ This guide covers local installation, database initialization, the first website
 | Python | 3.12+ | Pipeline, CLI, tests, and migrations |
 | `uv` | 0.11.6 recommended | Locked Python environment and commands |
 | Git | Current supported release | Repository checkout |
-| Bun | 1.3.14 | Website installation and development |
+| Node.js | 20.9+ | Website builds and production-style local startup |
+| Bun | 1.3.14 | Website dependency installation, tests, and development |
+| GNU Make | Optional | Python validation shortcuts; direct `uv` commands are documented too |
 | Docker | Optional | Container and deployment workflows |
 
 Confirm the required tools:
@@ -22,6 +24,7 @@ Confirm the required tools:
 python --version
 uv --version
 git --version
+node --version
 bun --version
 ```
 

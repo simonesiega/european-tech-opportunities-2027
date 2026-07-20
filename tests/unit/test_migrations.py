@@ -22,6 +22,14 @@ def test_upgrade_database_verifies_second_upgrade_is_a_no_op() -> None:
     assert first_revision == second_revision == "head"
 
 
+def test_upgrade_database_creates_a_missing_sqlite_parent(tmp_path: Path) -> None:
+    database = tmp_path / "nested" / "state" / "opportunities.db"
+
+    upgrade_database(f"sqlite:///{database.as_posix()}", repository_root=ROOT)
+
+    assert database.is_file()
+
+
 def test_employment_type_migration_backfills_existing_jobs(tmp_path: Path) -> None:
     database = tmp_path / "migration.db"
     config = Config(str(ROOT / "alembic.ini"))

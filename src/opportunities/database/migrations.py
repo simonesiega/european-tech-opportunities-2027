@@ -7,6 +7,7 @@ from pathlib import Path
 from alembic import command
 from alembic.config import Config
 from alembic.script import ScriptDirectory
+from sqlalchemy.engine import make_url
 
 
 def _config(repository_root: Path) -> Config:
@@ -25,6 +26,13 @@ def migration_head(*, repository_root: Path = Path(".")) -> str | None:
 
 def upgrade_database(database_url: str, *, repository_root: Path = Path(".")) -> None:
     """Upgrade the database to the latest migration."""
+    url = make_url(database_url)
+    if (
+        url.get_backend_name() == "sqlite"
+        and url.database is not None
+        and url.database not in {"", ":memory:"}
+    ):
+        Path(url.database).parent.mkdir(parents=True, exist_ok=True)
     config = _config(repository_root)
     config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
     command.upgrade(config, "head")
