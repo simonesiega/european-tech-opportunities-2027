@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 21, 2026 at 06:33 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-417-2563eb?style=for-the-badge" alt="Total opportunities: 417" />
-  <img src="https://img.shields.io/badge/Internships-241-16a34a?style=for-the-badge" alt="Internships: 241" />
-  <img src="https://img.shields.io/badge/New%20Grad-176-9333ea?style=for-the-badge" alt="New Grad opportunities: 176" />
+  <strong>Last updated: July 22, 2026 at 06:33 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-427-2563eb?style=for-the-badge" alt="Total opportunities: 427" />
+  <img src="https://img.shields.io/badge/Internships-240-16a34a?style=for-the-badge" alt="Internships: 240" />
+  <img src="https://img.shields.io/badge/New%20Grad-187-9333ea?style=for-the-badge" alt="New Grad opportunities: 187" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,36 +110,35 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 417 (Internships: 241 · New Grad: 176)<br>
-**Last successful collection:** July 21, 2026 at 06:33 UTC
+**Open positions:** 427 (Internships: 240 · New Grad: 187)<br>
+**Last successful collection:** July 22, 2026 at 06:33 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 176 open New Grad positions:
+Showing the 10 most recently posted of 187 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| IMC Trading | Graduate Software Engineer \(Digital Assets\) | Zug, Zug, Switzerland | [View](<https://www.linkedin.com/jobs/view/4442067662>) |
-| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442010651>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4442022266>) |
-| Bending Spoons | Graduate data scientist | France | [View](<https://www.linkedin.com/jobs/view/4442016497>) |
-| Bending Spoons | Graduate data scientist | Spain | [View](<https://www.linkedin.com/jobs/view/4442000380>) |
-| Bending Spoons | Graduate data scientist | Italy | [View](<https://www.linkedin.com/jobs/view/4441784968>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4441796543>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4441791785>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4441784965>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4441782968>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442661953>) |
+| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4442684096>) |
+| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4442674440>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4442683111>) |
+| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4442677388>) |
+| Bending Spoons | Graduate AI software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442663824>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4442667690>) |
+| Bending Spoons | Graduate AI software engineer | Palaiseau, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442670552>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442669576>) |
+| IOTech Systems | Graduate Software Engineer | City Of Edinburgh, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4443386833>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 241 open internships:
+Showing the 10 most recently posted of 240 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
 | IGEL Technology | Working Student/Intern, Quality Assurance \(m/f/d\) | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4442068468>) |
-| Medidata Solutions | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442710159>) |
 | Toyota Motor Europe | Data Science internship | Evere, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4433637570>) |
 | onsemi | INTERN | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4440124621>) |
 | NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395383181>) |
@@ -148,6 +147,7 @@ Showing the 10 most recently posted of 241 open internships:
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442572981>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442535965>) |
 | Cadence | Intern | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4414499720>) |
+| REVEL | Robotics Software Intern \(ROS\) | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442529516>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
