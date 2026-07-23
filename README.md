@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 22, 2026 at 06:33 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-427-2563eb?style=for-the-badge" alt="Total opportunities: 427" />
-  <img src="https://img.shields.io/badge/Internships-240-16a34a?style=for-the-badge" alt="Internships: 240" />
-  <img src="https://img.shields.io/badge/New%20Grad-187-9333ea?style=for-the-badge" alt="New Grad opportunities: 187" />
+  <strong>Last updated: July 23, 2026 at 07:05 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-513-2563eb?style=for-the-badge" alt="Total opportunities: 513" />
+  <img src="https://img.shields.io/badge/Internships-295-16a34a?style=for-the-badge" alt="Internships: 295" />
+  <img src="https://img.shields.io/badge/New%20Grad-218-9333ea?style=for-the-badge" alt="New Grad opportunities: 218" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,44 +110,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 427 (Internships: 240 · New Grad: 187)<br>
-**Last successful collection:** July 22, 2026 at 06:33 UTC
+**Open positions:** 513 (Internships: 295 · New Grad: 218)<br>
+**Last successful collection:** July 23, 2026 at 07:05 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 187 open New Grad positions:
+Showing the 10 most recently posted of 218 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442661953>) |
-| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4442684096>) |
-| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4442674440>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4442683111>) |
-| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4442677388>) |
-| Bending Spoons | Graduate AI software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442663824>) |
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4442667690>) |
-| Bending Spoons | Graduate AI software engineer | Palaiseau, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442670552>) |
-| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442669576>) |
-| IOTech Systems | Graduate Software Engineer | City Of Edinburgh, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4443386833>) |
+| Bending Spoons | Graduate AI software engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4442665833>) |
+| Bending Spoons | Graduate software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4442665825>) |
+| Bending Spoons | Graduate software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442664794>) |
+| Bending Spoons | Graduate AI software engineer | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4442685039>) |
+| Bending Spoons | Graduate AI software engineer | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4442672459>) |
+| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4442668684>) |
+| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4442662836>) |
+| Bending Spoons | Graduate AI software engineer | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442683107>) |
+| Bending Spoons | Graduate AI software engineer | France | [View](<https://www.linkedin.com/jobs/view/4442665826>) |
+| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4442661954>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 240 open internships:
+Showing the 10 most recently posted of 295 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| IGEL Technology | Working Student/Intern, Quality Assurance \(m/f/d\) | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4442068468>) |
-| Toyota Motor Europe | Data Science internship | Evere, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4433637570>) |
-| onsemi | INTERN | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4440124621>) |
-| NXP Semiconductors | Web Application Developer Intern | Sibiu, Sibiu, Romania | [View](<https://www.linkedin.com/jobs/view/4395383181>) |
-| Miele | UX Research Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4442023636>) |
-| Pluxbox | React Developer Intern | Hilversum, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4440104998>) |
-| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442572981>) |
-| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4442535965>) |
-| Cadence | Intern | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4414499720>) |
-| REVEL | Robotics Software Intern \(ROS\) | Prague, Prague, Czechia | [View](<https://www.linkedin.com/jobs/view/4442529516>) |
+| Jack &amp; Jill | Full Stack AI Engineer Intern at early-stage climate tech AI startup | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4443438994>) |
+| Descartes Systems Group | Software R&amp;D Intern | Žilina, Zilina, Slovakia | [View](<https://www.linkedin.com/jobs/view/4444218643>) |
+| FORGIS | Automation &amp; Robotics Engineer, Intern | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4443165172>) |
+| Capgemini | Intern Data Engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4443946590>) |
+| Miele | UX Research Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4443173182>) |
+| BrainBite | Gen AI Developer \(Internship\) | Netherlands | [View](<https://www.linkedin.com/jobs/view/4443391203>) |
+| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4443924514>) |
+| VanMoof | Internship Embedded Software Engineer \(Amsterdam\) | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4443911993>) |
+| NATO | Internship | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4443133950>) |
+| CloudLinux | C Developer Intern \(worldwide, remote\) | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4441046113>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
