@@ -6,9 +6,9 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 23, 2026 at 07:05 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-513-2563eb?style=for-the-badge" alt="Total opportunities: 513" />
-  <img src="https://img.shields.io/badge/Internships-295-16a34a?style=for-the-badge" alt="Internships: 295" />
+  <strong>Last updated: July 24, 2026 at 06:37 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-512-2563eb?style=for-the-badge" alt="Total opportunities: 512" />
+  <img src="https://img.shields.io/badge/Internships-294-16a34a?style=for-the-badge" alt="Internships: 294" />
   <img src="https://img.shields.io/badge/New%20Grad-218-9333ea?style=for-the-badge" alt="New Grad opportunities: 218" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
@@ -110,8 +110,8 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 513 (Internships: 295 · New Grad: 218)<br>
-**Last successful collection:** July 23, 2026 at 07:05 UTC
+**Open positions:** 512 (Internships: 294 · New Grad: 218)<br>
+**Last successful collection:** July 24, 2026 at 06:37 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
@@ -134,7 +134,7 @@ Showing the 10 most recently posted of 218 open New Grad positions:
 
 ### Latest internships
 
-Showing the 10 most recently posted of 295 open internships:
+Showing the 10 most recently posted of 294 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
