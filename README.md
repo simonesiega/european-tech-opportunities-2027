@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 24, 2026 at 06:37 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-512-2563eb?style=for-the-badge" alt="Total opportunities: 512" />
-  <img src="https://img.shields.io/badge/Internships-294-16a34a?style=for-the-badge" alt="Internships: 294" />
-  <img src="https://img.shields.io/badge/New%20Grad-218-9333ea?style=for-the-badge" alt="New Grad opportunities: 218" />
+  <strong>Last updated: July 25, 2026 at 06:57 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-541-2563eb?style=for-the-badge" alt="Total opportunities: 541" />
+  <img src="https://img.shields.io/badge/Internships-311-16a34a?style=for-the-badge" alt="Internships: 311" />
+  <img src="https://img.shields.io/badge/New%20Grad-230-9333ea?style=for-the-badge" alt="New Grad opportunities: 230" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,44 +110,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 512 (Internships: 294 · New Grad: 218)<br>
-**Last successful collection:** July 24, 2026 at 06:37 UTC
+**Open positions:** 541 (Internships: 311 · New Grad: 230)<br>
+**Last successful collection:** July 25, 2026 at 06:57 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 218 open New Grad positions:
+Showing the 10 most recently posted of 230 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Italy | [View](<https://www.linkedin.com/jobs/view/4444654764>) |
+| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4444653785>) |
+| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444666773>) |
+| Bending Spoons | Graduate data scientist | France | [View](<https://www.linkedin.com/jobs/view/4444650820>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4444644830>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4444666772>) |
 | Bending Spoons | Graduate AI software engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4442665833>) |
 | Bending Spoons | Graduate software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4442665825>) |
 | Bending Spoons | Graduate software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4442664794>) |
 | Bending Spoons | Graduate AI software engineer | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4442685039>) |
-| Bending Spoons | Graduate AI software engineer | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4442672459>) |
-| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4442668684>) |
-| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4442662836>) |
-| Bending Spoons | Graduate AI software engineer | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442683107>) |
-| Bending Spoons | Graduate AI software engineer | France | [View](<https://www.linkedin.com/jobs/view/4442665826>) |
-| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4442661954>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 294 open internships:
+Showing the 10 most recently posted of 311 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Jack &amp; Jill | Full Stack AI Engineer Intern at early-stage climate tech AI startup | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4443438994>) |
-| Descartes Systems Group | Software R&amp;D Intern | Žilina, Zilina, Slovakia | [View](<https://www.linkedin.com/jobs/view/4444218643>) |
-| FORGIS | Automation &amp; Robotics Engineer, Intern | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4443165172>) |
-| Capgemini | Intern Data Engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4443946590>) |
-| Miele | UX Research Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4443173182>) |
-| BrainBite | Gen AI Developer \(Internship\) | Netherlands | [View](<https://www.linkedin.com/jobs/view/4443391203>) |
-| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4443924514>) |
-| VanMoof | Internship Embedded Software Engineer \(Amsterdam\) | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4443911993>) |
-| NATO | Internship | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4443133950>) |
-| CloudLinux | C Developer Intern \(worldwide, remote\) | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4441046113>) |
+| Bunker Gold &amp; Silver | Paid Internship – DevOps &amp; AI | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4441578990>) |
+| Alpine Business Consulting | Frontend Engineer Intern | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4443830197>) |
+| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444729137>) |
+| STMicroelectronics | Data Scientist Intern | Kirkop, Kirkop, Malta | [View](<https://www.linkedin.com/jobs/view/4444493839>) |
+| Carenity | Data Science Intern \(Healthcare\) – Final Year Engineering/Master Student | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4443846649>) |
+| Keysight Technologies | Cybersecurity Intern | Rotselaar, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4444289716>) |
+| Crédit Agricole CIB | 12 Month Internship - eFX IT Developer | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441097866>) |
+| FedEx | Intern | Leça do Bailio, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4444710064>) |
+| Vericence | Student Intern Technology | Us, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444437084>) |
+| BrainBite | Machine Learning Engineer \(Internship\) | Netherlands | [View](<https://www.linkedin.com/jobs/view/4444406444>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
