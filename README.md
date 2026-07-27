@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 26, 2026 at 07:37 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-569-2563eb?style=for-the-badge" alt="Total opportunities: 569" />
-  <img src="https://img.shields.io/badge/Internships-327-16a34a?style=for-the-badge" alt="Internships: 327" />
-  <img src="https://img.shields.io/badge/New%20Grad-242-9333ea?style=for-the-badge" alt="New Grad opportunities: 242" />
+  <strong>Last updated: July 27, 2026 at 07:20 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-577-2563eb?style=for-the-badge" alt="Total opportunities: 577" />
+  <img src="https://img.shields.io/badge/Internships-324-16a34a?style=for-the-badge" alt="Internships: 324" />
+  <img src="https://img.shields.io/badge/New%20Grad-253-9333ea?style=for-the-badge" alt="New Grad opportunities: 253" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,31 +110,31 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 569 (Internships: 327 · New Grad: 242)<br>
-**Last successful collection:** July 26, 2026 at 07:37 UTC
+**Open positions:** 577 (Internships: 324 · New Grad: 253)<br>
+**Last successful collection:** July 27, 2026 at 07:20 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 242 open New Grad positions:
+Showing the 10 most recently posted of 253 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444658764>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4444650821>) |
-| Bending Spoons | Graduate data scientist | Spain | [View](<https://www.linkedin.com/jobs/view/4444647801>) |
-| Bending Spoons | Graduate data scientist | Italy | [View](<https://www.linkedin.com/jobs/view/4444654764>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4444653785>) |
-| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444666773>) |
-| Bending Spoons | Graduate data scientist | France | [View](<https://www.linkedin.com/jobs/view/4444650820>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4444644830>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4444666772>) |
-| Revolut | Graduate Programme 2027: Software Engineer \(Python\) | Spain | [View](<https://www.linkedin.com/jobs/view/4443490704>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4444856494>) |
+| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4444864405>) |
+| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4444847825>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4444854472>) |
+| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4444868458>) |
+| Bending Spoons | Graduate AI software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444862439>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4444867431>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444857493>) |
+| Bending Spoons | Graduate AI software engineer | Palaiseau, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444847823>) |
+| Picture Production Company | Junior Cloud Technology Engineer - Graduate/Entry Level | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441806854>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 327 open internships:
+Showing the 10 most recently posted of 324 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
