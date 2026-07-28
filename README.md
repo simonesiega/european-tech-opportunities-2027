@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 27, 2026 at 07:20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-577-2563eb?style=for-the-badge" alt="Total opportunities: 577" />
-  <img src="https://img.shields.io/badge/Internships-324-16a34a?style=for-the-badge" alt="Internships: 324" />
-  <img src="https://img.shields.io/badge/New%20Grad-253-9333ea?style=for-the-badge" alt="New Grad opportunities: 253" />
+  <strong>Last updated: July 28, 2026 at 07:04 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-627-2563eb?style=for-the-badge" alt="Total opportunities: 627" />
+  <img src="https://img.shields.io/badge/Internships-338-16a34a?style=for-the-badge" alt="Internships: 338" />
+  <img src="https://img.shields.io/badge/New%20Grad-289-9333ea?style=for-the-badge" alt="New Grad opportunities: 289" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,44 +110,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 577 (Internships: 324 · New Grad: 253)<br>
-**Last successful collection:** July 27, 2026 at 07:20 UTC
+**Open positions:** 627 (Internships: 338 · New Grad: 289)<br>
+**Last successful collection:** July 28, 2026 at 07:04 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 253 open New Grad positions:
+Showing the 10 most recently posted of 289 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4444856494>) |
-| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4444864405>) |
-| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4444847825>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4444854472>) |
-| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4444868458>) |
-| Bending Spoons | Graduate AI software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444862439>) |
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4444867431>) |
-| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444857493>) |
-| Bending Spoons | Graduate AI software engineer | Palaiseau, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4444847823>) |
-| Picture Production Company | Junior Cloud Technology Engineer - Graduate/Entry Level | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4441806854>) |
+| Cirium | Software Engineer I \(Graduate\) | Southampton, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4445136705>) |
+| ION | Software Developer/Engineer - Graduate Development Program | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4354576964>) |
+| Verisure | Tech Graduate - Embedded Software Engineer | Pozuelo de Alarcón, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4442848216>) |
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4444853484>) |
+| Bending Spoons | Graduate software engineer | Valencia, Valencian Community, Spain | [View](<https://www.linkedin.com/jobs/view/4444858431>) |
+| Bending Spoons | Graduate software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444856496>) |
+| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444855515>) |
+| Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4444855495>) |
+| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4444869445>) |
+| Bending Spoons | Graduate AI software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4444856495>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 324 open internships:
+Showing the 10 most recently posted of 338 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| OPSWAT | Test Automation Engineer Intern | Veszprém, Veszprém, Hungary | [View](<https://www.linkedin.com/jobs/view/4446108423>) |
+| Dassault Systèmes | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445979698>) |
+| NorthGravity | Software Engineer Intern \(Java\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442871009>) |
+| Thermeleon | Data Engineer / Scientist - Working Student / Intern | Rotterdam, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4442835798>) |
+| Stealth AI Startup | Data Science Intern | European Union | [View](<https://www.linkedin.com/jobs/view/4442807615>) |
+| Bending Spoons | Security engineer intern | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4444811460>) |
+| Bending Spoons | Security engineer intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4444810455>) |
 | SRIYOG | React Native Developer - Intern | Helsinki, Uusimaa, Finland | [View](<https://www.linkedin.com/jobs/view/4444815631>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4445362589>) |
 | Bending Spoons | Security engineer intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444814441>) |
-| Bending Spoons | Security engineer intern | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4444805512>) |
-| Bending Spoons | Security engineer intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444803526>) |
-| Bending Spoons | Security engineer intern | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444800558>) |
-| Bending Spoons | Security engineer intern | Málaga, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4444698527>) |
-| Bending Spoons | Security engineer intern | Spain | [View](<https://www.linkedin.com/jobs/view/4444694548>) |
-| Bending Spoons | Security engineer intern | Poland | [View](<https://www.linkedin.com/jobs/view/4444694547>) |
-| Bending Spoons | Security engineer intern | Italy | [View](<https://www.linkedin.com/jobs/view/4444699555>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
