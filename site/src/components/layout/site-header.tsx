@@ -1,5 +1,6 @@
 import {ThemeToggle} from "@/components/theme/theme-toggle";
 import {cn} from "@/lib/cn";
+import {addPositionUrl, repositoryUrl} from "@/lib/project-links";
 
 export function SiteHeader() {
   return (
@@ -12,7 +13,7 @@ export function SiteHeader() {
           <div className="flex items-center gap-8 max-[520px]:gap-2.5">
             <a
               className="flex items-center text-base leading-none font-medium text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)] max-[520px]:text-[13px]"
-              href="https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml"
+              href={addPositionUrl}
               target="_blank"
               rel="noreferrer"
             >
@@ -24,7 +25,7 @@ export function SiteHeader() {
                 "flex items-center text-base leading-none font-medium text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)] max-[520px]:text-[13px]",
                 "gap-1"
               )}
-              href="https://github.com/simonesiega/european-tech-opportunities-2027"
+              href={repositoryUrl}
               target="_blank"
               rel="noreferrer"
             >

@@ -1,6 +1,5 @@
 import {formatPublishedDate} from "@/lib/opportunity-presentation";
-
-const repositoryUrl = "https://github.com/simonesiega/european-tech-opportunities-2027";
+import {addPositionUrl, newIssueUrl, repositoryUrl} from "@/lib/project-links";
 
 type SiteFooterProps = {
   lastUpdatedAt: string | null;
@@ -18,7 +17,7 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
         <nav className="flex items-center gap-1.5 max-[680px]:flex-wrap" aria-label="Project links">
           <a
             className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
-            href={`${repositoryUrl}/issues/new?template=add-position.yml`}
+            href={addPositionUrl}
             target="_blank"
             rel="noreferrer"
           >
@@ -36,7 +35,7 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
           <span aria-hidden="true">·</span>
           <a
             className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
-            href={`${repositoryUrl}/issues/new`}
+            href={newIssueUrl}
             target="_blank"
             rel="noreferrer"
           >
