@@ -40,7 +40,7 @@ dev = [
   "pytest-cov>=7.0.0,<8",
   "ruff>=0.16.0,<1",
   "types-beautifulsoup4>=4.12.0.20240511",
-  "types-pyyaml>=6.0.12.20240808",
+  "types-pyyaml>=6.0.12.20260724",
 ]
 
 [build-system]
