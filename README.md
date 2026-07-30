@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 29, 2026 at 07:12 UTC</strong><br>
+  <strong>Last updated: July 30, 2026 at 06:33 UTC</strong><br>
   <img src="https://img.shields.io/badge/Total%20opportunities-641-2563eb?style=for-the-badge" alt="Total opportunities: 641" />
-  <img src="https://img.shields.io/badge/Internships-349-16a34a?style=for-the-badge" alt="Internships: 349" />
-  <img src="https://img.shields.io/badge/New%20Grad-292-9333ea?style=for-the-badge" alt="New Grad opportunities: 292" />
+  <img src="https://img.shields.io/badge/Internships-348-16a34a?style=for-the-badge" alt="Internships: 348" />
+  <img src="https://img.shields.io/badge/New%20Grad-293-9333ea?style=for-the-badge" alt="New Grad opportunities: 293" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,17 +110,18 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 641 (Internships: 349 · New Grad: 292)<br>
-**Last successful collection:** July 29, 2026 at 07:12 UTC
+**Open positions:** 641 (Internships: 348 · New Grad: 293)<br>
+**Last successful collection:** July 30, 2026 at 06:33 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 292 open New Grad positions:
+Showing the 10 most recently posted of 293 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate security engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4446429146>) |
 | Cirium | Software Engineer I \(Graduate\) | Southampton, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4445136705>) |
 | ION | Software Developer/Engineer - Graduate Development Program | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4354576964>) |
 | Verisure | Tech Graduate - Embedded Software Engineer | Pozuelo de Alarcón, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4442848216>) |
@@ -130,15 +131,13 @@ Showing the 10 most recently posted of 292 open New Grad positions:
 | Bending Spoons | Graduate software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444856496>) |
 | Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444855515>) |
 | Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4444855495>) |
-| Bending Spoons | Graduate software engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4444869434>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 349 open internships:
+Showing the 10 most recently posted of 348 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Proctorio Serbia | Quality Assurance Intern | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4446554052>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4446386212>) |
 | JAKALA | Intern \| IT Core Services Infrastructure | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4443295927>) |
 | Phoenix Contact | AI Developer Intern \(f/m\) | Wielkopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445737145>) |
@@ -148,6 +147,7 @@ Showing the 10 most recently posted of 349 open internships:
 | OPSWAT | Test Automation Engineer Intern | Veszprém, Veszprém, Hungary | [View](<https://www.linkedin.com/jobs/view/4446108423>) |
 | Dassault Systèmes | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445979698>) |
 | NorthGravity | Software Engineer Intern \(Java\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442871009>) |
+| Thermeleon | Data Engineer / Scientist - Working Student / Intern | Rotterdam, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4442835798>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
