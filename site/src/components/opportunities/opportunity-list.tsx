@@ -23,7 +23,7 @@ type OpportunityListProps = {
 };
 
 export function OpportunityList({opportunities, hasActiveFilters, onReset}: OpportunityListProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{id: "firstSeenAt", desc: true}]);
   // TanStack Table intentionally returns non-memoizable functions as part of its API.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({

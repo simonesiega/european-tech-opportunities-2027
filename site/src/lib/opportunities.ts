@@ -22,7 +22,7 @@ const OPEN_OPPORTUNITIES_QUERY = `
     first_seen_at AS firstSeenAt
   FROM jobs
   WHERE status = 'open'
-  ORDER BY lower(company), lower(title), location
+  ORDER BY first_seen_at DESC, linkedin_job_id DESC
 `;
 
 type DirectoryData = {

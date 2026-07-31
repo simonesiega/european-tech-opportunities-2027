@@ -92,14 +92,20 @@ test("search, reset, keyboard focus, and sorting remain interactive", async ({pa
   await expect(firstCompanyCell).toHaveText("Northstar Data");
 });
 
-test("paginates results and persists the selected theme", async ({page}) => {
+test("defaults to latest first seen and paginates results", async ({page}) => {
   await openDirectory(page);
 
+  const firstSeenHeader = page.getByRole("columnheader", {name: "First seen"});
+  await expect(firstSeenHeader).toHaveAttribute("aria-sort", "descending");
+  await expect(page.locator("tbody tr").first().getByRole("link")).toHaveText(
+    "Platform Engineering Intern 9"
+  );
+
   await expect(page.getByText("Page 1 of 2")).toBeVisible();
-  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toHaveCount(0);
+  await expect(page.getByRole("link", {name: "Software Engineering Intern 2027"})).toHaveCount(0);
   await page.getByRole("button", {name: "Next page"}).click();
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
-  await expect(page.getByRole("link", {name: "Graduate Data Analyst 2027"})).toBeVisible();
+  await expect(page.getByRole("link", {name: "Software Engineering Intern 2027"})).toBeVisible();
 
   await page.getByRole("button", {name: "Toggle color theme"}).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
