@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: July 30, 2026 at 06:33 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-641-2563eb?style=for-the-badge" alt="Total opportunities: 641" />
-  <img src="https://img.shields.io/badge/Internships-348-16a34a?style=for-the-badge" alt="Internships: 348" />
-  <img src="https://img.shields.io/badge/New%20Grad-293-9333ea?style=for-the-badge" alt="New Grad opportunities: 293" />
+  <strong>Last updated: July 31, 2026 at 07:10 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-657-2563eb?style=for-the-badge" alt="Total opportunities: 657" />
+  <img src="https://img.shields.io/badge/Internships-354-16a34a?style=for-the-badge" alt="Internships: 354" />
+  <img src="https://img.shields.io/badge/New%20Grad-303-9333ea?style=for-the-badge" alt="New Grad opportunities: 303" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,44 +110,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 641 (Internships: 348 · New Grad: 293)<br>
-**Last successful collection:** July 30, 2026 at 06:33 UTC
+**Open positions:** 657 (Internships: 354 · New Grad: 303)<br>
+**Last successful collection:** July 31, 2026 at 07:10 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 293 open New Grad positions:
+Showing the 10 most recently posted of 303 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Sopra Steria | Graduate Program Cloud Computing | Germany | [View](<https://www.linkedin.com/jobs/view/4447090144>) |
+| Symrise AG | Data Engineering graduate | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4446898878>) |
+| Transpoco | Robotics Software Engineer - Graduate / Early Career | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4444582982>) |
+| Bending Spoons | Graduate security engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4446428189>) |
 | Bending Spoons | Graduate security engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4446429146>) |
 | Cirium | Software Engineer I \(Graduate\) | Southampton, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4445136705>) |
 | ION | Software Developer/Engineer - Graduate Development Program | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4354576964>) |
 | Verisure | Tech Graduate - Embedded Software Engineer | Pozuelo de Alarcón, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4442848216>) |
 | Bending Spoons | Graduate software engineer | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444857480>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4444853484>) |
-| Bending Spoons | Graduate software engineer | Valencia, Valencian Community, Spain | [View](<https://www.linkedin.com/jobs/view/4444858431>) |
-| Bending Spoons | Graduate software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444856496>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4444855515>) |
-| Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4444855495>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 348 open internships:
+Showing the 10 most recently posted of 354 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| NVIDIA | Software Engineering Intern — Replay Tooling &amp; Test Automation, Autonomous Driving | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4446950014>) |
+| BCG X | Forward Deployed AI Software Engineer, Internship, Finland - BCG X | Helsinki, Uusimaa, Finland | [View](<https://www.linkedin.com/jobs/view/4389310249>) |
+| Bitpanda | Software Engineer Intern, Fullstack - 12 Month Internship | Vienna, Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4447014021>) |
+| KOM-5A.COM | AI &amp; Software Engineering Intern | Ascona, Ticino, Switzerland | [View](<https://www.linkedin.com/jobs/view/4444528940>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4446386212>) |
 | JAKALA | Intern \| IT Core Services Infrastructure | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4443295927>) |
 | Phoenix Contact | AI Developer Intern \(f/m\) | Wielkopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445737145>) |
 | Staffline Solutions | Data Science Intern | European Union | [View](<https://www.linkedin.com/jobs/view/4443250997>) |
 | NorthGravity | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4443242499>) |
 | Motorola Solutions | Intern Software Developer \(Java\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445944797>) |
-| OPSWAT | Test Automation Engineer Intern | Veszprém, Veszprém, Hungary | [View](<https://www.linkedin.com/jobs/view/4446108423>) |
-| Dassault Systèmes | DevOps Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4445979698>) |
-| NorthGravity | Software Engineer Intern \(Java\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4442871009>) |
-| Thermeleon | Data Engineer / Scientist - Working Student / Intern | Rotterdam, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4442835798>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
