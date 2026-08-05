@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 4, 2026 at 06:49 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-773-2563eb?style=for-the-badge" alt="Total opportunities: 773" />
-  <img src="https://img.shields.io/badge/Internships-398-16a34a?style=for-the-badge" alt="Internships: 398" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New Grad opportunities: 375" />
+  <strong>Last updated: August 5, 2026 at 06:48 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-776-2563eb?style=for-the-badge" alt="Total opportunities: 776" />
+  <img src="https://img.shields.io/badge/Internships-399-16a34a?style=for-the-badge" alt="Internships: 399" />
+  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New Grad opportunities: 377" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,17 +110,19 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 773 (Internships: 398 · New Grad: 375)<br>
-**Last successful collection:** August 4, 2026 at 06:49 UTC
+**Open positions:** 776 (Internships: 399 · New Grad: 377)<br>
+**Last successful collection:** August 5, 2026 at 06:48 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 375 open New Grad positions:
+Showing the 10 most recently posted of 377 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Garmin Italy Technologies | Software Engineering Graduate | Massarosa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4446609844>) |
+| European Tech Recruit | Graduate Software Engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4448854030>) |
 | Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4448827299>) |
 | Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4448811680>) |
 | Bending Spoons | Graduate security engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4448214771>) |
@@ -129,15 +131,14 @@ Showing the 10 most recently posted of 375 open New Grad positions:
 | Distribusion Technologies | Graduate - Quality Assurance Analyst \(all genders\) | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4448191887>) |
 | Knowit | Graduate / Junior Data Platform Engineer | Copenhagen Municipality, Capital Region of Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4447988352>) |
 | ShippyPro | Graduate / Junior Software Engineer | Italy | [View](<https://www.linkedin.com/jobs/view/4445593375>) |
-| Bending Spoons | Graduate software engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4447423240>) |
-| Bending Spoons | Graduate software engineer | Łódź, Łódzkie, Poland | [View](<https://www.linkedin.com/jobs/view/4447414511>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 398 open internships:
+Showing the 10 most recently posted of 399 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| OutKept | Front-end developer intern | Ghent, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4449042827>) |
 | Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4448143028>) |
 | DevExplore | Software Engineer Intern - AI-Native | Zagreb, Zagreb, Croatia | [View](<https://www.linkedin.com/jobs/view/4447810589>) |
 | CyberJobs.Com | Security Engineer - Final year Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447468754>) |
@@ -147,7 +148,6 @@ Showing the 10 most recently posted of 398 open internships:
 | Euronext | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447559357>) |
 | Viqal | Back End Developer Internship \(Python\) | Netherlands | [View](<https://www.linkedin.com/jobs/view/4447532459>) |
 | Arcadis | AI &amp; Data Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4445094838>) |
-| Bending Spoons | Security engineer intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4446940933>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
