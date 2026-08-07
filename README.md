@@ -7,9 +7,9 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Last updated: August 7, 2026 at 05:57 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-790-2563eb?style=for-the-badge" alt="Total opportunities: 790" />
-  <img src="https://img.shields.io/badge/Internships-400-16a34a?style=for-the-badge" alt="Internships: 400" />
-  <img src="https://img.shields.io/badge/New%20Grad-390-9333ea?style=for-the-badge" alt="New Grad opportunities: 390" />
+  <img src="https://img.shields.io/badge/Total%20opportunities-719-2563eb?style=for-the-badge" alt="Total opportunities: 719" />
+  <img src="https://img.shields.io/badge/Internships-346-16a34a?style=for-the-badge" alt="Internships: 346" />
+  <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="New Grad opportunities: 373" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,14 +110,14 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 790 (Internships: 400 · New Grad: 390)<br>
+**Open positions:** 719 (Internships: 346 · New Grad: 373)<br>
 **Last successful collection:** August 7, 2026 at 05:57 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 390 open New Grad positions:
+Showing the 10 most recently posted of 373 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -134,20 +134,20 @@ Showing the 10 most recently posted of 390 open New Grad positions:
 
 ### Latest internships
 
-Showing the 10 most recently posted of 400 open internships:
+Showing the 10 most recently posted of 346 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
 | Arabelle Solutions | Intern - Software Engineer - Nuclear Engineering Tools F/H | Baden, Aargau, Switzerland | [View](<https://www.linkedin.com/jobs/view/4446670204>) |
 | OutKept | Front-end developer intern | Ghent, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4449042827>) |
-| Harmattan AI | Embedded Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4448143028>) |
 | DevExplore | Software Engineer Intern - AI-Native | Zagreb, Zagreb, Croatia | [View](<https://www.linkedin.com/jobs/view/4447810589>) |
 | CyberJobs.Com | Security Engineer - Final year Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447468754>) |
 | DevExplore | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447824209>) |
 | Alago | Working Student / Intern in Software Engineering &amp; AI \(f/m/x\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4445827064>) |
 | IMC Trading | Hardware Engineer Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4447182227>) |
 | Euronext | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447559357>) |
-| Viqal | Back End Developer Internship \(Python\) | Netherlands | [View](<https://www.linkedin.com/jobs/view/4447532459>) |
+| Arcadis | AI &amp; Data Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4445094838>) |
+| Bending Spoons | Security engineer intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4446940933>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
