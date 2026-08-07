@@ -6,7 +6,7 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 6, 2026 at 06:51 UTC</strong><br>
+  <strong>Last updated: August 7, 2026 at 05:57 UTC</strong><br>
   <img src="https://img.shields.io/badge/Total%20opportunities-790-2563eb?style=for-the-badge" alt="Total opportunities: 790" />
   <img src="https://img.shields.io/badge/Internships-400-16a34a?style=for-the-badge" alt="Internships: 400" />
   <img src="https://img.shields.io/badge/New%20Grad-390-9333ea?style=for-the-badge" alt="New Grad opportunities: 390" />
@@ -111,7 +111,7 @@ The repository shows only the latest ten positions of each employment type so th
 
 <!-- BEGIN OPPORTUNITIES -->
 **Open positions:** 790 (Internships: 400 · New Grad: 390)<br>
-**Last successful collection:** August 6, 2026 at 06:51 UTC
+**Last successful collection:** August 7, 2026 at 05:57 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
