@@ -235,7 +235,7 @@ class Repository:
         unavailable_ids: tuple[str, ...],
         observed_at: datetime,
     ) -> AvailabilityChanges:
-        """Reopen available jobs and permanently remove explicit 404/410 jobs."""
+        """Reopen available jobs and remove jobs with explicit unavailability evidence."""
         available = set(available_ids)
         unavailable = set(unavailable_ids)
         if available & unavailable:
@@ -256,8 +256,8 @@ class Repository:
                         reopened += 1
                     job.last_seen_at = effective_time
 
-                # A successful direct detail-page check supersedes older closure
-                # evidence without pretending that the job appeared in a new search.
+                # A successful public-page and detail-page check supersedes older
+                # closure evidence without pretending the job appeared in a new search.
                 aliases = session.scalars(
                     select(JobSearchRow).where(JobSearchRow.linkedin_job_id.in_(available))
                 ).all()

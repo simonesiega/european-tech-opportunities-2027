@@ -14,6 +14,7 @@ from opportunities.scrapers.linkedin import (
     LinkedInPayloadError,
     LinkedInScraper,
     build_search_url,
+    has_closed_application_notice,
     parse_job_detail,
     parse_search_page,
 )
@@ -54,6 +55,30 @@ def test_linkedin_search_page_parser_extracts_stable_cards(
     assert [card.job_id for card in result.cards] == ["1111111111", "2222222222"]
     assert result.cards[0].company == "Test Technology"
     assert result.cards[0].application_url == ("https://www.linkedin.com/jobs/view/1111111111")
+
+
+def test_closed_application_notice_uses_semantic_alert_instead_of_hashed_classes() -> None:
+    html = """<div class="_6c1ad861 c9d5d8ed" aria-atomic="true"
+      aria-live="assertive"><svg aria-label="Error"></svg>
+      <p class="b6439155 d6ccb5ca">No longer accepting applications</p></div>"""
+
+    assert has_closed_application_notice(html) is True
+
+
+def test_closed_application_notice_supports_guest_page_markup() -> None:
+    html = """<figcaption class="closed-job__flavor--closed">
+      No longer accepting applications
+    </figcaption>"""
+
+    assert has_closed_application_notice(html) is True
+
+
+def test_closed_application_words_outside_an_alert_do_not_close_job() -> None:
+    html = """<div class="job-description">
+      Contact us if this role is no longer accepting applications.
+    </div>"""
+
+    assert has_closed_application_notice(html) is False
 
 
 def test_linkedin_job_detail_parser_extracts_description(

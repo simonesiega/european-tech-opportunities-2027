@@ -116,7 +116,7 @@ jobs:
       - name: Migrate database
         run: uv run opportunities db-upgrade
 
-      - name: Check every stored job detail page
+      - name: Check every stored public job page for closure alerts
         shell: bash
         run: |
           set +e
@@ -197,6 +197,6 @@ jobs:
           git push --force-with-lease --set-upstream origin "$branch"
           if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
             gh pr create --title "data: nightly availability and scrape update" \
-              --body "Nightly full update: every stored listing was checked first, then collection ran. Merge remains manual." \
+              --body "Nightly full update: every stored public listing was checked for 404/410 responses and explicit closure alerts before collection ran. Merge remains manual." \
               --base main --head "$branch"
           fi

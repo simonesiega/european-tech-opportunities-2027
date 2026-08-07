@@ -47,6 +47,7 @@ _BLOCK_MARKERS = (
     "security verification",
     "unusual activity",
 )
+_CLOSED_APPLICATION_MARKERS = frozenset({"no longer accepting applications"})
 _DATE_POSTED_PARAMETERS = {
     "day": "r86400",
     "week": "r604800",
@@ -246,6 +247,21 @@ def validate_job_detail_page(html: str) -> None:
         raise LinkedInPayloadError("LinkedIn detail page is missing listing identity fields")
     if len(title) > 500 or len(company) > 200:
         raise LinkedInPayloadError("LinkedIn detail page identity fields exceed safe limits")
+
+
+def has_closed_application_notice(html: str) -> bool:
+    """Detect LinkedIn's explicit closure alert without relying on hashed CSS classes."""
+    _reject_blocked_document(html)
+    soup = BeautifulSoup(html, "html.parser")
+    for alert in soup.select(
+        '[aria-live="assertive"], [role="alert"], .closed-job__flavor--closed'
+    ):
+        if not isinstance(alert, Tag):
+            continue
+        text = normalized_key(alert.get_text(" ", strip=True))
+        if any(marker in text for marker in _CLOSED_APPLICATION_MARKERS):
+            return True
+    return False
 
 
 def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime | None:

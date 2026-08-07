@@ -13,7 +13,7 @@ from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.pipeline.availability import audit_job_availability
 from opportunities.scrapers.http import FetchError
-from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT
+from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT, LINKEDIN_PUBLIC_JOB_URL
 
 
 class FakeAvailabilityFetcher:
@@ -22,12 +22,18 @@ class FakeAvailabilityFetcher:
 
     async def get_text(self, url: str) -> str:
         self.requested.append(url)
-        if url.endswith("2222222222"):
-            raise FetchError("http_status", "not found", status_code=404)
-        if url.endswith("3333333333"):
-            raise FetchError("transient_http", "server error", status_code=503)
-        if url.endswith("4444444444"):
-            return "<html><body>Security verification challenge-page</body></html>"
+        if LINKEDIN_PUBLIC_JOB_URL.split("{")[0] in url:
+            if url.endswith("2222222222"):
+                raise FetchError("http_status", "not found", status_code=404)
+            if url.endswith("3333333333"):
+                raise FetchError("transient_http", "server error", status_code=503)
+            if url.endswith("4444444444"):
+                return "<html><body>Security verification challenge-page</body></html>"
+            if url.endswith("5555555555"):
+                return """<div class="unstable-hashed-class" aria-atomic="true"
+                  aria-live="assertive"><svg aria-label="Error"></svg>
+                  <p>No longer accepting applications</p></div>"""
+            return "<html><body>Public job page</body></html>"
         return (
             '<h1 class="top-card-layout__title">Software Engineering Intern 2027</h1>'
             '<a class="topcard__org-name-link">Example Technology</a>'
@@ -52,7 +58,13 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
             category=OpportunityCategory.SOFTWARE_ENGINEERING,
             employment_type=EmploymentType.INTERNSHIP,
         )
-        for job_id in ("1111111111", "2222222222", "3333333333", "4444444444")
+        for job_id in (
+            "1111111111",
+            "2222222222",
+            "3333333333",
+            "4444444444",
+            "5555555555",
+        )
     ]
     repository.persist_success(
         run_id="00000000-0000-0000-0000-000000000001",
@@ -85,14 +97,15 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
         )
     )
 
-    assert result.checked == 4
+    assert result.checked == 5
     assert result.available == 1
-    assert result.deleted == 1
+    assert result.deleted == 2
     assert result.reopened == 1
     assert result.inconclusive_ids == ("3333333333", "4444444444")
     assert result.exit_code == 2
     assert set(fetcher.requested) == {
-        LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id) for job in jobs
+        *(LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id) for job in jobs),
+        LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111"),
     }
     assert {job.linkedin_job_id for job in repository.list_all_jobs()} == {
         "1111111111",

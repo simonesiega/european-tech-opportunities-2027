@@ -11,7 +11,12 @@ from opportunities.config.settings import Settings
 from opportunities.database.repository import Repository
 from opportunities.models.job import StoredJob
 from opportunities.scrapers.http import FetchError, HttpFetcher
-from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT, validate_job_detail_page
+from opportunities.scrapers.linkedin import (
+    LINKEDIN_DETAIL_ENDPOINT,
+    LINKEDIN_PUBLIC_JOB_URL,
+    has_closed_application_notice,
+    validate_job_detail_page,
+)
 from opportunities.utils.time import utc_now
 
 
@@ -46,11 +51,13 @@ async def audit_job_availability(
     fetcher: AvailabilityFetcher | None = None,
     observed_at: datetime | None = None,
 ) -> AvailabilityAuditResult:
-    """Check every job detail page and delete rows with explicit 404/410 responses.
+    """Check every public job page and delete explicitly unavailable rows.
 
-    A successful HTML response proves availability. HTTP 404 and 410 prove that a
-    listing is unavailable. Authentication failures, rate limits, server errors,
-    malformed responses, and transport failures are inconclusive and never delete data.
+    HTTP 404/410 responses and LinkedIn's explicit closed-application alert prove that
+    a listing is unavailable. Otherwise, the guest detail endpoint must still contain
+    recognizable listing identity fields. Authentication failures, rate limits, server
+    errors, malformed responses, and transport failures are inconclusive and never
+    delete data.
     """
     jobs = repository.list_all_jobs()
     checked_at = observed_at or utc_now()
@@ -81,16 +88,24 @@ async def _audit_jobs(
     max_concurrency: int,
     observed_at: datetime,
 ) -> AvailabilityAuditResult:
-    """Fetch all job detail pages before applying one atomic database mutation."""
+    """Fetch all public and guest-detail pages before one atomic database mutation."""
     semaphore = asyncio.Semaphore(max_concurrency)
 
     async def check(job: StoredJob) -> tuple[str, str]:
         async with semaphore:
             try:
-                html = await fetcher.get_text(
+                public_html = await fetcher.get_text(
+                    LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id)
+                )
+                if has_closed_application_notice(public_html):
+                    return job.linkedin_job_id, "unavailable"
+
+                # A public page can be a generic shell, so retain the existing identity
+                # check before using the absence of a closure alert as availability proof.
+                detail_html = await fetcher.get_text(
                     LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id)
                 )
-                validate_job_detail_page(html)
+                validate_job_detail_page(detail_html)
             except FetchError as exc:
                 if exc.status_code in {404, 410}:
                     return job.linkedin_job_id, "unavailable"

@@ -132,7 +132,7 @@ jobs:
             exit 1
           fi
 
-      - name: Check every stored job detail page
+      - name: Check every stored public job page for closure alerts
         shell: bash
         run: |
           set +e
@@ -199,6 +199,6 @@ jobs:
           git push --force-with-lease --set-upstream origin "$branch"
           if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
             gh pr create --title "data: remove unavailable positions" \
-              --body "Manual full-database availability audit. Explicit 404/410 listings were removed; merge remains manual." \
+              --body "Manual full-database availability audit. Explicit 404/410 listings and pages showing 'No longer accepting applications' were removed; merge remains manual." \
               --base main --head "$branch"
           fi
