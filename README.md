@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 7, 2026 at 05:57 UTC</strong><br>
+  <strong>Last updated: August 8, 2026 at 05:32 UTC</strong><br>
   <img src="https://img.shields.io/badge/Total%20opportunities-719-2563eb?style=for-the-badge" alt="Total opportunities: 719" />
-  <img src="https://img.shields.io/badge/Internships-346-16a34a?style=for-the-badge" alt="Internships: 346" />
-  <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="New Grad opportunities: 373" />
+  <img src="https://img.shields.io/badge/Internships-345-16a34a?style=for-the-badge" alt="Internships: 345" />
+  <img src="https://img.shields.io/badge/New%20Grad-374-9333ea?style=for-the-badge" alt="New Grad opportunities: 374" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -110,17 +110,20 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 719 (Internships: 346 · New Grad: 373)<br>
-**Last successful collection:** August 7, 2026 at 05:57 UTC
+**Open positions:** 719 (Internships: 345 · New Grad: 374)<br>
+**Last successful collection:** August 8, 2026 at 05:32 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 373 open New Grad positions:
+Showing the 10 most recently posted of 374 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4450506632>) |
+| Tact | Graduate Software Engineer | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4448738579>) |
+| Samsara | Software Engineer I \(New Grad\) | Harrow, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4448056345>) |
 | Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4449313761>) |
 | Bending Spoons | Graduate AI software engineer | Durham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4449309864>) |
 | Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4449321641>) |
@@ -128,13 +131,10 @@ Showing the 10 most recently posted of 373 open New Grad positions:
 | Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4449310798>) |
 | Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4449323567>) |
 | Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4449327530>) |
-| Bending Spoons | Graduate AI software engineer | Palaiseau, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4449325578>) |
-| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4449316744>) |
-| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4449321640>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 346 open internships:
+Showing the 10 most recently posted of 345 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
