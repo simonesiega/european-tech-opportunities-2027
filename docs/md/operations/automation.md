@@ -51,13 +51,13 @@ Equivalent local commands are documented in the [development guide](../developme
 
 ## Collection authorization
 
-The nightly, scrape-only, and availability-only workflows require this repository variable:
+Every nightly, scrape-only, or availability-only mode that accesses LinkedIn requires this repository variable:
 
 ```text
 LINKEDIN_CRAWL_AUTHORIZED=true
 ```
 
-When the variable is missing or has another value, the workflow stops before LinkedIn network access.
+When the variable is missing or has another value, a LinkedIn-accessing run stops before network access. A manual scrape-workflow run with `deploy_to_vps=true` skips collection and availability requests, so deployment-only mode does not require this interlock.
 
 > [!IMPORTANT]
 > This variable is an operator attestation, not permission. Enable it only after express authorization has been obtained, and disable it immediately when authorization is absent, uncertain, expired, or withdrawn.
@@ -114,9 +114,9 @@ optional verified SSH + VPS bootstrap when neither source exists
 ↓
 database migration
 ↓
-check every stored job's LinkedIn detail page
+check every stored job's public listing and, when needed, guest detail page
 ↓
-delete explicit 404/410 rows and refresh README
+delete explicit 404/410 or scoped closure-alert rows and refresh README
 ↓
 bounded collection + classification
 ↓
@@ -140,7 +140,7 @@ The scheduled workflow validates resulting state only after both ordered phases 
 
 A partial collection preserves successful search transactions. Failed searches record diagnostics but do not apply absence, unavailability, or closure evidence.
 
-The availability pass visits the LinkedIn detail page for every stored job. A valid HTML response keeps or reopens the row, while an explicit HTTP `404` or `410` deletes it and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
+The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
 ## Exit-code handling
 

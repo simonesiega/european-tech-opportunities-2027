@@ -13,7 +13,7 @@ This guide covers local installation, database initialization, the first website
 | Python | 3.12+ | Pipeline, CLI, tests, and migrations |
 | `uv` | 0.11.6 recommended | Locked Python environment and commands |
 | Git | Current supported release | Repository checkout |
-| Node.js | 20.9+ | Website builds and production-style local startup |
+| Node.js | 22.13+ | Website builds and production-style local startup with unflagged `node:sqlite` support |
 | Bun | 1.3.14 | Website dependency installation, tests, and development |
 | GNU Make | Optional | Python validation shortcuts; direct `uv` commands are documented too |
 | Docker | Optional | Container and deployment workflows |
@@ -102,6 +102,12 @@ Install the website dependencies:
 ```bash
 cd site
 bun install --frozen-lockfile
+```
+
+Install Chromium once for the complete Playwright validation path:
+
+```bash
+bunx playwright install chromium
 ```
 
 Create the website environment file.

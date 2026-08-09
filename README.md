@@ -38,13 +38,28 @@
 
 <p align="center">
   <a href="#python-quality-baseline">
-    <img src="https://img.shields.io/badge/critical_path_coverage-89.8%25_%7C_81.5%25_branches-brightgreen" alt="Critical path coverage: 89.8%, including 81.5% branch coverage" />
+    <img src="https://img.shields.io/badge/critical_path_coverage-89.9%25_%7C_81.8%25_branches-brightgreen" alt="Critical path coverage: 89.9%, including 81.8% branch coverage" />
   </a>
 </p>
 
 <p align="center">
   <sub>Python 3.12 · TypeScript · Next.js 16 · Tailwind CSS 4 · SQLite · Bun · Docker · GitHub Actions</sub>
 </p>
+
+## Contents
+
+- [Website preview](#website-preview)
+- [Opportunity directory](#opportunity-directory)
+- [Publication rules](#publication-rules)
+- [Why this project exists](#why-this-project-exists)
+- [Engineering highlights](#engineering-highlights)
+- [How it works](#how-it-works)
+- [Run locally](#run-locally)
+- [Documentation](#documentation)
+- [Responsible operation](#responsible-operation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contributors](#contributors)
 
 ## Website preview
 
@@ -62,46 +77,6 @@
 </p>
 
 The website is the primary way to use the project. It provides full-text search, an Internship/New Grad filter, company, location, and category filters, sorting, pagination, themes, and direct links to the original listings.
-
-## Why this project exists
-
-General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated positions. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
-
-## Engineering highlights
-
-- **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
-- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
-- **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
-- **Production workflow:** strict typing, thresholded branch coverage with published reports, parsing/classification benchmarks, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
-
-### Python quality baseline
-
-The current offline suite reports the following coverage for the critical classification and
-lifecycle paths:
-
-| Metric | Current | Required |
-|---|---:|---:|
-| Combined statement and branch coverage | 89.8% | ≥ 85.0% |
-| Branch coverage | 81.5% | Reported |
-| Classifier branch coverage | 95.0% | Reported |
-
-[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml)
-publishes the complete HTML, XML, and JSON coverage reports plus parsing and classification
-benchmark results for every run. Benchmark timings remain in the reports because absolute values
-vary by runner; compare them only across equivalent environments.
-
-## Contents
-
-- [Python quality baseline](#python-quality-baseline)
-- [Opportunity directory](#opportunity-directory)
-- [Publication rules](#publication-rules)
-- [How it works](#how-it-works)
-- [Run locally](#run-locally)
-- [Documentation](#documentation)
-- [Responsible operation](#responsible-operation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contributors](#contributors)
 
 ## Opportunity directory
 
@@ -167,7 +142,34 @@ A listing is published only when all six checks pass:
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role. Collection closure requires repeated explicit detail-page `404` or `410` evidence across every active search association; a separate daily audit checks the LinkedIn detail page for every stored row and deletes rows only after an explicit `404` or `410`. Other HTTP or transport failures are preserved for later review.
+Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role. Collection closure requires repeated explicit detail-page `404` or `410` evidence across every active search association. A separate daily audit checks each stored row through its public listing and, after a successful page without a closure alert, the guest detail endpoint. It permanently deletes a row after an explicit `404` or `410` from either request or a scoped “No longer accepting applications” alert; inconclusive HTTP, parsing, or transport failures preserve the row for later review.
+
+## Why this project exists
+
+General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated positions. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
+
+## Engineering highlights
+
+- **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
+- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
+- **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
+- **Production workflow:** strict typing, thresholded branch coverage with published reports, parsing/classification benchmarks, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
+
+### Python quality baseline
+
+The current offline suite reports the following coverage for the critical classification and
+lifecycle paths:
+
+| Metric | Current | Required |
+|---|---:|---:|
+| Combined statement and branch coverage | 89.9% | ≥ 85.0% |
+| Branch coverage | 81.8% | Reported |
+| Classifier branch coverage | 95.0% | Reported |
+
+[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml)
+publishes the complete HTML, XML, and JSON coverage reports plus parsing and classification
+benchmark results for every run. Benchmark timings remain in the reports because absolute values
+vary by runner; compare them only across equivalent environments.
 
 ## How it works
 

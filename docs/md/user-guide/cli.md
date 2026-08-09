@@ -47,7 +47,7 @@ The global `--settings` option must appear before the command name.
 | `searches` | Inspect the effective search registry and available run health |
 | `search-test` | Run one authorized search without persistence |
 | `scrape` | Run authorized collection and persist independent search outcomes |
-| `check-availability` | Check every stored LinkedIn detail page and delete explicit 404/410 rows |
+| `check-availability` | Audit every stored LinkedIn listing and delete explicitly unavailable rows |
 | `render` | Regenerate the bounded README projection from SQLite |
 | `stats` | Display aggregate canonical state |
 | `validate` | Check schema, lifecycle invariants, and generated projections |
@@ -171,10 +171,11 @@ Check canonical state without updating generated documentation:
 uv run opportunities check-availability --no-render
 ```
 
-The command requires the LinkedIn authorization interlock and requests the LinkedIn detail page for every job row, including rows currently marked closed. It then applies one transaction:
+The command requires the LinkedIn authorization interlock and checks every job row, including rows currently marked closed. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
 
-- a valid HTML response keeps the row open or reopens it;
-- HTTP `404` or `410` permanently deletes the job and cascading search provenance;
+- successful public-page and detail-page validation keeps the row open or reopens it;
+- HTTP `404` or `410` from either request permanently deletes the job and cascading search provenance;
+- a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
 The command exits with code `2` when one or more checks are inconclusive. Confirmed results remain committed, and the default path refreshes the README projection. The nightly workflow runs this full audit once per day before scraping and opens or updates one combined pull request for manual review. The availability-only workflow can run the same command manually and opens its own pull request.

@@ -177,7 +177,7 @@ A successful search transaction atomically:
 
 Search-page absence is never closure evidence.
 
-A later valid rediscovery can reactivate provenance and reopen a job. Separately, a daily full-state auditor checks the LinkedIn detail page for every stored job in a single pass: valid pages preserve or reopen the corresponding record, explicit `404` or `410` responses delete it, and ambiguous failures leave its state unchanged.
+A later valid rediscovery can reactivate provenance and reopen a job. Separately, a daily full-state auditor checks every stored job through its public listing and, after a successful page without a closure alert, the guest detail endpoint. Successful validation preserves or reopens the record; an explicit `404` or `410` from either request or a scoped “No longer accepting applications” alert deletes it; ambiguous failures leave its state unchanged.
 
 Concurrent searches may finish out of order, so persisted observation timestamps use monotonic maximums rather than completion order.
 
@@ -208,7 +208,7 @@ The renderer creates a deterministic bounded projection containing:
 - the public website link;
 - at most ten recently posted internships and ten recently posted New Grad positions.
 
-The renderer owns one marked block and replaces it atomically. Validation reconstructs the expected projection from SQLite and requires exact equality.
+The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically. Validation reconstructs both expected regions from SQLite and requires exact equality.
 
 The README cannot reconstruct canonical state because it omits most jobs, closed state, provenance, run history, and closure evidence.
 

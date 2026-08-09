@@ -130,7 +130,7 @@ Preserve these invariants:
 3. **Acceptance remains strict.** Ambiguous posting date, employment type, role, seniority, or geography means exclusion for new listings; a missing cycle is allowed only for an eligible posting date, while a conflicting explicit cycle is rejected.
 4. **Closure remains conservative.** Search-page absence cannot close a job.
 5. **Search outcomes remain isolated.** A failed search cannot mutate that search’s lifecycle state.
-6. **The README remains bounded.** It contains one generated marker pair and at most ten internships plus ten New Grad positions.
+6. **The README remains bounded.** It contains one opportunity-count marker pair, one opportunity-preview marker pair, and at most ten internships plus ten New Grad positions.
 7. **Source access remains permission-gated and unauthenticated.**
 8. **Requests and processing remain bounded and deterministic.**
 9. **The website remains a read-only projection.**
@@ -308,7 +308,7 @@ Keep:
 - public claims aligned with implemented behavior;
 - examples consistent with authorization and one-writer constraints.
 
-The root README contains one generated opportunity marker pair. Never edit generated rows manually or include a second complete marker pair in examples.
+The root README contains one opportunity-count marker pair and one opportunity-preview marker pair. Never edit either generated region manually or reproduce either complete marker pair in examples.
 
 For documentation-only changes, run the documentation checks and:
 

@@ -26,7 +26,7 @@ The root `Dockerfile` produces two final targets:
 
 | Target | Runtime | Responsibility |
 |---|---|---|
-| `opportunities` | Python 3.12.13 with the pinned `uv` 0.11.6 binary | CLI commands, migrations, collection, validation, and README rendering |
+| `opportunities` | Python 3.14.6 with the pinned `uv` 0.12.1 binary | CLI commands, migrations, collection, validation, and README rendering |
 | `site` | Node 26 Alpine with Next.js standalone output | Read-only website server on port `3000` |
 
 Both final images run as an unprivileged user:

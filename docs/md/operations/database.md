@@ -176,17 +176,18 @@ The confirmation threshold is configured through `OPPORTUNITIES_CLOSURE_CONFIRMA
 
 ## Daily full-state availability audit
 
-The scheduled workflow runs `opportunities check-availability` once per day before collection. Unlike bounded per-search rechecks, this pass requests the LinkedIn detail page for every row, including closed rows.
+The scheduled workflow runs `opportunities check-availability` once per day before collection. Unlike bounded per-search rechecks, this pass checks the public listing for every row, including closed rows. A successful public page without a closure alert is then followed by guest detail validation.
 
 Results are deliberately narrow:
 
 ```text
-valid HTML response → keep or reopen the job
-HTTP 404 or 410     → delete the job and cascading job_searches rows
-anything else       → preserve the job as inconclusive
+public page without a closure alert + valid guest detail → keep or reopen the job
+HTTP 404 or 410 from either request                    → delete the job and job_searches rows
+scoped “No longer accepting applications” alert       → delete the job and job_searches rows
+anything else                                          → preserve the job as inconclusive
 ```
 
-The auditor collects every response before applying confirmed changes in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
+The auditor collects every outcome before applying confirmed changes in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
 
 The README is regenerated after the transaction. The nightly workflow includes the audit result in its combined pull request, while a manual availability-only run uses a separate review pull request. SQLite itself remains canonical runtime state and is not committed to Git.
 
@@ -345,9 +346,9 @@ The website contract belongs to the [website guide](../user-guide/website.md#rea
 - the public website link;
 - at most ten recently posted open internships and ten recently posted open New Grad positions.
 
-The renderer owns only the marked internship block and replaces it atomically.
+The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically.
 
-`validate` rebuilds the expected block in memory and requires exact equality with the committed projection.
+`validate` rebuilds both expected regions in memory and requires exact equality with the committed projection.
 
 Never reconstruct canonical state from the README. It omits:
 

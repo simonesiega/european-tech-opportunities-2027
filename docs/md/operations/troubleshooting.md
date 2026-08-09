@@ -171,7 +171,7 @@ Stop the additional writer and return to the one-writer model.
 
 ### Marker or projection mismatch
 
-The root README must contain exactly one opening and one closing internship marker.
+The root README must contain exactly one opening and one closing marker for each generated region: opportunity counts and opportunity previews.
 
 Only when the database contains representative canonical state, run:
 
@@ -348,9 +348,9 @@ Parser contribution requirements are defined in [`CONTRIBUTING.md`](../../../CON
 
 Search-card absence is intentionally ignored.
 
-Closure requires repeated detail-page `404` or `410` confirmations for every active search association.
+During collection, closure requires repeated detail-page `404` or `410` confirmations for every active search association. Separately, the daily full-state audit permanently deletes a row after an explicit `404` or `410` from its public listing or guest detail request, or after a scoped “No longer accepting applications” alert.
 
-Because `max_rechecks` bounds work, a large queue may require several successful runs.
+Because `max_rechecks` bounds collection work, a large per-search queue may require several successful runs.
 
 Check:
 
@@ -358,7 +358,8 @@ Check:
 - active search associations;
 - recent successful search runs;
 - the bounded recheck limit;
-- whether a valid detail page reset confirmations.
+- whether a valid detail page reset confirmations;
+- whether the latest full-state audit was complete or reported the row as inconclusive.
 
 The complete lifecycle algorithm is documented in [Database lifecycle](database.md#closure-lifecycle).
 

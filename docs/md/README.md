@@ -62,5 +62,5 @@ Use repository-relative paths, descriptive alt text, and WebP for new raster ima
 - Commands are shown from the repository root unless a guide says otherwise.
 - Keep internal repository links relative.
 - Use `https://opportunities2027.simonesiega.com/` for links to the public directory.
-- Never edit generated README internship rows manually.
+- Never edit generated README opportunity counts or preview rows manually.
 - Examples must preserve the authorization and one-writer safety model.

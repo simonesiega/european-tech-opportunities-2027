@@ -106,9 +106,9 @@ Before network access, the registry loader requires:
 3. valid `LinkedInSearchConfig` fields;
 4. globally unique slugs;
 5. globally unique effective query identities;
-6. deterministic slug ordering;
-7. valid role-category mappings where required;
-8. result limits within page capacity.
+6. result limits within page capacity.
+
+It returns searches in deterministic slug order. The production configuration test additionally requires role filenames to map to `OpportunityCategory` and enforces the repository conventions below.
 
 Conventions:
 
@@ -153,7 +153,7 @@ Disabling or deleting a search:
 - prevents future selection;
 - does not directly close associated jobs.
 
-Job closure depends on repeated explicit detail-page unavailability across every active association, not registry deletion.
+Collection-driven job closure depends on repeated explicit detail-page unavailability across every active association, not registry deletion. The separate [full-state availability audit](../operations/database.md#daily-full-state-availability-audit) follows its own explicit deletion rules.
 
 ## Pagination and prefiltering
 

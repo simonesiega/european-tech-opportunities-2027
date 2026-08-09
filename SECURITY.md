@@ -166,7 +166,7 @@ Relevant security reports include:
 - unexpected requests to another host or unsafe redirect behavior;
 - unbounded retries, concurrency, response reads, query sizes, or filesystem writes;
 - malicious source HTML causing code execution, arbitrary file access, or unsafe output injection;
-- Markdown injection escaping the generated internship table;
+- Markdown injection escaping either generated opportunity table;
 - SQL injection or unsafe dynamic SQL;
 - path traversal through configuration or temporary-file handling;
 - failed searches incorrectly mutating or closing jobs;

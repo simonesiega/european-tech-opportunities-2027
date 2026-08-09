@@ -22,7 +22,7 @@ This guide covers the local engineering workflow, repository structure, coding s
 - Python 3.12 and `uv` 0.11.6;
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
 - pytest with branch coverage and microbenchmarks, Ruff, and strict mypy;
-- Node.js 20.9 or newer, Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
+- Node.js 22.13 or newer with unflagged `node:sqlite` support, Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
 - GNU Make for optional command shortcuts, and Docker for container and production-path validation.
 
 Install the locked dependencies:
@@ -297,9 +297,9 @@ These variables do not grant permission. CI does not run live tests, and an acce
 
 ## README and documentation changes
 
-The root README contains one generated marker pair. The renderer owns the open-position metadata, latest successful collection time, website link, and bounded previews of ten internships and ten New Grad positions.
+The root README contains one opportunity-count marker pair and one opportunity-preview marker pair. The renderer owns the open-position metadata, latest successful collection time, website link, and bounded previews of ten internships and ten New Grad positions.
 
-Do not edit generated rows or include a second complete marker pair in examples.
+Do not edit either generated region or reproduce either complete marker pair in examples.
 
 Task-oriented Markdown belongs under `docs/md/`; visual assets belong under `docs/photo/`.
 
