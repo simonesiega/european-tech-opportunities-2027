@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 10, 2026 at 06:00 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-721-2563eb?style=for-the-badge" alt="Total opportunities: 721" />
-  <img src="https://img.shields.io/badge/Internships-342-16a34a?style=for-the-badge" alt="Internships: 342" />
-  <img src="https://img.shields.io/badge/New%20Grad-379-9333ea?style=for-the-badge" alt="New Grad opportunities: 379" />
+  <strong>Last updated: August 11, 2026 at 05:42 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-731-2563eb?style=for-the-badge" alt="Total opportunities: 731" />
+  <img src="https://img.shields.io/badge/Internships-340-16a34a?style=for-the-badge" alt="Internships: 340" />
+  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New Grad opportunities: 391" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,34 +85,35 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 721 (Internships: 342 · New Grad: 379)<br>
-**Last successful collection:** August 10, 2026 at 06:00 UTC
+**Open positions:** 731 (Internships: 340 · New Grad: 391)<br>
+**Last successful collection:** August 11, 2026 at 05:42 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 379 open New Grad positions:
+Showing the 10 most recently posted of 391 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4450926185>) |
-| Bending Spoons | Graduate security engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4450922309>) |
-| Property Matrix | Entry Level Software Developer | On, Walloon Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4451062801>) |
-| Bending Spoons | Graduate AI software engineer | Lyon, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4450518130>) |
-| Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4450506632>) |
-| Tact | Graduate Software Engineer | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4448738579>) |
-| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4449315709>) |
-| Samsara | Software Engineer I \(New Grad\) | Harrow, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4448056345>) |
-| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4449313761>) |
-| Bending Spoons | Graduate AI software engineer | Durham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4449309864>) |
+| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4451484090>) |
+| Bending Spoons | Graduate software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4451488072>) |
+| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4451485100>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4451484108>) |
+| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4451498050>) |
+| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4451487095>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4451479225>) |
+| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4451492077>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4451489098>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4451491060>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 342 open internships:
+Showing the 10 most recently posted of 340 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Roche | Manual Software Test Engineer intern | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4450646551>) |
 | Arabelle Solutions | Intern - Software Engineer - Nuclear Engineering Tools F/H | Baden, Aargau, Switzerland | [View](<https://www.linkedin.com/jobs/view/4446670204>) |
 | OutKept | Front-end developer intern | Ghent, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4449042827>) |
 | DevExplore | Software Engineer Intern - AI-Native | Zagreb, Zagreb, Croatia | [View](<https://www.linkedin.com/jobs/view/4447810589>) |
@@ -122,7 +123,6 @@ Showing the 10 most recently posted of 342 open internships:
 | IMC Trading | Hardware Engineer Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4447182227>) |
 | Euronext | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447559357>) |
 | Arcadis | AI &amp; Data Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4445094838>) |
-| Bending Spoons | Security engineer intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4446940933>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
