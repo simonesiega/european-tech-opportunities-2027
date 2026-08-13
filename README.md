@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 12, 2026 at 06:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-720-2563eb?style=for-the-badge" alt="Total opportunities: 720" />
-  <img src="https://img.shields.io/badge/Internships-335-16a34a?style=for-the-badge" alt="Internships: 335" />
-  <img src="https://img.shields.io/badge/New%20Grad-385-9333ea?style=for-the-badge" alt="New Grad opportunities: 385" />
+  <strong>Last updated: August 13, 2026 at 06:12 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-709-2563eb?style=for-the-badge" alt="Total opportunities: 709" />
+  <img src="https://img.shields.io/badge/Internships-321-16a34a?style=for-the-badge" alt="Internships: 321" />
+  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,34 +85,35 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 720 (Internships: 335 · New Grad: 385)<br>
-**Last successful collection:** August 12, 2026 at 06:09 UTC
+**Open positions:** 709 (Internships: 321 · New Grad: 388)<br>
+**Last successful collection:** August 13, 2026 at 06:12 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 385 open New Grad positions:
+Showing the 10 most recently posted of 388 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4452754868>) |
+| Quell | Graduate R&amp;D Software Engineer | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4449868298>) |
 | Viasat | Software Engineer, Early Career | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4452485365>) |
+| Bending Spoons | Graduate software engineer | Serbia | [View](<https://www.linkedin.com/jobs/view/4451491078>) |
+| Bending Spoons | Graduate software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4451601004>) |
 | Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4451484090>) |
 | Bending Spoons | Graduate software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4451488072>) |
 | Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4451485100>) |
 | Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4451484108>) |
 | Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4451498050>) |
-| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4451487095>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4451479225>) |
-| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4451492077>) |
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4451489098>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 335 open internships:
+Showing the 10 most recently posted of 321 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| NXP Semiconductors | DevOps Intern | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453143147>) |
 | Alago | Working Student / Intern in Software Engineering &amp; AI \(f/m/x\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4449838610>) |
 | Roche | Manual Software Test Engineer intern | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4450646551>) |
 | Arabelle Solutions | Intern - Software Engineer - Nuclear Engineering Tools F/H | Baden, Aargau, Switzerland | [View](<https://www.linkedin.com/jobs/view/4446670204>) |
@@ -122,7 +123,6 @@ Showing the 10 most recently posted of 335 open internships:
 | DevExplore | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447824209>) |
 | IMC Trading | Hardware Engineer Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4447182227>) |
 | Euronext | AI Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4447559357>) |
-| Arcadis | AI &amp; Data Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4445094838>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
