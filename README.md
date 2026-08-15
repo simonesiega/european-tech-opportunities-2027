@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 14, 2026 at 06:06 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-682-2563eb?style=for-the-badge" alt="Total opportunities: 682" />
-  <img src="https://img.shields.io/badge/Internships-318-16a34a?style=for-the-badge" alt="Internships: 318" />
-  <img src="https://img.shields.io/badge/New%20Grad-364-9333ea?style=for-the-badge" alt="New Grad opportunities: 364" />
+  <strong>Last updated: August 15, 2026 at 05:02 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-752-2563eb?style=for-the-badge" alt="Total opportunities: 752" />
+  <img src="https://img.shields.io/badge/Internships-352-16a34a?style=for-the-badge" alt="Internships: 352" />
+  <img src="https://img.shields.io/badge/New%20Grad-400-9333ea?style=for-the-badge" alt="New Grad opportunities: 400" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,44 +85,44 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 682 (Internships: 318 · New Grad: 364)<br>
-**Last successful collection:** August 14, 2026 at 06:06 UTC
+**Open positions:** 752 (Internships: 352 · New Grad: 400)<br>
+**Last successful collection:** August 15, 2026 at 05:02 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 364 open New Grad positions:
+Showing the 10 most recently posted of 400 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Hyve Solutions | BIOS Firmware Assistant Engineer - New Graduate | Agerbæk, Region of Southern Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4454378070>) |
-| Hyve Solutions | BMC Firmware Assistant Engineer - New Graduate | Agerbæk, Region of Southern Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4454362325>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4453213501>) |
-| Wayflyer | Graduate Software Engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4454070080>) |
-| Phi Partners | Quantitative Developer \(Graduates &amp; Early Career Professionals\) | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4395431614>) |
-| Reply | Graduate AI Software Developer | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4440469242>) |
-| Johnson Controls | Engineering Graduate | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4431955356>) |
-| Bending Spoons | Graduate software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4452764391>) |
-| Bending Spoons | Graduate AI software engineer | Lyon, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4452773273>) |
-| Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4452754868>) |
+| Cisco | Software Engineer - Graduate - Slovakia | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4454815077>) |
+| Bitpanda LA | Graduate Frontend Engineer - React/TypeScript | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453723699>) |
+| TechJobsData | Software Engineer - Python - Ubuntu Pro client - graduate level | Bordeaux, Nouvelle-Aquitaine, France | [View](<https://www.linkedin.com/jobs/view/4453595890>) |
+| DNB | DNB Greenhouse Graduate program - Cyber security | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4454577154>) |
+| Bitpanda | Graduate Frontend Engineer - React/TypeScript | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4454510991>) |
+| ION | Data Engineer/Analyst - Graduate Development Program | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4407872262>) |
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4453563375>) |
+| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453527477>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4453515529>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4453509621>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 318 open internships:
+Showing the 10 most recently posted of 352 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Pactos | Working Student / Intern - Software Engineering \(Analytics Focus\) \(m/w/d\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4450455837>) |
-| Ericsson | LTE Developer - 1 year internship \(Łódź\) | Łódź, Łódzkie, Poland | [View](<https://www.linkedin.com/jobs/view/4452391091>) |
-| Deloitte | Cyber Security Intern - Start date as of February 2027 | Luxembourg, Luxembourg, Luxembourg | [View](<https://www.linkedin.com/jobs/view/4450177389>) |
-| NXP Semiconductors | DevOps Intern | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453143147>) |
-| Alago | Working Student / Intern in Software Engineering &amp; AI \(f/m/x\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4449838610>) |
-| ReversingLabs | Software Engineer - Student Internship | Zagreb, Zagreb, Croatia | [View](<https://www.linkedin.com/jobs/view/4430890461>) |
-| SANOVIO | Software Engineering Intern \(Full-Stack\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4450452277>) |
-| Roche | Manual Software Test Engineer intern | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4450646551>) |
-| Arabelle Solutions | Intern - Software Engineer - Nuclear Engineering Tools F/H | Baden, Aargau, Switzerland | [View](<https://www.linkedin.com/jobs/view/4446670204>) |
-| OutKept | Front-end developer intern | Ghent, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4449042827>) |
+| Bosch Home Comfort Portugal | Extracurricular Internship: Infrastructure &amp; DevOps Engineer \(f/m/div.\) | Aveiro, Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4454558421>) |
+| Hilti Group | Intern - Cybersecurity \(m/f/x\) | Buchs \(SG\), St Gallen, Switzerland | [View](<https://www.linkedin.com/jobs/view/4451227375>) |
+| Infineon Technologies | Internship - Software Testing Automation \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4454521849>) |
+| Belimo | Internship Embedded Software Development 100% | Hinwil, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4453563382>) |
+| Dolby Laboratories | Intern, Software Engineering | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4454528400>) |
+| Alpine Business Consulting | Frontend Engineer Intern | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4453531536>) |
+| Dufour Aerospace | Internship - Embedded Software | Dübendorf, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4450464665>) |
+| GE HealthCare | Software Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4416677033>) |
+| TwoWay | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4450808096>) |
+| Erste Group | Internship Cybersecurity Automation Analyst \(all genders\) | Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4453686036>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
