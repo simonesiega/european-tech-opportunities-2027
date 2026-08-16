@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 15, 2026 at 05:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-752-2563eb?style=for-the-badge" alt="Total opportunities: 752" />
-  <img src="https://img.shields.io/badge/Internships-352-16a34a?style=for-the-badge" alt="Internships: 352" />
-  <img src="https://img.shields.io/badge/New%20Grad-400-9333ea?style=for-the-badge" alt="New Grad opportunities: 400" />
+  <strong>Last updated: August 16, 2026 at 05:13 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-757-2563eb?style=for-the-badge" alt="Total opportunities: 757" />
+  <img src="https://img.shields.io/badge/Internships-349-16a34a?style=for-the-badge" alt="Internships: 349" />
+  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New Grad opportunities: 408" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,40 +85,40 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 752 (Internships: 352 · New Grad: 400)<br>
-**Last successful collection:** August 15, 2026 at 05:02 UTC
+**Open positions:** 757 (Internships: 349 · New Grad: 408)<br>
+**Last successful collection:** August 16, 2026 at 05:13 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 400 open New Grad positions:
+Showing the 10 most recently posted of 408 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Cisco | Software Engineer - Graduate - Slovakia | Bratislava, Bratislava, Slovakia | [View](<https://www.linkedin.com/jobs/view/4454815077>) |
-| Bitpanda LA | Graduate Frontend Engineer - React/TypeScript | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453723699>) |
-| TechJobsData | Software Engineer - Python - Ubuntu Pro client - graduate level | Bordeaux, Nouvelle-Aquitaine, France | [View](<https://www.linkedin.com/jobs/view/4453595890>) |
-| DNB | DNB Greenhouse Graduate program - Cyber security | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4454577154>) |
-| Bitpanda | Graduate Frontend Engineer - React/TypeScript | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4454510991>) |
-| ION | Data Engineer/Analyst - Graduate Development Program | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4407872262>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4453563375>) |
-| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453527477>) |
-| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4453515529>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4453509621>) |
+| Bending Spoons | Graduate AI software engineer | Durham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453951845>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4453950813>) |
+| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4453945862>) |
+| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/2147625854>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453944900>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4453942858>) |
+| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4453949867>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4453960103>) |
+| Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4453937877>) |
+| Bending Spoons | Graduate software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4453935920>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 352 open internships:
+Showing the 10 most recently posted of 349 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Infineon Technologies | Internship - Embedded Firmware and Hardware Development \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4455119224>) |
 | Bosch Home Comfort Portugal | Extracurricular Internship: Infrastructure &amp; DevOps Engineer \(f/m/div.\) | Aveiro, Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4454558421>) |
 | Hilti Group | Intern - Cybersecurity \(m/f/x\) | Buchs \(SG\), St Gallen, Switzerland | [View](<https://www.linkedin.com/jobs/view/4451227375>) |
 | Infineon Technologies | Internship - Software Testing Automation \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4454521849>) |
 | Belimo | Internship Embedded Software Development 100% | Hinwil, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4453563382>) |
 | Dolby Laboratories | Intern, Software Engineering | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4454528400>) |
-| Alpine Business Consulting | Frontend Engineer Intern | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4453531536>) |
 | Dufour Aerospace | Internship - Embedded Software | Dübendorf, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4450464665>) |
 | GE HealthCare | Software Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4416677033>) |
 | TwoWay | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4450808096>) |
