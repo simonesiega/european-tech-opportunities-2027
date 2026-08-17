@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 16, 2026 at 05:13 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-757-2563eb?style=for-the-badge" alt="Total opportunities: 757" />
-  <img src="https://img.shields.io/badge/Internships-349-16a34a?style=for-the-badge" alt="Internships: 349" />
-  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New Grad opportunities: 408" />
+  <strong>Last updated: August 17, 2026 at 05:15 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-741-2563eb?style=for-the-badge" alt="Total opportunities: 741" />
+  <img src="https://img.shields.io/badge/Internships-345-16a34a?style=for-the-badge" alt="Internships: 345" />
+  <img src="https://img.shields.io/badge/New%20Grad-396-9333ea?style=for-the-badge" alt="New Grad opportunities: 396" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,17 +85,18 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 757 (Internships: 349 · New Grad: 408)<br>
-**Last successful collection:** August 16, 2026 at 05:13 UTC
+**Open positions:** 741 (Internships: 345 · New Grad: 396)<br>
+**Last successful collection:** August 17, 2026 at 05:15 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 408 open New Grad positions:
+Showing the 10 most recently posted of 396 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Gulf Associates | Graduate Frontend Developer | Lyon, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4454213271>) |
 | Bending Spoons | Graduate AI software engineer | Durham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453951845>) |
 | Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4453950813>) |
 | Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4453945862>) |
@@ -105,11 +106,10 @@ Showing the 10 most recently posted of 408 open New Grad positions:
 | Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4453949867>) |
 | Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4453960103>) |
 | Bending Spoons | Graduate AI software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4453937877>) |
-| Bending Spoons | Graduate software engineer | Ireland | [View](<https://www.linkedin.com/jobs/view/4453935920>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 349 open internships:
+Showing the 10 most recently posted of 345 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
