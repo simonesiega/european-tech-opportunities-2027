@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 18, 2026 at 05:07 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-730-2563eb?style=for-the-badge" alt="Total opportunities: 730" />
-  <img src="https://img.shields.io/badge/Internships-332-16a34a?style=for-the-badge" alt="Internships: 332" />
-  <img src="https://img.shields.io/badge/New%20Grad-398-9333ea?style=for-the-badge" alt="New Grad opportunities: 398" />
+  <strong>Last updated: August 19, 2026 at 05:08 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-687-2563eb?style=for-the-badge" alt="Total opportunities: 687" />
+  <img src="https://img.shields.io/badge/Internships-328-16a34a?style=for-the-badge" alt="Internships: 328" />
+  <img src="https://img.shields.io/badge/New%20Grad-359-9333ea?style=for-the-badge" alt="New Grad opportunities: 359" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,31 +85,31 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 730 (Internships: 332 · New Grad: 398)<br>
-**Last successful collection:** August 18, 2026 at 05:07 UTC
+**Open positions:** 687 (Internships: 328 · New Grad: 359)<br>
+**Last successful collection:** August 19, 2026 at 05:08 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 398 open New Grad positions:
+Showing the 10 most recently posted of 359 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4454903056>) |
+| Randstad Digital Portugal | Junior / Graduate Cybersecurity Analyst | Lisbon, Portugal | [View](<https://www.linkedin.com/jobs/view/4452834572>) |
+| Kingfisher Recruitment | Young Graduate Cloud Trainee | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4452590002>) |
+| Fever | Graduate Software Engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455267769>) |
 | Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4454444399>) |
 | Bending Spoons | Graduate AI software engineer | Lyon, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4454448421>) |
 | Optiver | Graduate Software Engineer | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4452269479>) |
 | CXC | Graduate Software Engineer | Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455268118>) |
 | Reply | Graduate Cloud Consultant | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4452230429>) |
-| Bending Spoons | Graduate AI software engineer | Durham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453951845>) |
-| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4453950813>) |
-| Bending Spoons | Graduate AI software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4453945862>) |
-| Bending Spoons | Graduate AI software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/2147625854>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4453944900>) |
+| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/2147625855>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 332 open internships:
+Showing the 10 most recently posted of 328 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
