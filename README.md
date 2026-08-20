@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 19, 2026 at 05:08 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-687-2563eb?style=for-the-badge" alt="Total opportunities: 687" />
-  <img src="https://img.shields.io/badge/Internships-328-16a34a?style=for-the-badge" alt="Internships: 328" />
-  <img src="https://img.shields.io/badge/New%20Grad-359-9333ea?style=for-the-badge" alt="New Grad opportunities: 359" />
+  <strong>Last updated: August 20, 2026 at 05:06 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-692-2563eb?style=for-the-badge" alt="Total opportunities: 692" />
+  <img src="https://img.shields.io/badge/Internships-324-16a34a?style=for-the-badge" alt="Internships: 324" />
+  <img src="https://img.shields.io/badge/New%20Grad-368-9333ea?style=for-the-badge" alt="New Grad opportunities: 368" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,34 +85,36 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 687 (Internships: 328 · New Grad: 359)<br>
-**Last successful collection:** August 19, 2026 at 05:08 UTC
+**Open positions:** 692 (Internships: 324 · New Grad: 368)<br>
+**Last successful collection:** August 20, 2026 at 05:06 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 359 open New Grad positions:
+Showing the 10 most recently posted of 368 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate AI software engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4455483260>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4455488204>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4455474310>) |
+| VIAVI Solutions | Early Careers Graduate Rotational Program - R&amp;D Software Development Engineer \[Java \(Spring, J2EE\)\] | St-Étienne, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4455464251>) |
+| ERNI | Junior Software Engineer \(Graduate\) - Development Finance | Valencia, Valencian Community, Spain | [View](<https://www.linkedin.com/jobs/view/4455402254>) |
 | Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4454903056>) |
 | Randstad Digital Portugal | Junior / Graduate Cybersecurity Analyst | Lisbon, Portugal | [View](<https://www.linkedin.com/jobs/view/4452834572>) |
 | Kingfisher Recruitment | Young Graduate Cloud Trainee | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4452590002>) |
 | Fever | Graduate Software Engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455267769>) |
-| Bending Spoons | Graduate AI software engineer | Athens, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4454444399>) |
-| Bending Spoons | Graduate AI software engineer | Lyon, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4454448421>) |
-| Optiver | Graduate Software Engineer | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4452269479>) |
-| CXC | Graduate Software Engineer | Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455268118>) |
-| Reply | Graduate Cloud Consultant | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4452230429>) |
-| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/2147625855>) |
+| CXC | Graduate Software Engineer | Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455569933>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 328 open internships:
+Showing the 10 most recently posted of 324 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| NVIDIA | Software Engineering Intern, Test Automation — Autonomous Vehicles | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4455493098>) |
+| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456191156>) |
 | Infineon Technologies | Internship - Embedded Firmware and Hardware Development \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4455119224>) |
 | Bosch Home Comfort Portugal | Extracurricular Internship: Infrastructure &amp; DevOps Engineer \(f/m/div.\) | Aveiro, Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4454558421>) |
 | Hilti Group | Intern - Cybersecurity \(m/f/x\) | Buchs \(SG\), St Gallen, Switzerland | [View](<https://www.linkedin.com/jobs/view/4451227375>) |
@@ -121,8 +123,6 @@ Showing the 10 most recently posted of 328 open internships:
 | Dolby Laboratories | Intern, Software Engineering | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4454528400>) |
 | Dufour Aerospace | Internship - Embedded Software | Dübendorf, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4450464665>) |
 | GE HealthCare | Software Engineer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4416677033>) |
-| TwoWay | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4450808096>) |
-| Erste Group | Internship Cybersecurity Automation Analyst \(all genders\) | Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4453686036>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
