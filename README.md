@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 21, 2026 at 05:14 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-738-2563eb?style=for-the-badge" alt="Total opportunities: 738" />
-  <img src="https://img.shields.io/badge/Internships-345-16a34a?style=for-the-badge" alt="Internships: 345" />
-  <img src="https://img.shields.io/badge/New%20Grad-393-9333ea?style=for-the-badge" alt="New Grad opportunities: 393" />
+  <strong>Last updated: August 22, 2026 at 05:05 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-728-2563eb?style=for-the-badge" alt="Total opportunities: 728" />
+  <img src="https://img.shields.io/badge/Internships-340-16a34a?style=for-the-badge" alt="Internships: 340" />
+  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,34 +85,35 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 738 (Internships: 345 · New Grad: 393)<br>
-**Last successful collection:** August 21, 2026 at 05:14 UTC
+**Open positions:** 728 (Internships: 340 · New Grad: 388)<br>
+**Last successful collection:** August 22, 2026 at 05:05 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 393 open New Grad positions:
+Showing the 10 most recently posted of 388 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Susquehanna International Group | Software Developer Graduate: September 2027 Dublin | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4454665086>) |
+| JD.COM | Graduate Software Engineer | Greater London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4456222703>) |
+| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4456088727>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4456090703>) |
+| Bending Spoons | Graduate software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4456097617>) |
+| Bending Spoons | Graduate software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4456077827>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4456090704>) |
+| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4456098421>) |
+| Bending Spoons | Graduate software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4456095671>) |
 | Jack &amp; Jill | Graduate Software Engineer - Backend \(£45k + Equity\) at Riff Financial | United Kingdom | [View](<https://www.linkedin.com/jobs/view/4456057882>) |
-| Strata Financial | Data Engineer \(Entry-Level\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4456754406>) |
-| Acturis Limited | Graduate Integration Developer, Birmingham | Birmingham, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4453413156>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4455409027>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4454992889>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4455414035>) |
-| Bending Spoons | Graduate data scientist | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4455413030>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455408052>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4455407077>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4455402085>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 345 open internships:
+Showing the 10 most recently posted of 340 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Hewlett Packard Enterprise | Cloud Quality Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4457303491>) |
 | AMCS Group | Software Engineer Internship \(College Placement\) | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4454115675>) |
 | Avelios Medical | Intern Machine Learning \(all genders\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4444527141>) |
 | AUMOVIO | Internship for Software Test Engineer \(Iasi\) | Iași, Braşov, Romania | [View](<https://www.linkedin.com/jobs/view/4456498027>) |
@@ -122,7 +123,6 @@ Showing the 10 most recently posted of 345 open internships:
 | CBRE Belgium | Internship IT Software Engineer | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4456313835>) |
 | Stripe | Software Engineer, Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4456385104>) |
 | NVIDIA | Software Engineering Intern, Test Automation — Autonomous Vehicles | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4455493098>) |
-| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456191156>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
