@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 23, 2026 at 05:16 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-728-2563eb?style=for-the-badge" alt="Total opportunities: 728" />
-  <img src="https://img.shields.io/badge/Internships-330-16a34a?style=for-the-badge" alt="Internships: 330" />
-  <img src="https://img.shields.io/badge/New%20Grad-398-9333ea?style=for-the-badge" alt="New Grad opportunities: 398" />
+  <strong>Last updated: August 24, 2026 at 05:15 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-686-2563eb?style=for-the-badge" alt="Total opportunities: 686" />
+  <img src="https://img.shields.io/badge/Internships-326-16a34a?style=for-the-badge" alt="Internships: 326" />
+  <img src="https://img.shields.io/badge/New%20Grad-360-9333ea?style=for-the-badge" alt="New Grad opportunities: 360" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,17 +85,20 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 728 (Internships: 330 · New Grad: 398)<br>
-**Last successful collection:** August 23, 2026 at 05:16 UTC
+**Open positions:** 686 (Internships: 326 · New Grad: 360)<br>
+**Last successful collection:** August 24, 2026 at 05:15 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 398 open New Grad positions:
+Showing the 10 most recently posted of 360 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Pixel Systems | Graduate Frontend Developer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4456848138>) |
+| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4456825592>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456821651>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4456079816>) |
 | Konrad | Software Developer \(Entry Level\) | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4450168259>) |
 | Bending Spoons | Graduate AI software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4456099455>) |
@@ -103,13 +106,10 @@ Showing the 10 most recently posted of 398 open New Grad positions:
 | Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456096642>) |
 | Bending Spoons | Graduate software engineer | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456091728>) |
 | Bending Spoons | Graduate software engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456088726>) |
-| Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4456087733>) |
-| Bending Spoons | Graduate software engineer | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4456083789>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4456080767>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 330 open internships:
+Showing the 10 most recently posted of 326 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
