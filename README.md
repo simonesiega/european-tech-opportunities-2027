@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 24, 2026 at 05:15 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-686-2563eb?style=for-the-badge" alt="Total opportunities: 686" />
-  <img src="https://img.shields.io/badge/Internships-326-16a34a?style=for-the-badge" alt="Internships: 326" />
-  <img src="https://img.shields.io/badge/New%20Grad-360-9333ea?style=for-the-badge" alt="New Grad opportunities: 360" />
+  <strong>Last updated: August 25, 2026 at 05:08 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
+  <img src="https://img.shields.io/badge/Internships-325-16a34a?style=for-the-badge" alt="Internships: 325" />
+  <img src="https://img.shields.io/badge/New%20Grad-366-9333ea?style=for-the-badge" alt="New Grad opportunities: 366" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -85,34 +85,35 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 686 (Internships: 326 · New Grad: 360)<br>
-**Last successful collection:** August 24, 2026 at 05:15 UTC
+**Open positions:** 691 (Internships: 325 · New Grad: 366)<br>
+**Last successful collection:** August 25, 2026 at 05:08 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad positions
 
-Showing the 10 most recently posted of 360 open New Grad positions:
+Showing the 10 most recently posted of 366 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Pixel Systems | Graduate Frontend Developer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4456848138>) |
+| IBM | Technical Engineering Seller - Entry Level Sales Program 2027 | Markham, Wales, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4456548380>) |
+| Bending Spoons | Graduate AI software engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457198278>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4457401279>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4457198277>) |
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4456888671>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4456872697>) |
+| Camino Search | Graduate AI Developer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455851744>) |
 | Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4456825592>) |
 | Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456821651>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4456079816>) |
-| Konrad | Software Developer \(Entry Level\) | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4450168259>) |
-| Bending Spoons | Graduate AI software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4456099455>) |
-| Bending Spoons | Graduate software engineer | Valencia, Valencian Community, Spain | [View](<https://www.linkedin.com/jobs/view/4456097618>) |
-| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456096642>) |
-| Bending Spoons | Graduate software engineer | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4456091728>) |
-| Bending Spoons | Graduate software engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456088726>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 326 open internships:
+Showing the 10 most recently posted of 325 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4458246752>) |
 | Infineon Technologies | Internship - Software Developer for Test Engineering \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4457815724>) |
 | Hewlett Packard Enterprise | Cloud Quality Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4457303491>) |
 | UBS | Software Engineer Intern in Digital Operations | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444543872>) |
@@ -122,7 +123,6 @@ Showing the 10 most recently posted of 326 open internships:
 | Kepstronic | Electrical Engineering Intern | Payerne, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4453469556>) |
 | Monolithic Power Systems, Inc. | Software Engineer Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4456311375>) |
 | Amazon | 2027 Software Dev Engineer Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4455798905>) |
-| Susquehanna International Group | Hardware Engineer University Co - Op Placement 2027 | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4453424843>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
