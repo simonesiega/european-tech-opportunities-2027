@@ -6,9 +6,9 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 25, 2026 at 05:08 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
-  <img src="https://img.shields.io/badge/Internships-325-16a34a?style=for-the-badge" alt="Internships: 325" />
+  <strong>Last updated: August 26, 2026 at 05:30 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-685-2563eb?style=for-the-badge" alt="Total opportunities: 685" />
+  <img src="https://img.shields.io/badge/Internships-319-16a34a?style=for-the-badge" alt="Internships: 319" />
   <img src="https://img.shields.io/badge/New%20Grad-366-9333ea?style=for-the-badge" alt="New Grad opportunities: 366" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
@@ -85,8 +85,8 @@ Browse every internship and New Grad listing currently marked open at [opportuni
 The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 691 (Internships: 325 · New Grad: 366)<br>
-**Last successful collection:** August 25, 2026 at 05:08 UTC
+**Open positions:** 685 (Internships: 319 · New Grad: 366)<br>
+**Last successful collection:** August 26, 2026 at 05:30 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
@@ -96,6 +96,7 @@ Showing the 10 most recently posted of 366 open New Grad positions:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| European Tech Recruit | Graduate Software Engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4458717567>) |
 | IBM | Technical Engineering Seller - Entry Level Sales Program 2027 | Markham, Wales, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4456548380>) |
 | Bending Spoons | Graduate AI software engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457198278>) |
 | Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4457401279>) |
@@ -105,11 +106,10 @@ Showing the 10 most recently posted of 366 open New Grad positions:
 | Camino Search | Graduate AI Developer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455851744>) |
 | Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4456825592>) |
 | Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456821651>) |
-| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4456079816>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 325 open internships:
+Showing the 10 most recently posted of 319 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
