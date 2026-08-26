@@ -351,7 +351,7 @@ def _dispose_engine(engine: Engine) -> None:
 
 def _search_registry_docs_path(settings: Settings) -> Path:
     """Resolve registry documentation beside the configured README."""
-    return settings.readme_path.parent / "docs" / "md" / "user-guide" / "search-registry.md"
+    return settings.readme_path.parent / "docs" / "guides" / "user-guide" / "search-registry.md"
 
 
 def _readme_metadata(repository: Repository) -> ReadmeMetadata:

@@ -45,9 +45,9 @@ def test_readme_contains_type_sections_and_escapes_values(tmp_path: Path) -> Non
     block = markdown_block([job], metadata)
 
     assert table.startswith("| Company | Title | Location | Listing |\n|---|---|---|---|\n")
-    assert "**Open positions:** 1 (Internships: 1 · New Grad: 0)" in block
+    assert "**Open opportunities:** 1 (Internships: 1 · New Grad: 0)" in block
     assert "**Last successful collection:** July 15, 2026 at 00:00 UTC" in block
-    assert "### Latest New Grad positions" in block
+    assert "### Latest New Grad opportunities" in block
     assert "### Latest internships" in block
     assert "Showing the 1 most recently posted of 1 open internships" in block
     assert "Category" not in table
@@ -66,7 +66,7 @@ def test_readme_contains_type_sections_and_escapes_values(tmp_path: Path) -> Non
     assert validate_readme(readme, [job], metadata) == []
 
 
-def test_readme_preview_is_bounded_to_ten_positions_per_type() -> None:
+def test_readme_preview_is_bounded_to_five_opportunities_per_type() -> None:
     now = datetime(2026, 7, 15, tzinfo=UTC)
     internships = [
         stored_job(index, EmploymentType.INTERNSHIP, now + timedelta(minutes=index))
@@ -79,12 +79,12 @@ def test_readme_preview_is_bounded_to_ten_positions_per_type() -> None:
 
     block = markdown_block(internships + new_grad, ReadmeMetadata(24, now))
 
-    assert "Showing the 10 most recently posted of 12 open internships" in block
-    assert "Showing the 10 most recently posted of 12 open New Grad positions" in block
+    assert "Showing the 5 most recently posted of 12 open internships" in block
+    assert "Showing the 5 most recently posted of 12 open New Grad opportunities" in block
     assert "| Company 11 |" in block
     assert "| Company 111 |" in block
-    assert "| Company 1 |" not in block
-    assert "| Company 101 |" not in block
+    assert "| Company 6 |" not in block
+    assert "| Company 106 |" not in block
 
 
 def test_readme_rejects_reversed_generated_markers(tmp_path: Path) -> None:
@@ -105,7 +105,7 @@ def test_empty_database_still_renders_both_table_headers() -> None:
     assert markdown_table([]) == "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
     block = markdown_block([], ReadmeMetadata(0, None))
     assert block.startswith(
-        "**Open positions:** 0 (Internships: 0 · New Grad: 0)<br>\n"
+        "**Open opportunities:** 0 (Internships: 0 · New Grad: 0)<br>\n"
         "**Last successful collection:** Never\n\n"
     )
     assert block.count("| Company | Title | Location | Listing |") == 2

@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 CLI Reference
 
-[← Documentation](../README.md) · [Installation](../getting-started/installation.md) · [Configuration](../getting-started/configuration.md)
+[← Documentation](../../README.md) · [Installation](../getting-started/installation.md) · [Configuration](../getting-started/configuration.md)
 
 The `opportunities` CLI manages database migrations, search inspection, authorized collection, canonical SQLite state, validation, and generated documentation projections.
 
@@ -193,7 +193,7 @@ The README projection includes:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently posted internships and ten recently posted New Grad positions.
+- at most five recently posted internships and five recently posted New Grad opportunities.
 
 Generated search-registry counts are also updated where owned by the rendering path.
 

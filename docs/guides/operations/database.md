@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Database and Lifecycle Guide
 
-[← Documentation](../README.md) · [Architecture](../development/architecture.md) · [Automation](automation.md)
+[← Documentation](../../README.md) · [Architecture](../development/architecture.md) · [Automation](automation.md)
 
 SQLite is the project’s canonical operational state. Search YAML defines discovery configuration, while the website and README remain read-only projections.
 
@@ -344,7 +344,7 @@ The website contract belongs to the [website guide](../user-guide/website.md#rea
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently posted open internships and ten recently posted open New Grad positions.
+- at most five recently posted open internships and five recently posted open New Grad opportunities.
 
 The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically.
 

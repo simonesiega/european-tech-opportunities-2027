@@ -12,9 +12,10 @@ MARKDOWN_FILES = (
     ROOT / "README.md",
     ROOT / "CONTRIBUTING.md",
     ROOT / "SECURITY.md",
+    ROOT / "CODE_OF_CONDUCT.md",
     *sorted((ROOT / "docs").rglob("*.md")),
 )
-AUTOMATION_GUIDE = ROOT / "docs" / "md" / "operations" / "automation.md"
+AUTOMATION_GUIDE = ROOT / "docs" / "guides" / "operations" / "automation.md"
 _LINK_RE = re.compile(r"(?<!!)\[[^\]]*\]\(([^) >]+)")
 _IMAGE_RE = re.compile(r'<img[^>]+src="([^"]+)"')
 _HEADING_RE = re.compile(r"^#{1,6}\s+(.+)$", re.MULTILINE)

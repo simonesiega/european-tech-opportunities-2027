@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Troubleshooting Guide
 
-[← Documentation](../README.md) · [CLI reference](../user-guide/cli.md) · [Database lifecycle](database.md)
+[← Documentation](../../README.md) · [CLI reference](../user-guide/cli.md) · [Database lifecycle](database.md)
 
 Start with the command’s exit code and first sanitized error. Preserve canonical state before making changes.
 
@@ -185,7 +185,7 @@ The generated block contains:
 - open-job metadata;
 - latest successful collection time;
 - the public website link;
-- at most ten internships and ten New Grad positions.
+- at most five internships and five New Grad opportunities.
 
 Do not edit generated rows manually.
 

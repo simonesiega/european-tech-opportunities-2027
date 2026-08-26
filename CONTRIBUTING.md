@@ -1,26 +1,15 @@
 <h1 align="center">
-  Contributing to European Tech Opportunities 2027
+    Contributing to European Tech Opportunities 2027
 </h1>
 
-<p align="center">
-  Guidelines for safe, focused, and evidence-based contributions.
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white" alt="Python 3.12 or newer" />
-  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="Pull requests welcome" />
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027" alt="MIT license" /></a>
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/issues"><img src="https://img.shields.io/github/issues/simonesiega/european-tech-opportunities-2027" alt="Open issues" /></a>
-</p>
-
-Thank you for improving the project. Read [`README.md`](README.md) before contributing, then use the [documentation hub](docs/md/README.md) to find the canonical technical guide for your change.
+Thank you for improving the project. Read [`README.md`](README.md), follow the [Code of Conduct](CODE_OF_CONDUCT.md), and use the [documentation hub](docs/README.md) to find the canonical technical guide for your change.
 
 > [!IMPORTANT]
 > Never automate LinkedIn access while developing this project unless you have express permission. Public pages, environment flags, and an open-source contribution do not provide authorization.
 
 ## Contents
 
-- [Contribution workflow](#contribution-workflow)
+- [Getting started and contribution workflow](#getting-started-and-contribution-workflow)
 - [Choose your contribution path](#choose-your-contribution-path)
 - [Good contributions](#good-contributions)
 - [Issues and design changes](#issues-and-design-changes)
@@ -36,16 +25,32 @@ Thank you for improving the project. Read [`README.md`](README.md) before contri
 - [Pull requests](#pull-requests)
 - [Security and community](#security-and-community)
 
-## Contribution workflow
+## Getting started and contribution workflow
 
 | Step | Action |
 |---:|---|
 | 1 | Search existing issues and documentation. |
 | 2 | Fork the repository and create a branch from `main`. |
-| 3 | Install only the tools required for the change. |
-| 4 | Make one focused, testable change. |
+| 3 | Follow the [installation guide](docs/guides/getting-started/installation.md) and install only the tools required for the change. |
+| 4 | Reproduce the issue offline where possible, then make one focused, testable change. |
 | 5 | Run the checks for every affected component. |
 | 6 | Open a pull request explaining the behavior, rationale, and validation. |
+
+For Python development from the repository root:
+
+```bash
+uv sync --frozen --dev
+cp .env.example .env
+uv run opportunities db-upgrade
+```
+
+For website development:
+
+```bash
+cd site
+bun install --frozen-lockfile
+bunx playwright install chromium
+```
 
 Suggested branch names:
 
@@ -57,18 +62,18 @@ Suggested branch names:
 | Maintenance | `chore/` | `chore/update-dependencies` |
 | Tests | `test/` | `test/add-pagination-coverage` |
 
-Use the [installation guide](docs/md/getting-started/installation.md) for local setup and the [development guide](docs/md/development/development.md) for repository structure, coding conventions, test organization, and complete validation commands.
+Use the [installation guide](docs/guides/getting-started/installation.md) for platform-specific setup and the [development guide](docs/guides/development/development.md) for repository structure, implementation details, test organization, and complete validation commands.
 
 ## Choose your contribution path
 
 | Change | Canonical guide | Minimum validation |
 |---|---|---|
-| Python pipeline, CLI, classification, or persistence | [Development](docs/md/development/development.md) | `make check` or its documented `uv` equivalent |
-| Website or UI | [Website](docs/md/user-guide/website.md) and [Development](docs/md/development/development.md) | `cd site && bun run ci` |
-| Search configuration | [Search registry](docs/md/user-guide/search-registry.md) | `opportunities searches` and focused config tests |
-| Database schema or migrations | [Database lifecycle](docs/md/operations/database.md) | Migration consistency and upgrade tests |
-| Documentation only | [Documentation hub](docs/md/README.md) | Documentation checks and `git diff --check` |
-| Docker or deployment | [Docker](docs/md/operations/docker.md) and [Automation](docs/md/operations/automation.md) | Image or Compose checks for the affected path |
+| Python pipeline, CLI, classification, or persistence | [Development](docs/guides/development/development.md) | `make check` or its documented `uv` equivalent |
+| Website or UI | [Website](docs/guides/user-guide/website.md) and [Development](docs/guides/development/development.md) | `cd site && bun run ci` |
+| Search configuration | [Search registry](docs/guides/user-guide/search-registry.md) | `uv run opportunities searches` and focused config tests |
+| Database schema or migrations | [Database and lifecycle](docs/guides/operations/database.md) | Migration consistency and upgrade tests |
+| Documentation only | [Documentation hub](docs/README.md) | Documentation checks and `git diff --check` |
+| Docker or deployment | [Docker](docs/guides/operations/docker.md) and [Automation](docs/guides/operations/automation.md) | Image or Compose checks for the affected path |
 
 Run broader checks when a change crosses component boundaries. Documentation-only changes do not require unrelated package builds, migrations, or application tests.
 
@@ -89,7 +94,7 @@ Additional providers, authenticated or browser-based collection, private endpoin
 
 ## Issues and design changes
 
-Search [existing issues](https://github.com/simonesiega/european-tech-opportunities-2027/issues) before opening a duplicate. Use the repository’s issue forms for position suggestions, bug reports, and feature requests; security reports belong in a private GitHub security advisory.
+Search [existing issues](https://github.com/simonesiega/european-tech-opportunities-2027/issues) before opening a duplicate. Use the repository’s issue forms for listing suggestions, bug reports, and feature requests; security reports belong in a private GitHub security advisory.
 
 A useful bug report includes:
 
@@ -130,13 +135,13 @@ Preserve these invariants:
 3. **Acceptance remains strict.** Ambiguous posting date, employment type, role, seniority, or geography means exclusion for new listings; a missing cycle is allowed only for an eligible posting date, while a conflicting explicit cycle is rejected.
 4. **Closure remains conservative.** Search-page absence cannot close a job.
 5. **Search outcomes remain isolated.** A failed search cannot mutate that search’s lifecycle state.
-6. **The README remains bounded.** It contains one opportunity-count marker pair, one opportunity-preview marker pair, and at most ten internships plus ten New Grad positions.
+6. **The README remains bounded.** It contains one opportunity-count marker pair, one opportunity-preview marker pair, and at most five internships plus five New Grad opportunities.
 7. **Source access remains permission-gated and unauthenticated.**
 8. **Requests and processing remain bounded and deterministic.**
 9. **The website remains a read-only projection.**
 10. **The supported workflow retains one canonical writer.**
 
-Read the [architecture guide](docs/md/development/architecture.md) before changing these contracts.
+Read the [architecture guide](docs/guides/development/architecture.md) before changing these contracts.
 
 ## Code expectations
 
@@ -158,7 +163,7 @@ Use UTC-aware timestamps, UTF-8, LF endings, and the project’s Ruff and Pretti
 
 ## Adding or changing a search
 
-The [search registry guide](docs/md/user-guide/search-registry.md) is the canonical reference for YAML fields, query identity, directory conventions, pagination, and limit tiers.
+The [search registry guide](docs/guides/user-guide/search-registry.md) is the canonical reference for YAML fields, query identity, directory conventions, pagination, and limit tiers.
 
 A search contribution must:
 
@@ -190,7 +195,7 @@ Do not require reviewers or CI to contact LinkedIn.
 
 ## Changing classification
 
-Classification configuration lives in `configs/categories.yml`; deterministic logic lives in `src/opportunities/pipeline/classification.py`.
+Classification configuration lives in [`configs/categories.yml`](configs/categories.yml); deterministic logic lives in [`src/opportunities/pipeline/classification.py`](src/opportunities/pipeline/classification.py).
 
 A classification change must:
 
@@ -220,7 +225,7 @@ When a live variation cannot be represented safely, describe the structure priva
 
 ## Database and migrations
 
-The [database lifecycle guide](docs/md/operations/database.md) is the canonical reference for schema, provenance, closure, migrations, backups, and restoration.
+The [database and lifecycle guide](docs/guides/operations/database.md) is the canonical reference for schema, provenance, closure, migrations, backups, and restoration.
 
 A persisted-schema change must:
 
@@ -259,7 +264,7 @@ Authentication, forms, user-provided content, write APIs, saved user data, or ad
 
 ## Testing and validation
 
-Use the [development guide](docs/md/development/development.md) for complete validation paths and focused commands.
+Use the [development guide](docs/guides/development/development.md) for complete validation paths and focused commands.
 
 General expectations:
 
@@ -295,24 +300,31 @@ Live tests remain disabled unless both safety variables are explicitly enabled, 
 
 ## Documentation changes
 
-Task-oriented guides live under `docs/md/`, and visual assets live under `docs/photo/`.
+Task-oriented guides live under `docs/guides/`, and visual assets live under `docs/assets/`. Update the canonical guide whenever behavior changes instead of copying complete procedures into multiple files.
 
-Update the canonical guide whenever behavior changes. Avoid copying complete procedures into several files.
+Documentation changes must:
 
-Keep:
+- use repository-relative links for repository content;
+- link to the canonical guide rather than duplicate its complete procedure;
+- preserve the root README's generated opportunity-count and opportunity-preview markers;
+- never manually edit generated opportunity counts, timestamps, or rows;
+- keep commands executable from their documented working directory;
+- keep referenced heading anchors stable;
+- use descriptive image alt text;
+- use only sanitized images and fixtures without credentials, cookies, personal data, authenticated HTML, private paths, or operational secrets;
+- store screenshots and other visual documentation under `docs/assets/` in the appropriate existing subdirectory;
+- preserve authorization, conservative lifecycle, and one-writer safety semantics in examples;
+- keep public claims aligned with implemented behavior;
+- run documentation validation after changes.
 
-- internal repository links relative;
-- commands executable from their documented working directory;
-- heading anchors stable when other files link to them;
-- image alt text descriptive;
-- public claims aligned with implemented behavior;
-- examples consistent with authorization and one-writer constraints.
+For visible website changes, provide sanitized screenshots only when they help reviewers understand a meaningful interface change. Prefer WebP for new raster documentation assets, show relevant responsive or theme states, and avoid adding decorative or redundant images.
 
-The root README contains one opportunity-count marker pair and one opportunity-preview marker pair. Never edit either generated region manually or reproduce either complete marker pair in examples.
+Never reproduce either complete generated marker pair in examples. Update generated files only through their owning command and representative canonical state.
 
-For documentation-only changes, run the documentation checks and:
+Run:
 
 ```bash
+uv run python scripts/check_docs.py
 git diff --check
 ```
 
@@ -354,13 +366,8 @@ Maintainers may request a smaller pull request when unrelated parser, schema, co
 
 ## Security and community
 
-Report vulnerabilities, authorization bypasses, unsafe network behavior, state-corruption paths, or sensitive-data exposure privately through [`SECURITY.md`](SECURITY.md).
+Report vulnerabilities, authorization bypasses, unsafe network behavior, state-corruption paths, or sensitive-data exposure privately through [`SECURITY.md`](SECURITY.md). Do not include vulnerability details in a public issue or pull request.
 
-Be clear, respectful, and constructive in issues, pull requests, and reviews. Critique code and behavior, not people. Harassment, discriminatory conduct, or pressure to bypass source policies is not acceptable.
-
-Contact:
-
-- GitHub: [@simonesiega](https://github.com/simonesiega)
-- Email: [simonesiega1@gmail.com](mailto:simonesiega1@gmail.com)
+All project interactions must follow the [Code of Conduct](CODE_OF_CONDUCT.md). Conduct reports and security vulnerabilities use separate private reporting processes; follow the policy appropriate to the issue.
 
 Thanks for contributing responsibly.

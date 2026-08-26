@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Automation Guide
 
-[← Documentation](../README.md) · [Database lifecycle](database.md) · [Docker and deployment](docker.md)
+[← Documentation](../../README.md) · [Database lifecycle](database.md) · [Docker and deployment](docker.md)
 
 This guide documents the GitHub Actions workflows that validate the project, collect internship and New Grad data, preserve canonical SQLite state, update the README preview, and optionally deploy validated state to the VPS.
 
@@ -213,7 +213,7 @@ automated/scrape-update        # manually requested scrape only
 
 Only `README.md` is committed. SQLite state is never committed.
 
-The generated block remains bounded to ten recently posted open jobs, regardless of the size of canonical state.
+The generated block remains bounded to five recently posted open opportunities per employment type, regardless of the size of canonical state.
 
 Review and merge the pull request manually. Scheduled runs do not deploy to the VPS. After accepting the pull request, start a manual run from `main` with `deploy_to_vps=true` to publish the reviewed canonical state. Deployment-mode runs skip collection and availability requests, then require the merged README to validate exactly against restored durable SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains in the protected VPS snapshot/cache/artifact/deployment path and is never committed. Do not edit generated rows manually; change the renderer or canonical state instead.
 

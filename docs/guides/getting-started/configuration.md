@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Configuration Guide
 
-[← Documentation](../README.md) · [Installation](installation.md) · [CLI reference](../user-guide/cli.md)
+[← Documentation](../../README.md) · [Installation](installation.md) · [CLI reference](../user-guide/cli.md)
 
 This guide documents how the Python pipeline and Next.js website load configuration, how overrides are resolved, and which settings control paths, search limits, networking, lifecycle behavior, logging, and source authorization.
 

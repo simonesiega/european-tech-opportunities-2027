@@ -17,7 +17,7 @@ SUMMARY_END_MARKER = "<!-- END OPPORTUNITY COUNTS -->"
 BEGIN_MARKER = "<!-- BEGIN OPPORTUNITIES -->"
 END_MARKER = "<!-- END OPPORTUNITIES -->"
 TABLE_HEADER = "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
-README_PREVIEW_LIMIT = 10
+README_PREVIEW_LIMIT = 5
 DIRECTORY_URL = "https://opportunities2027.simonesiega.com/"
 
 
@@ -67,9 +67,9 @@ def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
     return (
         f"{markdown_metadata(metadata, internship_count, new_grad_count)}\n"
         f"Browse and filter the complete directory at **[{DIRECTORY_URL}]({DIRECTORY_URL})**.\n\n"
-        f"### Latest New Grad positions\n\n"
+        f"### Latest New Grad opportunities\n\n"
         f"Showing the {len(new_grad)} most recently posted of {new_grad_count} open "
-        f"New Grad positions:\n\n"
+        f"New Grad opportunities:\n\n"
         f"{markdown_table(new_grad)}\n"
         f"### Latest internships\n\n"
         f"Showing the {len(internships)} most recently posted of {internship_count} open "
@@ -121,7 +121,7 @@ def markdown_metadata(
         else "Never"
     )
     return (
-        f"**Open positions:** {metadata.open_positions} "
+        f"**Open opportunities:** {metadata.open_positions} "
         f"(Internships: {internship_count} · New Grad: {new_grad_count})<br>\n"
         f"**Last successful collection:** {last_collection}\n"
     )

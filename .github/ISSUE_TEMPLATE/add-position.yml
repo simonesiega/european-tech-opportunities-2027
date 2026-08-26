@@ -1,6 +1,6 @@
-name: Add a position
-description: Suggest a European technology internship or New Grad role for the 2027 cycle.
-title: "[Position]: "
+name: Suggest a listing
+description: Suggest a European technology internship or New Grad opportunity for the 2027 cycle.
+title: "[Listing]: "
 body:
   - type: markdown
     attributes:
@@ -54,7 +54,7 @@ body:
     attributes:
       label: Checks
       options:
-        - label: This position is based in Europe and is intended for the 2027 cycle.
+        - label: This opportunity is based in Europe and is intended for the 2027 cycle.
           required: true
         - label: I searched the directory and existing issues for duplicates.
           required: true

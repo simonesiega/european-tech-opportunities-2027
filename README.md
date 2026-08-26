@@ -1,7 +1,7 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
 <p align="center">
-  An open-source directory and data pipeline for discovering 2027 technology internships and New Grad positions across Europe through conservative, rule-based filtering.
+  An open-source opportunity directory and data pipeline for discovering validated 2027 technology internships and New Grad opportunities across Europe.
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
@@ -14,41 +14,43 @@
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
-  <a href="https://opportunities2027.simonesiega.com/"><strong>Open the opportunity directory →</strong></a>
-</p>
-
-<p align="center">
-  <a href="#opportunity-directory"><strong>View the opportunity directory in this README ↓</strong></a>
+  <a href="https://opportunities2027.simonesiega.com/"><strong>Open the searchable opportunity directory →</strong></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml">
     <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml/badge.svg" alt="Python CI status" />
   </a>
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml">
-    <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml/badge.svg" alt="Website CI status" />
-  </a>
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/docker-ci.yml">
-    <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/docker-ci.yml/badge.svg" alt="Docker CI status" />
+  <a href="#python-quality-baseline">
+    <img src="https://img.shields.io/badge/critical_path_coverage-89.9%25_%7C_81.8%25_branches-brightgreen" alt="Critical path coverage: 89.9%, including 81.8% branch coverage" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027" alt="MIT license" />
   </a>
-</p>
-
-<p align="center">
-  <a href="#python-quality-baseline">
-    <img src="https://img.shields.io/badge/critical_path_coverage-89.9%25_%7C_81.8%25_branches-brightgreen" alt="Critical path coverage: 89.9%, including 81.8% branch coverage" />
+  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/stargazers">
+    <img src="https://img.shields.io/github/stars/simonesiega/european-tech-opportunities-2027?style=flat" alt="GitHub stars" />
   </a>
 </p>
 
+## Website preview
+
 <p align="center">
-  <sub>Python 3.12 · TypeScript · Next.js 16 · Tailwind CSS 4 · SQLite · Bun · Docker · GitHub Actions</sub>
+  <img
+    src="docs/assets/sites/White_theme.webp#gh-light-mode-only"
+    alt="Searchable European Tech Opportunities 2027 directory in light mode"
+    width="100%"
+  />
+  <img
+    src="docs/assets/sites/Dark_theme.webp#gh-dark-mode-only"
+    alt="Searchable European Tech Opportunities 2027 directory in dark mode"
+    width="100%"
+  />
 </p>
+
+The live website is the primary user interface. It provides full-text search; Internship and New Grad filtering; company, country, and category filters; sorting; pagination; themes; and direct links to the original listings.
 
 ## Contents
 
-- [Website preview](#website-preview)
 - [Opportunity directory](#opportunity-directory)
 - [Publication rules](#publication-rules)
 - [Why this project exists](#why-this-project-exists)
@@ -61,38 +63,21 @@
 - [License](#license)
 - [Contributors](#contributors)
 
-## Website preview
-
-<p align="center">
-  <img
-    src="docs/photo/sites/White_theme.webp#gh-light-mode-only"
-    alt="European Tech Opportunities directory in light theme"
-    width="100%"
-  />
-  <img
-    src="docs/photo/sites/Dark_theme.webp#gh-dark-mode-only"
-    alt="European Tech Opportunities directory in dark theme"
-    width="100%"
-  />
-</p>
-
-The website is the primary way to use the project. It provides full-text search, an Internship/New Grad filter, company, location, and category filters, sorting, pagination, themes, and direct links to the original listings.
-
 ## Opportunity directory
 
-Browse every internship and New Grad listing currently marked open at [opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/). Coverage is intentionally conservative rather than exhaustive: listings outside the configured searches, or without sufficient explicit evidence, may not appear.
+Browse every open internship and New Grad listing at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. Coverage is intentionally conservative rather than exhaustive: listings outside the configured searches, or without sufficient explicit evidence, may not appear.
 
-The repository shows only the latest ten positions of each employment type so the landing page remains readable as canonical state grows.
+The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open positions:** 685 (Internships: 319 · New Grad: 366)<br>
+**Open opportunities:** 685 (Internships: 319 · New Grad: 366)<br>
 **Last successful collection:** August 26, 2026 at 05:30 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
-### Latest New Grad positions
+### Latest New Grad opportunities
 
-Showing the 10 most recently posted of 366 open New Grad positions:
+Showing the 5 most recently posted of 366 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -101,15 +86,10 @@ Showing the 10 most recently posted of 366 open New Grad positions:
 | Bending Spoons | Graduate AI software engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457198278>) |
 | Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4457401279>) |
 | Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4457198277>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4456888671>) |
-| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4456872697>) |
-| Camino Search | Graduate AI Developer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4455851744>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4456825592>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4456821651>) |
 
 ### Latest internships
 
-Showing the 10 most recently posted of 319 open internships:
+Showing the 5 most recently posted of 319 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -118,16 +98,11 @@ Showing the 10 most recently posted of 319 open internships:
 | Hewlett Packard Enterprise | Cloud Quality Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4457303491>) |
 | UBS | Software Engineer Intern in Digital Operations | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444543872>) |
 | AMCS Group | Software Engineer Internship \(College Placement\) | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4454115675>) |
-| Avelios Medical | Intern Machine Learning \(all genders\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4444527141>) |
-| AUMOVIO | Internship for Software Test Engineer \(Iasi\) | Iași, Braşov, Romania | [View](<https://www.linkedin.com/jobs/view/4456498027>) |
-| Kepstronic | Electrical Engineering Intern | Payerne, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4453469556>) |
-| Monolithic Power Systems, Inc. | Software Engineer Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4456311375>) |
-| Amazon | 2027 Software Dev Engineer Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4455798905>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
 
-Missing a relevant position? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml).
+Missing a relevant opportunity? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml).
 
 ## Publication rules
 
@@ -146,14 +121,14 @@ Ambiguous posting date, employment type, role, seniority, or geography is exclud
 
 ## Why this project exists
 
-General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated positions. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
+General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated listings. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
 
 ## Engineering highlights
 
-- **End-to-end product:** bounded asynchronous Python collection pipeline and a server-rendered TypeScript/Next.js directory.
-- **Deterministic filtering:** explicit rules classify every accepted role as either `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
-- **Reliable lifecycle state:** transactional SQLite persistence with provenance, first/last-seen timestamps, conservative closure handling, and daily full-state availability checks.
-- **Production workflow:** strict typing, thresholded branch coverage with published reports, parsing/classification benchmarks, Alembic migrations, scheduled collection, restore-verified timestamped SQLite snapshots, and atomic deployment.
+- **End-to-end data product:** bounded asynchronous Python collection and a searchable server-rendered TypeScript/Next.js opportunity directory.
+- **Deterministic classification:** explicit rules assign `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
+- **Transactional lifecycle state:** SQLite persistence records provenance, first/last-seen timestamps, isolated search outcomes, conservative closure evidence, and daily full-state availability checks.
+- **Production engineering:** Alembic migrations, scheduled automation, restore-verified timestamped backups, atomic deployment, strict typing, CI across Python/site/containers, thresholded branch coverage, and parsing/classification benchmarks.
 
 ### Python quality baseline
 
@@ -185,14 +160,14 @@ transactional SQLite lifecycle state
 ↓
 ┌──────────────────────┬──────────────────────┐
 │ searchable website   │ README preview       │
-│ all open roles       │ 10/type recent roles │
+│ all open listings    │ 5/type latest rows   │
 └──────────────────────┴──────────────────────┘
 </pre>
 </div>
 
-SQLite is the canonical store. The website and README are read-only projections of accepted jobs and their lifecycle state.
+SQLite is the canonical store. The website and README are read-only projections of accepted listings and their lifecycle state.
 
-See the [architecture guide](docs/md/development/architecture.md) for the complete data flow, component boundaries, and extension policy.
+See the [architecture guide](docs/guides/development/architecture.md) for the complete data flow, component boundaries, and extension policy.
 
 ## Run locally
 
@@ -209,18 +184,18 @@ uv run opportunities stats
 
 A fresh local database is expected to contain no listings. Use the hosted directory for current data.
 
-Continue with the [installation guide](docs/md/getting-started/installation.md) for the local website, Windows commands, Docker, and verification. Runtime settings are documented in [configuration](docs/md/getting-started/configuration.md), and CLI commands in the [CLI reference](docs/md/user-guide/cli.md).
+Continue with the [installation guide](docs/guides/getting-started/installation.md) for the local website, Windows commands, Docker, and verification. Runtime settings are documented in [configuration](docs/guides/getting-started/configuration.md), and CLI commands in the [CLI reference](docs/guides/user-guide/cli.md).
 
 ## Documentation
 
-The [documentation hub](docs/md/README.md) routes users, operators, and contributors to the appropriate guide.
+Use the [documentation hub](docs/README.md) to find the canonical guide for each task.
 
-| Area | Canonical guide |
+| Area | Canonical guides |
 |---|---|
-| Setup and configuration | [Installation](docs/md/getting-started/installation.md) · [Configuration](docs/md/getting-started/configuration.md) |
-| Using the project | [Website](docs/md/user-guide/website.md) · [CLI](docs/md/user-guide/cli.md) · [Search registry](docs/md/user-guide/search-registry.md) |
-| Production operation | [Automation](docs/md/operations/automation.md) · [Database](docs/md/operations/database.md) · [Docker](docs/md/operations/docker.md) · [Troubleshooting](docs/md/operations/troubleshooting.md) |
-| Development | [Architecture](docs/md/development/architecture.md) · [Development guide](docs/md/development/development.md) · [Contributing](CONTRIBUTING.md) |
+| Setup | [Installation](docs/guides/getting-started/installation.md) · [Configuration](docs/guides/getting-started/configuration.md) |
+| Using the project | [Website](docs/guides/user-guide/website.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
+| Production operation | [Automation](docs/guides/operations/automation.md) · [Database](docs/guides/operations/database.md) · [Docker](docs/guides/operations/docker.md) · [Troubleshooting](docs/guides/operations/troubleshooting.md) |
+| Development | [Architecture](docs/guides/development/architecture.md) · [Development](docs/guides/development/development.md) · [Contributing](CONTRIBUTING.md) |
 
 ## Responsible operation
 
@@ -235,7 +210,7 @@ Read [`SECURITY.md`](SECURITY.md) before operating collection infrastructure.
 
 Focused improvements to strict classification, sanitized parser fixtures, search coverage, lifecycle safety, tests, website usability, and documentation are welcome.
 
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request.
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Development Guide
 
-[← Documentation](../README.md) · [Architecture](architecture.md) · [Contributing](../../../CONTRIBUTING.md)
+[← Documentation](../../README.md) · [Architecture](architecture.md) · [Contributing](../../../CONTRIBUTING.md)
 
 This guide covers the local engineering workflow, repository structure, coding standards, tests, fixtures, and validation paths. Contribution policy and pull-request requirements live in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md).
 
@@ -297,13 +297,11 @@ These variables do not grant permission. CI does not run live tests, and an acce
 
 ## README and documentation changes
 
-The root README contains one opportunity-count marker pair and one opportunity-preview marker pair. The renderer owns the open-position metadata, latest successful collection time, website link, and bounded previews of ten internships and ten New Grad positions.
+The root README contains one opportunity-count marker pair and one opportunity-preview marker pair. The renderer owns the opportunity metadata, latest successful collection time, website link, and bounded previews of five internships and five New Grad opportunities.
 
 Do not edit either generated region or reproduce either complete marker pair in examples.
 
-Task-oriented Markdown belongs under `docs/md/`; visual assets belong under `docs/photo/`.
-
-Keep links relative, commands executable from the stated directory, anchors stable, alt text descriptive, and claims aligned with implemented behavior.
+Task-oriented Markdown belongs under `docs/guides/`; visual assets belong under `docs/assets/`. Contributor-facing documentation conventions are canonical in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md#documentation-changes).
 
 Run:
 

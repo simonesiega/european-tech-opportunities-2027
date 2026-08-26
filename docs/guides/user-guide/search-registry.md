@@ -1,12 +1,12 @@
 # European Tech Opportunities 2027 Search Registry Guide
 
-[← Documentation](../README.md) · [CLI reference](cli.md) · [Architecture](../development/architecture.md)
+[← Documentation](../../README.md) · [CLI reference](cli.md) · [Architecture](../development/architecture.md)
 
 The search registry controls **discovery**, not publication. Every new candidate found through LinkedIn guest search must still pass deterministic posting-date, employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
 
 <p align="center">
   <img
-    src="../../photo/internship/Amazon_example.webp"
+    src="../../assets/listings/Amazon_example.webp"
     alt="Example public LinkedIn internship listing used as a discovery candidate"
     width="720"
   />

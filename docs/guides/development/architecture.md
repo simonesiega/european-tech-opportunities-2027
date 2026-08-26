@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Architecture
 
-[← Documentation](../README.md) · [Database lifecycle](../operations/database.md) · [Development guide](development.md)
+[← Documentation](../../README.md) · [Database lifecycle](../operations/database.md) · [Development guide](development.md)
 
 This guide explains the system’s data flow, component boundaries, invariants, failure isolation, canonical state model, and extension policy.
 
@@ -50,7 +50,7 @@ transactional SQLite lifecycle state
 ┌─────────┴─────────┐
 │                   │
 searchable website     README preview
-all open roles         10 recent roles/type
+all open listings      5 latest rows/type
 </pre>
 </div>
 
@@ -101,7 +101,7 @@ Persistence     → canonical jobs and lifecycle evidence
 Projection      → website and README
 ```
 
-The search that found a listing establishes provenance. It does not prove that the listing is a valid 2027 European technology internship or New Grad position.
+The search that found a listing establishes provenance. It does not prove that the listing is a valid 2027 European technology internship or New Grad opportunity.
 
 Search configuration controls where the pipeline looks; classification controls what may be published.
 
@@ -206,7 +206,7 @@ The renderer creates a deterministic bounded projection containing:
 - total open-job count;
 - latest successful collection time;
 - the public website link;
-- at most ten recently posted internships and ten recently posted New Grad positions.
+- at most five recently posted internships and five recently posted New Grad opportunities.
 
 The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically. Validation reconstructs both expected regions from SQLite and requires exact equality.
 

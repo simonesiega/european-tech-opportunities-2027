@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Docker and Deployment Guide
 
-[← Documentation](../README.md) · [Website](../user-guide/website.md) · [Automation](automation.md)
+[← Documentation](../../README.md) · [Website](../user-guide/website.md) · [Automation](automation.md)
 
 This guide documents the project’s Docker image targets, Compose topology, local container workflow, mounts, runtime permissions, Dokploy configuration, and container-specific production behavior.
 
@@ -26,7 +26,7 @@ The root `Dockerfile` produces two final targets:
 
 | Target | Runtime | Responsibility |
 |---|---|---|
-| `opportunities` | Python 3.14.6 with the pinned `uv` 0.12.1 binary | CLI commands, migrations, collection, validation, and README rendering |
+| `opportunities` | Python 3.14.7 with the pinned `uv` 0.12.5 binary | CLI commands, migrations, collection, validation, and README rendering |
 | `site` | Node 26 Alpine with Next.js standalone output | Read-only website server on port `3000` |
 
 Both final images run as an unprivileged user:

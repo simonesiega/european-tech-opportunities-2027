@@ -8,12 +8,12 @@ from pathlib import Path
 
 def test_workflow_checker_validates_only_the_local_workflow_overview(tmp_path: Path) -> None:
     script_dir = tmp_path / "scripts"
-    guide = tmp_path / "docs" / "md" / "operations" / "automation.md"
+    guide = tmp_path / "docs" / "guides" / "operations" / "automation.md"
     workflow_dir = tmp_path / ".github" / "workflows"
     script_dir.mkdir()
     guide.parent.mkdir(parents=True)
     workflow_dir.mkdir(parents=True)
-    for name in ("README.md", "CONTRIBUTING.md", "SECURITY.md"):
+    for name in ("README.md", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md"):
         (tmp_path / name).write_text(f"# {name}\n", encoding="utf-8")
     shutil.copyfile(
         Path(__file__).parents[2] / "scripts" / "check_docs.py", script_dir / "check_docs.py"

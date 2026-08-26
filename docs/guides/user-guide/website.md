@@ -1,8 +1,8 @@
 # European Tech Opportunities 2027 Website Guide
 
-[← Documentation](../README.md) · [Open the live site](https://opportunities2027.simonesiega.com/)
+[← Documentation](../../README.md) · [Open the live site](https://opportunities2027.simonesiega.com/)
 
-The [live website](https://opportunities2027.simonesiega.com/) is the project’s primary public interface. It displays every currently open internship and New Grad position in canonical SQLite state, while the root README intentionally shows bounded previews for both types.
+The [live website](https://opportunities2027.simonesiega.com/) is the project’s primary public interface. It displays every currently open internship and New Grad opportunity in canonical SQLite state, while the root README intentionally shows bounded previews for both types.
 
 ## Contents
 
@@ -23,12 +23,12 @@ The [live website](https://opportunities2027.simonesiega.com/) is the project’
 
 <p align="center">
   <img
-    src="../../photo/sites/White_theme.webp"
+    src="../../assets/sites/White_theme.webp"
     alt="European Tech Opportunities directory in light theme"
     width="49%"
   />
   <img
-    src="../../photo/sites/Dark_theme.webp"
+    src="../../assets/sites/Dark_theme.webp"
     alt="European Tech Opportunities directory in dark theme"
     width="49%"
   />
@@ -43,7 +43,7 @@ The directory provides:
 - light and dark themes stored as browser preferences;
 - direct links to public source listings;
 - shareable filter URLs;
-- the current open-role count;
+- the current open-opportunity count;
 - the latest successful collection time.
 
 The website supports browsing and comparison only. Applications are completed through the original employer or LinkedIn listing.

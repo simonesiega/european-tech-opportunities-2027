@@ -1,27 +1,6 @@
-<h1 align="center">
-  Security Policy
-</h1>
+# Security Policy
 
-<p align="center">
-  Responsible disclosure and security boundaries for European Tech Opportunities 2027.
-</p>
-
-<p align="center">
-  <img
-    src="https://img.shields.io/badge/security-private%20reporting-red"
-    alt="Private vulnerability reporting"
-  />
-  <img
-    src="https://img.shields.io/badge/supported-main%20%7C%20latest%20release-brightgreen"
-    alt="Supported versions: main and latest release"
-  />
-  <a href="LICENSE">
-    <img
-      src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027?color=blue"
-      alt="MIT license"
-    />
-  </a>
-</p>
+Responsible disclosure and security boundaries for European Tech Opportunities 2027.
 
 ## Contents
 
@@ -119,7 +98,7 @@ read-only website + bounded README preview
 | Automation | Offline validation CI remains separate from permission-gated collection; restricted VPS snapshots are checksum- and restore-verified |
 | Containers | Unprivileged processes and explicit mounts do not expand source authorization |
 
-The detailed runtime behavior is documented in the [architecture](docs/md/development/architecture.md), [configuration](docs/md/getting-started/configuration.md), [database](docs/md/operations/database.md), [automation](docs/md/operations/automation.md), and [Docker](docs/md/operations/docker.md) guides.
+The detailed runtime behavior is documented in the [architecture](docs/guides/development/architecture.md), [configuration](docs/guides/getting-started/configuration.md), [database](docs/guides/operations/database.md), [automation](docs/guides/operations/automation.md), and [Docker](docs/guides/operations/docker.md) guides.
 
 ### Source-access boundary
 

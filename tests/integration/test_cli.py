@@ -36,7 +36,7 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
         "<!-- END OPPORTUNITIES -->\n",
         encoding="utf-8",
     )
-    docs_path = tmp_path / "docs" / "md" / "user-guide" / "search-registry.md"
+    docs_path = tmp_path / "docs" / "guides" / "user-guide" / "search-registry.md"
     docs_path.parent.mkdir(parents=True)
     docs_path.write_text(
         "# Search registry\n\n```text\nconfigs/searches/\n"

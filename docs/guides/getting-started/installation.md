@@ -1,6 +1,6 @@
 # European Tech Opportunities 2027 Installation Guide
 
-[← Documentation](../README.md) · [Configuration](configuration.md) · [Open the opportunity directory](https://opportunities2027.simonesiega.com/)
+[← Documentation](../../README.md) · [Configuration](configuration.md) · [Open the opportunity directory](https://opportunities2027.simonesiega.com/)
 
 You do not need to install the project to browse internships. Use the [live directory](https://opportunities2027.simonesiega.com/).
 
