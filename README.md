@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 26, 2026 at 05:30 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-685-2563eb?style=for-the-badge" alt="Total opportunities: 685" />
-  <img src="https://img.shields.io/badge/Internships-319-16a34a?style=for-the-badge" alt="Internships: 319" />
-  <img src="https://img.shields.io/badge/New%20Grad-366-9333ea?style=for-the-badge" alt="New Grad opportunities: 366" />
+  <strong>Last updated: August 27, 2026 at 15:30 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-698-2563eb?style=for-the-badge" alt="Total opportunities: 698" />
+  <img src="https://img.shields.io/badge/Internships-323-16a34a?style=for-the-badge" alt="Internships: 323" />
+  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New Grad opportunities: 375" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 685 (Internships: 319 · New Grad: 366)<br>
-**Last successful collection:** August 26, 2026 at 05:30 UTC
+**Open opportunities:** 698 (Internships: 323 · New Grad: 375)<br>
+**Last successful collection:** August 27, 2026 at 15:30 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 366 open New Grad opportunities:
+Showing the 5 most recently posted of 375 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| European Tech Recruit | Graduate Software Engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4458717567>) |
-| IBM | Technical Engineering Seller - Entry Level Sales Program 2027 | Markham, Wales, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4456548380>) |
-| Bending Spoons | Graduate AI software engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457198278>) |
-| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4457401279>) |
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4457198277>) |
+| Haystack | Graduate Software Engineer | Bristol, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459692842>) |
+| Valeo | Graduate Embedded AI Engineer - 12 month Fixed Term Contract | Tuam, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4459800048>) |
+| Coesia S.p.A. | Machine Learning Engineer - YPP \(Graduate Program\) | Metropolitan City of Bologna, Emilia-Romagna, Italy | [View](<https://www.linkedin.com/jobs/view/4457221683>) |
+| Aiimi | Graduate Data Engineer / Analyst \(Power Platform\) | Milton Keynes, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457947746>) |
+| Bending Spoons | Graduate software engineer | Padua, Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4457912047>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 319 open internships:
+Showing the 5 most recently posted of 323 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Hilti Deutschland | Internship / Working Student – Smart Visualization Technologies &amp; Embedded Systems \(m/f/d\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4458005118>) |
+| kuafu | Software Engineering Intern | Dübendorf, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4459145876>) |
+| Capgemini | Intern DevOps Engineer \(Cloud\) | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4459168317>) |
+| WorkflowTime | Software Engineer Intern | Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4456542083>) |
 | Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4458246752>) |
-| Infineon Technologies | Internship - Software Developer for Test Engineering \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4457815724>) |
-| Hewlett Packard Enterprise | Cloud Quality Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4457303491>) |
-| UBS | Software Engineer Intern in Digital Operations | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4444543872>) |
-| AMCS Group | Software Engineer Internship \(College Placement\) | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4454115675>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
