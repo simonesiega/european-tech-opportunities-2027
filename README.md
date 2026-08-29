@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 27, 2026 at 15:30 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-698-2563eb?style=for-the-badge" alt="Total opportunities: 698" />
-  <img src="https://img.shields.io/badge/Internships-323-16a34a?style=for-the-badge" alt="Internships: 323" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New Grad opportunities: 375" />
+  <strong>Last updated: August 29, 2026 at 11:08 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-647-2563eb?style=for-the-badge" alt="Total opportunities: 647" />
+  <img src="https://img.shields.io/badge/Internships-304-16a34a?style=for-the-badge" alt="Internships: 304" />
+  <img src="https://img.shields.io/badge/New%20Grad-343-9333ea?style=for-the-badge" alt="New Grad opportunities: 343" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 698 (Internships: 323 · New Grad: 375)<br>
-**Last successful collection:** August 27, 2026 at 15:30 UTC
+**Open opportunities:** 647 (Internships: 304 · New Grad: 343)<br>
+**Last successful collection:** August 29, 2026 at 11:08 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 375 open New Grad opportunities:
+Showing the 5 most recently posted of 343 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Haystack | Graduate Software Engineer | Bristol, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459692842>) |
-| Valeo | Graduate Embedded AI Engineer - 12 month Fixed Term Contract | Tuam, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4459800048>) |
-| Coesia S.p.A. | Machine Learning Engineer - YPP \(Graduate Program\) | Metropolitan City of Bologna, Emilia-Romagna, Italy | [View](<https://www.linkedin.com/jobs/view/4457221683>) |
-| Aiimi | Graduate Data Engineer / Analyst \(Power Platform\) | Milton Keynes, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4457947746>) |
-| Bending Spoons | Graduate software engineer | Padua, Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4457912047>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4459454734>) |
+| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4459442817>) |
+| Verisure | Tech Graduate - Embedded Software Engineer | Pozuelo de Alarcón, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4458410639>) |
+| Gjensidige | Graduate innen Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4458414406>) |
+| Projective Talent \| Part of Projective Group | Graduate Master Program: Junior Software Engineer \(.NET\) | Antwerp, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4458093329>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 323 open internships:
+Showing the 5 most recently posted of 304 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Stripe | Software Engineer, Intern \(Summer\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460586029>) |
+| Cerved | Data Science Internship | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4458420182>) |
+| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4460340088>) |
+| ELCA Group | Internship Software Engineering: Python &amp; AI Agents \(Business Process Automation\) | Bern, Berne, Switzerland | [View](<https://www.linkedin.com/jobs/view/4458928805>) |
 | Hilti Deutschland | Internship / Working Student – Smart Visualization Technologies &amp; Embedded Systems \(m/f/d\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4458005118>) |
-| kuafu | Software Engineering Intern | Dübendorf, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4459145876>) |
-| Capgemini | Intern DevOps Engineer \(Cloud\) | Wrocław, Dolnośląskie, Poland | [View](<https://www.linkedin.com/jobs/view/4459168317>) |
-| WorkflowTime | Software Engineer Intern | Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4456542083>) |
-| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4458246752>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
