@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 29, 2026 at 11:08 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-647-2563eb?style=for-the-badge" alt="Total opportunities: 647" />
-  <img src="https://img.shields.io/badge/Internships-304-16a34a?style=for-the-badge" alt="Internships: 304" />
-  <img src="https://img.shields.io/badge/New%20Grad-343-9333ea?style=for-the-badge" alt="New Grad opportunities: 343" />
+  <strong>Last updated: August 30, 2026 at 10:19 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-652-2563eb?style=for-the-badge" alt="Total opportunities: 652" />
+  <img src="https://img.shields.io/badge/Internships-302-16a34a?style=for-the-badge" alt="Internships: 302" />
+  <img src="https://img.shields.io/badge/New%20Grad-350-9333ea?style=for-the-badge" alt="New Grad opportunities: 350" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,26 +70,26 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 647 (Internships: 304 · New Grad: 343)<br>
-**Last successful collection:** August 29, 2026 at 11:08 UTC
+**Open opportunities:** 652 (Internships: 302 · New Grad: 350)<br>
+**Last successful collection:** August 30, 2026 at 10:19 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 343 open New Grad opportunities:
+Showing the 5 most recently posted of 350 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4459454734>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4459442817>) |
-| Verisure | Tech Graduate - Embedded Software Engineer | Pozuelo de Alarcón, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4458410639>) |
-| Gjensidige | Graduate innen Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4458414406>) |
-| Projective Talent \| Part of Projective Group | Graduate Master Program: Junior Software Engineer \(.NET\) | Antwerp, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4458093329>) |
+| EPAM Systems | Junior Software Engineer \(Graduate\) | Newry, Northern Ireland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459707697>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459498287>) |
+| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459481435>) |
+| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4459703205>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4459498288>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 304 open internships:
+Showing the 5 most recently posted of 302 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
