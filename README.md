@@ -6,9 +6,9 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 30, 2026 at 10:19 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-652-2563eb?style=for-the-badge" alt="Total opportunities: 652" />
-  <img src="https://img.shields.io/badge/Internships-302-16a34a?style=for-the-badge" alt="Internships: 302" />
+  <strong>Last updated: August 31, 2026 at 10:44 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-646-2563eb?style=for-the-badge" alt="Total opportunities: 646" />
+  <img src="https://img.shields.io/badge/Internships-296-16a34a?style=for-the-badge" alt="Internships: 296" />
   <img src="https://img.shields.io/badge/New%20Grad-350-9333ea?style=for-the-badge" alt="New Grad opportunities: 350" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
@@ -70,8 +70,8 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 652 (Internships: 302 · New Grad: 350)<br>
-**Last successful collection:** August 30, 2026 at 10:19 UTC
+**Open opportunities:** 646 (Internships: 296 · New Grad: 350)<br>
+**Last successful collection:** August 31, 2026 at 10:44 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
@@ -81,23 +81,23 @@ Showing the 5 most recently posted of 350 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4459487337>) |
 | EPAM Systems | Junior Software Engineer \(Graduate\) | Newry, Northern Ireland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459707697>) |
 | Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459498287>) |
 | Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459481435>) |
 | Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4459703205>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4459498288>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 302 open internships:
+Showing the 5 most recently posted of 296 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Deloitte | Cyber Security Intern - Start date as of February 2027 | Luxembourg, Luxembourg, Luxembourg | [View](<https://www.linkedin.com/jobs/view/4458882666>) |
+| Hewlett Packard Enterprise | Software Engineering Intern | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4458236584>) |
 | Stripe | Software Engineer, Intern \(Summer\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460586029>) |
-| Cerved | Data Science Internship | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4458420182>) |
 | Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4460340088>) |
 | ELCA Group | Internship Software Engineering: Python &amp; AI Agents \(Business Process Automation\) | Bern, Berne, Switzerland | [View](<https://www.linkedin.com/jobs/view/4458928805>) |
-| Hilti Deutschland | Internship / Working Student – Smart Visualization Technologies &amp; Embedded Systems \(m/f/d\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4458005118>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
