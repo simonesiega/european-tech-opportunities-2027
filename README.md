@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: August 31, 2026 at 10:44 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-646-2563eb?style=for-the-badge" alt="Total opportunities: 646" />
-  <img src="https://img.shields.io/badge/Internships-296-16a34a?style=for-the-badge" alt="Internships: 296" />
-  <img src="https://img.shields.io/badge/New%20Grad-350-9333ea?style=for-the-badge" alt="New Grad opportunities: 350" />
+  <strong>Last updated: September 1, 2026 at 09:55 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-659-2563eb?style=for-the-badge" alt="Total opportunities: 659" />
+  <img src="https://img.shields.io/badge/Internships-295-16a34a?style=for-the-badge" alt="Internships: 295" />
+  <img src="https://img.shields.io/badge/New%20Grad-364-9333ea?style=for-the-badge" alt="New Grad opportunities: 364" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,26 +70,26 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 646 (Internships: 296 · New Grad: 350)<br>
-**Last successful collection:** August 31, 2026 at 10:44 UTC
+**Open opportunities:** 659 (Internships: 295 · New Grad: 364)<br>
+**Last successful collection:** September 1, 2026 at 09:55 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 350 open New Grad opportunities:
+Showing the 5 most recently posted of 364 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4459487337>) |
-| EPAM Systems | Junior Software Engineer \(Graduate\) | Newry, Northern Ireland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459707697>) |
-| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459498287>) |
-| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4459481435>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4459703205>) |
+| Kingfisher Recruitment | Young Graduate Cloud Engineer | Zwevegem, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4459289526>) |
+| Stripe | Software Engineer, New Grad | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4461530764>) |
+| Stripe | Software Engineer, New Grad | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461550377>) |
+| Stripe | Software Engineer, New Grad - Frontend | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4461536634>) |
+| Cisco | Software Engineer - Graduate - Lysaker, Norway | Norway | [View](<https://www.linkedin.com/jobs/view/4460031780>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 296 open internships:
+Showing the 5 most recently posted of 295 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
