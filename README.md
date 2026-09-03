@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 2, 2026 at 09:00 UTC</strong><br>
+  <strong>Last updated: September 3, 2026 at 09:13 UTC</strong><br>
   <img src="https://img.shields.io/badge/Total%20opportunities-658-2563eb?style=for-the-badge" alt="Total opportunities: 658" />
-  <img src="https://img.shields.io/badge/Internships-294-16a34a?style=for-the-badge" alt="Internships: 294" />
-  <img src="https://img.shields.io/badge/New%20Grad-364-9333ea?style=for-the-badge" alt="New Grad opportunities: 364" />
+  <img src="https://img.shields.io/badge/Internships-299-16a34a?style=for-the-badge" alt="Internships: 299" />
+  <img src="https://img.shields.io/badge/New%20Grad-359-9333ea?style=for-the-badge" alt="New Grad opportunities: 359" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 658 (Internships: 294 · New Grad: 364)<br>
-**Last successful collection:** September 2, 2026 at 09:00 UTC
+**Open opportunities:** 658 (Internships: 299 · New Grad: 359)<br>
+**Last successful collection:** September 3, 2026 at 09:13 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 364 open New Grad opportunities:
+Showing the 5 most recently posted of 359 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Stripe | Software Engineer, New Grad | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4461530764>) |
-| Stripe | Software Engineer, New Grad | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461550377>) |
-| Stripe | Software Engineer, New Grad - Frontend | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4461536634>) |
-| Cisco | Software Engineer - Graduate - Lysaker, Norway | Norway | [View](<https://www.linkedin.com/jobs/view/4460031780>) |
-| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4459760721>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4461355424>) |
+| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461357380>) |
+| Cisco | Graduate Software Engineer | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4462416733>) |
+| Radius | Graduate Java Developer | Crewe, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462034488>) |
+| Today Digital | Graduate Front-End Web Developer \(AI &amp; Product Innovation\) | Manchester, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4461709325>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 294 open internships:
+Showing the 5 most recently posted of 299 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Thales | Software Engineering Intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4462424656>) |
+| Antares Vision Group | SOFTWARE DEVELOPER INTERN | Travagliato, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4460993978>) |
+| Novo Nordisk | Intern | Ballerup Municipality, Capital Region of Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4459954335>) |
+| Perplexity | Internship - Machine Learning Research Engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4460982190>) |
 | Hewlett Packard Enterprise | Cloud Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4462069905>) |
-| Deloitte | Cyber Security Intern - Start date as of February 2027 | Luxembourg, Luxembourg, Luxembourg | [View](<https://www.linkedin.com/jobs/view/4458882666>) |
-| Hewlett Packard Enterprise | Software Engineering Intern | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4458236584>) |
-| Stripe | Software Engineer, Intern \(Summer\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460586029>) |
-| Software Mind | Intern AI-Driven Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4460340088>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
