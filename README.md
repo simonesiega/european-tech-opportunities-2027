@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 3, 2026 at 09:13 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-658-2563eb?style=for-the-badge" alt="Total opportunities: 658" />
-  <img src="https://img.shields.io/badge/Internships-299-16a34a?style=for-the-badge" alt="Internships: 299" />
-  <img src="https://img.shields.io/badge/New%20Grad-359-9333ea?style=for-the-badge" alt="New Grad opportunities: 359" />
+  <strong>Last updated: September 4, 2026 at 09:07 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
+  <img src="https://img.shields.io/badge/Internships-308-16a34a?style=for-the-badge" alt="Internships: 308" />
+  <img src="https://img.shields.io/badge/New%20Grad-383-9333ea?style=for-the-badge" alt="New Grad opportunities: 383" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 658 (Internships: 299 · New Grad: 359)<br>
-**Last successful collection:** September 3, 2026 at 09:13 UTC
+**Open opportunities:** 691 (Internships: 308 · New Grad: 383)<br>
+**Last successful collection:** September 4, 2026 at 09:07 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 359 open New Grad opportunities:
+Showing the 5 most recently posted of 383 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4461355424>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461357380>) |
-| Cisco | Graduate Software Engineer | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4462416733>) |
-| Radius | Graduate Java Developer | Crewe, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462034488>) |
-| Today Digital | Graduate Front-End Web Developer \(AI &amp; Product Innovation\) | Manchester, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4461709325>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461940335>) |
+| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461676844>) |
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4461689668>) |
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4461660057>) |
+| Bending Spoons | Graduate data scientist | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4461650186>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 299 open internships:
+Showing the 5 most recently posted of 308 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Thales | Software Engineering Intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4462424656>) |
-| Antares Vision Group | SOFTWARE DEVELOPER INTERN | Travagliato, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4460993978>) |
-| Novo Nordisk | Intern | Ballerup Municipality, Capital Region of Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4459954335>) |
-| Perplexity | Internship - Machine Learning Research Engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4460982190>) |
-| Hewlett Packard Enterprise | Cloud Engineer - Intern Conversion | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4462069905>) |
+| AMD | Spring 2027 AI Software Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460758406>) |
+| Alta Ares | DevOps Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4462853211>) |
+| Google | Data Science PhD Intern, 2027 | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4461667196>) |
+| Google | Software Engineering, Site Reliability Engineering BS/MS Intern, 2027 | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461660276>) |
+| Google | Software Engineering, Site Reliability Engineering BS/MS Intern, 2027 | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461656367>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
