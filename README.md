@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 4, 2026 at 09:07 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
-  <img src="https://img.shields.io/badge/Internships-308-16a34a?style=for-the-badge" alt="Internships: 308" />
-  <img src="https://img.shields.io/badge/New%20Grad-383-9333ea?style=for-the-badge" alt="New Grad opportunities: 383" />
+  <strong>Last updated: September 5, 2026 at 08:49 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-696-2563eb?style=for-the-badge" alt="Total opportunities: 696" />
+  <img src="https://img.shields.io/badge/Internships-306-16a34a?style=for-the-badge" alt="Internships: 306" />
+  <img src="https://img.shields.io/badge/New%20Grad-390-9333ea?style=for-the-badge" alt="New Grad opportunities: 390" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 691 (Internships: 308 · New Grad: 383)<br>
-**Last successful collection:** September 4, 2026 at 09:07 UTC
+**Open opportunities:** 696 (Internships: 306 · New Grad: 390)<br>
+**Last successful collection:** September 5, 2026 at 08:49 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 383 open New Grad opportunities:
+Showing the 5 most recently posted of 390 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461940335>) |
-| Bending Spoons | Graduate data scientist | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461676844>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4461689668>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4461660057>) |
-| Bending Spoons | Graduate data scientist | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4461650186>) |
+| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4462353687>) |
+| Bending Spoons | Graduate software engineer | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462361635>) |
+| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4462354697>) |
+| Bending Spoons | Graduate software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4462364658>) |
+| Bending Spoons | Graduate software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4462356668>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 308 open internships:
+Showing the 5 most recently posted of 306 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Cisco | Software Engineer Intern | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4463390487>) |
 | AMD | Spring 2027 AI Software Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460758406>) |
 | Alta Ares | DevOps Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4462853211>) |
 | Google | Data Science PhD Intern, 2027 | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4461667196>) |
 | Google | Software Engineering, Site Reliability Engineering BS/MS Intern, 2027 | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461660276>) |
-| Google | Software Engineering, Site Reliability Engineering BS/MS Intern, 2027 | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461656367>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
