@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 5, 2026 at 08:49 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-696-2563eb?style=for-the-badge" alt="Total opportunities: 696" />
-  <img src="https://img.shields.io/badge/Internships-306-16a34a?style=for-the-badge" alt="Internships: 306" />
-  <img src="https://img.shields.io/badge/New%20Grad-390-9333ea?style=for-the-badge" alt="New Grad opportunities: 390" />
+  <strong>Last updated: September 6, 2026 at 09:04 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
+  <img src="https://img.shields.io/badge/Internships-305-16a34a?style=for-the-badge" alt="Internships: 305" />
+  <img src="https://img.shields.io/badge/New%20Grad-386-9333ea?style=for-the-badge" alt="New Grad opportunities: 386" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,14 +70,14 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 696 (Internships: 306 · New Grad: 390)<br>
-**Last successful collection:** September 5, 2026 at 08:49 UTC
+**Open opportunities:** 691 (Internships: 305 · New Grad: 386)<br>
+**Last successful collection:** September 6, 2026 at 09:04 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 390 open New Grad opportunities:
+Showing the 5 most recently posted of 386 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -89,7 +89,7 @@ Showing the 5 most recently posted of 390 open New Grad opportunities:
 
 ### Latest internships
 
-Showing the 5 most recently posted of 306 open internships:
+Showing the 5 most recently posted of 305 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
