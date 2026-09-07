@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 6, 2026 at 09:04 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-691-2563eb?style=for-the-badge" alt="Total opportunities: 691" />
-  <img src="https://img.shields.io/badge/Internships-305-16a34a?style=for-the-badge" alt="Internships: 305" />
-  <img src="https://img.shields.io/badge/New%20Grad-386-9333ea?style=for-the-badge" alt="New Grad opportunities: 386" />
+  <strong>Last updated: September 7, 2026 at 09:38 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-694-2563eb?style=for-the-badge" alt="Total opportunities: 694" />
+  <img src="https://img.shields.io/badge/Internships-306-16a34a?style=for-the-badge" alt="Internships: 306" />
+  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 691 (Internships: 305 · New Grad: 386)<br>
-**Last successful collection:** September 6, 2026 at 09:04 UTC
+**Open opportunities:** 694 (Internships: 306 · New Grad: 388)<br>
+**Last successful collection:** September 7, 2026 at 09:38 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 386 open New Grad opportunities:
+Showing the 5 most recently posted of 388 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Analog Devices | FY27 Software Engineering Graduate Opportunities | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4461869241>) |
+| Analog Devices | FY27 Software Engineering Graduate Opportunities | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4461863220>) |
+| Analog Devices | FY27 Software Engineering Graduate Opportunities | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4461878231>) |
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4462360661>) |
 | Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4462353687>) |
-| Bending Spoons | Graduate software engineer | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462361635>) |
-| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4462354697>) |
-| Bending Spoons | Graduate software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4462364658>) |
-| Bending Spoons | Graduate software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4462356668>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 305 open internships:
+Showing the 5 most recently posted of 306 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Workwize | Data &amp; AI Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4464061283>) |
+| GMV | Internship: Software engineer | Tres Cantos, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4463395243>) |
+| Inbolt | R&amp;D Computer Vision Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461157475>) |
 | Cisco | Software Engineer Intern | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4463390487>) |
 | AMD | Spring 2027 AI Software Intern | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4460758406>) |
-| Alta Ares | DevOps Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4462853211>) |
-| Google | Data Science PhD Intern, 2027 | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4461667196>) |
-| Google | Software Engineering, Site Reliability Engineering BS/MS Intern, 2027 | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4461660276>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
