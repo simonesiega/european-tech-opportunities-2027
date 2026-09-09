@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 8, 2026 at 09:16 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-690-2563eb?style=for-the-badge" alt="Total opportunities: 690" />
-  <img src="https://img.shields.io/badge/Internships-311-16a34a?style=for-the-badge" alt="Internships: 311" />
-  <img src="https://img.shields.io/badge/New%20Grad-379-9333ea?style=for-the-badge" alt="New Grad opportunities: 379" />
+  <strong>Last updated: September 9, 2026 at 09:18 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-695-2563eb?style=for-the-badge" alt="Total opportunities: 695" />
+  <img src="https://img.shields.io/badge/Internships-309-16a34a?style=for-the-badge" alt="Internships: 309" />
+  <img src="https://img.shields.io/badge/New%20Grad-386-9333ea?style=for-the-badge" alt="New Grad opportunities: 386" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 690 (Internships: 311 · New Grad: 379)<br>
-**Last successful collection:** September 8, 2026 at 09:16 UTC
+**Open opportunities:** 695 (Internships: 309 · New Grad: 386)<br>
+**Last successful collection:** September 9, 2026 at 09:18 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 379 open New Grad opportunities:
+Showing the 5 most recently posted of 386 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4462985629>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4462998495>) |
-| Gaming Realms | Junior QA Engineer \(Graduate\) | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462982107>) |
-| HP | Graduate Data Engineer | Sant Cugat del Vallès, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4464368050>) |
-| Dawn Meats | Graduate Business Intelligence Developer | County Waterford, Ireland | [View](<https://www.linkedin.com/jobs/view/4462964528>) |
+| Bending Spoons | Graduate AI software engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4463573789>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4463568967>) |
+| Yelp | Entry Level - Site Reliability Engineer \(Remote - Ireland\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4464668259>) |
+| DNV | Graduate 2027 - Data Scientist | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4462546263>) |
+| Monolithic Power Systems, Inc. | Software Engineer - New Grad | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4464477941>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 311 open internships:
+Showing the 5 most recently posted of 309 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Datadog | Software Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464641058>) |
+| Datadog | Software Engineering Intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4464629903>) |
 | SANOVIO | Software Engineering Intern \(Full-Stack\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4464444810>) |
 | GoTo | DevOps Intern | Hungary | [View](<https://www.linkedin.com/jobs/view/4464410162>) |
 | Criteo | Product Data Science &amp; AI Agents Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464358910>) |
-| Workwize | Data &amp; AI Intern | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4464061283>) |
-| GMV | Internship: Software engineer | Tres Cantos, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4463395243>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
