@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 10, 2026 at 09:17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-698-2563eb?style=for-the-badge" alt="Total opportunities: 698" />
-  <img src="https://img.shields.io/badge/Internships-308-16a34a?style=for-the-badge" alt="Internships: 308" />
-  <img src="https://img.shields.io/badge/New%20Grad-390-9333ea?style=for-the-badge" alt="New Grad opportunities: 390" />
+  <strong>Last updated: September 11, 2026 at 09:32 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-722-2563eb?style=for-the-badge" alt="Total opportunities: 722" />
+  <img src="https://img.shields.io/badge/Internships-319-16a34a?style=for-the-badge" alt="Internships: 319" />
+  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="New Grad opportunities: 403" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 698 (Internships: 308 · New Grad: 390)<br>
-**Last successful collection:** September 10, 2026 at 09:17 UTC
+**Open opportunities:** 722 (Internships: 319 · New Grad: 403)<br>
+**Last successful collection:** September 11, 2026 at 09:32 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 390 open New Grad opportunities:
+Showing the 5 most recently posted of 403 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate software engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4464193113>) |
-| Bending Spoons | Graduate software engineer | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4464190162>) |
-| Bending Spoons | Graduate AI software engineer | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4464192116>) |
-| Bending Spoons | Graduate software engineer | Belgrade, Serbia | [View](<https://www.linkedin.com/jobs/view/4464194105>) |
-| Bending Spoons | Graduate software engineer | Novi Sad, Vojvodina, Serbia | [View](<https://www.linkedin.com/jobs/view/4464189201>) |
+| RedTech Recruitment | Data Engineer – Graduate Considered | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462297775>) |
+| Telent Technology Services Ltd | Graduate Software Engineer | Warwick, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4465828797>) |
+| Sentry | Software Engineer, New Grad \(2027\) | Innere Stadt, Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4465830359>) |
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464501054>) |
+| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4464501056>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 308 open internships:
+Showing the 5 most recently posted of 319 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| NVIDIA | Software Engineering Intern — Replay Tooling &amp; Test Automation, Autonomous Driving | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4464148620>) |
-| Qube Research &amp; Technologies | 2027 Internship/Graduate - Infrastructure Engineering | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4465079776>) |
-| Qualcomm | AI Research Internship 2027 | Greater Madrid Metropolitan Area | [View](<https://www.linkedin.com/jobs/view/4463857787>) |
-| Datadog | Software Engineering Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464641058>) |
-| Datadog | Software Engineering Intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4464629903>) |
+| NVIDIA | System Software Engineering Intern, GPU - 2027 | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4464805707>) |
+| Sentry | Software Engineer, Intern \(Summer 2027\) | Innere Stadt, Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4465837296>) |
+| TNO | Internship \| Computer Vision in Limited Data Real-World Settings | Delft, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4465807905>) |
+| Antares Vision Group | SOFTWARE DEVELOPER INTERN | Travagliato, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464569243>) |
+| Motorola Solutions | Intern Software Developer \(C#\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4465683644>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
