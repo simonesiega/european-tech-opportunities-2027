@@ -15,6 +15,16 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# Install the reviewed Debian security revisions exactly. Version pins keep the
+# runtime reproducible while the base-image digest catches up with the archive.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends --only-upgrade \
+        gzip=1.13-1+deb13u1 \
+        libpcre2-8-0=10.46-1~deb13u2 \
+        libsqlite3-0=3.46.1-7+deb13u2 \
+        perl-base=5.40.1-6+deb13u1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Cache Python dependencies independently from application source.
 COPY pyproject.toml uv.lock README.md LICENSE ./
 RUN uv sync --frozen --no-dev --no-install-project
@@ -72,9 +82,16 @@ ENV NODE_ENV=production \
     SITE_URL=https://opportunities2027.simonesiega.com \
     OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db
 
-# Omit npm, which the standalone server does not use. Security updates come from
-# the immutable, reviewed base-image digest rather than mutable package repositories.
-RUN rm -rf /usr/local/lib/node_modules/npm \
+# Install exact security revisions until they are incorporated into the pinned
+# base image, then omit npm because the standalone server does not use it.
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends --only-upgrade \
+        gzip=1.13-1+deb13u1 \
+        libpcre2-8-0=10.46-1~deb13u2 \
+        libsqlite3-0=3.46.1-7+deb13u2 \
+        perl-base=5.40.1-6+deb13u1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/lib/node_modules/npm \
     && rm -f /usr/local/bin/npm /usr/local/bin/npx \
     && groupadd --system --gid 10001 nodejs \
     && useradd --system --uid 10001 --gid nodejs --home-dir /app --no-create-home nextjs \

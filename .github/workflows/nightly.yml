@@ -2,7 +2,7 @@ name: Nightly full update
 
 on:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "23 4 * * *"
 
 concurrency:
   group: opportunity-collection
@@ -199,8 +199,22 @@ jobs:
           git add README.md
           git commit -m "data: nightly availability and scrape update"
           git push --force-with-lease --set-upstream origin "$branch"
-          if [ -z "$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')" ]; then
+          pr_number=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')
+          if [ -z "$pr_number" ]; then
             gh pr create --title "data: nightly availability and scrape update" \
-              --body "Nightly full update: every stored public listing was checked for 404/410 responses and explicit closure alerts before collection ran. Merge remains manual." \
+              --body "Nightly full update: every stored public listing was checked for 404/410 responses and explicit closure alerts before collection ran. The pull request automatically merges after required checks pass." \
               --base main --head "$branch"
+            pr_number=$(gh pr list --head "$branch" --base main --state open --json number --jq '.[0].number')
           fi
+          if [ -z "$pr_number" ]; then
+            echo "Could not identify the nightly pull request."
+            exit 1
+          fi
+          safe_to_merge=$(gh pr view "$pr_number" \
+            --json baseRefName,headRefName,title,files \
+            --jq '(.baseRefName == "main") and (.headRefName == "automated/nightly-full-update") and (.title == "data: nightly availability and scrape update") and ([.files[].path] == ["README.md"])')
+          if [ "$safe_to_merge" != "true" ]; then
+            echo "Nightly pull request failed the automatic-merge safety check."
+            exit 1
+          fi
+          gh pr merge "$pr_number" --auto --squash
