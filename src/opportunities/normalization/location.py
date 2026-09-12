@@ -1,11 +1,11 @@
-"""Conservative European location and workplace normalization."""
+"""Conservative European location detection and display normalization."""
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 
-from opportunities.utils.text import clean_text, normalized_key
+from opportunities.utils.text import clean_text, contains_normalized_phrase, normalized_key
 
 EUROPEAN_COUNTRY_CODES = frozenset(
     {
@@ -161,8 +161,12 @@ _NON_EUROPEAN_MARKERS = frozenset(
         "india",
         "new hampshire",
         "new york",
+        "non europe",
+        "non european",
         "ohio",
         "ontario",
+        "outside europe",
+        "outside of europe",
         "san francisco",
         "seattle",
         "singapore",
@@ -198,16 +202,16 @@ def normalize_locations(values: list[str]) -> LocationResult:
         key = normalized_key(raw_value)
         uppercase_codes = set(re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", raw_value))
         has_non_european_marker = bool(uppercase_codes & _NON_EUROPEAN_REGION_CODES) or any(
-            _contains_phrase(key, marker) for marker in _NON_EUROPEAN_MARKERS
+            contains_normalized_phrase(key, marker) for marker in _NON_EUROPEAN_MARKERS
         )
         for alias, country_code in _COUNTRY_ALIASES.items():
-            if _contains_phrase(key, alias):
+            if contains_normalized_phrase(key, alias):
                 codes.add(country_code)
         # City-only inference is a fallback. A clear non-European country or market
         # qualifier prevents namesakes such as London, Ontario from becoming UK evidence.
         if not has_non_european_marker:
             for city, country_code in _CITY_COUNTRIES.items():
-                if _contains_phrase(key, city):
+                if contains_normalized_phrase(key, city):
                     codes.add(country_code)
         # Two-letter codes are recognized only when the source writes uppercase ISO
         # tokens. Lowercased matching would mistake common words such as "at" or "it"
@@ -215,7 +219,9 @@ def normalize_locations(values: list[str]) -> LocationResult:
         for code in uppercase_codes:
             if code in EUROPEAN_COUNTRY_CODES:
                 codes.add(code)
-        if any(marker in key for marker in ("europe", "european union", "emea")):
+        if any(
+            contains_normalized_phrase(key, marker) for marker in ("europe", "european", "emea")
+        ):
             europe_signal = True
         if has_non_european_marker:
             non_europe_signal = True
@@ -228,11 +234,6 @@ def normalize_locations(values: list[str]) -> LocationResult:
         europe_signal=europe_signal,
         non_europe_signal=non_europe_signal,
     )
-
-
-def _contains_phrase(text: str, phrase: str) -> bool:
-    """Check whether normalized text contains a complete phrase."""
-    return bool(re.search(rf"(?:^|\s){re.escape(phrase)}(?:$|\s)", text))
 
 
 def _normalize_display_location(value: str) -> str:

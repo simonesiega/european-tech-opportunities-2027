@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.utils.text import clean_text
+from opportunities.utils.time import ensure_utc
 from opportunities.utils.url import canonicalize_url, validate_linkedin_job_url
 
 
@@ -30,8 +31,10 @@ class DiscoveredJob(BaseModel):
     @field_validator("company", "title", "location", mode="before")
     @classmethod
     def normalize_text(cls, value: object) -> str:
-        """Normalize required job text fields."""
-        cleaned = clean_text(str(value))
+        """Normalize required job text fields without coercing other types."""
+        if not isinstance(value, str):
+            raise ValueError("job text fields must be strings")
+        cleaned = clean_text(value)
         if not cleaned:
             raise ValueError("job text fields cannot be empty")
         return cleaned
@@ -50,6 +53,12 @@ class DiscoveredJob(BaseModel):
         """Canonicalize the job application URL."""
         return canonicalize_url(value)
 
+    @field_validator("posted_at")
+    @classmethod
+    def normalize_posted_at(cls, value: datetime | None) -> datetime | None:
+        """Normalize optional posting evidence to aware UTC."""
+        return ensure_utc(value) if value is not None else None
+
     @model_validator(mode="after")
     def validate_link_identity(self) -> DiscoveredJob:
         """Ensure the published link belongs to the canonical LinkedIn job ID."""
@@ -64,3 +73,9 @@ class StoredJob(DiscoveredJob):
     last_seen_at: datetime
     updated_at: datetime
     status: JobStatus
+
+    @field_validator("first_seen_at", "last_seen_at", "updated_at")
+    @classmethod
+    def normalize_lifecycle_timestamps(cls, value: datetime) -> datetime:
+        """Normalize persisted lifecycle timestamps to aware UTC."""
+        return ensure_utc(value)

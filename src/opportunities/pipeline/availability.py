@@ -1,8 +1,7 @@
-"""Full-state job detail-page availability auditing."""
+"""Full-state public-page and detail-page availability auditing."""
 
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -10,13 +9,14 @@ from typing import Protocol
 from opportunities.config.settings import Settings
 from opportunities.database.repository import Repository
 from opportunities.models.job import StoredJob
-from opportunities.scrapers.http import FetchError, HttpFetcher
-from opportunities.scrapers.linkedin import (
+from opportunities.scrapers.http import (
     LINKEDIN_DETAIL_ENDPOINT,
     LINKEDIN_PUBLIC_JOB_URL,
-    has_closed_application_notice,
-    validate_job_detail_page,
+    FetchError,
+    HttpFetcher,
 )
+from opportunities.scrapers.linkedin import has_closed_application_notice, validate_job_detail_page
+from opportunities.utils.concurrency import map_concurrently
 from opportunities.utils.time import utc_now
 
 
@@ -89,33 +89,31 @@ async def _audit_jobs(
     observed_at: datetime,
 ) -> AvailabilityAuditResult:
     """Fetch all public and guest-detail pages before one atomic database mutation."""
-    semaphore = asyncio.Semaphore(max_concurrency)
 
     async def check(job: StoredJob) -> tuple[str, str]:
-        async with semaphore:
-            try:
-                public_html = await fetcher.get_text(
-                    LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id)
-                )
-                if has_closed_application_notice(public_html):
-                    return job.linkedin_job_id, "unavailable"
+        try:
+            public_html = await fetcher.get_text(
+                LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id)
+            )
+            if has_closed_application_notice(public_html):
+                return job.linkedin_job_id, "unavailable"
 
-                # A public page can be a generic shell, so retain the existing identity
-                # check before using the absence of a closure alert as availability proof.
-                detail_html = await fetcher.get_text(
-                    LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id)
-                )
-                validate_job_detail_page(detail_html)
-            except FetchError as exc:
-                if exc.status_code in {404, 410}:
-                    return job.linkedin_job_id, "unavailable"
-                return job.linkedin_job_id, "inconclusive"
-            except Exception:
-                # Keep unexpected provider/client failures from deleting valid rows.
-                return job.linkedin_job_id, "inconclusive"
-            return job.linkedin_job_id, "available"
+            # A public page can be a generic shell, so retain the existing identity
+            # check before using the absence of a closure alert as availability proof.
+            detail_html = await fetcher.get_text(
+                LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id)
+            )
+            validate_job_detail_page(detail_html)
+        except FetchError as exc:
+            if exc.status_code in {404, 410}:
+                return job.linkedin_job_id, "unavailable"
+            return job.linkedin_job_id, "inconclusive"
+        except Exception:
+            # Keep unexpected provider/client failures from deleting valid rows.
+            return job.linkedin_job_id, "inconclusive"
+        return job.linkedin_job_id, "available"
 
-    outcomes = await asyncio.gather(*(check(job) for job in jobs))
+    outcomes = await map_concurrently(jobs, check, limit=max_concurrency)
     available_ids = tuple(job_id for job_id, state in outcomes if state == "available")
     unavailable_ids = tuple(job_id for job_id, state in outcomes if state == "unavailable")
     inconclusive_ids = tuple(job_id for job_id, state in outcomes if state == "inconclusive")

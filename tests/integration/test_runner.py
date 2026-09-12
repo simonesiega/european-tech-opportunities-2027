@@ -17,6 +17,11 @@ from opportunities.scrapers.http import FetchError
 from opportunities.scrapers.linkedin import LinkedInScrapeResult, TextFetcher
 
 
+class UnexpectedFetcher:
+    async def get_text(self, url: str) -> str:
+        raise AssertionError(f"unexpected network request: {url}")
+
+
 class FakeScraper:
     async def scrape(
         self,
@@ -69,7 +74,7 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
         rules=rules,
         scraper=FakeScraper(),
     )
-    result = asyncio.run(pipeline.run([search, failing], fetcher=object()))  # type: ignore[arg-type]
+    result = asyncio.run(pipeline.run([search, failing], fetcher=UnexpectedFetcher()))
     assert result.successful_searches == 1
     assert result.failed_searches == 1
     assert result.found == 2
@@ -101,7 +106,7 @@ def test_targeted_run_keeps_full_registry_enabled(
         pipeline.run(
             [search],
             configured_searches=[search, second],
-            fetcher=object(),  # type: ignore[arg-type]
+            fetcher=UnexpectedFetcher(),
         )
     )
 

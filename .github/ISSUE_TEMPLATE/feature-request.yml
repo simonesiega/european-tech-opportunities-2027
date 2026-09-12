@@ -49,7 +49,7 @@ body:
     id: boundaries
     attributes:
       label: Architecture and safety impact
-      description: Note effects on read-only website access, canonical state, source authorization, privacy, or deployment.
+      description: Note effects on read-only website access, canonical state, lifecycle behavior, source authorization, privacy, compatibility, or deployment. Write “None” when no boundary is affected.
     validations:
       required: true
 
@@ -60,5 +60,7 @@ body:
       options:
         - label: I searched existing issues and documentation.
           required: true
-        - label: This proposal does not depend on unauthorized source access.
+        - label: This proposal preserves permission-gated, unauthenticated, and bounded source access.
+          required: true
+        - label: This proposal preserves canonical SQLite state and the website's read-only contract, or clearly explains a requested architecture change above.
           required: true

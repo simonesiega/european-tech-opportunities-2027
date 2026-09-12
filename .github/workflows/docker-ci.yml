@@ -12,9 +12,24 @@ permissions:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
+      - name: Lint GitHub Actions workflows
+        run: |
+          docker run --rm --volume "$PWD:/repo:ro" --workdir /repo \
+            rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+
+      - name: Lint Dockerfile
+        run: |
+          docker run --rm --interactive \
+            hadolint/hadolint:v2.15.1-debian@sha256:9a3944b7fddcb947d1ffd90829ac1a6e5c30479223358f249d8b96c7d0019e27 \
+            < Dockerfile
+
+      # Runtime containers use UID/GID 10001, so the host bind mount must match.
       - name: Prepare CI database bind mount
         run: |
           sudo install -d -m 2770 -o 10001 -g 10001 /srv/european-tech-opportunities-2027/data
@@ -22,10 +37,29 @@ jobs:
       - name: Build production images
         run: docker compose build
 
+      # Fail on actionable findings; unfixed distribution CVEs have no build-time remedy.
+      - name: Scan images for fixable high and critical vulnerabilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          cache_volume="trivy-cache-${GITHUB_RUN_ID}"
+          trap 'docker volume rm --force "$cache_volume" >/dev/null 2>&1 || true' EXIT
+          docker volume create "$cache_volume" >/dev/null
+
+          for image in \
+            european-tech-opportunities-2027-cli:local \
+            european-tech-opportunities-2027-site:local; do
+            docker run --rm \
+              --volume /var/run/docker.sock:/var/run/docker.sock \
+              --volume "${cache_volume}:/root/.cache/trivy" \
+              aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
+              image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
+          done
+
       - name: Check CLI image
         run: docker compose run --rm opportunities --help
 
-      - name: Check automatic migration and site database access
+      - name: Check migration, site database access, and production headers
         run: |
           trap 'docker compose down --volumes' EXIT
 
@@ -35,7 +69,7 @@ jobs:
           fi
 
           for _ in $(seq 1 10); do
-            if docker compose exec --no-TTY site node -e "fetch('http://127.0.0.1:3000').then(response => process.exit(response.ok ? 0 : 1))"; then
+            if docker compose exec --no-TTY site node -e "fetch('http://127.0.0.1:3000').then(response => { const csp = response.headers.get('content-security-policy') ?? ''; const hsts = response.headers.get('strict-transport-security') ?? ''; process.exit(response.ok && csp.includes(\"default-src 'self'\") && hsts.includes('max-age=63072000') ? 0 : 1); }).catch(() => process.exit(1))"; then
               exit 0
             fi
             sleep 1

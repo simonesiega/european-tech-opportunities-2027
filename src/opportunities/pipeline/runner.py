@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import time
 import uuid
 from collections.abc import Callable
@@ -24,6 +23,7 @@ from opportunities.normalization.title import normalize_title
 from opportunities.pipeline.classification import Classifier
 from opportunities.scrapers.http import FetchError, HttpFetcher
 from opportunities.scrapers.linkedin import LinkedInScraper, LinkedInScrapeResult, TextFetcher
+from opportunities.utils.concurrency import map_concurrently
 from opportunities.utils.time import utc_now
 
 Clock = Callable[[], datetime]
@@ -114,7 +114,8 @@ class CollectionPipeline:
         """Run selected searches and persist isolated outcomes."""
         if not searches:
             raise ValueError("no enabled LinkedIn searches matched the selection")
-        self.repository.sync_searches(configured_searches or searches, self.clock())
+        registry = searches if configured_searches is None else configured_searches
+        self.repository.sync_searches(registry, self.clock())
         if fetcher is None:
             async with HttpFetcher(self.settings) as managed:
                 outcomes = await self._fetch_all(searches, managed)
@@ -231,47 +232,45 @@ class CollectionPipeline:
         self, searches: list[LinkedInSearchConfig], fetcher: TextFetcher
     ) -> list[SearchOutcome]:
         """Run selected searches concurrently within configured limits."""
-        # Limit complete search workflows, not only individual HTTP calls, so parsing
-        # and database lookups cannot create an unbounded number of active tasks.
-        semaphore = asyncio.Semaphore(self.settings.max_concurrency)
 
         async def fetch(search: LinkedInSearchConfig) -> SearchOutcome:
             """Collect one search while isolating its errors."""
-            async with semaphore:
-                run_id = str(uuid.uuid4())
-                started_at = self.clock()
-                started = time.monotonic()
-                try:
-                    result = await self.scraper.scrape(
-                        search,
-                        fetcher,
-                        known_jobs=self.repository.known_jobs(search.slug),
-                    )
-                    return SearchOutcome(
-                        search=search,
-                        run_id=run_id,
-                        started_at=started_at,
-                        finished_at=self.clock(),
-                        duration_ms=round((time.monotonic() - started) * 1000),
-                        result=result,
-                    )
-                except FetchError as exc:
-                    code, message = exc.code, str(exc)
-                except (ValidationError, ValueError) as exc:
-                    code, message = "invalid_html", f"LinkedIn HTML rejected: {type(exc).__name__}"
-                # Preserve batch progress for unexpected provider/parser failures while
-                # keeping potentially sensitive exception details out of persisted logs.
-                except Exception as exc:
-                    code, message = "unexpected", f"unexpected failure: {type(exc).__name__}"
+            run_id = str(uuid.uuid4())
+            started_at = self.clock()
+            started = time.monotonic()
+            try:
+                result = await self.scraper.scrape(
+                    search,
+                    fetcher,
+                    known_jobs=self.repository.known_jobs(search.slug),
+                )
                 return SearchOutcome(
                     search=search,
                     run_id=run_id,
                     started_at=started_at,
                     finished_at=self.clock(),
                     duration_ms=round((time.monotonic() - started) * 1000),
-                    result=None,
-                    error_code=code,
-                    error_message=message,
+                    result=result,
                 )
+            except FetchError as exc:
+                code, message = exc.code, str(exc)
+            except (ValidationError, ValueError) as exc:
+                code, message = "invalid_html", f"LinkedIn HTML rejected: {type(exc).__name__}"
+            # Preserve batch progress for unexpected provider/parser failures while
+            # keeping potentially sensitive exception details out of persisted logs.
+            except Exception as exc:
+                code, message = "unexpected", f"unexpected failure: {type(exc).__name__}"
+            return SearchOutcome(
+                search=search,
+                run_id=run_id,
+                started_at=started_at,
+                finished_at=self.clock(),
+                duration_ms=round((time.monotonic() - started) * 1000),
+                result=None,
+                error_code=code,
+                error_message=message,
+            )
 
-        return list(await asyncio.gather(*(fetch(search) for search in searches)))
+        # Bound complete workflows, including parsing and database lookups, rather
+        # than creating one waiting task for every configured search.
+        return await map_concurrently(searches, fetch, limit=self.settings.max_concurrency)

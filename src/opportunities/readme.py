@@ -30,7 +30,7 @@ class ReadmeMetadata:
 
 
 def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -> None:
-    """Replace exactly one generated block without touching surrounding documentation."""
+    """Replace both generated regions without touching surrounding documentation."""
     if not path.is_file():
         raise ValueError(f"README does not exist: {path}")
     content = path.read_text(encoding="utf-8")
@@ -50,7 +50,6 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
         + SUMMARY_END_MARKER
         + content[summary_end + len(SUMMARY_END_MARKER) :]
     )
-    # Summary replacement does not change the offsets of the later opportunity block.
     begin, end = _marker_bounds(content)
     before = content[:begin]
     after = content[end + len(END_MARKER) :]

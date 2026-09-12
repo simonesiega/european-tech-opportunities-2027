@@ -1,8 +1,9 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
+# Pin every external build image by digest to keep supply-chain inputs reproducible.
 FROM ghcr.io/astral-sh/uv:0.12.11@sha256:79c6f4776b851471cc73b7d21d0cc834bb94383c292e83640d27eff512864df7 AS uv
 
-FROM python:3.14.7-slim-bookworm@sha256:9ab8d9c8514b44f90cf0029dd42fdd7e9e211e639c8b995304cc04568dee900f AS opportunities
+FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6 AS opportunities
 
 COPY --from=uv /uv /uvx /usr/local/bin/
 
@@ -24,6 +25,8 @@ COPY configs ./configs
 COPY src ./src
 
 RUN uv sync --frozen --no-dev \
+    && rm -rf /usr/local/lib/python*/site-packages/pip* \
+    && rm -f /usr/local/bin/pip* /usr/local/bin/uv /usr/local/bin/uvx \
     && groupadd --gid 10001 opportunities \
     && useradd \
         --uid 10001 \
@@ -35,18 +38,20 @@ RUN uv sync --frozen --no-dev \
     && mkdir -p /app/data /workspace \
     && chown -R opportunities:opportunities /app /workspace
 
-USER opportunities
-ENTRYPOINT ["uv", "run", "--no-sync", "opportunities"]
+# Runtime executes the installed console script without package-manager tooling.
+USER 10001:10001
+ENTRYPOINT ["/app/.venv/bin/opportunities"]
 CMD ["--help"]
 
 
+# Bun installs locked dependencies in a disposable stage; only build output reaches runtime.
 FROM oven/bun:1.4.2-alpine@sha256:d888c0ae6c86d7866ff10c5aafdd9077b36aee6455b33dd270fb93c0dd5cef6f AS site-deps
 WORKDIR /app
 COPY site/package.json site/bun.lock ./
 RUN bun install --frozen-lockfile
 
 
-FROM node:26-alpine@sha256:725aeba2364a9b16beae49e180d83bd597dbd0b15c47f1f28875c290bfd255b9 AS site-builder
+FROM node:26-alpine@sha256:ef24c5053d50fdc3e4e56eb4e7ddb7861874ab0fdc797046ba897581deb8e868 AS site-builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG SITE_URL=https://opportunities2027.simonesiega.com
@@ -57,7 +62,7 @@ COPY site ./
 RUN bun run build
 
 
-FROM node:26-alpine@sha256:725aeba2364a9b16beae49e180d83bd597dbd0b15c47f1f28875c290bfd255b9 AS site
+FROM node:26-trixie-slim@sha256:14bf3eac4bf209d906d3c41256597d3ab1f926b2e93a79e9bdfe1efd32454239 AS site
 WORKDIR /app
 
 ENV NODE_ENV=production \
@@ -67,8 +72,12 @@ ENV NODE_ENV=production \
     SITE_URL=https://opportunities2027.simonesiega.com \
     OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db
 
-RUN addgroup --system --gid 10001 nodejs \
-    && adduser --system --uid 10001 --ingroup nodejs nextjs \
+# Omit npm, which the standalone server does not use. Security updates come from
+# the immutable, reviewed base-image digest rather than mutable package repositories.
+RUN rm -rf /usr/local/lib/node_modules/npm \
+    && rm -f /usr/local/bin/npm /usr/local/bin/npx \
+    && groupadd --system --gid 10001 nodejs \
+    && useradd --system --uid 10001 --gid nodejs --home-dir /app --no-create-home nextjs \
     && mkdir -p /app/data \
     && chown nextjs:nodejs /app/data
 
@@ -76,5 +85,5 @@ COPY --from=site-builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=site-builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 EXPOSE 3000
-USER nextjs
+USER 10001:10001
 CMD ["node", "server.js"]

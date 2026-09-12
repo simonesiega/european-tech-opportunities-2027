@@ -1,10 +1,11 @@
 name: Suggest a listing
-description: Suggest a European technology internship or New Grad opportunity for the 2027 cycle.
+description: Suggest a public LinkedIn listing for a European technology internship or New Grad role.
 title: "[Listing]: "
 body:
   - type: markdown
     attributes:
-      value: Thanks for helping keep the directory useful and up to date.
+      value: |
+        Thanks for helping improve discovery. Suggestions are reviewed against the project's strict publication rules and are not inserted directly into the canonical database. Do not include personal data, credentials, cookies, or authenticated/private HTML.
 
   - type: dropdown
     id: employment-type
@@ -36,7 +37,17 @@ body:
     id: location
     attributes:
       label: Location
-      placeholder: City, Country or Remote
+      description: Provide the explicit European city and country shown on the listing; “Remote” alone is insufficient.
+      placeholder: Dublin, Ireland
+    validations:
+      required: true
+
+  - type: input
+    id: posted-date
+    attributes:
+      label: Posting date
+      description: Provide the date displayed by LinkedIn. Eligible listings must have been posted on or after May 1, 2026.
+      placeholder: YYYY-MM-DD
     validations:
       required: true
 
@@ -44,7 +55,7 @@ body:
     id: application-url
     attributes:
       label: Public LinkedIn listing URL
-      description: Use the unauthenticated HTTPS listing URL without tracking parameters.
+      description: Use a public, unauthenticated HTTPS /jobs/view/<numeric-id> URL without tracking parameters.
       placeholder: https://www.linkedin.com/jobs/view/1234567890
     validations:
       required: true
@@ -54,7 +65,11 @@ body:
     attributes:
       label: Checks
       options:
-        - label: This opportunity is based in Europe and is intended for the 2027 cycle.
+        - label: The title explicitly identifies this as an Internship or New Grad opportunity in a technology role.
+          required: true
+        - label: The listing has explicit European location evidence and no conflicting cycle information.
           required: true
         - label: I searched the directory and existing issues for duplicates.
+          required: true
+        - label: I opened the URL without signing in and removed tracking parameters.
           required: true

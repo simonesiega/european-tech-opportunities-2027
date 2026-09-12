@@ -14,16 +14,18 @@ jobs:
   verify-recovery:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      UV_NO_DEV: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          persist-credentials: false
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.11.6"
           python-version: "3.12"
           enable-cache: true
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --no-dev
 
       - name: Restore canonical SQLite cache accelerator
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -83,7 +85,8 @@ jobs:
           fi
           if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
             || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
-            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] \
+            || ((10#$VPS_PORT < 1 || 10#$VPS_PORT > 65535)); then
             echo "VPS bootstrap configuration is invalid."
             exit 1
           fi
@@ -92,6 +95,11 @@ jobs:
             "${VPS_USER}@${VPS_HOST}" \
             "cat /srv/european-tech-opportunities-2027/data/opportunities.db" \
             > data/opportunities.db
+
+      - name: Remove live-database bootstrap credential
+        if: always()
+        shell: bash
+        run: rm -f "$HOME/.ssh/id_ed25519"
 
       - name: Migrate and validate recovered state
         run: |
@@ -127,4 +135,4 @@ jobs:
       - name: Remove SSH credentials
         if: always()
         shell: bash
-        run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+        run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/known_hosts"

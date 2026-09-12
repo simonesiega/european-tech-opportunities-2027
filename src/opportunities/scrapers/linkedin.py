@@ -1,4 +1,4 @@
-"""Single active scraper for LinkedIn's unauthenticated public jobs HTML."""
+"""Bounded collector and parser for LinkedIn's unauthenticated public job HTML."""
 
 from __future__ import annotations
 
@@ -17,13 +17,15 @@ from pydantic import ValidationError
 from opportunities.config.policy import MINIMUM_POSTED_AT
 from opportunities.models.raw import MAX_DESCRIPTION_CHARS, KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
-from opportunities.scrapers.http import FetchError
-from opportunities.utils.text import clean_text, normalized_key
+from opportunities.scrapers.http import (
+    LINKEDIN_DETAIL_ENDPOINT,
+    LINKEDIN_PUBLIC_JOB_URL,
+    LINKEDIN_SEARCH_ENDPOINT,
+    FetchError,
+)
+from opportunities.utils.text import clean_text, contains_normalized_phrase, normalized_key
 from opportunities.utils.time import ensure_utc, utc_now
 
-LINKEDIN_SEARCH_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-LINKEDIN_DETAIL_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
-LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 LINKEDIN_PAGE_SIZE = 25
 _JOB_ID_RE = re.compile(r"jobPosting:([0-9]{1,30})$")
 _RELATIVE_POSTED_RE = re.compile(
@@ -159,7 +161,9 @@ def parse_search_page(html: str) -> SearchPageResult:
     soup = BeautifulSoup(html, "html.parser")
     cards: list[LinkedInSearchCard] = []
     warnings: list[str] = []
-    nodes = soup.select("[data-entity-urn*='urn:li:jobPosting:']")
+    nodes = soup.select("[data-entity-urn*='urn:li:jobPosting:']", limit=LINKEDIN_PAGE_SIZE + 1)
+    if len(nodes) > LINKEDIN_PAGE_SIZE:
+        raise LinkedInPayloadError("LinkedIn search page exceeds the 25-card page limit")
     for node in nodes:
         if not isinstance(node, Tag):
             continue
@@ -195,12 +199,17 @@ def parse_job_detail(
     card: LinkedInSearchCard,
     *,
     observed_at: datetime | None = None,
+    require_identity: bool = False,
 ) -> RawJob:
-    """Parse a LinkedIn detail page with card data as fallback."""
+    """Parse a detail page, optionally requiring identity instead of card fallback."""
     _reject_blocked_document(html)
     soup = BeautifulSoup(html, "html.parser")
-    title = _optional_text(soup, ".top-card-layout__title, .topcard__title") or card.title
-    company = _optional_text(soup, ".topcard__org-name-link") or card.company
+    detail_title = _optional_text(soup, ".top-card-layout__title, .topcard__title")
+    detail_company = _optional_text(soup, ".topcard__org-name-link")
+    if require_identity and (not detail_title or not detail_company):
+        raise LinkedInPayloadError("LinkedIn detail page is missing listing identity fields")
+    title = detail_title or card.title
+    company = detail_company or card.company
     location = (
         _optional_text(
             soup,
@@ -280,7 +289,10 @@ def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime |
     if match is None:
         return None
     duration = _RELATIVE_POSTED_UNITS[match.group("unit").casefold()]
-    return ensure_utc(observed_at) - int(match.group("count")) * duration
+    try:
+        return ensure_utc(observed_at) - int(match.group("count")) * duration
+    except (OverflowError, ValueError):
+        return None
 
 
 def _extract_criterion(soup: BeautifulSoup, expected_heading: str) -> str | None:
@@ -330,9 +342,8 @@ class LinkedInScraper:
         clock: Callable[[], datetime] = utc_now,
     ) -> None:
         """Initialize the instance dependencies and state."""
-        self._opportunity_title_patterns = tuple(
-            re.compile(rf"(?:^|\s){re.escape(normalized_key(term))}(?:$|\s)")
-            for term in (*internship_title_terms, *new_grad_title_terms)
+        self._opportunity_title_terms = tuple(
+            normalized_key(term) for term in (*internship_title_terms, *new_grad_title_terms)
         )
         self._clock = clock
         # Searches overlap heavily, so share each in-flight detail request by job ID.
@@ -379,7 +390,7 @@ class LinkedInScraper:
                 card
                 for card in parsed.cards
                 if _company_allowed(card.company, allowed_companies)
-                and _title_allowed(card.title, self._opportunity_title_patterns)
+                and _title_allowed(card.title, self._opportunity_title_terms)
             ]
             for card in page_cards:
                 cards.setdefault(card.job_id, card)
@@ -416,8 +427,8 @@ class LinkedInScraper:
                 "LinkedIn search rejected: most job detail pages were malformed"
             )
 
-        # Bound rechecks deterministically by job ID so repeated runs inspect the same
-        # subset until those jobs are observed again or explicitly become unavailable.
+        # Bound rechecks deterministically by job ID. Collection revisits the same
+        # lowest-ID absent subset; the separate full-state audit covers every stored job.
         absent_known = sorted(
             (job for job in known_jobs if job.source_job_id not in cards),
             key=lambda job: job.source_job_id,
@@ -432,7 +443,16 @@ class LinkedInScraper:
             )
             try:
                 html = await self._detail(known.source_job_id, fetcher)
-                positions.append(parse_job_detail(html, fallback, observed_at=observed_at))
+                # Unlike a current search card, this fallback is synthesized from stored
+                # state, so the response itself must prove that the listing still exists.
+                positions.append(
+                    parse_job_detail(
+                        html,
+                        fallback,
+                        observed_at=observed_at,
+                        require_identity=True,
+                    )
+                )
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
@@ -473,7 +493,7 @@ class LinkedInScraper:
 
 
 def _posting_is_eligible(posted_at: datetime | None) -> bool:
-    """Allow only listings with posting evidence on or after the fixed cutoff."""
+    """Check whether posting evidence satisfies the fixed publication cutoff."""
     return posted_at is not None and ensure_utc(posted_at) >= MINIMUM_POSTED_AT
 
 
@@ -491,10 +511,10 @@ def _optional_text(node: BeautifulSoup | Tag, selector: str) -> str:
     return clean_text(selected.get_text(" ", strip=True)) if isinstance(selected, Tag) else ""
 
 
-def _title_allowed(title: str, patterns: tuple[re.Pattern[str], ...]) -> bool:
+def _title_allowed(title: str, terms: tuple[str, ...]) -> bool:
     """Check whether a search-card title has a supported opportunity term."""
     key = normalized_key(title)
-    return any(pattern.search(key) for pattern in patterns)
+    return any(contains_normalized_phrase(key, term) for term in terms)
 
 
 def _company_allowed(company: str, allowed_companies: frozenset[str]) -> bool:

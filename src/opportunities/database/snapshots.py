@@ -31,7 +31,7 @@ class SnapshotError(ValueError):
 
 @dataclass(frozen=True)
 class PreviousSnapshot:
-    """Reference the immutable database and manifest preceding a snapshot."""
+    """Reference the previous immutable database and manifest."""
 
     database_key: str
     manifest_key: str
@@ -39,7 +39,7 @@ class PreviousSnapshot:
 
 @dataclass(frozen=True)
 class Retention:
-    """Describe the restricted storage policy that retains a snapshot."""
+    """Describe snapshot retention metadata for restricted storage."""
 
     policy: str
     days: int

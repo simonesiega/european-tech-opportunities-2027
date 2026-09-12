@@ -72,7 +72,7 @@ class SearchHealth:
 
 
 class Repository:
-    """Use one short SQLite transaction per completed LinkedIn search."""
+    """Own short SQLite transactions for canonical lifecycle mutations."""
 
     def __init__(self, factory: sessionmaker[Session], settings: Settings) -> None:
         """Initialize the instance dependencies and state."""
@@ -278,7 +278,7 @@ class Repository:
         return AvailabilityChanges(deleted=deleted, reopened=reopened)
 
     def stats(self) -> DatabaseStats:
-        """Display aggregate pipeline and database statistics."""
+        """Return aggregate pipeline and database statistics."""
         with self.factory() as session:
             total = session.scalar(select(func.count()).select_from(JobRow)) or 0
             opened = (

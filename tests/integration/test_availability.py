@@ -12,8 +12,11 @@ from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCat
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.pipeline.availability import audit_job_availability
-from opportunities.scrapers.http import FetchError
-from opportunities.scrapers.linkedin import LINKEDIN_DETAIL_ENDPOINT, LINKEDIN_PUBLIC_JOB_URL
+from opportunities.scrapers.http import (
+    LINKEDIN_DETAIL_ENDPOINT,
+    LINKEDIN_PUBLIC_JOB_URL,
+    FetchError,
+)
 
 
 class FakeAvailabilityFetcher:

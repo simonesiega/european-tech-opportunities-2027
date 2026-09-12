@@ -8,9 +8,8 @@ import pytest
 
 from opportunities.models.raw import KnownJob
 from opportunities.models.search import LinkedInSearchConfig
-from opportunities.scrapers.http import FetchError
+from opportunities.scrapers.http import LINKEDIN_DETAIL_ENDPOINT, FetchError
 from opportunities.scrapers.linkedin import (
-    LINKEDIN_DETAIL_ENDPOINT,
     LinkedInPayloadError,
     LinkedInScraper,
     build_search_url,
@@ -55,6 +54,20 @@ def test_linkedin_search_page_parser_extracts_stable_cards(
     assert [card.job_id for card in result.cards] == ["1111111111", "2222222222"]
     assert result.cards[0].company == "Test Technology"
     assert result.cards[0].application_url == ("https://www.linkedin.com/jobs/view/1111111111")
+
+
+def test_linkedin_search_page_rejects_more_than_one_page_of_cards() -> None:
+    cards = "".join(
+        f"""<div data-entity-urn="urn:li:jobPosting:{1_000_000_000 + index}">
+          <h3 class="base-search-card__title">Software Intern 2027</h3>
+          <h4 class="base-search-card__subtitle">Example Technology</h4>
+          <span class="job-search-card__location">Berlin, Germany</span>
+        </div>"""
+        for index in range(26)
+    )
+
+    with pytest.raises(LinkedInPayloadError, match="25-card page limit"):
+        parse_search_page(cards)
 
 
 def test_closed_application_notice_uses_semantic_alert_instead_of_hashed_classes() -> None:
@@ -127,6 +140,21 @@ def test_lower_bound_posting_age_is_not_treated_as_exact_recency(
         card,
         observed_at=datetime(2026, 7, 18, 12, 30, tzinfo=UTC),
     )
+
+    assert job.posted_at is None
+
+
+def test_unbounded_relative_posting_age_is_not_treated_as_exact_evidence(
+    fixture_html: Callable[[str], str],
+) -> None:
+    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
+    html = """<!doctype html>
+    <h1 class="top-card-layout__title">Software Engineering Intern 2027</h1>
+    <a class="topcard__org-name-link">Test Technology</a>
+    <span class="posted-time-ago__text">999999999999999999 years ago</span>
+    """
+
+    job = parse_job_detail(html, card)
 
     assert job.posted_at is None
 
@@ -410,6 +438,30 @@ def test_stale_search_card_detail_404_confirms_known_job_unavailability(
     result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
 
     assert result.confirmed_unavailable_ids == (job_id,)
+
+
+def test_known_job_recheck_requires_identity_in_the_detail_response() -> None:
+    search = configured_search(max_pages=1, max_results=25, max_rechecks=1)
+    job_id = "9999999999"
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): "<!doctype html>",
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): "<html><body></body></html>",
+        }
+    )
+    known = KnownJob(
+        source_job_id=job_id,
+        company="Known Technology",
+        title="Software Intern 2027",
+        locations=("Berlin, Germany",),
+        application_url=f"https://www.linkedin.com/jobs/view/{job_id}",
+    )
+
+    result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
+
+    assert result.positions == []
+    assert result.confirmed_unavailable_ids == ()
+    assert result.warnings == ("Known LinkedIn job recheck skipped: malformed HTML",)
 
 
 def test_known_job_404_is_reported_as_confirmed_unavailable() -> None:

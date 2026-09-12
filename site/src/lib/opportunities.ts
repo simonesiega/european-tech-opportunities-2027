@@ -1,3 +1,5 @@
+import "server-only";
+
 import {DatabaseSync} from "node:sqlite";
 import {isCanonicalListingUrl} from "@/lib/listing-url";
 import type {Opportunity} from "@/types/opportunity";

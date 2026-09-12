@@ -194,10 +194,23 @@ def test_non_technology_and_non_european_jobs_are_excluded(
         title="Software Engineering Intern 2027",
         locations=["Paris, TX"],
     )
+    explicitly_outside_europe = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["Remote, non-European"],
+    )
+    ambiguous_remote = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["Remote"],
+    )
     assert not finance.include
     assert not usa.include
     assert not european_city_namesake.include
     assert not abbreviated_namesake.include
+    assert not explicitly_outside_europe.include
+    assert not ambiguous_remote.include
+    assert ambiguous_remote.exclusion_reason == "location is not explicitly European"
 
 
 def test_description_can_classify_generic_technical_internship(

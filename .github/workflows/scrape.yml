@@ -8,11 +8,6 @@ on:
         required: false
         default: true
         type: boolean
-      allow_state_rebuild:
-        description: "Allow rebuilding SQLite when restored canonical state is incompatible"
-        required: false
-        default: false
-        type: boolean
       deploy_to_vps:
         description: "Deploy reviewed durable state from main (skips collection)"
         required: false
@@ -33,6 +28,7 @@ jobs:
     timeout-minutes: 180
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
+      UV_NO_DEV: "1"
     steps:
       - name: Verify LinkedIn crawl authorization
         if: inputs.deploy_to_vps != true && vars.LINKEDIN_CRAWL_AUTHORIZED != 'true'
@@ -42,13 +38,13 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          persist-credentials: false
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.11.6"
           python-version: "3.12"
           enable-cache: true
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --no-dev
 
       - name: Require main branch for VPS deployment
         if: inputs.deploy_to_vps && github.ref != 'refs/heads/main'
@@ -57,7 +53,6 @@ jobs:
           exit 1
 
       - name: Restore canonical SQLite cache accelerator
-        id: db-cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: data/opportunities.db
@@ -119,7 +114,8 @@ jobs:
           fi
           if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
             || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
-            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] \
+            || ((10#$VPS_PORT < 1 || 10#$VPS_PORT > 65535)); then
             echo "VPS bootstrap configuration is missing or invalid."
             exit 1
           fi
@@ -136,19 +132,9 @@ jobs:
         shell: bash
         run: rm -f "$HOME/.ssh/id_ed25519"
 
+      # Migration failure is a stop condition; restored canonical state is never rebuilt.
       - name: Migrate database
-        shell: bash
-        run: |
-          if uv run opportunities db-upgrade; then
-            exit 0
-          fi
-          if [ "${{ inputs.allow_state_rebuild }}" = "true" ]; then
-            rm -f data/opportunities.db data/opportunities.db-*
-            uv run opportunities db-upgrade
-          else
-            echo "Migration failed; use allow_state_rebuild only after backing up state."
-            exit 1
-          fi
+        run: uv run opportunities db-upgrade
 
       - name: Scrape, persist, and render README
         if: inputs.deploy_to_vps != true
@@ -213,6 +199,7 @@ jobs:
           branch="automated/scrape-update"
           title="data: scrape position updates"
           body="Manual scrape-only update. Merge remains manual."
+          gh auth setup-git
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$branch:refs/remotes/origin/$branch" || true
@@ -259,8 +246,9 @@ jobs:
           fi
           if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
             || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
-            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
-            echo "VPS SSH configuration contains unsupported characters."
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] \
+            || ((10#$VPS_PORT < 1 || 10#$VPS_PORT > 65535)); then
+            echo "VPS SSH configuration is missing or invalid."
             exit 1
           fi
 
@@ -277,14 +265,18 @@ jobs:
           scp -i "$HOME/.ssh/id_ed25519" -P "$VPS_PORT" -o BatchMode=yes \
             data/opportunities.db "${ssh_target}:${remote_upload}"
 
+          # Validated remote paths are intentionally expanded before invoking SSH.
+          # shellcheck disable=SC2029
           remote_sha=$(ssh "${ssh_options[@]}" "$ssh_target" \
             "sha256sum '$remote_upload' | cut -d ' ' -f 1")
           if [ "$database_sha" != "$remote_sha" ]; then
+            # shellcheck disable=SC2029
             ssh "${ssh_options[@]}" "$ssh_target" "rm -f '$remote_upload'"
             echo "Uploaded database checksum does not match."
             exit 1
           fi
 
+          # shellcheck disable=SC2029
           ssh "${ssh_options[@]}" "$ssh_target" \
             "IMPORT_FILE='$remote_upload' DATABASE_FILE='$remote_database' PREVIOUS_FILE='$remote_previous' LOCK_FILE='$remote_lock' EXPECTED_SHA='$database_sha' bash -s" <<'REMOTE'
           set -euo pipefail

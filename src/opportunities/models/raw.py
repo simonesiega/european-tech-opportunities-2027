@@ -8,6 +8,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from opportunities.utils.text import clean_text
+from opportunities.utils.time import ensure_utc
 from opportunities.utils.url import canonicalize_url, validate_linkedin_job_url
 
 MAX_DESCRIPTION_CHARS = 200_000
@@ -42,7 +43,7 @@ class RawJob(BaseModel):
     @field_validator("source_job_id", "company", "title", mode="before")
     @classmethod
     def normalize_scalar_text(cls, value: object) -> object:
-        """Normalize optional scalar text from scraped payloads."""
+        """Normalize required scalar text from scraped payloads."""
         if isinstance(value, str):
             cleaned = clean_text(value)
             return cleaned or None
@@ -60,7 +61,9 @@ class RawJob(BaseModel):
             raise ValueError("locations must be a list")
         if len(value) > 20:
             raise ValueError("locations cannot contain more than 20 values")
-        cleaned = [clean_text(str(item)) for item in value]
+        if any(not isinstance(item, str) for item in value):
+            raise ValueError("locations must contain strings")
+        cleaned = [clean_text(item) for item in value]
         if any(len(item) > 500 for item in cleaned):
             raise ValueError("location values cannot exceed 500 characters")
         return list(dict.fromkeys(item for item in cleaned if item))
@@ -78,6 +81,12 @@ class RawJob(BaseModel):
     def validate_url(cls, value: str) -> str:
         """Validate and canonicalize scraped URLs."""
         return canonicalize_url(value)
+
+    @field_validator("posted_at")
+    @classmethod
+    def normalize_posted_at(cls, value: datetime | None) -> datetime | None:
+        """Normalize optional posting evidence to aware UTC."""
+        return ensure_utc(value) if value is not None else None
 
     @model_validator(mode="after")
     def validate_link_identity(self) -> RawJob:

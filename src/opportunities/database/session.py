@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 from pathlib import Path
 
 from sqlalchemy import Engine, create_engine, event, inspect, text
@@ -28,9 +29,11 @@ def create_database_engine(database_url: str, *, echo: bool = False) -> Engine:
     if url.get_backend_name() == "sqlite":
 
         @event.listens_for(engine, "connect")
-        def _set_sqlite_pragma(dbapi_connection: object, _connection_record: object) -> None:
+        def _set_sqlite_pragma(
+            dbapi_connection: sqlite3.Connection, _connection_record: object
+        ) -> None:
             """Enable SQLite foreign-key enforcement."""
-            cursor = dbapi_connection.cursor()  # type: ignore[attr-defined]
+            cursor = dbapi_connection.cursor()
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
 

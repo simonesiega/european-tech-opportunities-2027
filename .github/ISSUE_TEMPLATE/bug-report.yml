@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting a problem. Search existing issues first and never include credentials, cookies, private HTML, database files, or personal data.
+        Thanks for reporting a problem. Search existing issues first and never include credentials, cookies, private HTML, database files, or personal data. Report security vulnerabilities privately using the Security Policy link shown by the issue chooser.
 
   - type: dropdown
     id: area
@@ -50,6 +50,13 @@ body:
         3. Observe ...
     validations:
       required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics
+      description: Include the first relevant error and exit code, if available. Do not paste response bodies, headers, environment dumps, or secrets.
+      render: shell
 
   - type: input
     id: version

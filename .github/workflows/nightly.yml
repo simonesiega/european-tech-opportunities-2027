@@ -18,6 +18,7 @@ jobs:
     timeout-minutes: 180
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
+      UV_NO_DEV: "1"
     steps:
       - name: Verify LinkedIn crawl authorization
         if: vars.LINKEDIN_CRAWL_AUTHORIZED != 'true'
@@ -27,13 +28,13 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          persist-credentials: false
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.11.6"
           python-version: "3.12"
           enable-cache: true
-      - run: uv sync --frozen --dev
+      - run: uv sync --frozen --no-dev
 
       - name: Restore canonical SQLite cache accelerator
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -96,7 +97,8 @@ jobs:
           fi
           if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
             || [[ ! "$VPS_USER" =~ ^[A-Za-z_][A-Za-z0-9._-]*$ ]] \
-            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]]; then
+            || [[ ! "$VPS_PORT" =~ ^[0-9]{1,5}$ ]] \
+            || ((10#$VPS_PORT < 1 || 10#$VPS_PORT > 65535)); then
             echo "VPS bootstrap configuration is missing or invalid."
             exit 1
           fi
@@ -113,6 +115,7 @@ jobs:
         shell: bash
         run: rm -f "$HOME/.ssh/id_ed25519"
 
+      # Migration failure is a stop condition; restored canonical state is never rebuilt.
       - name: Migrate database
         run: uv run opportunities db-upgrade
 
@@ -188,6 +191,7 @@ jobs:
             exit 0
           fi
           branch="automated/nightly-full-update"
+          gh auth setup-git
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$branch:refs/remotes/origin/$branch" || true

@@ -7,11 +7,11 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
-_STANDARD_FIELDS = frozenset(logging.makeLogRecord({}).__dict__)
+_SAFE_EXTRA_FIELDS = frozenset({"attempt", "delay_seconds", "error_code"})
 
 
 class JsonFormatter(logging.Formatter):
-    """Format log records as one-line JSON while excluding sensitive payloads."""
+    """Format one-line JSON with only explicitly approved structured fields."""
 
     def format(self, record: logging.LogRecord) -> str:
         """Format one log record as compact JSON."""
@@ -21,11 +21,11 @@ class JsonFormatter(logging.Formatter):
             "logger": record.name,
             "message": record.getMessage(),
         }
-        for key, value in record.__dict__.items():
-            if key not in _STANDARD_FIELDS and key not in {"message", "asctime"}:
-                payload[key] = value
-        if record.exc_info:
-            payload["exception"] = self.formatException(record.exc_info)
+        for key in _SAFE_EXTRA_FIELDS:
+            if key in record.__dict__:
+                payload[key] = record.__dict__[key]
+        if record.exc_info and record.exc_info[0] is not None:
+            payload["exception_type"] = record.exc_info[0].__name__
         return json.dumps(payload, default=str, ensure_ascii=False, sort_keys=True)
 
 

@@ -1,4 +1,4 @@
-"""Typer CLI for LinkedIn collection, SQLite storage, and README rendering."""
+"""Typer CLI for collection, SQLite lifecycle state, and generated projections."""
 
 from __future__ import annotations
 
@@ -13,8 +13,6 @@ from rich.console import Console
 from rich.table import Table
 from sqlalchemy import Engine
 
-# Importing opportunity modules registers every table on Base.metadata for
-# comparison and Alembic autogeneration.
 from opportunities.config.rules import load_classification_rules
 from opportunities.config.search_registry import (
     SearchRegistryError,

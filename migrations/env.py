@@ -59,7 +59,6 @@ def run_migrations_online() -> None:
             connection.commit()
 
 
-# Determine whether to run migrations in offline or online mode
 if context.is_offline_mode():
     run_migrations_offline()
 else:

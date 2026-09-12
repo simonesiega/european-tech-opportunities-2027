@@ -10,7 +10,7 @@ from opportunities.config.policy import MINIMUM_POSTED_AT
 from opportunities.config.rules import ClassificationRules
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.normalization.location import EUROPEAN_COUNTRY_CODES, LocationResult
-from opportunities.utils.text import html_to_text, normalized_key
+from opportunities.utils.text import contains_normalized_phrase, normalized_key
 from opportunities.utils.time import ensure_utc
 
 _YEAR_RE = re.compile(r"\b20[2-4]\d\b")
@@ -76,20 +76,13 @@ class Classifier:
 
     def __init__(self, rules: ClassificationRules, target_cycle: int) -> None:
         """Initialize the instance dependencies and state."""
-        self.rules = rules
         self.target_cycle = target_cycle
-        # Normalize configured phrases once; classification runs for every detail page.
-        self._internship_keywords = tuple(
-            normalized_key(item) for item in rules.internship_keywords
-        )
-        self._new_grad_keywords = tuple(normalized_key(item) for item in rules.new_grad_keywords)
-        self._excluded_role_keywords = tuple(
-            normalized_key(item) for item in rules.excluded_role_keywords
-        )
-        self._categories = {
-            category: tuple(normalized_key(item) for item in keywords)
-            for category, keywords in rules.categories.items()
-        }
+        # Rules are normalized during configuration validation; copy the category
+        # mapping so later mutation of nested model values cannot affect this classifier.
+        self._internship_keywords = rules.internship_keywords
+        self._new_grad_keywords = rules.new_grad_keywords
+        self._excluded_role_keywords = rules.excluded_role_keywords
+        self._categories = dict(rules.categories)
 
     def classify(
         self,
@@ -101,7 +94,7 @@ class Classifier:
     ) -> ClassificationDecision:
         """Apply strict opportunity type, role, cycle, and geography checks."""
         title_key = normalized_key(title)
-        description_key = normalized_key(html_to_text(description))
+        description_key = normalized_key(description or "")
 
         employment_type = self.classify_employment_type(title_key)
         if employment_type is None:
@@ -208,9 +201,10 @@ class Classifier:
         words = {word for word in set(title_key.split()) - _TITLE_SCOPE_NOISE if not word.isdigit()}
         return not words or words <= _DESCRIPTION_CATEGORY_TITLE_WORDS
 
-    def _contains_any(self, text: str, keywords: tuple[str, ...]) -> bool:
+    @staticmethod
+    def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
         """Check whether text contains any normalized configured phrase."""
-        return any(_contains_phrase(text, keyword) for keyword in keywords)
+        return any(contains_normalized_phrase(text, keyword) for keyword in keywords)
 
     @staticmethod
     def _exclude(reason: str) -> ClassificationDecision:
@@ -220,11 +214,6 @@ class Classifier:
             category=OpportunityCategory.UNKNOWN,
             exclusion_reason=reason,
         )
-
-
-def _contains_phrase(text: str, phrase: str) -> bool:
-    """Check whether normalized text contains a complete phrase."""
-    return bool(phrase and re.search(rf"(?:^|\s){re.escape(phrase)}(?:$|\s)", text))
 
 
 def _contextual_years(text: str, *, ignore_eligibility: bool) -> list[str]:

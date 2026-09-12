@@ -6,6 +6,7 @@ import asyncio
 import codecs
 import logging
 import math
+import re
 import time
 from collections.abc import Awaitable, Callable
 from email.utils import parsedate_to_datetime
@@ -18,7 +19,13 @@ from opportunities.utils.time import utc_now
 
 logger = logging.getLogger(__name__)
 Sleep = Callable[[float], Awaitable[None]]
+LINKEDIN_SEARCH_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+LINKEDIN_DETAIL_ENDPOINT = "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/{job_id}"
+LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 _LINKEDIN_HOST = "www.linkedin.com"
+_LINKEDIN_DETAIL_PATH_RE = re.compile(r"^/jobs-guest/jobs/api/jobPosting/[0-9]{1,30}$")
+_LINKEDIN_PUBLIC_PATH_RE = re.compile(r"^/jobs/view/[0-9]{1,30}$")
+_MAX_RETRY_DELAY_SECONDS = 60.0
 
 
 class FetchError(RuntimeError):
@@ -31,12 +38,14 @@ class FetchError(RuntimeError):
         *,
         status_code: int | None = None,
         retryable: bool = False,
+        retry_after_seconds: float | None = None,
     ) -> None:
         """Initialize the instance dependencies and state."""
         super().__init__(message)
         self.code = code
         self.status_code = status_code
         self.retryable = retryable
+        self.retry_after_seconds = retry_after_seconds
 
 
 class HttpFetcher:
@@ -96,6 +105,8 @@ class HttpFetcher:
             or parsed.username is not None
             or parsed.password is not None
             or port not in {None, 443}
+            or parsed.fragment
+            or not _is_approved_path(parsed.path, parsed.query)
         ):
             raise FetchError(
                 "invalid_url",
@@ -114,7 +125,11 @@ class HttpFetcher:
             except FetchError as exc:
                 if not exc.retryable or attempt >= self.settings.max_retries:
                     raise
-                delay = self.settings.retry_backoff_seconds * (2**attempt)
+                backoff = self.settings.retry_backoff_seconds * (2**attempt)
+                delay = min(
+                    max(backoff, exc.retry_after_seconds or 0.0),
+                    _MAX_RETRY_DELAY_SECONDS,
+                )
                 logger.warning(
                     "retrying LinkedIn request",
                     extra={
@@ -135,7 +150,7 @@ class HttpFetcher:
         retry_after: float | None = None
         transient_status: int
         try:
-            async with self._client.stream("GET", url) as response:
+            async with self._client.stream("GET", url, follow_redirects=False) as response:
                 if response.status_code == 429 or response.status_code >= 500:
                     transient_status = response.status_code
                     retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
@@ -146,14 +161,12 @@ class HttpFetcher:
         except httpx.TransportError as exc:
             raise FetchError("transport", "LinkedIn request failed", retryable=True) from exc
 
-        # Release the response connection before honoring a server-requested delay.
-        if retry_after is not None:
-            await self._sleep(min(retry_after, 60.0))
         raise FetchError(
             "transient_http",
             f"LinkedIn returned HTTP {transient_status}",
             status_code=transient_status,
             retryable=True,
+            retry_after_seconds=retry_after,
         )
 
     async def _read_text(self, response: httpx.Response) -> str:
@@ -204,6 +217,18 @@ class HttpFetcher:
             if wait_for > 0:
                 await self._sleep(wait_for)
             self._last_request_at[host] = time.monotonic()
+
+
+def _is_approved_path(path: str, query: str) -> bool:
+    """Allow only the three fixed public LinkedIn endpoint families."""
+    search_path = urlsplit(LINKEDIN_SEARCH_ENDPOINT).path
+    if path == search_path:
+        return True
+    if query:
+        return False
+    return bool(
+        _LINKEDIN_DETAIL_PATH_RE.fullmatch(path) or _LINKEDIN_PUBLIC_PATH_RE.fullmatch(path)
+    )
 
 
 def _response_encoding(response: httpx.Response, body: bytes) -> str:

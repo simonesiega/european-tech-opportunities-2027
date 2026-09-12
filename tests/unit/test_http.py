@@ -7,7 +7,7 @@ import httpx
 import pytest
 
 from opportunities.config.settings import Settings
-from opportunities.scrapers.http import FetchError, HttpFetcher
+from opportunities.scrapers.http import LINKEDIN_SEARCH_ENDPOINT, FetchError, HttpFetcher
 
 
 class ChunkedStream(httpx.AsyncByteStream):
@@ -33,7 +33,7 @@ def test_linkedin_http_is_blocked_without_explicit_authorization() -> None:
     async def run() -> None:
         async with HttpFetcher(settings) as fetcher:
             with pytest.raises(FetchError, match="express permission"):
-                await fetcher.get_text("https://www.linkedin.com/jobs-guest/jobs/api/search")
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     asyncio.run(run())
 
@@ -54,13 +54,33 @@ def test_http_fetcher_rejects_non_linkedin_or_non_https_urls_without_network() -
             fetcher = HttpFetcher(settings, client=client)
             for url in (
                 "https://example.com/jobs",
-                "http://www.linkedin.com/jobs-guest/jobs/api/search",
+                LINKEDIN_SEARCH_ENDPOINT.replace("https://", "http://"),
+                "https://www.linkedin.com/feed",
             ):
                 with pytest.raises(FetchError, match="approved LinkedIn HTTPS endpoint"):
                     await fetcher.get_text(url)
 
     asyncio.run(run())
     assert requests == 0
+
+
+def test_http_fetcher_disables_redirects_on_an_injected_client() -> None:
+    requested_hosts: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requested_hosts.append(request.url.host)
+        return httpx.Response(302, headers={"location": "https://example.com/redirected"})
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler), follow_redirects=True)
+    settings = Settings(rate_limit_seconds=0, linkedin_crawl_authorized=True)
+
+    async def run() -> None:
+        async with client:
+            with pytest.raises(FetchError, match="HTTP 302"):
+                await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
+
+    asyncio.run(run())
+    assert requested_hosts == ["www.linkedin.com"]
 
 
 def test_http_fetcher_retries_transient_linkedin_response() -> None:
@@ -88,12 +108,42 @@ def test_http_fetcher_retries_transient_linkedin_response() -> None:
 
     async def run() -> str:
         async with client:
-            return await HttpFetcher(settings, client=client).get_text(
-                "https://www.linkedin.com/jobs-guest/jobs/api/search"
-            )
+            return await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     assert asyncio.run(run()) == "<li>ok</li>"
     assert attempts == 2
+
+
+def test_http_fetcher_caps_exponential_backoff() -> None:
+    attempts = 0
+    delays: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        return httpx.Response(503, text="temporary", request=request)
+
+    async def sleep(delay: float) -> None:
+        delays.append(delay)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(
+        rate_limit_seconds=0,
+        retry_backoff_seconds=30,
+        max_retries=2,
+        linkedin_crawl_authorized=True,
+    )
+
+    async def run() -> None:
+        async with client:
+            with pytest.raises(FetchError, match="HTTP 503"):
+                await HttpFetcher(settings, client=client, sleep=sleep).get_text(
+                    LINKEDIN_SEARCH_ENDPOINT
+                )
+
+    asyncio.run(run())
+    assert attempts == 3
+    assert delays == [30, 60]
 
 
 def test_http_fetcher_honors_429_retry_after() -> None:
@@ -134,12 +184,12 @@ def test_http_fetcher_honors_429_retry_after() -> None:
     async def run() -> None:
         async with client:
             await HttpFetcher(settings, client=client, sleep=sleep).get_text(
-                "https://www.linkedin.com/jobs-guest/jobs/api/search"
+                LINKEDIN_SEARCH_ENDPOINT
             )
 
     asyncio.run(run())
     assert attempts == 2
-    assert 2.0 in delays
+    assert delays == [2.0]
     assert retry_stream.read_count == 0
     assert retry_stream.closed is True
 
@@ -159,9 +209,7 @@ def test_http_fetcher_rejects_non_html_response() -> None:
     async def run() -> None:
         async with client:
             with pytest.raises(FetchError, match="did not return HTML"):
-                await HttpFetcher(settings, client=client).get_text(
-                    "https://www.linkedin.com/jobs-guest/jobs/api/search"
-                )
+                await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     asyncio.run(run())
 
@@ -188,9 +236,7 @@ def test_http_fetcher_enforces_response_size_limit() -> None:
     async def run() -> None:
         async with client:
             with pytest.raises(FetchError, match="size limit"):
-                await HttpFetcher(settings, client=client).get_text(
-                    "https://www.linkedin.com/jobs-guest/jobs/api/search"
-                )
+                await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     asyncio.run(run())
 
@@ -217,9 +263,7 @@ def test_http_fetcher_stops_streaming_at_response_size_limit() -> None:
     async def run() -> None:
         async with client:
             with pytest.raises(FetchError, match="size limit"):
-                await HttpFetcher(settings, client=client).get_text(
-                    "https://www.linkedin.com/jobs-guest/jobs/api/search"
-                )
+                await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     asyncio.run(run())
     assert stream.read_count == 2
