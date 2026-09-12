@@ -6,10 +6,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 11, 2026 at 09:32 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-722-2563eb?style=for-the-badge" alt="Total opportunities: 722" />
-  <img src="https://img.shields.io/badge/Internships-319-16a34a?style=for-the-badge" alt="Internships: 319" />
-  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="New Grad opportunities: 403" />
+  <strong>Last updated: September 12, 2026 at 09:09 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-718-2563eb?style=for-the-badge" alt="Total opportunities: 718" />
+  <img src="https://img.shields.io/badge/Internships-318-16a34a?style=for-the-badge" alt="Internships: 318" />
+  <img src="https://img.shields.io/badge/New%20Grad-400-9333ea?style=for-the-badge" alt="New Grad opportunities: 400" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -70,34 +70,34 @@ Browse every open internship and New Grad listing at **[opportunities2027.simone
 The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 722 (Internships: 319 · New Grad: 403)<br>
-**Last successful collection:** September 11, 2026 at 09:32 UTC
+**Open opportunities:** 718 (Internships: 318 · New Grad: 400)<br>
+**Last successful collection:** September 12, 2026 at 09:09 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 403 open New Grad opportunities:
+Showing the 5 most recently posted of 400 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| RedTech Recruitment | Data Engineer – Graduate Considered | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4462297775>) |
-| Telent Technology Services Ltd | Graduate Software Engineer | Warwick, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4465828797>) |
-| Sentry | Software Engineer, New Grad \(2027\) | Innere Stadt, Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4465830359>) |
-| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464501054>) |
-| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4464501056>) |
+| ClearScore | Graduate Software Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4466410753>) |
+| Content Guru | Graduate Quality Assurance Engineer | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4466340971>) |
+| Julius Baer | University Graduate – Data Engineer 100% \(f/m/d\) | Luxembourg | [View](<https://www.linkedin.com/jobs/view/4466329677>) |
+| NXP Semiconductors | Graduate AI and Software Engineer - Automotive MPUs | Glasgow, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4466307687>) |
+| Tenth Revolution Group | Graduate Developer | Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4464201092>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 319 open internships:
+Showing the 5 most recently posted of 318 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| NVIDIA | System Software Engineering Intern, GPU - 2027 | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4464805707>) |
-| Sentry | Software Engineer, Intern \(Summer 2027\) | Innere Stadt, Vienna, Austria | [View](<https://www.linkedin.com/jobs/view/4465837296>) |
-| TNO | Internship \| Computer Vision in Limited Data Real-World Settings | Delft, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4465807905>) |
-| Antares Vision Group | SOFTWARE DEVELOPER INTERN | Travagliato, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464569243>) |
-| Motorola Solutions | Intern Software Developer \(C#\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4465683644>) |
+| TXT Quence | Junior Software Engineer \(Internship\) | Cologno Monzese, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464894787>) |
+| Nokia | AI Software Engineer – Intern | Vimercate, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464205151>) |
+| Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464892171>) |
+| MakiPeople | Security Engineer - Final year Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4466313142>) |
+| Amadeus | Internship - Security engineer | Villeneuve-Loubet, Provence-Alpes-Côte d'Azur, France | [View](<https://www.linkedin.com/jobs/view/4464547228>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
