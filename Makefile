@@ -41,6 +41,7 @@ test:
 coverage:
 	mkdir -p quality-reports
 	uv run pytest -m "not live and not performance" --cov --cov-report=term-missing --cov-report=xml:quality-reports/coverage.xml --cov-report=json:quality-reports/coverage.json --cov-report=html:quality-reports/coverage-html
+	uv run python scripts/coverage_docs.py
 
 benchmark:
 	mkdir -p quality-reports

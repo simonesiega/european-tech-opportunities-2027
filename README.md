@@ -1,7 +1,14 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
 <p align="center">
-  An open-source opportunity directory and data pipeline for discovering validated 2027 technology internships and New Grad opportunities across Europe.
+  <strong>Find validated technology internships and New Grad opportunities for the 2027 hiring cycle across Europe.</strong>
+</p>
+
+<p align="center">
+  <a href="https://opportunities2027.simonesiega.com/">Directory</a> ·
+  <a href="#run-locally">Run locally</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
@@ -21,9 +28,11 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml">
     <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml/badge.svg" alt="Python CI status" />
   </a>
+<!-- BEGIN PYTHON COVERAGE BADGE -->
   <a href="#python-quality-baseline">
-    <img src="https://img.shields.io/badge/critical_path_coverage-89.9%25_%7C_81.8%25_branches-brightgreen" alt="Critical path coverage: 89.9%, including 81.8% branch coverage" />
+    <img src="https://img.shields.io/badge/critical_path_coverage-90.1%25_%7C_82.7%25_branches-brightgreen" alt="Critical path coverage: 90.1%, including 82.7% branch coverage" />
   </a>
+  <!-- END PYTHON COVERAGE BADGE -->
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027" alt="MIT license" />
   </a>
@@ -31,6 +40,12 @@
     <img src="https://img.shields.io/github/stars/simonesiega/european-tech-opportunities-2027?style=flat" alt="GitHub stars" />
   </a>
 </p>
+
+## Overview
+
+European Tech Opportunities 2027 is an open-source data product that combines a searchable public directory with an automated collection, classification, and lifecycle pipeline. It removes common job-search noise—mixed hiring cycles, senior roles, unrelated positions, and unsupported locations—by publishing only listings that pass deterministic checks.
+
+The project intentionally favors precision over coverage. Relevant listings may be absent when they fall outside the configured searches or do not provide enough evidence to satisfy every publication rule.
 
 ## Website preview
 
@@ -47,27 +62,11 @@
   />
 </p>
 
-The live website is the primary user interface. It provides full-text search; Internship and New Grad filtering; company, country, and category filters; sorting; pagination; themes; and direct links to the original listings.
-
-## Contents
-
-- [Opportunity directory](#opportunity-directory)
-- [Publication rules](#publication-rules)
-- [Why this project exists](#why-this-project-exists)
-- [Engineering highlights](#engineering-highlights)
-- [How it works](#how-it-works)
-- [Run locally](#run-locally)
-- [Documentation](#documentation)
-- [Responsible operation](#responsible-operation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contributors](#contributors)
+The public directory has surpassed **1,000 unique visitors since launch**. It is the primary user interface, with full-text search; Internship and New Grad filtering; company, country, and category filters; sorting; pagination; light and dark themes; and direct links to the original listings.
 
 ## Opportunity directory
 
-Browse every open internship and New Grad listing at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. Coverage is intentionally conservative rather than exhaustive: listings outside the configured searches, or without sufficient explicit evidence, may not appear.
-
-The repository shows only the five latest opportunities of each employment type. Use the live directory for the complete searchable collection.
+Browse the complete live collection at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. The repository keeps only the five most recently posted opportunities of each employment type as a lightweight preview; use the website for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
 **Open opportunities:** 718 (Internships: 318 · New Grad: 400)<br>
@@ -117,34 +116,33 @@ A listing is published only when all six checks pass:
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
 
-Ambiguous posting date, employment type, role, seniority, or geography is excluded for new listings. A missing cycle year is allowed only with an eligible posting date; a conflicting explicit cycle year is always excluded. Search-page disappearance never closes a role. Collection closure requires repeated explicit detail-page `404` or `410` evidence across every active search association. A separate daily audit checks each stored row through its public listing and, after a successful page without a closure alert, the guest detail endpoint. It permanently deletes a row after an explicit `404` or `410` from either request or a scoped “No longer accepting applications” alert; inconclusive HTTP, parsing, or transport failures preserve the row for later review.
-
-## Why this project exists
-
-General job searches frequently mix different hiring cycles, senior roles, non-European locations, and unrelated listings. This project favors precision over coverage: listings with ambiguous year, opportunity type, role, seniority, or location evidence are excluded instead of being guessed.
+Ambiguous evidence is excluded rather than guessed. Search-page absence never closes a listing; only explicit unavailability evidence can change lifecycle state. See [Architecture](docs/guides/development/architecture.md) and [Database lifecycle](docs/guides/operations/database.md) for the exact acceptance and closure rules.
 
 ## Engineering highlights
 
 - **End-to-end data product:** bounded asynchronous Python collection and a searchable server-rendered TypeScript/Next.js opportunity directory.
 - **Deterministic classification:** explicit rules assign `internship` or `new-grad`, then verify posting recency, cycle, technology category, seniority, and European location.
 - **Transactional lifecycle state:** SQLite persistence records provenance, first/last-seen timestamps, isolated search outcomes, conservative closure evidence, and daily full-state availability checks.
+- **Tested web application:** query-parameter-backed filtering, sortable and paginated results, unit tests, Playwright end-to-end coverage, TypeScript checks, and production-build validation.
 - **Production engineering:** Alembic migrations, scheduled automation, restore-verified timestamped backups, atomic deployment, strict typing, CI across Python/site/containers, thresholded branch coverage, and parsing/classification benchmarks.
 
 ### Python quality baseline
 
-The current offline suite reports the following coverage for the critical classification and
-lifecycle paths:
+The offline suite measures critical classification and lifecycle paths and enforces the configured combined coverage threshold.
 
+<!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 89.9% | ≥ 85.0% |
-| Branch coverage | 81.8% | Reported |
-| Classifier branch coverage | 95.0% | Reported |
+| Combined statement and branch coverage | 90.1% | ≥ 85.0% |
+| Branch coverage | 82.7% | Reported |
+| Classifier branch coverage | 97.5% | Reported |
+<!-- END PYTHON COVERAGE -->
 
-[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml)
-publishes the complete HTML, XML, and JSON coverage reports plus parsing and classification
-benchmark results for every run. Benchmark timings remain in the reports because absolute values
-vary by runner; compare them only across equivalent environments.
+The badge and table are generated from the same coverage report used by the quality gate. Run `make coverage` after changing Python behavior or tests.
+
+[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml) verifies that committed metrics are current and publishes the complete statement, branch, and per-module coverage reports alongside parsing and classification benchmarks. Compare benchmark timings only across equivalent environments.
+
+[Site CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml) separately enforces formatting, linting, TypeScript type checking, a production build, unit tests, and Playwright end-to-end tests.
 
 ## How it works
 
@@ -182,7 +180,7 @@ uv run opportunities db-upgrade
 uv run opportunities stats
 ```
 
-A fresh local database is expected to contain no listings. Use the hosted directory for current data.
+A fresh local database intentionally contains no listings. Use the hosted directory for current data.
 
 Continue with the [installation guide](docs/guides/getting-started/installation.md) for the local website, Windows commands, Docker, and verification. Runtime settings are documented in [configuration](docs/guides/getting-started/configuration.md), and CLI commands in the [CLI reference](docs/guides/user-guide/cli.md).
 

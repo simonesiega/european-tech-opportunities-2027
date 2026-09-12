@@ -53,6 +53,8 @@ jobs:
             --cov-report=xml:quality-reports/coverage.xml \
             --cov-report=json:quality-reports/coverage.json \
             --cov-report=html:quality-reports/coverage-html
+      - name: Verify committed README coverage metrics
+        run: uv run python scripts/coverage_docs.py --check
       - name: Add coverage report to job summary
         if: always()
         shell: bash
