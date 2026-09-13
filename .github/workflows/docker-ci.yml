@@ -43,16 +43,30 @@ jobs:
         run: |
           set -euo pipefail
           cache_volume="trivy-cache-${GITHUB_RUN_ID}"
+          trivy_image="aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969"
           trap 'docker volume rm --force "$cache_volume" >/dev/null 2>&1 || true' EXIT
           docker volume create "$cache_volume" >/dev/null
+
+          # Registry authentication and manifest downloads can fail transiently. Retry only the
+          # bounded pull without weakening the immutable digest, then prohibit implicit pulls during scans.
+          for attempt in 1 2 3; do
+            if docker pull "$trivy_image"; then
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Could not pull the pinned Trivy image after $attempt attempts."
+              exit 1
+            fi
+            sleep "$((attempt * 10))"
+          done
 
           for image in \
             european-tech-opportunities-2027-cli:local \
             european-tech-opportunities-2027-site:local; do
-            docker run --rm \
+            docker run --rm --pull=never \
               --volume /var/run/docker.sock:/var/run/docker.sock \
               --volume "${cache_volume}:/root/.cache/trivy" \
-              aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 \
+              "$trivy_image" \
               image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
           done
 
