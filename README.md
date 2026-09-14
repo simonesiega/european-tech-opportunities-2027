@@ -30,10 +30,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 13, 2026 at 11:01 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-692-2563eb?style=for-the-badge" alt="Total opportunities: 692" />
-  <img src="https://img.shields.io/badge/Internships-314-16a34a?style=for-the-badge" alt="Internships: 314" />
-  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
+  <strong>Last updated: September 14, 2026 at 11:23 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-705-2563eb?style=for-the-badge" alt="Total opportunities: 705" />
+  <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
+  <img src="https://img.shields.io/badge/New%20Grad-389-9333ea?style=for-the-badge" alt="New Grad opportunities: 389" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -69,32 +69,32 @@ The project intentionally favors precision over coverage. Relevant listings may 
 Browse the complete live collection at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. The repository keeps up to five of the most recently posted opportunities for each employment type as a lightweight preview; use the website for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 692 (Internships: 314 · New Grad: 378)<br>
-**Last successful collection:** September 13, 2026 at 11:01 UTC
+**Open opportunities:** 705 (Internships: 316 · New Grad: 389)<br>
+**Last successful collection:** September 14, 2026 at 11:23 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 378 open New Grad opportunities:
+Showing the 5 most recently posted of 389 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4465437293>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4465433326>) |
-| ClearScore | Graduate Software Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4466410753>) |
-| Content Guru | Graduate Quality Assurance Engineer | Porto, Porto, Portugal | [View](<https://www.linkedin.com/jobs/view/4466340971>) |
-| Julius Baer | University Graduate – Data Engineer 100% \(f/m/d\) | Luxembourg | [View](<https://www.linkedin.com/jobs/view/4466329677>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4465717114>) |
+| Docplanner | Junior Software Engineer – Early Career \(Strong Problem solving &amp; Coding Focus\) - 100% Remote within Spain | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4467041693>) |
+| Docplanner | Junior Software Engineer – Early Career \(Strong Problem solving &amp; Coding Focus\) – 100% Remote within Poland | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4467029603>) |
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4465480186>) |
+| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4465483143>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 314 open internships:
+Showing the 5 most recently posted of 316 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| IBM | Software Developer Intern 2027 \(6 or 9 months Placement\) | Mulhuddart, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4464777949>) |
 | TwoWay | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464708394>) |
 | Bosch Home Comfort Portugal | Extracurricular Internship: Infrastructure &amp; DevOps Engineer \(f/m/div.\) | Aveiro, Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4466350020>) |
-| TXT Quence | Junior Software Engineer \(Internship\) | Cologno Monzese, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464894787>) |
 | Nokia | AI Software Engineer – Intern | Vimercate, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464205151>) |
 | Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464892171>) |
 <!-- END OPPORTUNITIES -->
