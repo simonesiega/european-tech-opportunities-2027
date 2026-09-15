@@ -30,10 +30,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 14, 2026 at 11:23 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-705-2563eb?style=for-the-badge" alt="Total opportunities: 705" />
-  <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
-  <img src="https://img.shields.io/badge/New%20Grad-389-9333ea?style=for-the-badge" alt="New Grad opportunities: 389" />
+  <strong>Last updated: September 15, 2026 at 10:54 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-714-2563eb?style=for-the-badge" alt="Total opportunities: 714" />
+  <img src="https://img.shields.io/badge/Internships-323-16a34a?style=for-the-badge" alt="Internships: 323" />
+  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New Grad opportunities: 391" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -69,34 +69,34 @@ The project intentionally favors precision over coverage. Relevant listings may 
 Browse the complete live collection at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. The repository keeps up to five of the most recently posted opportunities for each employment type as a lightweight preview; use the website for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 705 (Internships: 316 · New Grad: 389)<br>
-**Last successful collection:** September 14, 2026 at 11:23 UTC
+**Open opportunities:** 714 (Internships: 323 · New Grad: 391)<br>
+**Last successful collection:** September 15, 2026 at 10:54 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 389 open New Grad opportunities:
+Showing the 5 most recently posted of 391 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4466176659>) |
+| The Tecsa Group | Graduate Data Scientist | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4467092904>) |
+| Arm | Graduate Hardware Engineer | Trondheim, Trøndelag, Norway | [View](<https://www.linkedin.com/jobs/view/4465771218>) |
 | Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4465717114>) |
 | Docplanner | Junior Software Engineer – Early Career \(Strong Problem solving &amp; Coding Focus\) - 100% Remote within Spain | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4467041693>) |
-| Docplanner | Junior Software Engineer – Early Career \(Strong Problem solving &amp; Coding Focus\) – 100% Remote within Poland | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4467029603>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4465480186>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4465483143>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 316 open internships:
+Showing the 5 most recently posted of 323 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| IBM | Software Developer Intern 2027 \(6 or 9 months Placement\) | Mulhuddart, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4464777949>) |
-| TwoWay | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464708394>) |
-| Bosch Home Comfort Portugal | Extracurricular Internship: Infrastructure &amp; DevOps Engineer \(f/m/div.\) | Aveiro, Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4466350020>) |
-| Nokia | AI Software Engineer – Intern | Vimercate, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4464205151>) |
-| Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4464892171>) |
+| Gradient Denervation Technologies | Software Engineer \(Industrial\) \| Internship | Suresnes, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4467209607>) |
+| Bitbull | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4467095591>) |
+| Vidiemme | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4467077715>) |
+| BIP Red | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4467075754>) |
+| BIP | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4465203923>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
