@@ -30,10 +30,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 16, 2026 at 10:47 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-721-2563eb?style=for-the-badge" alt="Total opportunities: 721" />
+  <strong>Last updated: September 17, 2026 at 10:57 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-717-2563eb?style=for-the-badge" alt="Total opportunities: 717" />
   <img src="https://img.shields.io/badge/Internships-326-16a34a?style=for-the-badge" alt="Internships: 326" />
-  <img src="https://img.shields.io/badge/New%20Grad-395-9333ea?style=for-the-badge" alt="New Grad opportunities: 395" />
+  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New Grad opportunities: 391" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -69,22 +69,22 @@ The project intentionally favors precision over coverage. Relevant listings may 
 Browse the complete live collection at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. The repository keeps up to five of the most recently posted opportunities for each employment type as a lightweight preview; use the website for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 721 (Internships: 326 · New Grad: 395)<br>
-**Last successful collection:** September 16, 2026 at 10:47 UTC
+**Open opportunities:** 717 (Internships: 326 · New Grad: 391)<br>
+**Last successful collection:** September 17, 2026 at 10:57 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 395 open New Grad opportunities:
+Showing the 5 most recently posted of 391 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Blenheim Chalcot | Graduate Data Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4468278830>) |
+| Fospha | Graduate Data Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4466885832>) |
 | PrimeIT | Junior Java Developer \| Recent Graduate | Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4465562765>) |
 | DNV | Graduate 2027 - Data Scientist | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4465544336>) |
 | IMC Trading | Graduate Hardware Engineer | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4466110873>) |
-| Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4466185536>) |
-| Bending Spoons | Graduate software engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4466180585>) |
 
 ### Latest internships
 
@@ -92,11 +92,11 @@ Showing the 5 most recently posted of 326 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| PFASuiki GmbH | Cloud &amp; Data Engineering Intern / Working Student \(m/f/d\) - Full-Stack Data Platforms &amp; AI Automation | Oberhaching, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4466200371>) |
+| Infineon Technologies | Internship - Computer Vision am KAI \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4468213128>) |
 | Huawei | Research Intern, Compiler Instrumentation with hardware assistance for Morphing | Helsinki, Uusimaa, Finland | [View](<https://www.linkedin.com/jobs/view/4466582499>) |
 | Microsoft | Cloud Solution Architecture Intern | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4467734649>) |
 | Staffline Solutions | Data Science Intern | European Union | [View](<https://www.linkedin.com/jobs/view/4465521894>) |
-| Gradient Denervation Technologies | Software Engineer \(Industrial\) \| Internship | Suresnes, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4467209607>) |
-| Bitbull | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4467095591>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
