@@ -30,10 +30,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 17, 2026 at 10:57 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-717-2563eb?style=for-the-badge" alt="Total opportunities: 717" />
-  <img src="https://img.shields.io/badge/Internships-326-16a34a?style=for-the-badge" alt="Internships: 326" />
-  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New Grad opportunities: 391" />
+  <strong>Last updated: September 18, 2026 at 10:29 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-694-2563eb?style=for-the-badge" alt="Total opportunities: 694" />
+  <img src="https://img.shields.io/badge/Internships-320-16a34a?style=for-the-badge" alt="Internships: 320" />
+  <img src="https://img.shields.io/badge/New%20Grad-374-9333ea?style=for-the-badge" alt="New Grad opportunities: 374" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -69,34 +69,34 @@ The project intentionally favors precision over coverage. Relevant listings may 
 Browse the complete live collection at **[opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/)**. The repository keeps up to five of the most recently posted opportunities for each employment type as a lightweight preview; use the website for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 717 (Internships: 326 · New Grad: 391)<br>
-**Last successful collection:** September 17, 2026 at 10:57 UTC
+**Open opportunities:** 694 (Internships: 320 · New Grad: 374)<br>
+**Last successful collection:** September 18, 2026 at 10:29 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently posted of 391 open New Grad opportunities:
+Showing the 5 most recently posted of 374 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Blenheim Chalcot | Graduate Data Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4468278830>) |
-| Fospha | Graduate Data Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4466885832>) |
-| PrimeIT | Junior Java Developer \| Recent Graduate | Aveiro, Portugal | [View](<https://www.linkedin.com/jobs/view/4465562765>) |
-| DNV | Graduate 2027 - Data Scientist | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4465544336>) |
-| IMC Trading | Graduate Hardware Engineer | Amsterdam, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4466110873>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4467826287>) |
+| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4467821332>) |
+| Cisco | Software Engineer, Webex - Graduate - Poland | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4468844053>) |
+| Resmed | Graduate Software Engineer \(C++ &amp; AI\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4468671763>) |
+| Ericsson | Entry Level: Data Scientist | Stockholm, Stockholm County, Sweden | [View](<https://www.linkedin.com/jobs/view/4467581171>) |
 
 ### Latest internships
 
-Showing the 5 most recently posted of 326 open internships:
+Showing the 5 most recently posted of 320 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| PFASuiki GmbH | Cloud &amp; Data Engineering Intern / Working Student \(m/f/d\) - Full-Stack Data Platforms &amp; AI Automation | Oberhaching, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4466200371>) |
-| Infineon Technologies | Internship - Computer Vision am KAI \(f/m/div\) | Villach, Carinthia, Austria | [View](<https://www.linkedin.com/jobs/view/4468213128>) |
-| Huawei | Research Intern, Compiler Instrumentation with hardware assistance for Morphing | Helsinki, Uusimaa, Finland | [View](<https://www.linkedin.com/jobs/view/4466582499>) |
-| Microsoft | Cloud Solution Architecture Intern | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4467734649>) |
-| Staffline Solutions | Data Science Intern | European Union | [View](<https://www.linkedin.com/jobs/view/4465521894>) |
+| Bright Network Consulting | Data Science Intern | France | [View](<https://www.linkedin.com/jobs/view/4466677242>) |
+| Ericsson | Software Developer Integrator Intern | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4467575237>) |
+| Flyability | Firmware Engineer Intern | Paudex, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4468636964>) |
+| Luminor Group | IT &amp; Cybersecurity Intern | Riga, Riga, Latvia | [View](<https://www.linkedin.com/jobs/view/4468618132>) |
+| Luminor Group | IT &amp; Cybersecurity Intern | Tallinn, Harjumaa, Estonia | [View](<https://www.linkedin.com/jobs/view/4468602500>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
