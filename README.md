@@ -30,10 +30,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last updated: September 18, 2026 at 10:29 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-694-2563eb?style=for-the-badge" alt="Total opportunities: 694" />
-  <img src="https://img.shields.io/badge/Internships-320-16a34a?style=for-the-badge" alt="Internships: 320" />
-  <img src="https://img.shields.io/badge/New%20Grad-374-9333ea?style=for-the-badge" alt="New Grad opportunities: 374" />
+  <strong>Last updated: September 19, 2026 at 10:15 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-703-2563eb?style=for-the-badge" alt="Total opportunities: 703" />
+  <img src="https://img.shields.io/badge/Internships-321-16a34a?style=for-the-badge" alt="Internships: 321" />
+  <img src="https://img.shields.io/badge/New%20Grad-382-9333ea?style=for-the-badge" alt="New Grad opportunities: 382" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -71,34 +71,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 694 (Internships: 320 · New Grad: 374)<br>
-**Last successful collection:** September 18, 2026 at 10:29 UTC
+**Open opportunities:** 703 (Internships: 321 · New Grad: 382)<br>
+**Last successful collection:** September 19, 2026 at 10:15 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 374 open New Grad opportunities:
+Showing the 5 most recently discovered of 382 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4467826287>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4467821332>) |
-| Cisco | Software Engineer, Webex - Graduate - Poland | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4468844053>) |
-| Resmed | Graduate Software Engineer \(C++ &amp; AI\) | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4468671763>) |
-| Ericsson | Entry Level: Data Scientist | Stockholm, Stockholm County, Sweden | [View](<https://www.linkedin.com/jobs/view/4467581171>) |
+| Airbus Aircraft | Embedded Software Development Engineer - Entry-level Software developer \(m/f\) | Toulouse, Occitanie, France | [View](<https://www.linkedin.com/jobs/view/4466938234>) |
+| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4467891631>) |
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4467890744>) |
+| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4467889863>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4468010293>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 320 open internships:
+Showing the 5 most recently discovered of 321 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bright Network Consulting | Data Science Intern | France | [View](<https://www.linkedin.com/jobs/view/4466677242>) |
-| Ericsson | Software Developer Integrator Intern | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4467575237>) |
-| Flyability | Firmware Engineer Intern | Paudex, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4468636964>) |
-| Luminor Group | IT &amp; Cybersecurity Intern | Riga, Riga, Latvia | [View](<https://www.linkedin.com/jobs/view/4468618132>) |
-| Luminor Group | IT &amp; Cybersecurity Intern | Tallinn, Harjumaa, Estonia | [View](<https://www.linkedin.com/jobs/view/4468602500>) |
+| Perplexity | Internship - Machine Learning Research Engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4468008490>) |
+| GMV | Internship: Software engineer | Lisbon, Lisbon, Portugal | [View](<https://www.linkedin.com/jobs/view/4469179568>) |
+| Keenfinity Group | Research Intern – AI-Based Audio Optimization | Eindhoven, North Brabant, Netherlands | [View](<https://www.linkedin.com/jobs/view/4469163033>) |
+| Flyability | Firmware Engineer Intern | Paudex, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4466684723>) |
+| Smadex | Machine Learning Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4466694756>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
