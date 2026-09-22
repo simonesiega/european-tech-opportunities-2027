@@ -29,10 +29,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 20, 2026 at 10:49 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-701-2563eb?style=for-the-badge" alt="Total opportunities: 701" />
-  <img src="https://img.shields.io/badge/Internships-319-16a34a?style=for-the-badge" alt="Internships: 319" />
-  <img src="https://img.shields.io/badge/New%20Grad-382-9333ea?style=for-the-badge" alt="New Grad opportunities: 382" />
+  <strong>Last successful collection: September 22, 2026 at 10:46 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-702-2563eb?style=for-the-badge" alt="Total opportunities: 702" />
+  <img src="https://img.shields.io/badge/Internships-318-16a34a?style=for-the-badge" alt="Internships: 318" />
+  <img src="https://img.shields.io/badge/New%20Grad-384-9333ea?style=for-the-badge" alt="New Grad opportunities: 384" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -72,34 +72,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 701 (Internships: 319 · New Grad: 382)<br>
-**Last successful collection:** September 20, 2026 at 10:49 UTC
+**Open opportunities:** 702 (Internships: 318 · New Grad: 384)<br>
+**Last successful collection:** September 22, 2026 at 10:46 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 382 open New Grad opportunities:
+Showing the 5 most recently discovered of 384 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| targetjobs UK | Graduate Software Engineer | Glasgow, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4468428616>) |
-| Bending Spoons | Graduate data scientist | Spain | [View](<https://www.linkedin.com/jobs/view/4468001466>) |
-| Airbus Aircraft | Embedded Software Development Engineer - Entry-level Software developer \(m/f\) | Toulouse, Occitanie, France | [View](<https://www.linkedin.com/jobs/view/4466938234>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4467891631>) |
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4467890744>) |
+| Wayflyer | Graduate Software Engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4469927695>) |
+| Cegeka | Young Graduate - Java developer | Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4467392676>) |
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4468457612>) |
+| Var Group | Incident Responder - Cybersecurity \(Entry Level\) | Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4467376512>) |
+| Bending Spoons | Graduate software engineer | Spain | [View](<https://www.linkedin.com/jobs/view/4468465259>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 319 open internships:
+Showing the 5 most recently discovered of 318 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| BIP Red | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4470291794>) |
+| Vidiemme | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4470288863>) |
+| Stealth Startup | Data Science Intern | Germany | [View](<https://www.linkedin.com/jobs/view/4468538718>) |
+| Criteo Deutschland | Software Engineer Intern - Front-End or Fullstack | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470241373>) |
 | Perplexity | Internship - Machine Learning Research Engineer | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4468008490>) |
-| GMV | Internship: Software engineer | Lisbon, Lisbon, Portugal | [View](<https://www.linkedin.com/jobs/view/4469179568>) |
-| Keenfinity Group | Research Intern – AI-Based Audio Optimization | Eindhoven, North Brabant, Netherlands | [View](<https://www.linkedin.com/jobs/view/4469163033>) |
-| Flyability | Firmware Engineer Intern | Paudex, Vaud, Switzerland | [View](<https://www.linkedin.com/jobs/view/4466684723>) |
-| Luminor Group | IT &amp; Cybersecurity Intern | Vilnius, Vilniaus, Lithuania | [View](<https://www.linkedin.com/jobs/view/4468621090>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
