@@ -236,6 +236,8 @@ The nightly workflow runs availability first and collection second, then validat
 
 The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-job --no-render` operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the manual row instead of rebuilding state from the VPS database.
 
+Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose README proposal has not yet been merged. If a proposal is rejected or closed without merging, subsequent canonical-state workflows fail closed until the reviewed state and durable snapshot are reconciled.
+
 The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
 ### Deployment-only path

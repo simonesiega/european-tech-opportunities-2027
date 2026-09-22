@@ -185,6 +185,19 @@ jobs:
       - name: Migrate database
         run: uv run opportunities db-upgrade
 
+      - name: Require restored state to match reviewed main
+        shell: bash
+        run: |
+          set -euo pipefail
+          reviewed_readme="${RUNNER_TEMP}/reviewed-main-README.md"
+          cp README.md "$reviewed_readme"
+          uv run opportunities render
+          if ! cmp -s "$reviewed_readme" README.md; then
+            echo "Restored canonical state is ahead of the reviewed README on main."
+            echo "Merge or otherwise resolve the matching README state proposal before running another canonical-state workflow."
+            exit 1
+          fi
+
       - name: Check every stored public job page for closure alerts
         if: inputs.run_availability
         shell: bash
