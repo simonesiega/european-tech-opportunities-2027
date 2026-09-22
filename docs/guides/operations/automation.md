@@ -17,6 +17,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 - [Collection authorization](#collection-authorization)
 - [Schedule and concurrency](#schedule-and-concurrency)
 - [Manual collection inputs](#manual-collection-inputs)
+- [Manual job addition](#manual-job-addition)
 - [Collection and deployment flow](#collection-and-deployment-flow)
 - [Exit-code handling](#exit-code-handling)
 - [State continuity and artifacts](#state-continuity-and-artifacts)
@@ -40,6 +41,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
+| `add-job.yml` | Manual | Add one maintainer-reviewed listing to durable canonical state without source access, then open a README-only review pull request |
 
 Two `workflow_call`-only files are implementation building blocks, not operator entry points: `reusable-process-state.yml` owns canonical restore, migration, selected source phases, validation, snapshot publication, optional protected deployment, and sanitized artifacts; `reusable-readme-pr.yml` owns the narrowly scoped README branch and pull-request mutation. The pinned Python/uv setup is shared through `.github/actions/setup-python/action.yml`.
 
@@ -66,6 +68,7 @@ The operator-facing workflows remain small mode selectors:
 - `check-availability.yml` selects availability only;
 - collection mode in `scrape.yml` selects scrape only;
 - deployment mode in `scrape.yml` selects projection regeneration followed by deployment;
+- `add-job.yml` selects one manual repository upsert followed by full projection regeneration;
 - `canonical-state-drill.yml` selects restore, export, validation, and round-trip publication without source access.
 
 All canonical-state modes call `reusable-process-state.yml`. This keeps restore/bootstrap, migration, CLI exit-code handling, validation, checkpoint, durable publication, and sanitized-artifact ordering identical. Deployment mode selects the `production` environment and runs the final locked deployment in that same protected job, so canonical SQLite never crosses jobs through a GitHub cache or artifact. `scripts/restore_canonical_state.sh` encapsulates restricted-snapshot reconciliation and the verified live-database fallback. `scripts/canonical_state_store.sh` owns immutable SFTP snapshot restore/publication. `scripts/deploy_canonical_state.sh` owns locked, checksum-verified deployment with atomic replacement of each final file.
@@ -93,7 +96,7 @@ Production automation requires two GitHub environments. Restrict both environmen
 
 | Environment | Used by | Secrets | Review policy |
 |---|---|---|---|
-| `canonical-state` | Restore, migration, authorized collection/audit, validation, and snapshot publication | `VPS_HOST`, `VPS_USER`, `VPS_SSH_PRIVATE_KEY`, `VPS_BACKUP_SSH_PRIVATE_KEY`, `VPS_SSH_KNOWN_HOSTS` | Must permit unattended scheduled runs; use a main-only branch policy and no required reviewer |
+| `canonical-state` | Restore, migration, authorized collection/audit or manual insertion, validation, and snapshot publication | `VPS_HOST`, `VPS_USER`, `VPS_SSH_PRIVATE_KEY`, `VPS_BACKUP_SSH_PRIVATE_KEY`, `VPS_SSH_KNOWN_HOSTS` | Must permit unattended scheduled runs; use a main-only branch policy and no required reviewer |
 | `production` | Restore, validate, snapshot, and checksum-verified VPS deployment | `VPS_HOST`, `VPS_USER`, `VPS_SSH_PRIVATE_KEY`, `VPS_BACKUP_SSH_PRIVATE_KEY`, `VPS_SSH_KNOWN_HOSTS` | Main-only; a required maintainer approval is recommended |
 
 `VPS_SSH_PRIVATE_KEY` is present in `canonical-state` only for the reviewed live-database bootstrap used when durable snapshot state is absent. Normal restore/publication uses the restricted backup key. Deployment mode needs both keys in `production`: the restricted key restores and republishes verified canonical state, while the deployment key performs the final replacement. After moving these values into environments, delete identically named repository secrets and remove this repository's access to equivalent organization secrets so another branch cannot access them outside environment protection.
@@ -163,7 +166,7 @@ concurrency:
 
 The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time.
 
-The nightly, scrape-only, availability-only, recovery-drill, and deployment paths share `opportunity-collection`. This prevents overlapping writers and state replacement while allowing the read-only website to continue serving requests.
+The nightly, scrape-only, availability-only, manual-add, recovery-drill, and deployment paths share `opportunity-collection`. This prevents overlapping writers and state replacement while allowing the read-only website to continue serving requests.
 
 ## Manual collection inputs
 
@@ -179,7 +182,17 @@ The scrape workflow inputs are:
 | `open_pull_request` | `true` | Create or update the scrape-only README pull request |
 | `deploy_to_vps` | `false` | Skip collection and deploy reviewed durable SQLite state through locked, checksum-verified atomic file replacements after validation against `main` |
 
-The availability workflow has no inputs and always proposes changes in its own pull request. Neither manual workflow permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
+The availability workflow has no inputs and always proposes changes in its own pull request. None of the manual workflows permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
+
+## Manual job addition
+
+Use **Add manually reviewed job** when a maintainer has independently reviewed a known public LinkedIn listing that should enter canonical state without running discovery. Run it only from `main` and supply the URL, company, title, location, category, and employment type. Industries, start date, and an ISO-8601 posting timestamp are optional.
+
+The workflow acquires the shared `opportunity-collection` lock and enters the main-only `canonical-state` environment. It restores and verifies the latest canonical snapshot before migration, runs `opportunities add-job --no-render`, regenerates all normal projections, validates them, checkpoints SQLite, and publishes and restore-verifies a new durable snapshot. The operation creates no synthetic search, search run, or provenance, performs no LinkedIn request, and does not require `LINKEDIN_CRAWL_AUTHORIZED=true`.
+
+Only sanitized public projections are retained. A one-day README-only handoff is passed to the existing mutation workflow, which opens or updates `automated/manual-job-add` with title `data: add manually reviewed position`. The pull request changes only `README.md`, runs the normal validation workflows, and remains manual-review only; this path never requests auto-merge. Canonical SQLite is not uploaded as an artifact or cache entry and is not written directly to the live VPS database.
+
+After reviewing and merging that README pull request, deploy production separately through **Scrape jobs or deploy reviewed state** from `main` with `deploy_to_vps=true`. Deployment restores the latest snapshot pointer, which now contains the manual row, and validation requires the merged README to match that state before atomic VPS replacement. Running deployment before the README merge stops at projection validation rather than dropping or prematurely deploying the manual job.
 
 ## Collection and deployment flow
 
@@ -220,6 +233,10 @@ separate least-privilege README pull-request job
 </div>
 
 The nightly workflow runs availability first and collection second, then validates the combined state and opens one narrowly scoped pull request. The availability-only workflow skips collection; the scrape-only workflow skips the availability phase. A partial collection preserves successful search transactions. Failed searches record diagnostics but do not apply absence, unavailability, or closure evidence.
+
+The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-job --no-render` operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the manual row instead of rebuilding state from the VPS database.
+
+Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose README proposal has not yet been merged. If a proposal is rejected or closed without merging, subsequent canonical-state workflows fail closed until the reviewed state and durable snapshot are reconciled.
 
 The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
@@ -312,13 +329,14 @@ Each path uses a separate fixed review branch:
 automated/nightly-full-update  # availability followed by scrape
 automated/availability-update  # manually requested availability only
 automated/scrape-update        # manually requested scrape only
+automated/manual-job-add       # manually reviewed job insertion
 ```
 
 Only `README.md` is committed. SQLite state is never committed. Canonical processing uploads a one-day README-only handoff, then a separate job with `actions: write`, `contents: write`, and `pull-requests: write` downloads that file and performs the GitHub mutation and validation dispatch. Processing retains only `contents: read`; the mutation job receives no VPS credentials or state bundle.
 
 The generated preview remains bounded to five recently discovered open opportunities per employment type, regardless of database size.
 
-The nightly workflow creates or updates its fixed branch and requests a squash auto-merge. Before mutating an existing proposal, and again before dispatching validation or requesting auto-merge, it verifies the exact base branch, head branch, title, and changed-file list; the pull request must target `main` and modify only `README.md`. It retries the post-push GitHub scope read briefly to tolerate API propagation, but never relaxes the expected scope. It then waits for the exact Python, site, Docker, and CodeQL dispatch runs on that head SHA to succeed before requesting auto-merge. If generated state already matches `main`, a matching stale automation pull request is closed rather than left eligible to merge. GitHub auto-merge must be enabled; required checks, up-to-date-branch rules, and review requirements remain recommended defense in depth. Scrape-only and availability-only pull requests receive the same dispatched validation but remain manual-review paths.
+The nightly workflow creates or updates its fixed branch and requests a squash auto-merge. Before mutating an existing proposal, and again before dispatching validation or requesting auto-merge, it verifies the exact base branch, head branch, title, and changed-file list; the pull request must target `main` and modify only `README.md`. It retries the post-push GitHub scope read briefly to tolerate API propagation, but never relaxes the expected scope. It then waits for the exact Python, site, Docker, and CodeQL dispatch runs on that head SHA to succeed before requesting auto-merge. If generated state already matches `main`, a matching stale automation pull request is closed rather than left eligible to merge. GitHub auto-merge must be enabled; required checks, up-to-date-branch rules, and review requirements remain recommended defense in depth. Scrape-only, availability-only, and manual-add pull requests receive the same dispatched validation but remain manual-review paths.
 
 Scheduled runs do not deploy to the VPS. After the nightly pull request merges—or after a maintainer reviews and merges a manual update—start a manual scrape-workflow run from `main` with `deploy_to_vps=true` to publish the matching canonical state. Deployment mode skips collection and availability requests, then requires the merged README to validate exactly against restored durable SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains inside protected snapshot storage and the approved production job and is never committed, cached, or uploaded as an artifact. Do not edit generated rows manually; change the renderer or canonical state instead.
 
@@ -405,7 +423,7 @@ Before changing or manually running automation, confirm:
 
 - [ ] Validation CI remains separate from LinkedIn collection.
 - [ ] LinkedIn authorization is current and recorded outside the repository.
-- [ ] Nightly, scrape-only, availability-only, recovery, and deployment paths retain the shared one-writer concurrency group.
+- [ ] Nightly, scrape-only, availability-only, manual-add, recovery, and deployment paths retain the shared one-writer concurrency group.
 - [ ] Third-party actions remain pinned where practical.
 - [ ] Logs contain no secrets, GitHub contexts, HTML bodies, `.env` values, or database rows.
 - [ ] SQLite is checkpointed and validated before durable snapshot or deployment publication.

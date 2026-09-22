@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from opportunities.utils.url import UnsafeUrlError, canonicalize_url, validate_linkedin_job_url
+from opportunities.utils.url import (
+    UnsafeUrlError,
+    canonicalize_url,
+    extract_linkedin_job_id,
+    validate_linkedin_job_url,
+)
 
 
 def test_public_url_canonicalization_removes_tracking_and_normalizes_host() -> None:
@@ -41,3 +46,15 @@ def test_linkedin_listing_url_must_match_the_canonical_job_id() -> None:
             "https://www.linkedin.com/jobs/view/2222222222",
             "1111111111",
         )
+
+
+def test_linkedin_job_id_is_extracted_only_from_a_valid_listing_url() -> None:
+    assert (
+        extract_linkedin_job_id(
+            "https://www.linkedin.com/jobs/view/1111111111?trk=public_jobs#details"
+        )
+        == "1111111111"
+    )
+
+    with pytest.raises(UnsafeUrlError, match="canonical LinkedIn job listing"):
+        extract_linkedin_job_id("https://www.linkedin.com/company/1111111111")

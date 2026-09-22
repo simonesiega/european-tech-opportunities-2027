@@ -25,6 +25,7 @@ TRACKING_PARAMETERS = frozenset(
 TRACKING_PREFIXES = ("utm_",)
 _DNS_LABEL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
 _LINKEDIN_JOB_HOST = "www.linkedin.com"
+_LINKEDIN_JOB_PATH_RE = re.compile(r"^/jobs/view/([0-9]{1,30})$")
 
 
 class UnsafeUrlError(ValueError):
@@ -95,16 +96,24 @@ def canonicalize_url(url: str, *, extra_tracking_parameters: Iterable[str] = ())
     return urlunsplit((parsed.scheme.lower(), netloc, path, urlencode(query_items), ""))
 
 
-def validate_linkedin_job_url(url: str, job_id: str) -> str:
-    """Require a canonical LinkedIn public-job URL matching its numeric identity."""
+def extract_linkedin_job_id(url: str) -> str:
+    """Return the numeric identity from a canonical LinkedIn public-job URL."""
     canonical = canonicalize_url(url)
     parsed = urlsplit(canonical)
-    expected_path = f"/jobs/view/{job_id}"
+    path_match = _LINKEDIN_JOB_PATH_RE.fullmatch(parsed.path)
     if (
         parsed.hostname != _LINKEDIN_JOB_HOST
         or parsed.port is not None
-        or parsed.path != expected_path
+        or path_match is None
         or parsed.query
     ):
+        raise UnsafeUrlError("URL must be a canonical LinkedIn job listing")
+    return path_match.group(1)
+
+
+def validate_linkedin_job_url(url: str, job_id: str) -> str:
+    """Require a canonical LinkedIn public-job URL matching its numeric identity."""
+    canonical = canonicalize_url(url)
+    if extract_linkedin_job_id(canonical) != job_id:
         raise UnsafeUrlError("listing URL does not match its LinkedIn job identity")
     return canonical

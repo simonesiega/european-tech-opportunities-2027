@@ -1,0 +1,111 @@
+name: Add manually reviewed job
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Public LinkedIn /jobs/view/<id> URL"
+        required: true
+        type: string
+      company:
+        description: "Company name"
+        required: true
+        type: string
+      title:
+        description: "Opportunity title"
+        required: true
+        type: string
+      location:
+        description: "European job location"
+        required: true
+        type: string
+      category:
+        description: "Technology category"
+        required: true
+        type: choice
+        options:
+          - cybersecurity
+          - quantitative-development
+          - embedded-systems
+          - infrastructure
+          - data-engineering
+          - data-science
+          - machine-learning
+          - research-engineering
+          - software-engineering
+      employment_type:
+        description: "Employment type"
+        required: true
+        type: choice
+        options:
+          - internship
+          - new-grad
+      industries:
+        description: "Optional industries metadata"
+        required: false
+        default: ""
+        type: string
+      start_date:
+        description: "Optional start date metadata"
+        required: false
+        default: ""
+        type: string
+      posted_at:
+        description: "Optional ISO-8601 posting timestamp"
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: opportunity-collection
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  process-state:
+    name: Add job and preserve state
+    uses: ./.github/workflows/reusable-process-state.yml
+    permissions:
+      contents: read
+    secrets:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+      VPS_BACKUP_SSH_PRIVATE_KEY: ${{ secrets.VPS_BACKUP_SSH_PRIVATE_KEY }}
+      VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
+    with:
+      add_manual_job: true
+      manual_job_url: ${{ inputs.url }}
+      manual_job_company: ${{ inputs.company }}
+      manual_job_title: ${{ inputs.title }}
+      manual_job_location: ${{ inputs.location }}
+      manual_job_category: ${{ inputs.category }}
+      manual_job_employment_type: ${{ inputs.employment_type }}
+      manual_job_industries: ${{ inputs.industries }}
+      manual_job_start_date: ${{ inputs.start_date }}
+      manual_job_posted_at: ${{ inputs.posted_at }}
+      require_crawl_authorization: false
+      timeout_minutes: 30
+      projection_artifact_name: opportunities-manual-job-projections-${{ github.run_id }}
+      readme_artifact_name: opportunities-manual-job-readme-${{ github.run_id }}
+      backup_user: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
+      ssh_port: ${{ vars.VPS_SSH_PORT || '22' }}
+      retention_days: ${{ vars.CANONICAL_STATE_RETENTION_DAYS || '365' }}
+
+  update-readme:
+    name: Propose manually reviewed README projection
+    needs: process-state
+    uses: ./.github/workflows/reusable-readme-pr.yml
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    with:
+      artifact_name: opportunities-manual-job-readme-${{ github.run_id }}
+      branch: automated/manual-job-add
+      title: "data: add manually reviewed position"
+      commit_message: "data: add manually reviewed position"
+      body: >-
+        Manually reviewed position added to durable canonical state. This pull request changes
+        only the generated README projection and remains subject to manual review.

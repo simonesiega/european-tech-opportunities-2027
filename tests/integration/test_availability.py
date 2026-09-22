@@ -127,3 +127,37 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
         assert reopened_alias.active is True
         assert reopened_alias.unavailable_confirmations == 0
         assert deleted_alias is None
+
+
+def test_availability_audit_includes_manual_jobs_without_provenance(
+    session_factory: sessionmaker[Session], settings: Settings
+) -> None:
+    repository = Repository(session_factory, settings)
+    observed_at = datetime(2026, 7, 19, 3, 17, tzinfo=UTC)
+    repository.upsert_manual_job(
+        DiscoveredJob(
+            linkedin_job_id="2222222222",
+            company="Example Technology",
+            title="Software Engineering Intern 2027",
+            location="London, UK",
+            link="https://www.linkedin.com/jobs/view/2222222222",
+            category=OpportunityCategory.SOFTWARE_ENGINEERING,
+            employment_type=EmploymentType.INTERNSHIP,
+        ),
+        observed_at=observed_at,
+    )
+    fetcher = FakeAvailabilityFetcher()
+
+    result = asyncio.run(
+        audit_job_availability(
+            settings=settings,
+            repository=repository,
+            fetcher=fetcher,
+            observed_at=observed_at,
+        )
+    )
+
+    assert result.checked == 1
+    assert result.deleted == 1
+    assert fetcher.requested == [LINKEDIN_PUBLIC_JOB_URL.format(job_id="2222222222")]
+    assert repository.list_all_jobs() == []

@@ -31,6 +31,7 @@ The global `--settings` option must appear before the command name.
 - [`searches`](#searches)
 - [`search-test`](#search-test)
 - [`scrape`](#scrape)
+- [`add-job`](#add-job)
 - [`check-availability`](#check-availability)
 - [`render`](#render)
 - [`export-public`](#export-public)
@@ -48,6 +49,7 @@ The global `--settings` option must appear before the command name.
 | `searches` | Inspect the effective search registry and available run health |
 | `search-test` | Run one authorized search without persistence |
 | `scrape` | Run authorized collection and persist independent search outcomes |
+| `add-job` | Add a known LinkedIn listing to canonical state without search provenance |
 | `check-availability` | Audit every stored LinkedIn listing and delete explicitly unavailable rows |
 | `render` | Regenerate owned README, search-registry documentation, and public data projections |
 | `export-public` | Regenerate only the sanitized public CSV and JSON projections |
@@ -160,6 +162,33 @@ A failed search:
 Use `--no-render` where canonical state should change without modifying generated files in the Git working tree, such as a website-only VPS.
 
 The collection lifecycle is documented in [Architecture](../development/architecture.md#failure-isolation) and [Database lifecycle](../operations/database.md#successful-search-transaction).
+
+## `add-job`
+
+Maintainers can add a known LinkedIn listing without running collection:
+
+```bash
+uv run opportunities add-job \
+  --url https://www.linkedin.com/jobs/view/1234567890 \
+  --company "Example Technology" \
+  --title "Software Engineering Intern 2027" \
+  --location "London, UK" \
+  --category software-engineering \
+  --employment-type internship
+```
+
+Required options are `--url`, `--company`, `--title`, `--location`, `--category`, and `--employment-type`. Optional metadata can be supplied with `--industries`, `--start-date`, and `--posted-at`; `--posted-at` accepts an ISO-8601 timestamp and is normalized to UTC. Use `--no-render` to update only SQLite.
+
+The command:
+
+- extracts the numeric identity from the canonical LinkedIn `/jobs/view/<id>` URL;
+- validates and normalizes the row through `DiscoveredJob`;
+- inserts or updates it through the repository, reopening a closed row when necessary;
+- creates no search, search run, or `job_searches` provenance;
+- performs no network access and does not require the LinkedIn authorization interlock;
+- refreshes the README, search-registry documentation, and public CSV/JSON projections by default.
+
+A manual insertion does not change the README's last successful collection timestamp. That timestamp remains derived from successful collection runs. The full availability audit includes manual rows, and a later ordinary scrape can attach real search provenance to the existing job.
 
 ## `check-availability`
 
@@ -287,6 +316,8 @@ GitHub Actions handling of these codes is documented in [Automation](../operatio
 | `search-test` | Yes, after authorization gate | No | No |
 | `scrape` | Yes, after authorization gate | Yes | README + registry docs + public exports after at least one successful search |
 | `scrape --no-render` | Yes, after authorization gate | Yes | No |
+| `add-job` | No | Yes | README + registry docs + public exports |
+| `add-job --no-render` | No | Yes | No |
 | `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports |
 | `check-availability --no-render` | Yes, after authorization gate | Yes | No |
 | `render` | No | No | README + registry docs + public exports |
