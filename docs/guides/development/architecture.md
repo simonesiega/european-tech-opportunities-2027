@@ -256,6 +256,8 @@ Dependency boundaries are intentional:
 
 Business rules should remain independent from CLI presentation, network transport, and public projections.
 
+The maintainer-only `add-job` command is a second input path into the same validated persistence boundary. It constructs a `DiscoveredJob`, uses the repository's shared job-row upsert, and then reuses the normal projection renderer. It performs no source access and deliberately creates no search configuration, run record, or provenance association. Ordinary collection can later attach genuine provenance to the same canonical LinkedIn ID, and the full-state availability auditor treats the row like every other stored job.
+
 ## Operational boundaries
 
 The supported architecture requires:

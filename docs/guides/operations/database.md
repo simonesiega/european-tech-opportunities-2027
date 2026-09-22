@@ -12,6 +12,7 @@ This is the canonical database and lifecycle guide for the project. SQLite is th
 - [Search state and runs](#search-state-and-runs)
 - [Provenance](#provenance)
 - [Successful search transaction](#successful-search-transaction)
+- [Manual job insertion](#manual-job-insertion)
 - [Closure lifecycle](#closure-lifecycle)
 - [Daily full-state availability audit](#daily-full-state-availability-audit)
 - [Timestamp invariants](#timestamp-invariants)
@@ -148,6 +149,14 @@ Rediscovery:
 - resets explicit-unavailability confirmations;
 - can reopen a previously closed job.
 
+## Manual job insertion
+
+Maintainers may add a known, validated LinkedIn listing through `opportunities add-job`. The repository writes the `jobs` row directly without creating a synthetic search, search run, or `job_searches` association.
+
+For a new row, the command records it as open and initializes `first_seen_at` from the supplied posting timestamp when present, bounded by the actual observation time. Otherwise, the observation time is used. For an existing row, normal public fields are refreshed, omitted optional metadata remains preserved, `first_seen_at` remains immutable, lifecycle timestamps remain monotonic, and a closed row is reopened.
+
+Manual rows participate in all normal read paths and the full-state availability audit. If collection later discovers the same numeric LinkedIn ID, the successful search transaction updates the existing row and attaches genuine search provenance. Manual insertion never changes collection statistics or the latest successful collection timestamp.
+
 ## Closure lifecycle
 
 Search-card absence is never closure evidence.
@@ -206,7 +215,7 @@ Persistence therefore uses monotonic timestamp updates:
 next timestamp = max(existing timestamp, observed timestamp)
 ```
 
-This applies to job and association observations and prevents state from moving backwards. On a job’s first insert, `first_seen_at` is initialized from LinkedIn’s relative posting age; later observations never rewrite it. Provenance timestamps continue to represent actual search observations.
+This applies to job and association observations and prevents state from moving backwards. On a job’s first insert, `first_seen_at` is initialized from LinkedIn’s relative posting age or an explicitly supplied manual posting timestamp; later observations never rewrite it. Provenance timestamps continue to represent actual search observations.
 
 Validation requires:
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Annotated
 
@@ -21,7 +22,7 @@ from opportunities.config.search_registry import (
 )
 from opportunities.config.settings import Settings, apply_search_overrides, load_settings
 from opportunities.database.migrations import migration_head, upgrade_database
-from opportunities.database.repository import Repository, SearchHealth
+from opportunities.database.repository import PersistSummary, Repository, SearchHealth
 from opportunities.database.session import (
     create_database_engine,
     create_session_factory,
@@ -29,6 +30,7 @@ from opportunities.database.session import (
     database_revision,
     missing_tables,
 )
+from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.pipeline.availability import audit_job_availability
@@ -41,6 +43,8 @@ from opportunities.search_registry_docs import (
 )
 from opportunities.utils.logging import configure_logging
 from opportunities.utils.paths import find_project_root
+from opportunities.utils.time import ensure_utc, utc_now
+from opportunities.utils.url import extract_linkedin_job_id
 
 # App context and console for output. ROOT locates source-checkout or wheel-packaged migrations.
 try:
@@ -151,6 +155,63 @@ def check_availability(
     finally:
         _dispose_engine(engine)
     raise typer.Exit(result.exit_code)
+
+
+@app.command("add-job")
+def add_job(
+    ctx: typer.Context,
+    url: Annotated[str, typer.Option("--url", help="Public LinkedIn /jobs/view/<id> URL.")],
+    company: Annotated[str, typer.Option("--company", help="Company name.")],
+    title: Annotated[str, typer.Option("--title", help="Opportunity title.")],
+    location: Annotated[str, typer.Option("--location", help="European job location.")],
+    category: Annotated[
+        OpportunityCategory, typer.Option("--category", help="Technology category.")
+    ],
+    employment_type: Annotated[
+        EmploymentType, typer.Option("--employment-type", help="Internship or New Grad.")
+    ],
+    industries: Annotated[
+        str | None, typer.Option("--industries", help="Optional industries metadata.")
+    ] = None,
+    start_date: Annotated[
+        str | None, typer.Option("--start-date", help="Optional start date metadata.")
+    ] = None,
+    posted_at: Annotated[
+        str | None, typer.Option("--posted-at", help="Optional ISO-8601 posting timestamp.")
+    ] = None,
+    no_render: Annotated[
+        bool, typer.Option("--no-render", help="Do not update generated projections.")
+    ] = False,
+) -> None:
+    """Add a known LinkedIn job directly to canonical state without provenance."""
+    settings = _settings(ctx)
+    repository, engine = _repository(settings)
+    try:
+        _require_migrations(engine)
+        try:
+            observed_at = utc_now()
+            job = DiscoveredJob(
+                linkedin_job_id=extract_linkedin_job_id(url),
+                company=company,
+                title=title,
+                location=location,
+                link=url,
+                category=category,
+                industries=industries,
+                employment_type=employment_type,
+                start_date=start_date,
+                posted_at=_parse_iso_timestamp(posted_at) if posted_at is not None else None,
+            )
+            summary = repository.upsert_manual_job(job, observed_at=observed_at)
+            if not no_render:
+                _render_projections(settings, repository)
+        except (OSError, ValueError, ValidationError) as exc:
+            error_console.print(f"[red]Add job failed:[/red] {exc}")
+            raise typer.Exit(2) from exc
+        action = _manual_job_action(summary)
+        console.print(f"Job {job.linkedin_job_id} {action}.")
+    finally:
+        _dispose_engine(engine)
 
 
 @app.command("search-test")
@@ -316,6 +377,31 @@ def validate(ctx: typer.Context) -> None:
 def _configured_searches(settings: Settings) -> list[LinkedInSearchConfig]:
     """Load configured searches with runtime overrides."""
     return apply_search_overrides(load_search_registry(settings.search_config_dir), settings)
+
+
+def _parse_iso_timestamp(value: str) -> datetime:
+    """Parse an ISO-8601 CLI timestamp and normalize it to aware UTC."""
+    candidate = value.strip()
+    if "T" not in candidate and " " not in candidate:
+        raise ValueError("posted_at must be a valid ISO-8601 timestamp")
+    try:
+        parsed = datetime.fromisoformat(candidate.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("posted_at must be a valid ISO-8601 timestamp") from exc
+    return ensure_utc(parsed)
+
+
+def _manual_job_action(summary: PersistSummary) -> str:
+    """Describe the exact outcome of one manual job upsert."""
+    if summary.new:
+        return "added"
+    if summary.updated and summary.reopened:
+        return "updated and reopened"
+    if summary.updated:
+        return "updated"
+    if summary.reopened:
+        return "reopened"
+    return "already current"
 
 
 def _selected_searches(

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import socket
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -10,7 +11,9 @@ from typer.testing import CliRunner
 
 import opportunities.cli.app as cli_app_module
 from opportunities.cli.app import app
-from opportunities.database.repository import Repository
+from opportunities.config.settings import Settings
+from opportunities.database.repository import PersistSummary, Repository
+from opportunities.database.session import create_database_engine, create_session_factory
 from opportunities.utils.paths import find_project_root
 
 runner = CliRunner()
@@ -29,8 +32,7 @@ def cli_env(tmp_path: Path) -> dict[str, str]:
     }
 
 
-def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
-    environment = cli_env(tmp_path)
+def initialize_projection_files(tmp_path: Path) -> None:
     (tmp_path / "README.md").write_text(
         "# Test\n\n<!-- BEGIN OPPORTUNITY COUNTS -->\nold\n"
         "<!-- END OPPORTUNITY COUNTS -->\n\n<!-- BEGIN OPPORTUNITIES -->\nold\n"
@@ -46,6 +48,18 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
         "└── countries/   # 0 country partitions\n```\n",
         encoding="utf-8",
     )
+
+
+def repository_for(environment: dict[str, str]) -> tuple[Repository, Engine]:
+    settings = Settings(database_url=environment["OPPORTUNITIES_DATABASE_URL"])
+    engine = create_database_engine(settings.database_url)
+    return Repository(create_session_factory(engine), settings), engine
+
+
+def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
+    environment = cli_env(tmp_path)
+    initialize_projection_files(tmp_path)
+    docs_path = tmp_path / "docs" / "guides" / "user-guide" / "search-registry.md"
     before = runner.invoke(app, ["stats"], env=environment)
     assert before.exit_code == 3
 
@@ -202,3 +216,184 @@ def test_unknown_search_is_rejected_without_network(tmp_path: Path) -> None:
     )
     assert result.exit_code == 2
     assert "unknown or disabled search" in result.output
+
+
+def test_add_job_persists_and_renders_without_authorization_or_network(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] = "false"
+    initialize_projection_files(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+
+    def reject_network(*_args: object, **_kwargs: object) -> None:
+        raise AssertionError("unexpected network request")
+
+    monkeypatch.setattr(socket.socket, "connect", reject_network)
+    result = runner.invoke(
+        app,
+        [
+            "add-job",
+            "--url",
+            "https://www.linkedin.com/jobs/view/1111111111?trk=public_jobs",
+            "--company",
+            "Example Technology",
+            "--title",
+            "Software Engineering Intern 2027",
+            "--location",
+            "London, UK",
+            "--category",
+            "software-engineering",
+            "--employment-type",
+            "internship",
+            "--industries",
+            "Software Development",
+            "--start-date",
+            "Summer 2027",
+            "--posted-at",
+            "2026-07-01T10:30:00+02:00",
+        ],
+        env=environment,
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Job 1111111111 added" in result.output
+    readme = (tmp_path / "README.md").read_text(encoding="utf-8")
+    assert "Example Technology" in readme
+    assert "Last successful collection: Never" in readme
+    assert (tmp_path / "exports" / "open-opportunities.csv").is_file()
+    assert (tmp_path / "exports" / "open-opportunities.json").is_file()
+    repository, engine = repository_for(environment)
+    try:
+        stored = repository.list_open_jobs()[0]
+        assert stored.linkedin_job_id == "1111111111"
+        assert stored.link == "https://www.linkedin.com/jobs/view/1111111111"
+        assert stored.first_seen_at.isoformat() == "2026-07-01T08:30:00+00:00"
+        assert repository.stats().successful_runs == 0
+    finally:
+        engine.dispose()
+
+
+def test_add_job_no_render_only_updates_sqlite(tmp_path: Path) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] = "false"
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+
+    result = runner.invoke(
+        app,
+        [
+            "add-job",
+            "--url",
+            "https://www.linkedin.com/jobs/view/2222222222",
+            "--company",
+            "Example Technology",
+            "--title",
+            "Graduate Software Engineer 2027",
+            "--location",
+            "Berlin, Germany",
+            "--category",
+            "software-engineering",
+            "--employment-type",
+            "new-grad",
+            "--no-render",
+        ],
+        env=environment,
+    )
+
+    assert result.exit_code == 0, result.output
+    assert not (tmp_path / "README.md").exists()
+    assert not (tmp_path / "exports").exists()
+    repository, engine = repository_for(environment)
+    try:
+        assert [job.linkedin_job_id for job in repository.list_open_jobs()] == ["2222222222"]
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.parametrize(
+    ("summary", "message"),
+    [
+        (PersistSummary(new=1), "added"),
+        (PersistSummary(updated=1), "updated"),
+        (PersistSummary(reopened=1), "reopened"),
+        (PersistSummary(updated=1, reopened=1), "updated and reopened"),
+        (PersistSummary(), "already current"),
+    ],
+)
+def test_add_job_reports_exact_persistence_outcome(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    summary: PersistSummary,
+    message: str,
+) -> None:
+    repository = Mock(spec=Repository)
+    repository.upsert_manual_job.return_value = summary
+    engine = Mock(spec=Engine)
+    monkeypatch.setattr(cli_app_module, "_repository", lambda _settings: (repository, engine))
+    monkeypatch.setattr(cli_app_module, "_require_migrations", lambda _engine: None)
+
+    result = runner.invoke(
+        app,
+        [
+            "add-job",
+            "--url",
+            "https://www.linkedin.com/jobs/view/2222222222",
+            "--company",
+            "Example Technology",
+            "--title",
+            "Graduate Software Engineer 2027",
+            "--location",
+            "Berlin, Germany",
+            "--category",
+            "software-engineering",
+            "--employment-type",
+            "new-grad",
+            "--no-render",
+        ],
+        env=cli_env(tmp_path),
+    )
+
+    assert result.exit_code == 0, result.output
+    assert f"Job 2222222222 {message}." in result.output
+    engine.dispose.assert_called_once_with()
+
+
+@pytest.mark.parametrize(
+    ("extra_args", "message"),
+    [
+        (["--url", "https://example.com/jobs/view/1111111111"], "canonical LinkedIn job"),
+        (["--posted-at", "not-a-timestamp"], "valid ISO-8601 timestamp"),
+        (["--posted-at", "2026-07-01"], "valid ISO-8601 timestamp"),
+        (["--category", "not-a-category"], "Invalid value"),
+    ],
+)
+def test_add_job_rejects_invalid_input(tmp_path: Path, extra_args: list[str], message: str) -> None:
+    environment = cli_env(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    arguments = [
+        "add-job",
+        "--url",
+        "https://www.linkedin.com/jobs/view/1111111111",
+        "--company",
+        "Example Technology",
+        "--title",
+        "Software Engineering Intern 2027",
+        "--location",
+        "London, UK",
+        "--category",
+        "software-engineering",
+        "--employment-type",
+        "internship",
+        "--no-render",
+        *extra_args,
+    ]
+
+    result = runner.invoke(app, arguments, env=environment)
+
+    assert result.exit_code == 2
+    assert message in result.output
+    repository, engine = repository_for(environment)
+    try:
+        assert repository.list_all_jobs() == []
+    finally:
+        engine.dispose()

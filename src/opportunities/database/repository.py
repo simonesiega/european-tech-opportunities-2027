@@ -212,6 +212,16 @@ class Repository:
                 )
             )
 
+    def upsert_manual_job(
+        self,
+        incoming: DiscoveredJob,
+        *,
+        observed_at: datetime,
+    ) -> PersistSummary:
+        """Insert or update one maintainer-supplied job without search provenance."""
+        with self.factory.begin() as session:
+            return self._upsert_job_row(session, incoming=incoming, observed_at=observed_at)
+
     def list_open_jobs(self) -> list[StoredJob]:
         """Return all open jobs in publication order."""
         with self.factory() as session:
@@ -364,68 +374,8 @@ class Repository:
         incoming: DiscoveredJob,
         observed_at: datetime,
     ) -> PersistSummary:
-        """Insert or update a discovered job."""
-        row = session.get(JobRow, incoming.linkedin_job_id)
-        summary = PersistSummary()
-        if row is None:
-            # LinkedIn exposes only relative posting age. Preserve its inferred
-            # publication timestamp on first insert without ever moving lifecycle
-            # state later than the actual observation.
-            first_seen_at = min(
-                ensure_utc(incoming.posted_at or observed_at),
-                ensure_utc(observed_at),
-            )
-            row = JobRow(
-                linkedin_job_id=incoming.linkedin_job_id,
-                company=incoming.company,
-                title=incoming.title,
-                location=incoming.location,
-                link=incoming.link,
-                category=incoming.category.value,
-                industries=incoming.industries,
-                employment_type=incoming.employment_type.value,
-                start_date=incoming.start_date,
-                first_seen_at=first_seen_at,
-                last_seen_at=observed_at,
-                updated_at=observed_at,
-                status=JobStatus.OPEN.value,
-            )
-            session.add(row)
-            summary = PersistSummary(new=1)
-        else:
-            # A delayed run must never move lifecycle timestamps backwards.
-            effective_time = max(ensure_utc(row.last_seen_at), ensure_utc(observed_at))
-            # Missing optional metadata is not evidence that a previously observed
-            # value became invalid; public detail markup can omit fields temporarily.
-            next_industries = incoming.industries or row.industries
-            next_employment_type = incoming.employment_type.value
-            next_start_date = incoming.start_date or row.start_date
-            changed = any(
-                (
-                    row.company != incoming.company,
-                    row.title != incoming.title,
-                    row.location != incoming.location,
-                    row.link != incoming.link,
-                    row.category != incoming.category.value,
-                    row.industries != next_industries,
-                    row.employment_type != next_employment_type,
-                    row.start_date != next_start_date,
-                )
-            )
-            reopened = row.status == JobStatus.CLOSED.value
-            row.company = incoming.company
-            row.title = incoming.title
-            row.location = incoming.location
-            row.link = incoming.link
-            row.category = incoming.category.value
-            row.industries = next_industries
-            row.employment_type = next_employment_type
-            row.start_date = next_start_date
-            row.last_seen_at = effective_time
-            row.status = JobStatus.OPEN.value
-            if changed or reopened:
-                row.updated_at = effective_time
-            summary = PersistSummary(updated=int(changed), reopened=int(reopened))
+        """Insert or update a discovered job and attach its search provenance."""
+        summary = self._upsert_job_row(session, incoming=incoming, observed_at=observed_at)
         session.flush()
 
         # Provenance is tracked per search because one listing may be discovered by
@@ -451,6 +401,75 @@ class Repository:
             alias.unavailable_confirmations = 0
             alias.active = True
         return summary
+
+    def _upsert_job_row(
+        self,
+        session: Session,
+        *,
+        incoming: DiscoveredJob,
+        observed_at: datetime,
+    ) -> PersistSummary:
+        """Insert or update shared canonical job fields and lifecycle state."""
+        row = session.get(JobRow, incoming.linkedin_job_id)
+        observation = ensure_utc(observed_at)
+        if row is None:
+            # Preserve posting evidence on first insert without ever moving lifecycle
+            # state later than the actual observation.
+            first_seen_at = min(
+                ensure_utc(incoming.posted_at or observed_at),
+                observation,
+            )
+            row = JobRow(
+                linkedin_job_id=incoming.linkedin_job_id,
+                company=incoming.company,
+                title=incoming.title,
+                location=incoming.location,
+                link=incoming.link,
+                category=incoming.category.value,
+                industries=incoming.industries,
+                employment_type=incoming.employment_type.value,
+                start_date=incoming.start_date,
+                first_seen_at=first_seen_at,
+                last_seen_at=observation,
+                updated_at=observation,
+                status=JobStatus.OPEN.value,
+            )
+            session.add(row)
+            return PersistSummary(new=1)
+
+        # A delayed observation must never move lifecycle timestamps backwards.
+        effective_time = max(ensure_utc(row.last_seen_at), observation)
+        # Missing optional metadata is not evidence that a previously observed
+        # value became invalid; public detail markup can omit fields temporarily.
+        next_industries = incoming.industries or row.industries
+        next_employment_type = incoming.employment_type.value
+        next_start_date = incoming.start_date or row.start_date
+        changed = any(
+            (
+                row.company != incoming.company,
+                row.title != incoming.title,
+                row.location != incoming.location,
+                row.link != incoming.link,
+                row.category != incoming.category.value,
+                row.industries != next_industries,
+                row.employment_type != next_employment_type,
+                row.start_date != next_start_date,
+            )
+        )
+        reopened = row.status == JobStatus.CLOSED.value
+        row.company = incoming.company
+        row.title = incoming.title
+        row.location = incoming.location
+        row.link = incoming.link
+        row.category = incoming.category.value
+        row.industries = next_industries
+        row.employment_type = next_employment_type
+        row.start_date = next_start_date
+        row.last_seen_at = effective_time
+        row.status = JobStatus.OPEN.value
+        if changed or reopened:
+            row.updated_at = max(ensure_utc(row.updated_at), effective_time)
+        return PersistSummary(updated=int(changed), reopened=int(reopened))
 
     def _confirm_unavailable(
         self,

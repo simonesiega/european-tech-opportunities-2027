@@ -162,8 +162,8 @@ The offline suite measures critical classification and lifecycle paths and enfor
 <!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 90.1% | ≥ 85.0% |
-| Branch coverage | 82.7% | Reported |
+| Combined statement and branch coverage | 90.5% | ≥ 85.0% |
+| Branch coverage | 83.6% | Reported |
 | Classifier branch coverage | 97.5% | Reported |
 <!-- END PYTHON COVERAGE -->
 
