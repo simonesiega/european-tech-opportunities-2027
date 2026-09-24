@@ -30,6 +30,7 @@
   <img src="https://img.shields.io/badge/Internships-312-16a34a?style=for-the-badge" alt="Internships: 312" />
   <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
 </p>
+<!-- Public directory state v1 sha256: d3533a56f2cba5ef501f3b7861eeb9afa8556e79f8597bcfe8ff4d753a2b8fba -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
