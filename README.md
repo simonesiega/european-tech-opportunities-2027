@@ -29,10 +29,10 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 23, 2026 at 10:47 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-689-2563eb?style=for-the-badge" alt="Total opportunities: 689" />
-  <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
-  <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="New Grad opportunities: 373" />
+  <strong>Last successful collection: September 24, 2026 at 10:44 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-690-2563eb?style=for-the-badge" alt="Total opportunities: 690" />
+  <img src="https://img.shields.io/badge/Internships-312-16a34a?style=for-the-badge" alt="Internships: 312" />
+  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
 </p>
 <!-- END OPPORTUNITY COUNTS -->
 
@@ -72,34 +72,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 689 (Internships: 316 · New Grad: 373)<br>
-**Last successful collection:** September 23, 2026 at 10:47 UTC
+**Open opportunities:** 690 (Internships: 312 · New Grad: 378)<br>
+**Last successful collection:** September 24, 2026 at 10:44 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 373 open New Grad opportunities:
+Showing the 5 most recently discovered of 378 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4469407982>) |
-| Bending Spoons | Graduate security engineer | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4469424157>) |
-| UBS | 2027 Graduate Talent Program – Tech – Software Engineer – Zurich | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4470672403>) |
-| Balyasny Asset Management L.P. | Junior \(Post-Graduate\) Software Engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4469032679>) |
-| Tesco | IMS Technology – Cyber Security Graduate Scheme | Edinburgh, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4468794494>) |
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4469633075>) |
+| Kneat Solutions | Kneat Graduate Programme 2027 - Information Technology | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4471101744>) |
+| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4469476820>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4469478721>) |
+| Ericsson | Entry Level: Software Developer Integrated Sensing and Communication | Lund, Skåne County, Sweden | [View](<https://www.linkedin.com/jobs/view/4469474507>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 316 open internships:
+Showing the 5 most recently discovered of 312 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Motorola Solutions | Intern Software Developer \(React/JS\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4470948509>) |
+| Arm | Software Engineer Intern - CE Software | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4469446447>) |
+| Murex | INTERNSHIP 2027 – Software Engineer C++ | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470418196>) |
 | Bigblue | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470914531>) |
 | Hapag-Lloyd AG | Quality Assurance Intern | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4468984626>) |
-| RIVR | Robotics Wireless &amp; Network Engineer Intern | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4470639723>) |
-| Murex | INTERNSHIP 2027 - Software Engineer Java | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470404628>) |
-| BIP Red | Software Tester - Intern | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4470291794>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
