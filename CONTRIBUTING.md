@@ -57,7 +57,7 @@ Preserve these invariants:
 
 1. SQLite is the lifecycle source of truth.
 2. Numeric LinkedIn job IDs are canonical identities.
-3. Ambiguous type, role, seniority, cycle, or geography is excluded; a yearless listing also requires eligible posting-date evidence.
+3. Ambiguous type, role, seniority, cycle, or geography is excluded; a listing without explicit target-cycle evidence also requires eligible posting-date evidence.
 4. Search-page disappearance never closes a listing.
 5. Failed searches do not mutate that search's lifecycle state.
 6. The repository layer is the sole application writer.
@@ -112,7 +112,7 @@ Add nearby acceptance and rejection tests. Preserve:
 
 - title-explicit Internship or New Grad evidence;
 - seniority and technology-role exclusions;
-- explicit target-cycle acceptance, yearless acceptance only with the May 1, 2026 posting-date floor, and conflicting-cycle rejection;
+- explicit target-cycle acceptance, acceptance without explicit opportunity-cycle evidence only with the May 1, 2026 posting-date floor, and conflicting-cycle rejection;
 - explicit European geography;
 - stable exclusion reasons.
 

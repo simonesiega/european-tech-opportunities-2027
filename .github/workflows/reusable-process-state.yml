@@ -18,53 +18,18 @@ on:
         required: false
         default: false
         type: boolean
-      add_manual_job:
-        description: Add one operator-supplied job before regenerating projections.
+      adopt_public_review_seal:
+        description: Propose the first reviewed public-state seal without mutating durable state.
         required: false
         default: false
         type: boolean
-      manual_job_url:
-        description: Public LinkedIn job URL for a manual add operation.
+      add_manual_jobs:
+        description: Add an operator-supplied batch before regenerating projections.
         required: false
-        default: ""
-        type: string
-      manual_job_company:
-        description: Company for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_title:
-        description: Title for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_location:
-        description: Location for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_category:
-        description: Category for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_employment_type:
-        description: Employment type for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_industries:
-        description: Optional industries for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_start_date:
-        description: Optional start date for a manual add operation.
-        required: false
-        default: ""
-        type: string
-      manual_job_posted_at:
-        description: Optional ISO-8601 posting timestamp for a manual add operation.
+        default: false
+        type: boolean
+      manual_jobs_json:
+        description: JSON array of manually reviewed jobs for a batch add operation.
         required: false
         default: ""
         type: string
@@ -162,6 +127,13 @@ jobs:
           echo "Set the repository variable LINKEDIN_CRAWL_AUTHORIZED=true before source access."
           exit 1
 
+      - name: Keep review-seal adoption read-only
+        if: inputs.adopt_public_review_seal && (inputs.run_availability || inputs.run_scrape || inputs.add_manual_jobs || inputs.deploy_to_vps || inputs.readme_artifact_name == '')
+        shell: bash
+        run: |
+          echo "Review-seal adoption requires a README handoff and cannot collect, add, audit, or deploy."
+          exit 1
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -186,17 +158,35 @@ jobs:
         run: uv run opportunities db-upgrade
 
       - name: Require restored state to match reviewed main
+        env:
+          ADOPT_PUBLIC_REVIEW_SEAL: ${{ inputs.adopt_public_review_seal }}
         shell: bash
         run: |
           set -euo pipefail
           reviewed_readme="${RUNNER_TEMP}/reviewed-main-README.md"
           cp README.md "$reviewed_readme"
           uv run opportunities render
-          if ! cmp -s "$reviewed_readme" README.md; then
-            echo "Restored canonical state is ahead of the reviewed README on main."
-            echo "Merge or otherwise resolve the matching README state proposal before running another canonical-state workflow."
-            exit 1
+          if cmp -s "$reviewed_readme" README.md; then
+            exit 0
           fi
+          if [ "$ADOPT_PUBLIC_REVIEW_SEAL" = "true" ] && \
+             ! grep -Fq '<!-- Public directory state v1 sha256:' "$reviewed_readme"; then
+            # One-time bootstrap: the only permitted difference is the new generated seal.
+            # No source phase or durable publication runs in this mode.
+            seal_count=$(grep -Ec '^<!-- Public directory state v1 sha256: [0-9a-f]{64} -->$' README.md || true)
+            if [ "$seal_count" -eq 1 ]; then
+              legacy_projection="${RUNNER_TEMP}/legacy-projection-README.md"
+              sed -E '/^<!-- Public directory state v1 sha256: [0-9a-f]{64} -->$/d' \
+                README.md > "$legacy_projection"
+              if cmp -s "$reviewed_readme" "$legacy_projection"; then
+                echo "Verified the legacy README; proposing its public-state review seal."
+                exit 0
+              fi
+            fi
+          fi
+          echo "Restored canonical state is ahead of the reviewed README on main."
+          echo "Merge or otherwise resolve the matching README state proposal before running another canonical-state workflow."
+          exit 1
 
       - name: Check every stored public job page for closure alerts
         if: inputs.run_availability
@@ -226,43 +216,21 @@ jobs:
             exit "$code"
           fi
 
-      - name: Add manually reviewed job
-        if: inputs.add_manual_job
+      - name: Add manually reviewed jobs
+        if: inputs.add_manual_jobs
         env:
-          MANUAL_JOB_URL: ${{ inputs.manual_job_url }}
-          MANUAL_JOB_COMPANY: ${{ inputs.manual_job_company }}
-          MANUAL_JOB_TITLE: ${{ inputs.manual_job_title }}
-          MANUAL_JOB_LOCATION: ${{ inputs.manual_job_location }}
-          MANUAL_JOB_CATEGORY: ${{ inputs.manual_job_category }}
-          MANUAL_JOB_EMPLOYMENT_TYPE: ${{ inputs.manual_job_employment_type }}
-          MANUAL_JOB_INDUSTRIES: ${{ inputs.manual_job_industries }}
-          MANUAL_JOB_START_DATE: ${{ inputs.manual_job_start_date }}
-          MANUAL_JOB_POSTED_AT: ${{ inputs.manual_job_posted_at }}
+          MANUAL_JOBS_JSON: ${{ inputs.manual_jobs_json }}
         shell: bash
         run: |
           set -euo pipefail
-          arguments=(
-            --url "$MANUAL_JOB_URL"
-            --company "$MANUAL_JOB_COMPANY"
-            --title "$MANUAL_JOB_TITLE"
-            --location "$MANUAL_JOB_LOCATION"
-            --category "$MANUAL_JOB_CATEGORY"
-            --employment-type "$MANUAL_JOB_EMPLOYMENT_TYPE"
-            --no-render
-          )
-          if [ -n "$MANUAL_JOB_INDUSTRIES" ]; then
-            arguments+=(--industries "$MANUAL_JOB_INDUSTRIES")
-          fi
-          if [ -n "$MANUAL_JOB_START_DATE" ]; then
-            arguments+=(--start-date "$MANUAL_JOB_START_DATE")
-          fi
-          if [ -n "$MANUAL_JOB_POSTED_AT" ]; then
-            arguments+=(--posted-at "$MANUAL_JOB_POSTED_AT")
-          fi
-          uv run opportunities add-job "${arguments[@]}"
+          batch_file=$(mktemp "${RUNNER_TEMP}/manual-jobs.XXXXXX")
+          trap 'rm -f "$batch_file"' EXIT
+          printf '%s' "$MANUAL_JOBS_JSON" > "$batch_file"
+          unset MANUAL_JOBS_JSON
+          uv run opportunities add-jobs --input "$batch_file" --no-render
 
-      - name: Regenerate projections after manual job addition
-        if: inputs.add_manual_job
+      - name: Regenerate projections after manual job additions
+        if: inputs.add_manual_jobs
         run: uv run opportunities render
 
       - name: Generate public exports
@@ -278,6 +246,7 @@ jobs:
           db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
 
       - name: Configure restricted VPS snapshot access
+        if: inputs.adopt_public_review_seal != true
         env:
           VPS_BACKUP_SSH_PRIVATE_KEY: ${{ secrets.VPS_BACKUP_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
@@ -293,6 +262,7 @@ jobs:
           chmod 600 "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/known_hosts"
 
       - name: Publish and restore-verify VPS canonical snapshot
+        if: inputs.adopt_public_review_seal != true
         id: canonical-snapshot
         env:
           VPS_BACKUP_HOST: ${{ secrets.VPS_HOST }}
@@ -303,11 +273,11 @@ jobs:
         run: bash scripts/canonical_state_store.sh publish
 
       - name: Remove SSH credentials
-        if: always()
+        if: always() && inputs.adopt_public_review_seal != true
         shell: bash
         run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
-      - name: Deploy database and public exports atomically
+      - name: Publish versioned database and exports release
         if: inputs.deploy_to_vps
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}

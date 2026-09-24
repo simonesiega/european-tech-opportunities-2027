@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 import typer
 from pydantic import ValidationError
@@ -33,7 +34,9 @@ from opportunities.database.session import (
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.normalization.location import normalize_locations
 from opportunities.pipeline.availability import audit_job_availability
+from opportunities.pipeline.classification import Classifier
 from opportunities.pipeline.runner import CollectionPipeline, PipelineResult
 from opportunities.public_exports import render_public_exports, validate_public_exports
 from opportunities.readme import ReadmeMetadata, render_readme, validate_readme
@@ -63,6 +66,12 @@ app = typer.Typer(
         "read-only public projections."
     ),
 )
+_MAX_MANUAL_BATCH_BYTES = 65_536
+_MAX_MANUAL_BATCH_JOBS = 10
+_MANUAL_REQUIRED_FIELDS = frozenset(
+    {"url", "company", "title", "location", "category", "employment_type"}
+)
+_MANUAL_OPTIONAL_FIELDS = frozenset({"industries", "start_date", "posted_at"})
 
 
 @app.callback()
@@ -183,33 +192,81 @@ def add_job(
         bool, typer.Option("--no-render", help="Do not update generated projections.")
     ] = False,
 ) -> None:
-    """Add a known LinkedIn job directly to canonical state without provenance."""
+    """Insert one manually verified listing after the normal deterministic acceptance checks."""
     settings = _settings(ctx)
     repository, engine = _repository(settings)
     try:
         _require_migrations(engine)
         try:
             observed_at = utc_now()
-            job = DiscoveredJob(
-                linkedin_job_id=extract_linkedin_job_id(url),
+            classifier = Classifier(
+                load_classification_rules(settings.category_config_path), settings.target_cycle
+            )
+            job = _prepare_manual_job(
+                classifier=classifier,
+                observed_at=observed_at,
+                url=url,
                 company=company,
                 title=title,
                 location=location,
-                link=url,
                 category=category,
                 industries=industries,
                 employment_type=employment_type,
                 start_date=start_date,
-                posted_at=_parse_iso_timestamp(posted_at) if posted_at is not None else None,
+                posted_at=posted_at,
             )
             summary = repository.upsert_manual_job(job, observed_at=observed_at)
             if not no_render:
                 _render_projections(settings, repository)
-        except (OSError, ValueError, ValidationError) as exc:
+        except ValidationError as exc:
+            error_console.print("[red]Add job failed:[/red] Invalid listing fields.")
+            raise typer.Exit(2) from exc
+        except OSError as exc:
+            error_console.print("[red]Add job failed:[/red] Local state is unavailable.")
+            raise typer.Exit(2) from exc
+        except ValueError as exc:
             error_console.print(f"[red]Add job failed:[/red] {exc}")
             raise typer.Exit(2) from exc
         action = _manual_job_action(summary)
         console.print(f"Job {job.linkedin_job_id} {action}.")
+    finally:
+        _dispose_engine(engine)
+
+
+@app.command("add-jobs")
+def add_jobs(
+    ctx: typer.Context,
+    input_file: Annotated[
+        Path, typer.Option("--input", help="Local JSON file containing 1 to 10 reviewed jobs.")
+    ],
+    no_render: Annotated[
+        bool, typer.Option("--no-render", help="Do not update generated projections.")
+    ] = False,
+) -> None:
+    """Insert a bounded batch of reviewed listings in one database transaction."""
+    settings = _settings(ctx)
+    repository, engine = _repository(settings)
+    try:
+        _require_migrations(engine)
+        try:
+            observed_at = utc_now()
+            classifier = Classifier(
+                load_classification_rules(settings.category_config_path), settings.target_cycle
+            )
+            jobs = _load_manual_batch(input_file, classifier=classifier, observed_at=observed_at)
+            summary = repository.upsert_manual_jobs(jobs, observed_at=observed_at)
+            if not no_render:
+                _render_projections(settings, repository)
+        except OSError as exc:
+            error_console.print("[red]Add jobs failed:[/red] Local input or state is unavailable.")
+            raise typer.Exit(2) from exc
+        except ValueError as exc:
+            error_console.print(f"[red]Add jobs failed:[/red] {exc}")
+            raise typer.Exit(2) from exc
+        console.print(
+            f"Processed {len(jobs)} job(s): {summary.new} added, {summary.updated} updated, "
+            f"{len(jobs) - summary.new - summary.updated} already current."
+        )
     finally:
         _dispose_engine(engine)
 
@@ -222,8 +279,6 @@ def search_test(ctx: typer.Context, search_slug: str) -> None:
     repository, engine = _repository(settings)
     try:
         selected = _selected_searches(_configured_searches(settings), search_slug)
-        if not selected:
-            raise ValueError(f"unknown or disabled search: {search_slug}")
         rules = load_classification_rules(settings.category_config_path)
         result, jobs, excluded = asyncio.run(
             CollectionPipeline(
@@ -388,19 +443,153 @@ def _parse_iso_timestamp(value: str) -> datetime:
         parsed = datetime.fromisoformat(candidate.replace("Z", "+00:00"))
     except ValueError as exc:
         raise ValueError("posted_at must be a valid ISO-8601 timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("posted_at must include an explicit timezone")
     return ensure_utc(parsed)
+
+
+def _prepare_manual_job(
+    *,
+    classifier: Classifier,
+    observed_at: datetime,
+    url: str,
+    company: str,
+    title: str,
+    location: str,
+    category: OpportunityCategory,
+    employment_type: EmploymentType,
+    industries: str | None,
+    start_date: str | None,
+    posted_at: str | None,
+) -> DiscoveredJob:
+    """Apply the same strict model and classifier checks to both manual commands."""
+    job = DiscoveredJob(
+        linkedin_job_id=extract_linkedin_job_id(url),
+        company=company,
+        title=title,
+        location=location,
+        link=url,
+        category=category,
+        industries=industries,
+        employment_type=employment_type,
+        start_date=start_date,
+        posted_at=_parse_iso_timestamp(posted_at) if posted_at is not None else None,
+    )
+    if job.posted_at is not None and job.posted_at > observed_at:
+        raise ValueError("posting timestamp cannot be in the future")
+    decision = classifier.classify(
+        title=job.title,
+        description=None,
+        location=normalize_locations([job.location]),
+        posted_at=job.posted_at,
+    )
+    if not decision.include:
+        raise ValueError(f"listing is outside publication policy: {decision.exclusion_reason}")
+    if decision.category != job.category or decision.employment_type != job.employment_type:
+        raise ValueError("category/type conflicts with classifier")
+    return job
+
+
+def _unique_json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    """Reject duplicate JSON keys before any listing can be written."""
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON field")
+        result[key] = value
+    return result
+
+
+def _load_manual_batch(
+    input_file: Path, *, classifier: Classifier, observed_at: datetime
+) -> list[DiscoveredJob]:
+    """Read a bounded JSON array and validate every record before persistence."""
+    with input_file.open("rb") as source:
+        content = source.read(_MAX_MANUAL_BATCH_BYTES + 1)
+    if len(content) > _MAX_MANUAL_BATCH_BYTES:
+        raise ValueError("input file exceeds 64 KiB")
+    try:
+        parsed: object = json.loads(content.decode("utf-8"), object_pairs_hook=_unique_json_object)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError, RecursionError) as exc:
+        raise ValueError(
+            "input file must contain valid UTF-8 JSON without duplicate fields"
+        ) from exc
+    if not isinstance(parsed, list) or not 1 <= len(parsed) <= _MAX_MANUAL_BATCH_JOBS:
+        raise ValueError("input must be a JSON array of 1 to 10 jobs")
+
+    jobs: list[DiscoveredJob] = []
+    seen_ids: set[str] = set()
+    for index, item in enumerate(parsed, start=1):
+        try:
+            job = _manual_job_from_record(
+                cast(object, item), classifier=classifier, observed_at=observed_at
+            )
+        except ValidationError as exc:
+            raise ValueError(f"job {index}: invalid listing fields") from exc
+        except ValueError as exc:
+            raise ValueError(f"job {index}: {exc}") from exc
+        if job.linkedin_job_id in seen_ids:
+            raise ValueError(f"job {index}: duplicate LinkedIn job identity")
+        seen_ids.add(job.linkedin_job_id)
+        jobs.append(job)
+    return jobs
+
+
+def _manual_job_from_record(
+    item: object, *, classifier: Classifier, observed_at: datetime
+) -> DiscoveredJob:
+    """Convert one flat JSON object to the existing manual-job validation path."""
+    if not isinstance(item, dict):
+        raise ValueError("each job must be an object")
+    record = cast(dict[str, object], item)
+    if not _MANUAL_REQUIRED_FIELDS.issubset(record):
+        raise ValueError("missing required listing fields")
+    if record.keys() - (_MANUAL_REQUIRED_FIELDS | _MANUAL_OPTIONAL_FIELDS):
+        raise ValueError("unknown listing fields")
+
+    url = record["url"]
+    company = record["company"]
+    title = record["title"]
+    location = record["location"]
+    category = record["category"]
+    employment_type = record["employment_type"]
+    industries = record.get("industries")
+    start_date = record.get("start_date")
+    posted_at = record.get("posted_at")
+    if not all(
+        isinstance(value, str)
+        for value in (url, company, title, location, category, employment_type)
+    ) or any(
+        value is not None and not isinstance(value, str)
+        for value in (industries, start_date, posted_at)
+    ):
+        raise ValueError("listing fields have invalid types")
+    try:
+        parsed_category = OpportunityCategory(cast(str, category))
+        parsed_employment_type = EmploymentType(cast(str, employment_type))
+    except ValueError as exc:
+        raise ValueError("unsupported category or employment type") from exc
+    return _prepare_manual_job(
+        classifier=classifier,
+        observed_at=observed_at,
+        url=cast(str, url),
+        company=cast(str, company),
+        title=cast(str, title),
+        location=cast(str, location),
+        category=parsed_category,
+        employment_type=parsed_employment_type,
+        industries=cast(str | None, industries),
+        start_date=cast(str | None, start_date),
+        posted_at=cast(str | None, posted_at),
+    )
 
 
 def _manual_job_action(summary: PersistSummary) -> str:
     """Describe the exact outcome of one manual job upsert."""
     if summary.new:
         return "added"
-    if summary.updated and summary.reopened:
-        return "updated and reopened"
     if summary.updated:
         return "updated"
-    if summary.reopened:
-        return "reopened"
     return "already current"
 
 

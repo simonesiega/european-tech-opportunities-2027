@@ -276,6 +276,10 @@ def create_snapshot(
             closing(sqlite3.connect(temporary_snapshot)) as destination,
         ):
             source.backup(destination)
+            # SQLite's backup API copies WAL journal mode from the source. The
+            # website serves cold, group-read-only files without writable sidecars.
+            if destination.execute("PRAGMA journal_mode=DELETE").fetchone() != ("delete",):
+                raise SnapshotError("snapshot must use a sidecar-free journal mode")
         database_metadata = inspect_database(temporary_snapshot)
         if (
             database_metadata.collection_timestamp is not None

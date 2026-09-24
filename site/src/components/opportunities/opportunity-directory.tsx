@@ -30,6 +30,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
     filterSetters,
     view,
     viewSetters,
+    pageHref,
     options,
     filteredOpportunities,
     hasActiveFilters,
@@ -110,6 +111,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
       <OpportunityList
         opportunities={filteredOpportunities}
         view={view}
+        pageHref={pageHref}
         hasActiveFilters={hasActiveFilters}
         onSortChange={viewSetters.setSort}
         onPageChange={viewSetters.setPage}

@@ -8,13 +8,18 @@ on:
         required: true
         type: string
       branch:
-        description: Fixed automation branch to update.
+        description: Automation branch to update; optionally suffixed with the caller run date.
         required: true
         type: string
       title:
         description: Pull-request title.
         required: true
         type: string
+      append_rome_date_to_branch_and_title:
+        description: Append the caller run date in Europe/Rome to the branch and pull-request title.
+        required: false
+        default: false
+        type: boolean
       body:
         description: Pull-request body.
         required: true
@@ -63,6 +68,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           UPDATE_BRANCH: ${{ inputs.branch }}
           UPDATE_TITLE: ${{ inputs.title }}
+          UPDATE_APPEND_ROME_DATE: ${{ inputs.append_rome_date_to_branch_and_title }}
           UPDATE_BODY: ${{ inputs.body }}
           UPDATE_COMMIT_MESSAGE: ${{ inputs.commit_message }}
           UPDATE_AUTO_MERGE: ${{ inputs.auto_merge }}
@@ -70,17 +76,27 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [ "$UPDATE_APPEND_ROME_DATE" = "true" ]; then
+            run_created_at=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq '.created_at')
+            run_date=$(TZ=Europe/Rome date -d "$run_created_at" +%F)
+            UPDATE_BRANCH="${UPDATE_BRANCH}-${run_date}"
+            UPDATE_TITLE="${UPDATE_TITLE} (${run_date})"
+          fi
+
+          UPDATE_BODY+=$'\n\nReview the sanitized public CSV/JSON projection in this run\'s artifacts:\n'
+          UPDATE_BODY+="https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
           pr_number=$(gh pr list \
             --head "$UPDATE_BRANCH" \
             --base main \
             --state open \
-            --json number \
-            --jq '.[0].number')
+            --json number,isCrossRepository \
+            --jq 'map(select(.isCrossRepository == false)) | .[0].number // empty')
           if [ -n "$pr_number" ]; then
             existing_scope=$(gh pr view "$pr_number" \
-              --json baseRefName,headRefName,title,files | \
+              --json baseRefName,headRefName,title,files,isCrossRepository | \
               jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" \
-                '(.baseRefName == "main") and (.headRefName == $branch) and (.title == $title) and ([.files[].path] == ["README.md"])')
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
             if [ "$existing_scope" != "true" ]; then
               echo "Existing automation pull request has unexpected scope; refusing to mutate it."
               exit 1
@@ -117,8 +133,8 @@ jobs:
               --head "$UPDATE_BRANCH" \
               --base main \
               --state open \
-              --json number \
-              --jq '.[0].number')
+              --json number,isCrossRepository \
+              --jq 'map(select(.isCrossRepository == false)) | .[0].number // empty')
           fi
           if [ -z "$pr_number" ]; then
             echo "Could not identify the README pull request."
@@ -127,12 +143,13 @@ jobs:
 
           # GitHub suppresses normal workflow recursion for GITHUB_TOKEN pushes. Dispatch the
           # complete validation suite explicitly so checks attach to this head SHA.
+          head_sha=$(git rev-parse HEAD)
           safe_scope=false
           for attempt in 1 2 3 4 5; do
             safe_scope=$(gh pr view "$pr_number" \
-              --json baseRefName,headRefName,title,files | \
-              jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" \
-                '(.baseRefName == "main") and (.headRefName == $branch) and (.title == $title) and ([.files[].path] == ["README.md"])')
+              --json baseRefName,headRefName,headRefOid,title,files,isCrossRepository | \
+              jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" --arg sha "$head_sha" \
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
             if [ "$safe_scope" = "true" ]; then
               break
             fi
@@ -145,7 +162,6 @@ jobs:
 
           validation_workflows=(python-ci.yml site-ci.yml docker-ci.yml codeql.yml)
           validation_started_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          head_sha=$(git rev-parse HEAD)
           for validation_workflow in "${validation_workflows[@]}"; do
             gh workflow run "$validation_workflow" --ref "$UPDATE_BRANCH"
           done
@@ -182,5 +198,5 @@ jobs:
           done
 
           if [ "$UPDATE_AUTO_MERGE" = "true" ]; then
-            gh pr merge "$pr_number" --auto --squash
+            gh pr merge "$pr_number" --auto --squash --match-head-commit "$head_sha"
           fi

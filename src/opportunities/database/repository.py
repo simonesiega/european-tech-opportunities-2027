@@ -1,4 +1,4 @@
-"""Transactional persistence for the focused LinkedIn-to-README pipeline."""
+"""Transactional lifecycle storage for jobs, search provenance, and runs."""
 
 from __future__ import annotations
 
@@ -75,7 +75,6 @@ class Repository:
     """Own short SQLite transactions for canonical lifecycle mutations."""
 
     def __init__(self, factory: sessionmaker[Session], settings: Settings) -> None:
-        """Initialize the instance dependencies and state."""
         self.factory = factory
         self.settings = settings
 
@@ -172,13 +171,16 @@ class Repository:
                     run_id=run_id,
                     search_slug=search.slug,
                     incoming=job,
-                    observed_at=finished_at,
+                    observed_at=started_at,
                 )
+            # Details and 404s may arrive early in a long-running search. The
+            # search start is a conservative lower bound for both kinds of
+            # evidence, so a late finish cannot overrule newer observations.
             summary += self._confirm_unavailable(
                 session,
                 search_slug=search.slug,
                 job_ids=confirmed_unavailable_ids,
-                observed_at=finished_at,
+                observed_at=started_at,
             )
         return summary
 
@@ -218,9 +220,31 @@ class Repository:
         *,
         observed_at: datetime,
     ) -> PersistSummary:
-        """Insert or update one maintainer-supplied job without search provenance."""
+        """Insert or refresh a reviewed open job without inventing search provenance."""
+        return self.upsert_manual_jobs([incoming], observed_at=observed_at)
+
+    def upsert_manual_jobs(
+        self,
+        incoming: list[DiscoveredJob],
+        *,
+        observed_at: datetime,
+    ) -> PersistSummary:
+        """Insert reviewed jobs together, rejecting closed rows without partial writes."""
+        if not 1 <= len(incoming) <= 10:
+            raise ValueError("manual batch must contain 1 to 10 jobs")
+        ids = [job.linkedin_job_id for job in incoming]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate LinkedIn job identity in manual batch")
+        summary = PersistSummary()
         with self.factory.begin() as session:
-            return self._upsert_job_row(session, incoming=incoming, observed_at=observed_at)
+            for job in incoming:
+                existing = session.get(JobRow, job.linkedin_job_id)
+                if existing is not None and existing.status != JobStatus.OPEN.value:
+                    raise ValueError(
+                        "closed jobs require a successful availability audit to reopen"
+                    )
+                summary += self._upsert_job_row(session, incoming=job, observed_at=observed_at)
+        return summary
 
     def list_open_jobs(self) -> list[StoredJob]:
         """Return all open jobs in publication order."""
@@ -258,7 +282,13 @@ class Repository:
                 available_jobs = session.scalars(
                     select(JobRow).where(JobRow.linkedin_job_id.in_(available))
                 ).all()
+                fresh_available: set[str] = set()
                 for job in available_jobs:
+                    if ensure_utc(observed_at) < max(
+                        ensure_utc(job.last_seen_at), ensure_utc(job.updated_at)
+                    ):
+                        continue
+                    fresh_available.add(job.linkedin_job_id)
                     effective_time = max(ensure_utc(job.last_seen_at), ensure_utc(observed_at))
                     if job.status == JobStatus.CLOSED.value:
                         job.status = JobStatus.OPEN.value
@@ -269,7 +299,7 @@ class Repository:
                 # A successful public-page and detail-page check supersedes older
                 # closure evidence without pretending the job appeared in a new search.
                 aliases = session.scalars(
-                    select(JobSearchRow).where(JobSearchRow.linkedin_job_id.in_(available))
+                    select(JobSearchRow).where(JobSearchRow.linkedin_job_id.in_(fresh_available))
                 ).all()
                 for alias in aliases:
                     alias.unavailable_confirmations = 0
@@ -279,11 +309,15 @@ class Repository:
                 unavailable_jobs = session.scalars(
                     select(JobRow).where(JobRow.linkedin_job_id.in_(unavailable))
                 ).all()
-                deleted = len(unavailable_jobs)
                 for job in unavailable_jobs:
+                    if ensure_utc(observed_at) < max(
+                        ensure_utc(job.last_seen_at), ensure_utc(job.updated_at)
+                    ):
+                        continue
                     # Foreign-key cascades remove job_searches provenance. Search and
                     # run history remain intact for operational diagnostics.
                     session.delete(job)
+                    deleted += 1
 
         return AvailabilityChanges(deleted=deleted, reopened=reopened)
 
@@ -375,6 +409,13 @@ class Repository:
         observed_at: datetime,
     ) -> PersistSummary:
         """Insert or update a discovered job and attach its search provenance."""
+        row = session.get(JobRow, incoming.linkedin_job_id)
+        # Check here as well as in the shared row upsert: a stale discovery must
+        # not revive its search alias when the job fields are left unchanged.
+        if row is not None and ensure_utc(observed_at) < max(
+            ensure_utc(row.last_seen_at), ensure_utc(row.updated_at)
+        ):
+            return PersistSummary()
         summary = self._upsert_job_row(session, incoming=incoming, observed_at=observed_at)
         session.flush()
 
@@ -437,7 +478,9 @@ class Repository:
             session.add(row)
             return PersistSummary(new=1)
 
-        # A delayed observation must never move lifecycle timestamps backwards.
+        # Neither collection nor manual intake can overwrite a newer observation.
+        if observation < max(ensure_utc(row.last_seen_at), ensure_utc(row.updated_at)):
+            return PersistSummary()
         effective_time = max(ensure_utc(row.last_seen_at), observation)
         # Missing optional metadata is not evidence that a previously observed
         # value became invalid; public detail markup can omit fields temporarily.
@@ -489,8 +532,21 @@ class Repository:
                 JobSearchRow.active.is_(True),
             )
         ).all()
+        # A newer observation from another search or the full-state auditor also
+        # supersedes a delayed 404 for this association.
+        jobs = {
+            row.linkedin_job_id: row
+            for row in session.scalars(select(JobRow).where(JobRow.linkedin_job_id.in_(job_ids)))
+        }
         affected: set[str] = set()
         for alias in aliases:
+            job = jobs.get(alias.linkedin_job_id)
+            if job is None or ensure_utc(observed_at) < max(
+                ensure_utc(alias.last_seen_at),
+                ensure_utc(job.last_seen_at),
+                ensure_utc(job.updated_at),
+            ):
+                continue
             alias.unavailable_confirmations += 1
             if alias.unavailable_confirmations >= self.settings.closure_confirmation_runs:
                 alias.active = False

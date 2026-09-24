@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -62,10 +63,16 @@ def test_manual_upsert_preserves_lifecycle_metadata_and_adds_no_provenance(
             "posted_at": updated_at,
         }
     )
+    with pytest.raises(ValueError, match="availability audit"):
+        repository.upsert_manual_job(changed, observed_at=updated_at)
+    assert repository.list_open_jobs() == []
+    repository.apply_availability_audit(
+        available_ids=(job.linkedin_job_id,), unavailable_ids=(), observed_at=updated_at
+    )
     summary = repository.upsert_manual_job(changed, observed_at=updated_at)
 
     assert summary.updated == 1
-    assert summary.reopened == 1
+    assert summary.reopened == 0
     stored = repository.list_open_jobs()[0]
     assert stored.company == "Example Technology Ltd"
     assert stored.title == "Graduate Software Engineer 2027"
@@ -123,3 +130,57 @@ def test_manual_insert_bounds_future_posting_time_by_observation(
     stored = repository.list_open_jobs()[0]
     assert stored.first_seen_at == observed_at
     assert stored.last_seen_at == observed_at
+
+
+def test_manual_batch_rolls_back_when_later_job_is_closed(
+    session_factory: sessionmaker[Session], settings: Settings
+) -> None:
+    repository = Repository(session_factory, settings)
+    observed_at = datetime(2026, 7, 10, 12, tzinfo=UTC)
+    first = DiscoveredJob(
+        linkedin_job_id="3333333333",
+        company="Example Technology",
+        title="Software Engineering Intern 2027",
+        location="London, UK",
+        link="https://www.linkedin.com/jobs/view/3333333333",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+    second = first.model_copy(
+        update={
+            "linkedin_job_id": "4444444444",
+            "link": "https://www.linkedin.com/jobs/view/4444444444",
+        }
+    )
+    repository.upsert_manual_job(second, observed_at=observed_at)
+    with session_factory.begin() as session:
+        row = session.get(JobRow, second.linkedin_job_id)
+        assert row is not None
+        row.status = JobStatus.CLOSED.value
+
+    with pytest.raises(ValueError, match="availability audit"):
+        repository.upsert_manual_jobs([first, second], observed_at=observed_at + timedelta(hours=1))
+
+    assert repository.list_open_jobs() == []
+    assert [job.linkedin_job_id for job in repository.list_all_jobs()] == ["4444444444"]
+
+
+def test_manual_batch_rejects_duplicate_identity_without_writing(
+    session_factory: sessionmaker[Session], settings: Settings
+) -> None:
+    repository = Repository(session_factory, settings)
+    observed_at = datetime(2026, 7, 10, 12, tzinfo=UTC)
+    job = DiscoveredJob(
+        linkedin_job_id="5555555555",
+        company="Example Technology",
+        title="Software Engineering Intern 2027",
+        location="London, UK",
+        link="https://www.linkedin.com/jobs/view/5555555555",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+
+    with pytest.raises(ValueError, match="duplicate LinkedIn job identity"):
+        repository.upsert_manual_jobs([job, job], observed_at=observed_at)
+
+    assert repository.list_all_jobs() == []

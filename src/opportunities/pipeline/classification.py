@@ -75,7 +75,6 @@ class Classifier:
     """Accept only title-explicit internships or new-grad roles in scope."""
 
     def __init__(self, rules: ClassificationRules, target_cycle: int) -> None:
-        """Initialize the instance dependencies and state."""
         self.target_cycle = target_cycle
         # Rules are normalized during configuration validation; copy the category
         # mapping so later mutation of nested model values cannot affect this classifier.

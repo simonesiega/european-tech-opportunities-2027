@@ -67,7 +67,7 @@ Important `jobs` fields:
 | `industries` | Structured source industries criterion, when available |
 | `employment_type` | Required deterministic type: `internship` or `new-grad` |
 | `start_date` | Explicit month or season plus year, when available |
-| `first_seen_at` | Inferred LinkedIn publication time for new rows; immutable |
+| `first_seen_at` | Inferred source posting time or reviewed manual timestamp when supplied on first insert; otherwise first accepted observation; immutable |
 | `last_seen_at` | Latest successful listing observation or availability validation; monotonic |
 | `updated_at` | Latest material field change, reopen, or close |
 | `status` | `open` or `closed` |
@@ -151,9 +151,9 @@ Rediscovery:
 
 ## Manual job insertion
 
-Maintainers may add a known, validated LinkedIn listing through `opportunities add-job`. The repository writes the `jobs` row directly without creating a synthetic search, search run, or `job_searches` association.
+Maintainers may add one known, validated LinkedIn listing through `opportunities add-job`, or a bounded batch through `opportunities add-jobs`. The batch command validates every entry before writing and applies the rows in one repository transaction: a rejected entry leaves the whole batch unapplied. Neither command creates a synthetic search, search run, or `job_searches` association.
 
-For a new row, the command records it as open and initializes `first_seen_at` from the supplied posting timestamp when present, bounded by the actual observation time. Otherwise, the observation time is used. For an existing row, normal public fields are refreshed, omitted optional metadata remains preserved, `first_seen_at` remains immutable, lifecycle timestamps remain monotonic, and a closed row is reopened.
+For a new row, the command records it as open and initializes `first_seen_at` from the supplied posting timestamp when present, bounded by the actual observation time. Otherwise, the observation time is used. For an existing **open** row, normal public fields are refreshed, omitted optional metadata remains preserved, `first_seen_at` remains immutable, and lifecycle timestamps remain monotonic. A closed row cannot be reopened manually: it requires a successful full-state availability audit or later valid search discovery.
 
 Manual rows participate in all normal read paths and the full-state availability audit. If collection later discovers the same numeric LinkedIn ID, the successful search transaction updates the existing row and attaches genuine search provenance. Manual insertion never changes collection statistics or the latest successful collection timestamp.
 
@@ -209,13 +209,13 @@ The README is regenerated after the transaction. The nightly workflow includes t
 
 Concurrent searches may finish out of order.
 
-Persistence therefore uses monotonic timestamp updates:
+Persistence orders concurrently fetched search outcomes by finish time and ignores observations older than a job's latest observation or material state change. Individual detail pages may be fetched long before a search finishes, so both accepted jobs and explicit 404 evidence use that search's start time as a conservative observation lower bound. A late finish cannot make old detail evidence reopen a job or advance a 404 confirmation over a newer valid observation. Timestamp updates are monotonic:
 
 ```text
 next timestamp = max(existing timestamp, observed timestamp)
 ```
 
-This applies to job and association observations and prevents state from moving backwards. On a job’s first insert, `first_seen_at` is initialized from LinkedIn’s relative posting age or an explicitly supplied manual posting timestamp; later observations never rewrite it. Provenance timestamps continue to represent actual search observations.
+This applies to job and association observations and prevents state from moving backwards. On a job’s first insert, `first_seen_at` is initialized from LinkedIn’s relative posting age or an explicitly supplied manual posting timestamp; later observations never rewrite it. Search provenance timestamps represent the run's conservative lower bound, not the exact time each detail page was fetched.
 
 Validation requires:
 
@@ -223,11 +223,11 @@ Validation requires:
 last_seen_at >= first_seen_at
 ```
 
-`first_seen_at` remains immutable after insertion. For a new row, it is initialized from the inferred LinkedIn posting timestamp when available, bounded so it can never be later than the actual observation time; otherwise it uses the first accepted observation time. Missing posting metadata excludes a yearless listing, but a listing with explicit target-cycle evidence may still be admitted. Known jobs may also be rechecked safely without treating missing current posting-age metadata as closure evidence.
+`first_seen_at` remains immutable after insertion. For a new row, it is initialized from the inferred LinkedIn posting timestamp when available, bounded so it can never be later than the search start or manual observation time; otherwise it uses that conservative first accepted observation time. Missing posting metadata excludes a listing without explicit target-cycle evidence, but a listing with that evidence in its title or description may still be admitted. Known jobs may also be rechecked safely without treating missing current posting-age metadata as closure evidence.
 
 ## One-writer model
 
-Only one collection or maintenance process may write the database at a time.
+Only one collection or maintenance process may write the database at a time. `add-job` and `add-jobs` are narrowly scoped maintainer inputs to the controlled repository writer; they do not create synthetic search provenance. The CLI reuses the deterministic classifier for title, cycle, category, employment type, posting timestamp, and European location; it cannot independently verify operator-supplied source facts offline. Do not insert rows directly into SQLite or edit the website/README/exports to add a listing. Manual entries still require reviewed projection, verified snapshot, and deployment sequencing.
 
 Supported concurrent access:
 
@@ -289,13 +289,9 @@ For a cold filesystem copy:
 3. checkpoint write-ahead logging;
 4. copy the database and any required sidecars together.
 
-GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and configured retention metadata. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. Canonical SQLite is never placed in GitHub Actions cache or artifacts; 30-day artifacts contain only sanitized public projections.
+GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and configured retention metadata. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. A pre-existing local database that does not match the latest snapshot stops restoration instead of being silently replaced; preserve and investigate it before retrying. Canonical SQLite is never placed in GitHub Actions cache or artifacts; 30-day artifacts contain only sanitized public projections.
 
-VPS deployment also preserves the previous canonical file as:
-
-```text
-opportunities.db.previous
-```
+VPS deployment retains immutable previous releases under `data/releases/<run-id>-<attempt>` and atomically updates `data/current`; it never removes a release while readers may hold it. Existing `opportunities.db.previous` files from the legacy deployment path must not be mistaken for the current canonical state after rollout.
 
 Restricted VPS snapshot storage, sanitized artifacts, retention, and deployment sequencing are documented in [Automation](automation.md#state-continuity-and-artifacts).
 
@@ -303,7 +299,7 @@ Restricted VPS snapshot storage, sanitized artifacts, retention, and deployment 
 
 1. Stop every process that may write the database.
 2. Stop or restart readers that could retain stale file handles.
-3. Preserve the current or damaged state separately.
+3. Preserve the current or damaged database **and any SQLite sidecars together**, with no connections open. Never overwrite or discard uncheckpointed WAL transactions.
 4. Select a timestamped durable snapshot; inspect its collection time, schema revision, checksum, and previous-snapshot link.
 5. Download both the immutable database object and its manifest.
 6. Verify the manifest and database before replacement:
@@ -314,9 +310,8 @@ uv run python scripts/canonical_snapshot.py verify \
   --manifest /safe/recovery/manifest.json
 ```
 
-7. Restore the verified database atomically; do not replace state with unverified bytes.
-8. Remove stale sidecars only while no SQLite connection is open.
-9. Run:
+7. After preserving the old file and its sidecars away from the target path, stage the verified database beside the target and atomically rename it into place. Do not place old sidecars beside the restored file or replace state with unverified bytes.
+8. Run:
 
 ```bash
 uv run opportunities db-upgrade
@@ -330,7 +325,7 @@ uv run opportunities render
 uv run opportunities validate
 ```
 
-A fresh rebuild loses lifecycle history. Do not delete the database as the first response to migration, locking, or integrity problems.
+This restores the **working** SQLite file, not the read-only versioned release served through `data/current`. For a served-projection rollback, follow [Coordinated first rollout and rollback](automation.md#coordinated-first-rollout-and-rollback); do not write through that pointer. A fresh rebuild loses lifecycle history. Do not delete the database as the first response to migration, locking, or integrity problems.
 
 For symptom-based diagnosis before destructive recovery, use [Troubleshooting](troubleshooting.md#database-and-migration-failures).
 

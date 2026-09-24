@@ -14,7 +14,7 @@ This is the canonical installation guide for the project. It covers local instal
 | `uv` | 0.11.6 recommended | Locked Python environment and commands |
 | Git | Current supported release | Repository checkout |
 | Node.js | 22.13+ | Website builds and production-style local startup with unflagged `node:sqlite` support |
-| Bun | 1.3.14 | Website dependency installation, tests, and development |
+| Bun | 1.4.2 | Website dependency installation, tests, and development |
 | GNU Make | Optional | Python validation shortcuts; direct `uv` commands are documented too |
 | Docker | Optional | Container and deployment workflows |
 

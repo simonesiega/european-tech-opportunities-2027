@@ -2,6 +2,7 @@ import "server-only";
 
 import {readFile} from "node:fs/promises";
 import path from "node:path";
+import {currentReleaseDirectory} from "@/lib/release-path";
 
 type PublicExportFormat = "csv" | "json";
 
@@ -18,10 +19,11 @@ const exportMetadata: Record<PublicExportFormat, {filename: string; contentType:
 
 export async function getPublicExport(format: PublicExportFormat): Promise<Response> {
   const {filename, contentType} = exportMetadata[format];
-  const exportDirectory = process.env.OPPORTUNITIES_PUBLIC_EXPORT_DIR ?? "../data/exports";
-  const exportPath = path.join(/* turbopackIgnore: true */ exportDirectory, filename);
-
   try {
+    const exportDirectory = process.env.OPPORTUNITIES_RELEASE_ROOT
+      ? path.join(currentReleaseDirectory(process.env.OPPORTUNITIES_RELEASE_ROOT), "exports")
+      : (process.env.OPPORTUNITIES_PUBLIC_EXPORT_DIR ?? "../data/exports");
+    const exportPath = path.join(/* turbopackIgnore: true */ exportDirectory, filename);
     const content = await readFile(/* turbopackIgnore: true */ exportPath);
     return new Response(content, {
       headers: {

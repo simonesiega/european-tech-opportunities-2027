@@ -7,6 +7,7 @@ const view = {sort: "first-seen-desc", page: 1, pageSize: 10} as const;
 const commonProps = {
   opportunities: [],
   view,
+  pageHref: (page: number) => `/?page=${page}`,
   onSortChange: noOp,
   onPageChange: noOp,
   onPageSizeChange: noOp,

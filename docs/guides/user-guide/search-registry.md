@@ -2,7 +2,7 @@
 
 [← Documentation hub](../../README.md) · [CLI reference](cli.md) · [Configuration](../getting-started/configuration.md) · [Architecture](../development/architecture.md) · [Contributing](../../../CONTRIBUTING.md) · [Security policy](../../../SECURITY.md)
 
-This is the canonical search-registry guide for the project. The registry controls **discovery**, not publication. Every new candidate found through LinkedIn guest search must still pass deterministic posting-date, employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state.
+This is the canonical search-registry guide for the project. The registry controls **discovery**, not publication. Every new candidate found through LinkedIn guest search must still pass deterministic employment-type, seniority, cycle, technology, and European-location checks before entering canonical SQLite state. When the title and description do not establish the target cycle, eligible posting-date evidence is required; an explicitly eligible cycle does not require a posting age.
 
 <p align="center">
   <img
@@ -85,7 +85,7 @@ notes: Medium role tier covering QA and test automation.
 | `geo_id` | Numeric string or `null` | Optional independently verified LinkedIn geography ID |
 | `company_names` | Up to 50 strings, each 1–200 characters | Exact normalized employer allowlist |
 | `workplace` | `any`, `on-site`, `remote`, `hybrid` | Optional workplace filter |
-| `date_posted` | `any`, `day`, `week`, `month`, `cycle` | Listing-age filter; `cycle` dynamically covers every posting since May 1, 2026 |
+| `date_posted` | `any`, `day`, `week`, `month`, `cycle` | Listing-age filter; `cycle` requests postings from May 1, 2026 onward; ranking and page limits still bound discovery |
 | `max_pages` | Integer, 1–10 | Maximum number of 25-card result pages |
 | `max_results` | Integer, 1–250 | Maximum eligible detail candidates; no greater than pages × 25 |
 | `max_rechecks` | Integer, 0–250 | Absent known jobs that may receive bounded detail rechecks |
@@ -237,7 +237,7 @@ Requirements:
 
 - prefix the slug with `company-`;
 - use broad but explicit keywords that include both internship and New Grad terms;
-- omit `2027` so current yearless vacancies are discoverable, and use `date_posted: cycle` to cover the complete May 1 publication window;
+- omit `2027` so current yearless vacancies are discoverable, and use `date_posted: cycle` to request the May 1 publication window without implying complete search-result coverage;
 - use the verified Europe geography ID `91000000` for Europe-wide discovery;
 - list legitimate LinkedIn employer-name variants in `company_names`;
 - retain exact matching after normalization;

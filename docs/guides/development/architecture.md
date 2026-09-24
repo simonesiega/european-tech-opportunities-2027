@@ -128,9 +128,9 @@ Classification checks require evidence for:
 - absence of configured seniority exclusions;
 - a supported technology category;
 - cycle evidence: the explicit target cycle, or no conflicting cycle year with resolved posting-date evidence on or after May 1, 2026 as the yearless fallback;
-- a European location.
+- an explicit European location; `EMEA` alone also covers non-European regions and is insufficient.
 
-Graduation-year eligibility language is not internship-cycle evidence. For title-explicit New Grad roles, a title or contextual opportunity year identifies the hiring cycle, so explicit 2025 or 2026 roles are rejected. A listing with target-cycle evidence does not require posting-age metadata; a yearless listing does. Known jobs may be rechecked without treating missing current posting-age metadata as closure evidence. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
+Graduation-year eligibility language is not internship-cycle evidence. For title-explicit New Grad roles, a title or contextual opportunity year identifies the hiring cycle, so explicit 2025 or 2026 roles are rejected. A listing with target-cycle evidence does not require posting-age metadata; a listing with no explicit opportunity-cycle evidence does. Known jobs may be rechecked without treating missing current posting-age metadata as closure evidence. Malformed or ambiguous candidates are excluded without failing unrelated candidates.
 
 Search schema and pagination rules are documented in the [search registry guide](../user-guide/search-registry.md).
 
@@ -180,7 +180,7 @@ Search-page absence is never closure evidence.
 
 A later valid rediscovery can reactivate provenance and reopen a job. Separately, a daily full-state auditor checks every stored job through its public listing and, after a successful page without a closure alert, the guest detail endpoint. Successful validation preserves or reopens the record; an explicit `404` or `410` from either request or a scoped “No longer accepting applications” alert deletes it; ambiguous failures leave its state unchanged.
 
-Concurrent searches may finish out of order, so persisted observation timestamps use monotonic maximums rather than completion order.
+Concurrent searches may finish out of order. The pipeline persists their outcomes in finish-time order, and the repository ignores stale observations rather than letting them overwrite newer metadata, closure, or provenance. Both accepted details and explicit unavailability evidence use the search start as a conservative observation lower bound; a late finish alone cannot overrule later evidence from an overlapping search. Lifecycle timestamps remain monotonic.
 
 Schema, transactions, provenance, closure, migrations, backup, and restore are owned by the [database lifecycle guide](../operations/database.md).
 
@@ -208,6 +208,8 @@ The renderer creates a deterministic bounded projection containing:
 - latest successful collection time;
 - the public website link;
 - at most five recently discovered internships and five recently discovered New Grad opportunities.
+
+A generated review seal covers every website-visible open row and the exact last successful collection time, including jobs outside the preview. This lets the [automation review gate](../operations/automation.md#first-public-state-review-seal) detect public-directory changes before deployment without expanding the README tables.
 
 The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically. Validation reconstructs both expected regions from SQLite and requires exact equality.
 
@@ -256,7 +258,7 @@ Dependency boundaries are intentional:
 
 Business rules should remain independent from CLI presentation, network transport, and public projections.
 
-The maintainer-only `add-job` command is a second input path into the same validated persistence boundary. It constructs a `DiscoveredJob`, uses the repository's shared job-row upsert, and then reuses the normal projection renderer. It performs no source access and deliberately creates no search configuration, run record, or provenance association. Ordinary collection can later attach genuine provenance to the same canonical LinkedIn ID, and the full-state availability auditor treats the row like every other stored job.
+The maintainer-only `add-job` and `add-jobs` commands are a second input path into the same validated persistence boundary. They construct `DiscoveredJob` values, reuse the deterministic classifier (without fetching source content), reject closed-row manual reopen, and use the repository's shared job-row upsert. `add-jobs` validates a bounded batch and writes it in one transaction before the normal projection renderer runs. Operator-supplied source facts must be independently reviewed by a maintainer; offline classification cannot authenticate them. These commands perform no source access and deliberately create no search configuration, run record, or provenance association. Ordinary collection can later attach genuine provenance to the same canonical LinkedIn ID, and the full-state availability auditor treats manual rows like every other stored job.
 
 ## Operational boundaries
 

@@ -219,9 +219,10 @@ def normalize_locations(values: list[str]) -> LocationResult:
         for code in uppercase_codes:
             if code in EUROPEAN_COUNTRY_CODES:
                 codes.add(code)
-        if any(
-            contains_normalized_phrase(key, marker) for marker in ("europe", "european", "emea")
-        ):
+        # EMEA includes the Middle East and Africa, so it does not by itself
+        # establish a European posting location. A named country or city above
+        # can still supply explicit European evidence for a mixed label.
+        if any(contains_normalized_phrase(key, marker) for marker in ("europe", "european")):
             europe_signal = True
         if has_non_european_marker:
             non_europe_signal = True

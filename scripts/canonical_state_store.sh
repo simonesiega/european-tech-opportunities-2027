@@ -82,6 +82,19 @@ snapshot_tool() {
   uv run python scripts/canonical_snapshot.py "$@"
 }
 
+reject_sidecars() {
+  # A raw .db checksum does not cover uncheckpointed WAL transactions. Never
+  # restore over live sidecars or promote a snapshot-copy beside them.
+  local sidecar
+  for sidecar in "${CANONICAL_STATE_DATABASE}-wal" \
+    "${CANONICAL_STATE_DATABASE}-shm" "${CANONICAL_STATE_DATABASE}-journal"; do
+    if [[ -e "$sidecar" || -L "$sidecar" ]]; then
+      echo "Canonical SQLite sidecar exists; preserve and checkpoint state before retrying." >&2
+      return 1
+    fi
+  done
+}
+
 run_sftp() {
   "${sftp_command[@]}"
 }
@@ -117,11 +130,22 @@ download_snapshot() {
   local database_key=$1
   local destination=$2
   local remote_database="$VPS_BACKUP_REMOTE_ROOT/$database_key"
-  rm -f "$destination"
+  local sidecar
+  for sidecar in "${destination}-wal" "${destination}-shm" "${destination}-journal"; do
+    if [[ -e "$sidecar" || -L "$sidecar" ]]; then
+      echo "Staged SQLite restore has sidecars; preserve them for investigation." >&2
+      return 1
+    fi
+  done
+  if [[ -e "$destination" || -L "$destination" ]]; then
+    echo "Staged SQLite restore already exists; preserve it for investigation." >&2
+    return 1
+  fi
   printf 'get "%s" "%s"\n' "$remote_database" "$destination" | run_sftp
 }
 
 restore_state() {
+  reject_sidecars
   local status
   if fetch_latest_manifest; then
     status=0
@@ -139,14 +163,18 @@ restore_state() {
 
   local database_key
   database_key=$(snapshot_tool key --manifest "$latest_manifest" --kind database)
-  if [[ -s "$CANONICAL_STATE_DATABASE" ]] \
-    && snapshot_tool verify \
-      --database "$CANONICAL_STATE_DATABASE" \
-      --manifest "$latest_manifest" \
-      --expected-database-key "$database_key" >/dev/null 2>&1; then
-    echo "Existing database matches the latest verified VPS snapshot."
-    set_output state_source "verified-existing-database"
-    return 0
+  if [[ -e "$CANONICAL_STATE_DATABASE" || -L "$CANONICAL_STATE_DATABASE" ]]; then
+    if [[ -s "$CANONICAL_STATE_DATABASE" ]] \
+      && snapshot_tool verify \
+        --database "$CANONICAL_STATE_DATABASE" \
+        --manifest "$latest_manifest" \
+        --expected-database-key "$database_key" >/dev/null 2>&1; then
+      echo "Existing database matches the latest verified VPS snapshot."
+      set_output state_source "verified-existing-database"
+      return 0
+    fi
+    echo "Local canonical state differs from the latest snapshot; preserve it for investigation." >&2
+    return 1
   fi
 
   mkdir -p "$(dirname "$CANONICAL_STATE_DATABASE")"
@@ -176,6 +204,7 @@ append_remote_mkdirs() {
 }
 
 publish_state() {
+  reject_sidecars
   : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required for snapshot publication}"
   : "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required for snapshot publication}"
   : "${GITHUB_RUN_ATTEMPT:?GITHUB_RUN_ATTEMPT is required for snapshot publication}"

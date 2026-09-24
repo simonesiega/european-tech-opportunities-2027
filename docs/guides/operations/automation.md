@@ -25,6 +25,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 - [README update pull requests](#readme-update-pull-requests)
 - [Post-nightly production runbook](#post-nightly-production-runbook)
 - [VPS deployment](#vps-deployment)
+- [Coordinated first rollout and rollback](#coordinated-first-rollout-and-rollback)
 - [Recovery and migration failures](#recovery-and-migration-failures)
 - [Disabling collection](#disabling-collection)
 - [Operational checklist](#operational-checklist)
@@ -37,11 +38,11 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, the Next.js production build, unit tests, browser checks, and axe-core accessibility scans against synthetic SQLite state |
 | `codeql.yml` | Push to `main`, pull request, Monday 05:31 UTC, manual | CodeQL `security-extended` analysis for Python and TypeScript, with findings uploaded to GitHub code scanning |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Action and Dockerfile linting, image builds and vulnerability scans, plus migrated read-only SQLite and production-header smoke tests |
-| `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access |
+| `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; its explicit adoption mode proposes the first public-state review seal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
-| `add-job.yml` | Manual | Add one maintainer-reviewed listing to durable canonical state without source access, then open a README-only review pull request |
+| `add-job.yml` | Manual | Add 1–10 maintainer-reviewed listings to durable canonical state without source access, then open one README-only review pull request |
 
 Two `workflow_call`-only files are implementation building blocks, not operator entry points: `reusable-process-state.yml` owns canonical restore, migration, selected source phases, validation, snapshot publication, optional protected deployment, and sanitized artifacts; `reusable-readme-pr.yml` owns the narrowly scoped README branch and pull-request mutation. The pinned Python/uv setup is shared through `.github/actions/setup-python/action.yml`.
 
@@ -68,10 +69,10 @@ The operator-facing workflows remain small mode selectors:
 - `check-availability.yml` selects availability only;
 - collection mode in `scrape.yml` selects scrape only;
 - deployment mode in `scrape.yml` selects projection regeneration followed by deployment;
-- `add-job.yml` selects one manual repository upsert followed by full projection regeneration;
-- `canonical-state-drill.yml` selects restore, export, validation, and round-trip publication without source access.
+- `add-job.yml` selects one atomic manual batch upsert followed by full projection regeneration;
+- `canonical-state-drill.yml` normally selects restore, export, validation, and round-trip publication without source access; its seal-adoption mode reads a verified snapshot and proposes a README-only baseline without durable publication.
 
-All canonical-state modes call `reusable-process-state.yml`. This keeps restore/bootstrap, migration, CLI exit-code handling, validation, checkpoint, durable publication, and sanitized-artifact ordering identical. Deployment mode selects the `production` environment and runs the final locked deployment in that same protected job, so canonical SQLite never crosses jobs through a GitHub cache or artifact. `scripts/restore_canonical_state.sh` encapsulates restricted-snapshot reconciliation and the verified live-database fallback. `scripts/canonical_state_store.sh` owns immutable SFTP snapshot restore/publication. `scripts/deploy_canonical_state.sh` owns locked, checksum-verified deployment with atomic replacement of each final file.
+All canonical-state modes call `reusable-process-state.yml`. This keeps restore/bootstrap, migration, CLI exit-code handling, validation, checkpoint, durable publication, and sanitized-artifact ordering identical, except that seal adoption deliberately skips durable publication. Deployment mode selects the `production` environment and runs the final locked deployment in that same protected job, so canonical SQLite never crosses jobs through a GitHub cache or artifact. `scripts/restore_canonical_state.sh` encapsulates restricted-snapshot reconciliation and the verified live-database fallback. `scripts/canonical_state_store.sh` owns immutable SFTP snapshot restore/publication. `scripts/deploy_canonical_state.sh` and `scripts/activate_canonical_release.sh` own locked, checksum-verified versioned deployment with a single atomic release-pointer cutover.
 
 The wrappers, rather than the reusable processor, decide which source phase runs, which protected environment applies, and whether README mutation or deployment is needed. Canonical processing never pushes Git branches, and the README mutation workflow never receives VPS credentials or canonical SQLite state.
 
@@ -88,7 +89,7 @@ Workflow defaults are read-only or empty. Permissions are elevated at job bounda
 
 GitHub cache entries on the default branch are readable by pull-request workflows, including forks, and public-repository artifacts are available to anyone with repository read access. Canonical SQLite therefore never enters Actions cache or artifacts. Thirty-day artifacts contain only the already-public README and sanitized CSV/JSON projections; the one-day cross-job artifact contains only `README.md`. Checkout never persists Git credentials.
 
-GitHub intentionally suppresses ordinary workflow recursion after a branch push made with `GITHUB_TOKEN`. After verifying that the automation pull request targets `main`, uses the expected fixed branch and title, and changes only `README.md`, the mutation workflow therefore dispatches `python-ci.yml`, `site-ci.yml`, `docker-ci.yml`, and `codeql.yml` explicitly on the generated head commit. It identifies those exact dispatch runs and waits for all four to succeed before requesting nightly auto-merge. This keeps the branch alive long enough for GitHub to create every job even when branch protection is missing or misconfigured; configured required checks and human review remain additional merge controls. Manual scrape and availability pull requests receive and await the same validation but still require human merge.
+GitHub intentionally suppresses ordinary workflow recursion after a branch push made with `GITHUB_TOKEN`. After verifying that the automation pull request targets `main`, uses a same-repository fixed head branch and the expected title, and changes only `README.md`, the mutation workflow therefore dispatches `python-ci.yml`, `site-ci.yml`, `docker-ci.yml`, and `codeql.yml` explicitly on the generated head commit. It identifies those exact dispatch runs and waits for all four to succeed before requesting nightly auto-merge against that validated head SHA. This keeps the branch alive long enough for GitHub to create every job even when branch protection is missing or misconfigured; configured required checks and human review remain additional merge controls. Manual scrape and availability pull requests receive and await the same validation but still require human merge.
 
 ## Protected environments and repository settings
 
@@ -129,12 +130,18 @@ Complete this once before relying on the scheduled run:
 2. create and restrict the `canonical-state` and `production` environments exactly as described above, then remove broader copies of their secrets;
 3. configure the repository variables and verify that `LINKEDIN_CRAWL_AUTHORIZED=true` reflects current express authorization rather than convenience;
 4. enable Actions pull-request creation, auto-merge, branch protection, and all six required check contexts;
-5. run **Verify canonical state recovery** from `main`; require successful migration, projection validation, round-trip snapshot verification, and the retained sanitized projection artifact;
+5. complete the [one-time public-state seal review](#first-public-state-review-seal) from `main`, then run **Verify canonical state recovery** with its default input; require successful migration, projection validation, round-trip snapshot verification, and the retained sanitized projection artifact;
 6. only after that verified durable snapshot exists, delete every legacy `opportunities-db-*` Actions cache and legacy `opportunities-state-*` or `opportunities-nightly-state-*` artifact; these older state bundles are neither approved backups nor safe public artifacts;
 7. confirm no local or VPS collector can write the same database and no stale operational workflow is still running or queued;
 8. confirm **Nightly full update** is enabled and the repository is active enough for GitHub scheduled workflows.
 
-Do not use a live scrape as the first test of SSH, environment, snapshot, or branch-protection configuration. The recovery drill exercises those paths without LinkedIn access.
+Before switching an existing production website to versioned releases, complete the [coordinated first rollout](#coordinated-first-rollout-and-rollback); a successful recovery drill does not switch website readers or populate `data/current`. Do not use a live scrape as the first test of SSH, environment, snapshot, or branch-protection configuration. The recovery drill exercises those paths without LinkedIn access.
+
+## First public-state review seal
+
+The generated README now includes a hidden SHA-256 seal of every website-visible open row and the exact last successful collection time. The visible tables remain limited to five jobs per type. A below-preview title, location, category, or first-seen change therefore changes the README proposal and must be reviewed before deployment.
+
+The existing committed README predates the seal. After merging the code change to `main`, run **Verify canonical state recovery** with `adopt_public_review_seal=true`. This mode restores a verified canonical snapshot, or validates a consistent live-database backup under the first-bootstrap rules, migrates its temporary working copy, checks that the old generated README matches apart from the new seal, and uploads sanitized projections. It performs no LinkedIn request and publishes no new durable snapshot or production release. It opens a manual-review, README-only `automated/public-review-seal` pull request. Inspect its sanitized CSV/JSON artifact and generated seal, then merge it. If the old README differs for any other reason, the run fails and the prior state proposal must be reconciled first. Until this baseline PR merges, normal mutation and deployment modes fail closed at the reviewed-state barrier. Subsequent recovery drills use the default input and continue round-trip snapshot verification.
 
 ## Collection authorization
 
@@ -179,20 +186,19 @@ The scrape workflow inputs are:
 
 | Input | Default | Effect |
 |---|---:|---|
-| `open_pull_request` | `true` | Create or update the scrape-only README pull request |
-| `deploy_to_vps` | `false` | Skip collection and deploy reviewed durable SQLite state through locked, checksum-verified atomic file replacements after validation against `main` |
+| `deploy_to_vps` | `false` | Skip collection and deploy reviewed durable SQLite state through locked, checksum-verified versioned release publication after validation against `main` |
 
-The availability workflow has no inputs and always proposes changes in its own pull request. None of the manual workflows permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
+The availability workflow has no inputs and always proposes changes in its own pull request. Scrape-only collection also always opens a README proposal when public state changes; it cannot advance the snapshot without a review handoff. None of the manual workflows permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
 
 ## Manual job addition
 
-Use **Add manually reviewed job** when a maintainer has independently reviewed a known public LinkedIn listing that should enter canonical state without running discovery. Run it only from `main` and supply the URL, company, title, location, category, and employment type. Industries, start date, and an ISO-8601 posting timestamp are optional.
+Use **Add manually reviewed jobs** when a maintainer has independently reviewed 1–10 known public LinkedIn listings that should enter canonical state without running discovery. Run it from `main` once for the batch and paste a JSON array into `jobs_json`. Each object requires `url`, `company`, `title`, `location`, `category`, and `employment_type`; optional keys are `industries`, `start_date`, and `posted_at`. JSON names use underscores. The input is limited to 64 KiB and rejects unknown keys or duplicate LinkedIn IDs. See the [CLI batch example](../user-guide/cli.md#add-jobs) for the format.
 
-The workflow acquires the shared `opportunity-collection` lock and enters the main-only `canonical-state` environment. It restores and verifies the latest canonical snapshot before migration, runs `opportunities add-job --no-render`, regenerates all normal projections, validates them, checkpoints SQLite, and publishes and restore-verifies a new durable snapshot. The operation creates no synthetic search, search run, or provenance, performs no LinkedIn request, and does not require `LINKEDIN_CRAWL_AUTHORIZED=true`.
+The workflow acquires the shared `opportunity-collection` lock and enters the main-only `canonical-state` environment. It restores and verifies the latest canonical snapshot before migration, runs `opportunities add-jobs --no-render` against the batch, regenerates all normal projections, validates them, checkpoints SQLite, and publishes and restore-verifies one new durable snapshot. The CLI validates every entry and applies them in one repository transaction, so an invalid or closed job cannot leave a partial batch. It applies the deterministic classifier to operator-supplied title, location, employment type, category, cycle, and posting-date evidence; a maintainer must verify the source facts independently, because this offline path cannot authenticate them. It creates no synthetic search, search run, or provenance, performs no LinkedIn request, and does not require `LINKEDIN_CRAWL_AUTHORIZED=true`.
 
-Only sanitized public projections are retained. A one-day README-only handoff is passed to the existing mutation workflow, which opens or updates `automated/manual-job-add` with title `data: add manually reviewed position`. The pull request changes only `README.md`, runs the normal validation workflows, and remains manual-review only; this path never requests auto-merge. Canonical SQLite is not uploaded as an artifact or cache entry and is not written directly to the live VPS database.
+Only sanitized public projections are retained. A one-day README-only handoff is passed to the existing mutation workflow, which opens or updates `automated/manual-jobs-YYYY-MM-DD` with a title of the form `data: add manually reviewed jobs (YYYY-MM-DD)`. The date is the workflow run's creation date in Europe/Rome. The pull request changes only `README.md`, runs the normal validation workflows, and remains manual-review only; this path never requests auto-merge. Canonical SQLite is not uploaded as an artifact or cache entry and is not written directly to the live VPS database.
 
-After reviewing and merging that README pull request, deploy production separately through **Scrape jobs or deploy reviewed state** from `main` with `deploy_to_vps=true`. Deployment restores the latest snapshot pointer, which now contains the manual row, and validation requires the merged README to match that state before atomic VPS replacement. Running deployment before the README merge stops at projection validation rather than dropping or prematurely deploying the manual job.
+Submit all jobs intended for this pull request in the same run. The reviewed-state barrier blocks another canonical mutation while its README proposal is unmerged. After reviewing and merging that README pull request, deploy production separately through **Scrape jobs or deploy reviewed state** from `main` with `deploy_to_vps=true`. Deployment restores the latest snapshot pointer, which now contains the batch, and validation requires the merged README to match that state before the versioned release-pointer cutover. Running deployment before the README merge stops at projection validation rather than dropping or prematurely deploying the manual jobs.
 
 ## Collection and deployment flow
 
@@ -234,9 +240,9 @@ separate least-privilege README pull-request job
 
 The nightly workflow runs availability first and collection second, then validates the combined state and opens one narrowly scoped pull request. The availability-only workflow skips collection; the scrape-only workflow skips the availability phase. A partial collection preserves successful search transactions. Failed searches record diagnostics but do not apply absence, unavailability, or closure evidence.
 
-The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-job --no-render` operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the manual row instead of rebuilding state from the VPS database.
+The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-jobs --no-render` batch operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the reviewed batch instead of rebuilding state from the VPS database.
 
-Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose README proposal has not yet been merged. If a proposal is rejected or closed without merging, subsequent canonical-state workflows fail closed until the reviewed state and durable snapshot are reconciled.
+Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. The generated seal covers the full website-visible state, including rows outside the bounded preview and exact first-seen and collection timestamps. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose public-state proposal has not yet been merged. The explicit one-time adoption mode accepts only the seal addition to an otherwise matching legacy README, creates a review PR, and cannot collect or deploy. If a proposal is rejected or closed without merging, subsequent canonical-state workflows fail closed until the reviewed state and durable snapshot are reconciled.
 
 The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
@@ -256,11 +262,11 @@ SQLite WAL checkpoint
 ↓
 publish + round-trip verify canonical snapshot
 ↓
-checksum-verified VPS upload in the same protected job
+upload database + exports to a unique VPS staging directory
 ↓
-acquire deployment lock + preserve previous database
+acquire deployment lock, verify checksums and seal the release
 ↓
-replace canonical database + public exports
+atomically switch the release pointer
 </pre>
 </div>
 
@@ -281,11 +287,11 @@ Command-level semantics are documented in the [CLI reference](../user-guide/cli.
 
 ## State continuity and artifacts
 
-A dedicated, chrooted, SFTP-only VPS account stores recovery snapshots. Each state-writing workflow downloads `/state/canonical-state/latest.json`, validates its bounded manifest, downloads the referenced timestamped database, and verifies size, SHA-256, schema revision, collection timestamp, SQLite integrity, foreign keys, and required tables. Authentication, host-key, transfer, manifest, checksum, or integrity failures stop the workflow rather than silently using stale state.
+A dedicated, chrooted, SFTP-only VPS account stores recovery snapshots. Each state-writing workflow downloads `/state/canonical-state/latest.json`, validates its bounded manifest, downloads the referenced timestamped database, and verifies size, SHA-256, schema revision, collection timestamp, SQLite integrity, foreign keys, and required tables. Authentication, host-key, transfer, manifest, checksum, SQLite sidecar, or integrity failures stop the workflow rather than silently using stale state. A pre-existing local database that does not match the manifest also stops recovery without overwriting it. Local WAL/SHM/journal files and pre-existing restore or bootstrap staging files are preserved for inspection.
 
-GitHub Actions cache is deliberately not used for canonical SQLite. GitHub documents that pull-request workflows, including forks, can read default-branch caches. During first-time bootstrap, when no snapshot manifest or history exists, the workflow may instead download the reviewed live database; that candidate must independently pass integrity, foreign-key, required-table, and Alembic-revision checks before migration.
+GitHub Actions cache is deliberately not used for canonical SQLite. GitHub documents that pull-request workflows, including forks, can read default-branch caches. During first-time bootstrap, when no snapshot manifest or history exists, the workflow may instead stream a consistent SQLite backup of the reviewed live database over SSH (including committed WAL changes, without copying sidecars). This requires Python 3 on the deployment host. The backup normalizes SQLite to DELETE journal mode so it can later be read as a cold file without WAL/SHM permissions. When no durable snapshot exists, a pre-existing local database is preserved but never accepted as a bootstrap source. The streamed candidate must independently pass integrity, foreign-key, required-table, and Alembic-revision checks before migration.
 
-After validation and WAL checkpointing, publication creates a consistent SQLite backup through the SQLite backup API. Snapshot paths resemble:
+After validation and WAL checkpointing (and only when no live SQLite sidecars remain), publication creates a consistent SQLite backup through the SQLite backup API and normalizes its journal mode to DELETE before hashing, so the read-only site does not need writable WAL/SHM sidecars. Snapshot paths resemble:
 
 ```text
 /state/canonical-state/snapshots/2026/07/20/20260720T030000.000000Z-run-123-attempt-1.db
@@ -319,24 +325,25 @@ The `canonical-state` and `production` environments also supply `VPS_HOST` and `
 | `VPS_BACKUP_USER` | No | `opportunities-backup` |
 | `CANONICAL_STATE_RETENTION_DAYS` | No | `365` |
 
-The private key is written only for restore/publication steps and removed with `known_hosts` afterward. The normal VPS deployment key remains separate. After configuring GitHub, run **Verify canonical state recovery** manually once; it performs no LinkedIn access and seeds the first snapshot from the reviewed live database only when snapshot storage is empty.
+The private key is written only for restore/publication steps and removed with `known_hosts` afterward. The normal VPS deployment key remains separate. After configuring GitHub, complete the [one-time public-state seal review](#first-public-state-review-seal), then run **Verify canonical state recovery** with its default input. The default drill performs no LinkedIn access and seeds the first snapshot from the reviewed live database only when snapshot storage is empty.
 
 ## README update pull requests
 
-Each path uses a separate fixed review branch:
+Each path uses a separate review branch pattern:
 
 ```text
 automated/nightly-full-update  # availability followed by scrape
 automated/availability-update  # manually requested availability only
 automated/scrape-update        # manually requested scrape only
-automated/manual-job-add       # manually reviewed job insertion
+automated/manual-jobs-YYYY-MM-DD # manually reviewed job batch
+automated/public-review-seal   # one-time baseline from verified state
 ```
 
 Only `README.md` is committed. SQLite state is never committed. Canonical processing uploads a one-day README-only handoff, then a separate job with `actions: write`, `contents: write`, and `pull-requests: write` downloads that file and performs the GitHub mutation and validation dispatch. Processing retains only `contents: read`; the mutation job receives no VPS credentials or state bundle.
 
-The generated preview remains bounded to five recently discovered open opportunities per employment type, regardless of database size.
+The generated preview remains bounded to five recently discovered open opportunities per employment type, regardless of database size. The seal makes every public-directory change produce a README diff, even when all changed rows are outside that preview. Review the sanitized public CSV/JSON artifact linked from the pull-request body before merging a seal-only diff. Those downloads exclude first-seen timestamps, and the displayed collection time has minute precision; if the artifact does not explain the seal change, inspect the relevant values in protected canonical state before approving. The hash alone does not show which rows changed.
 
-The nightly workflow creates or updates its fixed branch and requests a squash auto-merge. Before mutating an existing proposal, and again before dispatching validation or requesting auto-merge, it verifies the exact base branch, head branch, title, and changed-file list; the pull request must target `main` and modify only `README.md`. It retries the post-push GitHub scope read briefly to tolerate API propagation, but never relaxes the expected scope. It then waits for the exact Python, site, Docker, and CodeQL dispatch runs on that head SHA to succeed before requesting auto-merge. If generated state already matches `main`, a matching stale automation pull request is closed rather than left eligible to merge. GitHub auto-merge must be enabled; required checks, up-to-date-branch rules, and review requirements remain recommended defense in depth. Scrape-only, availability-only, and manual-add pull requests receive the same dispatched validation but remain manual-review paths.
+The nightly workflow creates or updates its fixed branch and requests a squash auto-merge. Before mutating an existing proposal, and again before dispatching validation or requesting auto-merge, it verifies the exact base branch, same-repository head branch, title, changed-file list, and expected head SHA; the pull request must target `main` and modify only `README.md`. It retries the post-push GitHub scope read briefly to tolerate API propagation, but never relaxes the expected scope. It then waits for the exact Python, site, Docker, and CodeQL dispatch runs on that head SHA to succeed and supplies the SHA to the merge request, so a later head change cannot use stale validation. If generated state already matches `main`, a matching stale automation pull request is closed rather than left eligible to merge. GitHub auto-merge must be enabled; required checks, up-to-date-branch rules, and review requirements remain recommended defense in depth. Scrape-only, availability-only, and manual-add pull requests receive the same dispatched validation but remain manual-review paths.
 
 Scheduled runs do not deploy to the VPS. After the nightly pull request merges—or after a maintainer reviews and merges a manual update—start a manual scrape-workflow run from `main` with `deploy_to_vps=true` to publish the matching canonical state. Deployment mode skips collection and availability requests, then requires the merged README to validate exactly against restored durable SQLite before deployment. The pull request contains the human-readable README projection; SQLite remains inside protected snapshot storage and the approved production job and is never committed, cached, or uploaded as an artifact. Do not edit generated rows manually; change the renderer or canonical state instead.
 
@@ -349,13 +356,13 @@ Use this sequence after each scheduled collection. Do not deploy merely because 
 3. Inspect the fixed `automated/nightly-full-update` pull request. It must target `main`, have the exact nightly title, and change only `README.md`.
 4. Confirm the README mutation job identified and awaited the explicitly dispatched Python, site, Docker, and CodeQL runs on the pull-request head SHA. Do not bypass, re-label, or manually broaden the automation pull request to make auto-merge proceed.
 5. Confirm the pull request squash-merged and that `main` now contains its generated count, timestamp, and preview. If branch protection requires review, inspect the README-only diff and approve it first. If it remains open afterward, diagnose the failed or missing required check before deployment.
-6. From the Actions tab, run **Scrape jobs or deploy reviewed state** on `main` with `deploy_to_vps=true`. Set `open_pull_request=false`; that input is unused in deployment mode but makes operator intent explicit.
+6. From the Actions tab, run **Scrape jobs or deploy reviewed state** on `main` with `deploy_to_vps=true`.
 7. Approve the `production` environment deployment if required. Confirm **Validate, preserve, and deploy reviewed state** restores and validates the matching state before its final deployment step. A README/database mismatch is a safety stop, usually meaning the matching projection was not merged or a newer snapshot exists.
-8. Confirm checksum verification, lock acquisition, previous-database preservation, each atomic file replacement, and final checksum verification completed in the deployment log. Never print secrets or database rows while reviewing logs.
+8. Confirm staging, checksum verification, lock acquisition, immutable release publication, and the single pointer switch completed in the deployment log. Never print secrets or database rows while reviewing logs.
 9. Verify the live directory and both fixed downloads over HTTPS. Check that the visible counts and last successful collection time match `main`, filtering and pagination still work, and CSV/JSON downloads return the expected attachment filenames.
 10. Keep the nightly and deployment run IDs for the operational record. If authorization will not remain valid for the next scheduled run, immediately set `LINKEDIN_CRAWL_AUTHORIZED=false` or remove the variable.
 
-If any step before deployment fails, leave production unchanged and diagnose the failed stage. If deployment fails, do not collect again as a repair strategy; inspect the checksum/lock error and use the verified snapshot or `opportunities.db.previous` recovery path when replacement may have started.
+If any step before deployment fails, leave production unchanged and diagnose the failed stage. If deployment fails, do not collect again as a repair strategy; inspect the lock, staged uploads, release directory, and `current` symlink. Before pointer promotion the previous release stays live; afterward select a verified prior release under the lock if rollback is required. Canonical snapshot recovery remains separate.
 
 ## VPS deployment
 
@@ -379,17 +386,24 @@ If any step before deployment fails, leave production unchanged and diagnose the
 
 After a review pull request is merged, a deployment-mode run enters the approval-protected `production` environment, restores the verified durable database state, skips all new collection and availability requests, regenerates the sanitized public exports, validates every projection against `main`, and round-trip verifies a new snapshot. The same `contents: read` job then:
 
-1. uploads the validated database, CSV, and JSON to run-specific temporary paths in the host state directory;
-2. compares every local and remote SHA-256 checksum and removes the uploads if any differ;
-3. acquires a VPS `flock`;
-4. copies the current canonical file to an execution-specific temporary path and atomically promotes it as `opportunities.db.previous`;
-5. assigns restricted `opportunities-site` ownership and read permissions to the database and exports;
-6. removes stale SQLite sidecars while no database connection is writing;
-7. renames the temporary database and export files into their fixed paths;
-8. verifies every final checksum;
-9. cleans up run-specific uploads after partial transfer, checksum, or replacement failures.
+1. uploads the validated database, CSV, and JSON to an execution-specific staging directory under `data/.incoming/` (not to the legacy live paths);
+2. under a nonblocking VPS `flock`, verifies all three SHA-256 digests again and rejects missing files, sidecars, pre-existing release IDs, and invalid pointers;
+3. writes `checksums.sha256` for the three payloads, assigns `opportunities-site` group read access, renames the complete directory to `data/releases/<run-id>-<attempt>` on the same filesystem, makes it read-only to the site group, and flushes the published files and directories;
+4. atomically renames a relative symlink `data/current` to point at the new immutable release, then flushes the directory; failed or completed client runs attempt to clean up their staging uploads, while published releases are never removed automatically. Releases are retained for in-flight readers and manual rollback. A failure after pointer promotion cannot be assumed to have left the old release live: inspect `current`.
 
-The website opens a new read-only SQLite connection or export file on each request and observes the deployed projections without an application restart or mutation endpoint.
+The site resolves `current` **once per server operation** to a fixed release directory and opens its SQLite database or export there. A cutover cannot mix files *within one directory resolution*. Concurrent requests may span two revisions; a page followed by a separate download is **not** a pinned multi-request transaction. Do not garbage-collect a release until all readers of that release have drained. The fixed legacy paths remain unchanged and will become stale; follow the coordinated rollout below before claiming atomic publication.
+
+### Coordinated first rollout and rollback
+
+This is **not** a drop-in update for a VPS serving the old fixed paths:
+
+1. Merge and validate the site release-reader and deployment scripts, then complete the one-time public-state seal review. Preserve the verified restricted snapshot and the old site configuration. Ensure the deployment user can create `data/.incoming`, `data/releases`, and `data/.release-deploy.lock`; the site group must be able to traverse the data directory.
+2. Run deployment-only once while the old site still reads the unchanged legacy files. On the VPS, verify that `data/current` points to the new `releases/<id>` and run `(cd data/current && sha256sum -c checksums.sha256)`. Do not switch readers if deployment or verification fails.
+3. Drain old site instances or temporarily remove traffic. Set `OPPORTUNITIES_RELEASE_ROOT=/app/data` on **every** site instance, restart them, and route traffic only to those instances. Confirm the directory and both HTTPS downloads reflect the reviewed release. Do not leave mixed legacy/new instances behind a load balancer.
+
+After `current` exists, never use the fixed legacy database as a recovery source; restore a verified restricted snapshot instead. A missing snapshot pointer is a stop condition when `current` **or** the versioned `releases` directory exists, even if an old fixed file is present.
+
+For rollback, stop new cutovers, confirm the desired prior release's database schema is readable by the running site and matches a verified restricted snapshot, and verify its three payload hashes with `(cd data/releases/<prior-id> && sha256sum -c checksums.sha256)`. Under the same `data/.release-deploy.lock` (nonblocking `flock`), create a fresh temporary relative symlink to `releases/<prior-id>` **in `data/`** and atomically `mv -Tf` it over `current`; flush the data directory and check the live site and both downloads. If a temporary symlink already exists, inspect it rather than overwriting it. Keep both releases until readers drain. This reverts the **served projection**, not the restricted snapshot history; reconcile that history deliberately before the next deployment. Do not roll back an application image that cannot read the chosen schema, or repoint the site to stale legacy paths. If the symlink is missing/invalid, the versioned site fails closed rather than falling back to legacy state.
 
 Compose topology, volume permissions, Dokploy routing, and container diagnostics belong to the [Docker and deployment guide](docker.md).
 
@@ -403,7 +417,7 @@ uv run opportunities db-upgrade
 
 A migration, integrity, manifest, or canonical-state validation failure stops the workflow. Collection workflows do not expose a state-rebuild input and never delete restored state to recover automatically.
 
-Preserve the failed state, then review durable snapshot history and manifests followed by the previous VPS database. Sanitized projection artifacts cannot restore lifecycle state. Restore a verified compatible snapshot rather than initializing an unrelated empty history. Any intentional rebuild is an exceptional manual recovery decision because it loses original first-seen history, search provenance, closure confirmations, and run diagnostics. Follow [Database lifecycle](database.md#restore) and [Troubleshooting](troubleshooting.md#github-actions-and-deployment).
+Preserve the failed state, then review durable snapshot history and manifests followed by retained versioned releases (or the legacy previous VPS database only if versioned publication has never occurred). Sanitized projection artifacts cannot restore lifecycle state. Restore a verified compatible snapshot rather than initializing an unrelated empty history. Any intentional rebuild is an exceptional manual recovery decision because it loses original first-seen history, search provenance, closure confirmations, and run diagnostics. Follow [Database lifecycle](database.md#restore) and [Troubleshooting](troubleshooting.md#github-actions-and-deployment).
 
 ## Disabling collection
 
@@ -431,7 +445,7 @@ Before changing or manually running automation, confirm:
 - [ ] Migration or state-validation failures stop without deleting restored canonical state.
 - [ ] Manual recovery uses a reviewed, checksum-verified source.
 - [ ] VPS host keys are pre-verified.
-- [ ] Deployment remains checksum-verified and locked, with atomic replacement of each final file.
+- [ ] Deployment remains checksum-verified and locked, with a single atomic versioned release pointer and coordinated site rollout.
 - [ ] SQLite state is never committed to Git.
 - [ ] Canonical processing remains read-only to GitHub; only the README mutation job has repository and pull-request write permissions.
 - [ ] No canonical database or manifest enters GitHub cache or artifacts; only the README handoff expires after one day.

@@ -22,7 +22,7 @@ This is the canonical development guide for the project. It covers the local eng
 - Python 3.12 and `uv` 0.11.6;
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
 - pytest with branch coverage and microbenchmarks, Ruff, and strict mypy;
-- Node.js 22.13 or newer with unflagged `node:sqlite` support, Bun 1.3.14, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
+- Node.js 22.13 or newer with unflagged `node:sqlite` support, Bun 1.4.2, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
 - GNU Make for optional command shortcuts, and Docker for container and production-path validation.
 
 These versions define the supported local and CI development environment. Container build and runtime versions are pinned independently; the [Docker guide](../operations/docker.md#image-targets) and root `Dockerfile` are authoritative for container versions.
@@ -197,7 +197,7 @@ docker compose run --rm opportunities --help
 
 Run affected smoke tests when changing image stages, runtime users, mounts, volumes, SQLite paths, permissions, or standalone website output. Operational container procedures belong to [Docker](../operations/docker.md).
 
-GitHub Actions changes must also pass the pinned `actionlint` check in `docker-ci.yml`. For canonical-state automation, review the operator wrapper, called workflow, protected environment, any sanitized handoff artifact, and referenced shell script together. Keep repository write and validation-dispatch permissions confined to the README pull-request job, keep VPS secrets in main-only environments, and never place canonical SQLite in Actions cache or artifacts.
+GitHub Actions changes must also pass the pinned `actionlint` check in `docker-ci.yml`. VPS restore/deployment shell tests and release-pointer tests require Linux and are skipped on Windows; run them in Linux CI (or an isolated Linux container) before rollout. Docker smoke tests must use disposable synthetic state, not local canonical data. For canonical-state automation, review the operator wrapper, called workflow, protected environment, any sanitized handoff artifact, and referenced shell script together. Keep repository write and validation-dispatch permissions confined to the README pull-request job, keep VPS secrets in main-only environments, and never place canonical SQLite in Actions cache or artifacts.
 
 ### Full cross-project validation
 

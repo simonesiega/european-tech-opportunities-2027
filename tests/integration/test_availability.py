@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -161,3 +161,87 @@ def test_availability_audit_includes_manual_jobs_without_provenance(
     assert result.deleted == 1
     assert fetcher.requested == [LINKEDIN_PUBLIC_JOB_URL.format(job_id="2222222222")]
     assert repository.list_all_jobs() == []
+
+
+def test_delayed_audit_cannot_delete_newer_rediscovery(
+    session_factory: sessionmaker[Session], settings: Settings, search: LinkedInSearchConfig
+) -> None:
+    repository = Repository(session_factory, settings)
+    checked_at = datetime(2026, 7, 19, 3, 17, tzinfo=UTC)
+    newer = checked_at + timedelta(minutes=2)
+    job = DiscoveredJob(
+        linkedin_job_id="2222222222",
+        company="Example Technology",
+        title="Software Engineering Intern 2027",
+        location="London, UK",
+        link="https://www.linkedin.com/jobs/view/2222222222",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+    repository.sync_searches([search], checked_at)
+
+    def persist(run: int, when: datetime) -> None:
+        repository.persist_success(
+            run_id=f"00000000-0000-0000-0000-{run:012d}",
+            search=search,
+            jobs=[job],
+            confirmed_unavailable_ids=(),
+            found_count=1,
+            excluded_count=0,
+            warning_count=0,
+            started_at=when,
+            finished_at=when,
+            duration_ms=1,
+        )
+
+    persist(1, checked_at)
+
+    class DelayedNotFound:
+        async def get_text(self, _url: str) -> str:
+            persist(2, newer)
+            raise FetchError("http_status", "not found", status_code=404)
+
+    result = asyncio.run(
+        audit_job_availability(
+            settings=settings,
+            repository=repository,
+            fetcher=DelayedNotFound(),
+            observed_at=checked_at,
+        )
+    )
+    assert result.deleted == 0
+    assert repository.list_open_jobs()[0].last_seen_at == newer
+    with session_factory() as session:
+        assert session.get(JobSearchRow, (search.slug, job.linkedin_job_id)) is not None
+
+    # A delayed successful audit must not reopen a later closure either.
+    repository.persist_success(
+        run_id="00000000-0000-0000-0000-000000000003",
+        search=search,
+        jobs=[],
+        confirmed_unavailable_ids=(job.linkedin_job_id,),
+        found_count=0,
+        excluded_count=0,
+        warning_count=0,
+        started_at=newer + timedelta(minutes=1),
+        finished_at=newer + timedelta(minutes=1),
+        duration_ms=1,
+    )
+    repository.persist_success(
+        run_id="00000000-0000-0000-0000-000000000004",
+        search=search,
+        jobs=[],
+        confirmed_unavailable_ids=(job.linkedin_job_id,),
+        found_count=0,
+        excluded_count=0,
+        warning_count=0,
+        started_at=newer + timedelta(minutes=2),
+        finished_at=newer + timedelta(minutes=2),
+        duration_ms=1,
+    )
+    assert repository.list_open_jobs() == []
+    changes = repository.apply_availability_audit(
+        available_ids=(job.linkedin_job_id,), unavailable_ids=(), observed_at=checked_at
+    )
+    assert changes.reopened == 0
+    assert repository.list_open_jobs() == []

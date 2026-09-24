@@ -85,7 +85,21 @@ jobs:
           docker compose run --rm opportunities db-upgrade
           docker compose run --rm opportunities export-public
 
-          if ! docker compose up --detach site; then
+          # Synthetic versioned release: leave legacy exports distinct so a passing
+          # download proves the website resolves `current`, not fixed paths.
+          data_dir=/srv/european-tech-opportunities-2027/data
+          sudo install -d -m 750 -o 10001 -g 10001 "$data_dir/releases/1-1/exports"
+          sudo cp "$data_dir/opportunities.db" "$data_dir/releases/1-1/opportunities.db"
+          sudo cp "$data_dir/exports/open-opportunities.csv" "$data_dir/releases/1-1/exports/"
+          sudo cp "$data_dir/exports/open-opportunities.json" "$data_dir/releases/1-1/exports/"
+          sudo chown -R 10001:10001 "$data_dir/releases"
+          sudo chmod 550 "$data_dir/releases/1-1" "$data_dir/releases/1-1/exports"
+          sudo chmod 440 "$data_dir/releases/1-1/opportunities.db" "$data_dir/releases/1-1/exports/"*
+          sudo -u '#10001' ln -s releases/1-1 "$data_dir/current"
+          printf 'legacy-only\n' | sudo tee "$data_dir/exports/open-opportunities.csv" >/dev/null
+          # The image was built with Compose's localhost default; runtime metadata
+          # routes must still advertise the production origin.
+          if ! SITE_URL=https://opportunities2027.simonesiega.com OPPORTUNITIES_RELEASE_ROOT=/app/data docker compose up --detach site; then
             docker compose logs site opportunities
             exit 1
           fi
@@ -93,31 +107,44 @@ jobs:
           for _ in $(seq 1 10); do
             if docker compose exec --no-TTY site node --input-type=module <<'NODE'
           const baseUrl = "http://127.0.0.1:3000";
-          const [page, csv, json] = await Promise.all([
+          const canonicalOrigin = "https://opportunities2027.simonesiega.com";
+          const [page, csv, json, robots, sitemap] = await Promise.all([
             fetch(baseUrl),
             fetch(`${baseUrl}/open-opportunities.csv`),
             fetch(`${baseUrl}/open-opportunities.json`),
+            fetch(`${baseUrl}/robots.txt`),
+            fetch(`${baseUrl}/sitemap.xml`),
           ]);
           const csp = page.headers.get("content-security-policy") ?? "";
           const hsts = page.headers.get("strict-transport-security") ?? "";
           const csvDisposition = csv.headers.get("content-disposition") ?? "";
           const jsonDisposition = json.headers.get("content-disposition") ?? "";
-          const csvText = await csv.text();
-          const jsonText = await json.text();
+          const [pageHtml, csvText, jsonText, robotsText, sitemapText] = await Promise.all([
+            page.text(),
+            csv.text(),
+            json.text(),
+            robots.text(),
+            sitemap.text(),
+          ]);
           const valid =
             page.ok &&
             csv.ok &&
             json.ok &&
+            robots.ok &&
+            sitemap.ok &&
             csp.includes("default-src 'self'") &&
             csp.includes("script-src 'self' 'unsafe-inline' https://cloud.umami.is") &&
             csp.includes("connect-src 'self' https://gateway.umami.is") &&
             hsts.includes("max-age=63072000") &&
             csvDisposition.includes("open-opportunities.csv") &&
             jsonDisposition.includes("open-opportunities.json") &&
+            pageHtml.includes(`rel="canonical" href="${canonicalOrigin}"`) &&
             csvText.startsWith(
               "linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date"
             ) &&
-            jsonText.trim() === "[]";
+            jsonText.trim() === "[]" &&
+            robotsText.includes(`Sitemap: ${canonicalOrigin}/sitemap.xml`) &&
+            sitemapText.includes(`<loc>${canonicalOrigin}/</loc>`);
           process.exit(valid ? 0 : 1);
           NODE
             then

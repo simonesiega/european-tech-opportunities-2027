@@ -286,13 +286,13 @@ Exit code `1` usually indicates a shared problem involving:
 
 Existing state remains valid. Preserve it while diagnosing the shared cause.
 
-### HTTP `429`, timeout, or `5xx`
+### Timeout or HTTP `5xx`
 
 Retries are finite.
 
 - stop repeated manual runs;
 - keep pacing conservative;
-- retry one search later;
+- retry one search later when the upstream failure is temporary;
 - determine whether the problem is isolated or shared.
 
 A temporary timeout increase may be appropriate:
@@ -304,9 +304,9 @@ OPPORTUNITIES_CONNECT_TIMEOUT_SECONDS=20
 
 Do not increase concurrency to evade throttling.
 
-### HTTP `403` or challenge page
+### Redirect, HTTP `401`, `403`, `429`, or challenge page
 
-Stop collection.
+Stop collection. A redirect, HTTP `401`, `403`, or `429` blocks further requests through the same fetcher; requests already in flight may finish. Review access before starting another run.
 
 Do not add:
 
@@ -437,7 +437,7 @@ Do not remove digest pins, disable Trivy, broaden vulnerability exclusions, or c
 
 Canonical SQLite is never stored in GitHub Actions cache or artifacts. When restricted VPS snapshot storage is healthy, the workflow downloads `latest.json`, verifies its timestamped SQLite file, and uses that exact state.
 
-During initial rollout, if `latest.json` is absent and the snapshot directory is empty, the workflow may seed from the reviewed live VPS database after independent integrity, foreign-key, required-table, and Alembic-revision checks. If timestamped snapshots exist but the pointer is missing, automation stops so the pointer can be recovered instead of starting an unrelated history.
+During initial rollout, if `latest.json` is absent and the snapshot directory is empty, the workflow may stream a consistent SQLite backup from the reviewed live VPS database after independent integrity, foreign-key, required-table, and Alembic-revision checks. It never treats an unreferenced local database as a bootstrap source. If timestamped snapshots exist but the pointer is missing, automation stops so the pointer can be recovered instead of starting an unrelated history.
 
 The README and sanitized projection artifacts cannot reconstruct lifecycle state.
 
@@ -454,6 +454,8 @@ Check, without printing credentials:
 - absence of shell, sudo, forwarding, `opportunities-site` membership, and live-database access;
 - database size, SHA-256, schema revision, and collection timestamp against the manifest;
 - SQLite `integrity_check`, `foreign_key_check`, and required tables.
+
+If restoration reports that local state differs from the latest manifest or that restore/bootstrap staging already exists, preserve those files and any sidecars for investigation; do not remove them just to make a retry pass. A fresh protected job normally starts with no local database.
 
 A publication failure before latest-pointer promotion leaves the prior snapshot authoritative. Preserve failed-run logs and inspect newly uploaded timestamped files; do not repoint `latest.json` manually until the pair passes:
 
@@ -477,30 +479,30 @@ Verify:
 - `VPS_SSH_KNOWN_HOSTS`;
 - optional `VPS_SSH_PORT`;
 - access to `/srv/european-tech-opportunities-2027/data` for the restricted SSH user;
-- whether another workflow holds the deployment lock.
+- whether another workflow holds the deployment lock;
+- whether the local working database has `-wal`, `-shm`, or `-journal` sidecars; checkpoint and close it before retrying, without discarding uncheckpointed data;
+- whether `data/current` is invalid, the run ID has already been published, or a partial upload failed checksum verification. Inspect the pointer and immutable releases under the deployment lock before retrying; never remove an active release.
 
 Do not disable host-key verification.
 
 ### Deployed database is unchanged
 
-Check:
+First distinguish the pipeline's working file from the versioned release served by the website. Check:
 
-- local and remote checksums;
-- the target host state directory;
-- restricted group and file mode;
-- whether atomic rename completed;
-- whether stale sidecars remain;
-- whether the website reads `/app/data/opportunities.db`;
-- whether `/app/data/exports/open-opportunities.csv` and `.json` exist with readable permissions.
+- that deployment-only automation completed and its local and remote payload checksums agree;
+- that `data/current` is a valid relative symlink to the intended `data/releases/<run-id>-<attempt>` and `(cd data/current && sha256sum -c checksums.sha256)` passes;
+- that the site has `OPPORTUNITIES_RELEASE_ROOT=/app/data` **on every instance** after the coordinated rollout; without it, the site continues to read the stale legacy fixed paths;
+- that the site group can traverse `data/releases/` and read the selected database and both exports;
+- that old site instances and cached responses are not being mistaken for the new release. A page and a later download can span a cutover.
 
-Deployment sequencing is documented in [Automation](automation.md#vps-deployment).
+A missing or invalid `current` is a stop condition, not a reason to repoint the site to legacy state. Deployment sequencing and rollback are documented in [Automation](automation.md#vps-deployment).
 
 ### Migration or canonical-state validation fails
 
 Collection workflows deliberately provide no state-rebuild input. They stop rather than deleting an incompatible restored database or its sidecars.
 
 1. Preserve the failed state and stop additional writers.
-2. Review verified durable manifests and snapshots first, then `opportunities.db.previous`; sanitized projection artifacts cannot restore state.
+2. Review verified durable manifests and snapshots first, then retained versioned releases under `data/releases/`; a legacy `opportunities.db.previous` is not current state after rollout. Sanitized projection artifacts cannot restore state.
 3. Verify the selected snapshot’s checksum, schema revision, integrity, and foreign keys.
 4. Restore it with the procedure in [Database lifecycle](database.md#restore).
 
@@ -542,16 +544,16 @@ sqlite:////app/data/opportunities.db
 
 ### Database appears empty
 
-Confirm every command and service uses the same `/srv/european-tech-opportunities-2027/data` bind mount.
+Confirm both services mount `/srv/european-tech-opportunities-2027/data`. In versioned production mode the pipeline's working file and the site's `current` release are intentionally different; compare the site's selected release with the latest reviewed deployment, not with the working file.
 
-Then run:
+For an intentionally new **local development** directory only, initialize and inspect it explicitly:
 
 ```bash
 docker compose run --rm opportunities db-upgrade
 docker compose run --rm opportunities stats
 ```
 
-A fresh host state directory intentionally contains no listings.
+A fresh local directory intentionally contains no listings. In production, restore and verify canonical state before migration; website startup never creates or migrates it automatically.
 
 ### Website cannot read SQLite
 
@@ -561,8 +563,8 @@ Check:
 - the website bind mount is read-only;
 - the database and both public export files exist;
 - UID/GID `10001:10001` has read access through the configured host ownership or group mapping;
-- the configured path is `/app/data/opportunities.db`;
-- database and sidecars were not copied inconsistently.
+- in versioned mode, `OPPORTUNITIES_RELEASE_ROOT=/app/data` and a valid `current` symlink target under `/app/data/releases/` are present; in legacy/local mode only, the configured database path is `/app/data/opportunities.db`;
+- in versioned mode, the selected release was produced as a cold, sidecar-free snapshot rather than copied inconsistently from a live WAL database; in legacy mode, preserve any required sidecars and permissions.
 
 ### README rendering fails in Docker
 
@@ -588,7 +590,7 @@ Verify:
 - the read-only `/app/configs` mount;
 - the `/srv/european-tech-opportunities-2027/data` database bind mount;
 - image targets and service names;
-- `SITE_URL`;
+- `SITE_URL` and, after rollout, `OPPORTUNITIES_RELEASE_ROOT=/app/data` for **every** site instance;
 - absence of an unintended fixed production port.
 
 ### Dokploy routing fails

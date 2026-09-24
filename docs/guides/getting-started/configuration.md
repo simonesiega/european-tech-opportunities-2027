@@ -95,6 +95,8 @@ Do not commit, paste, or attach them to public issues.
 | `OPPORTUNITIES_TARGET_CYCLE` | `2027` | Integer from 2020 through 2100 |
 | `OPPORTUNITIES_SETTINGS_FILE` | unset | Selects an optional settings YAML file |
 
+The 2027 publication floor (May 1, 2026) and `date_posted: cycle` search window are fixed policy. Changing `OPPORTUNITIES_TARGET_CYCLE` alone does not retarget the whole project to a later hiring cycle; review the classifier, search registry, tests, and public copy together before a rollover.
+
 ### Search limits
 
 | Variable | Default | Validation and behavior |
@@ -190,7 +192,6 @@ The transport retries only:
 
 - connection or transport failures;
 - timeouts;
-- HTTP `429`;
 - HTTP `5xx`.
 
 For zero-based retry number `n`, the base delay is:
@@ -199,12 +200,14 @@ For zero-based retry number `n`, the base delay is:
 retry_backoff_seconds × 2^n
 ```
 
-The retry delay is the greater of the exponential backoff and a valid `Retry-After` value, capped at 60 seconds.
+The retry delay is the greater of the exponential backoff and a valid `Retry-After` value, capped at 60 seconds. HTTP redirects, `401`, `403`, and `429` stop further requests through the same fetcher without retrying; requests already in flight may finish. Operators must review access before another collection run.
 
 The transport also enforces:
 
 - the fixed `www.linkedin.com` HTTPS host before any request;
 - disabled redirects;
+- direct requests from its managed client, ignoring ambient proxy variables;
+- rejection of preconfigured Cookie headers and source response cookies;
 - bounded connection and overall timeouts;
 - bounded concurrency and same-host pacing;
 - response-size checks before and after reading;
@@ -243,12 +246,13 @@ Schema, migrations, backup, restoration, and lifecycle rules belong to the [data
 
 ## Website settings
 
-The Next.js website uses three runtime or build variables:
+The Next.js website uses these runtime or build variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OPPORTUNITIES_DATABASE_PATH` | `../data/opportunities.db` | Read-only SQLite file used by server requests |
-| `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `../data/exports` | Read-only directory containing pipeline-generated CSV and JSON downloads |
+| `OPPORTUNITIES_DATABASE_PATH` | `../data/opportunities.db` | Read-only SQLite file when versioned mode is disabled |
+| `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `../data/exports` | Read-only generated CSV/JSON directory when versioned mode is disabled |
+| `OPPORTUNITIES_RELEASE_ROOT` | unset or empty | When nonempty, resolve `<root>/current` once per server operation and read the database or exports from that release; an invalid or missing pointer fails closed, without using the legacy paths |
 | `SITE_URL` | `http://localhost:3000` | HTTP(S) canonical origin used by metadata, structured data, robots, and the sitemap; credentials, paths, queries, and fragments are rejected |
 
 Create the local website environment file:
@@ -266,23 +270,16 @@ OPPORTUNITIES_DATABASE_PATH=../data/opportunities.db
 OPPORTUNITIES_PUBLIC_EXPORT_DIR=../data/exports
 ```
 
-`SITE_URL` falls back to `http://localhost:3000` when it is unset, `OPPORTUNITIES_DATABASE_PATH` falls back to `../data/opportunities.db`, and `OPPORTUNITIES_PUBLIC_EXPORT_DIR` falls back to `../data/exports`.
+`SITE_URL` falls back to `http://localhost:3000` when unset. Unless `OPPORTUNITIES_RELEASE_ROOT` is set, the database and export paths fall back to `../data/opportunities.db` and `../data/exports` respectively.
 
-The production container reads:
-
-```text
-/app/data/opportunities.db
-```
-
-Production uses:
+After the [coordinated production rollout](../operations/automation.md#coordinated-first-rollout-and-rollback), the container uses:
 
 ```dotenv
 SITE_URL=https://opportunities2027.simonesiega.com
-OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db
-OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports
+OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 
-The website must retain read-only database access.
+For each directory or download request, the site selects a release once and reads its database or exports through `/app/data/current/`. A page and a later download may select different releases during a cutover. Compose still supplies the legacy fixed-path variables for local development and migration; setting `OPPORTUNITIES_RELEASE_ROOT` takes precedence over both. The site must retain a read-only bind mount containing **both** `current` and `releases/`. Do not enable versioned mode until the first release has been deployed and verified.
 
 Authentication, user-provided content, write APIs, or other mutation paths require an explicit architecture and security review.
 

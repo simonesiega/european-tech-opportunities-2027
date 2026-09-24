@@ -32,6 +32,7 @@ The global `--settings` option must appear before the command name.
 - [`search-test`](#search-test)
 - [`scrape`](#scrape)
 - [`add-job`](#add-job)
+- [`add-jobs`](#add-jobs)
 - [`check-availability`](#check-availability)
 - [`render`](#render)
 - [`export-public`](#export-public)
@@ -50,6 +51,7 @@ The global `--settings` option must appear before the command name.
 | `search-test` | Run one authorized search without persistence |
 | `scrape` | Run authorized collection and persist independent search outcomes |
 | `add-job` | Add a known LinkedIn listing to canonical state without search provenance |
+| `add-jobs` | Validate and add a bounded batch of reviewed listings in one transaction |
 | `check-availability` | Audit every stored LinkedIn listing and delete explicitly unavailable rows |
 | `render` | Regenerate owned README, search-registry documentation, and public data projections |
 | `export-public` | Regenerate only the sanitized public CSV and JSON projections |
@@ -177,18 +179,50 @@ uv run opportunities add-job \
   --employment-type internship
 ```
 
-Required options are `--url`, `--company`, `--title`, `--location`, `--category`, and `--employment-type`. Optional metadata can be supplied with `--industries`, `--start-date`, and `--posted-at`; `--posted-at` accepts an ISO-8601 timestamp and is normalized to UTC. Use `--no-render` to update only SQLite.
+Required options are `--url`, `--company`, `--title`, `--location`, `--category`, and `--employment-type`. Optional metadata can be supplied with `--industries`, `--start-date`, and `--posted-at`; `--posted-at` requires an ISO-8601 timestamp with an explicit timezone, must not be in the future, and is normalized to UTC. A yearless title without eligible posting evidence is rejected. Use `--no-render` to update only SQLite.
 
 The command:
 
 - extracts the numeric identity from the canonical LinkedIn `/jobs/view/<id>` URL;
-- validates and normalizes the row through `DiscoveredJob`;
-- inserts or updates it through the repository, reopening a closed row when necessary;
+- validates and normalizes the row through `DiscoveredJob`, then applies the same deterministic classifier as collection (title, category, employment type, cycle/posting date, and European location) before writing;
+- inserts or updates an open row through the repository; rejects a closed row, which must be reopened by valid discovery or a successful full-state availability audit;
 - creates no search, search run, or `job_searches` provenance;
 - performs no network access and does not require the LinkedIn authorization interlock;
 - refreshes the README, search-registry documentation, and public CSV/JSON projections by default.
 
 A manual insertion does not change the README's last successful collection timestamp. That timestamp remains derived from successful collection runs. The full availability audit includes manual rows, and a later ordinary scrape can attach real search provenance to the existing job.
+
+## `add-jobs`
+
+For several independently reviewed listings, place 1–10 jobs in a UTF-8 JSON array and run one batch:
+
+```json
+[
+  {
+    "url": "https://www.linkedin.com/jobs/view/1234567890",
+    "company": "Example Technology",
+    "title": "Software Engineering Intern 2027",
+    "location": "London, UK",
+    "category": "software-engineering",
+    "employment_type": "internship"
+  },
+  {
+    "url": "https://www.linkedin.com/jobs/view/2345678901",
+    "company": "Example Research",
+    "title": "Machine Learning New Grad 2027",
+    "location": "Paris, France",
+    "category": "machine-learning",
+    "employment_type": "new-grad",
+    "posted_at": "2026-09-24T10:00:00+02:00"
+  }
+]
+```
+
+```bash
+uv run opportunities add-jobs --input manual-jobs.json
+```
+
+Each object uses the same required and optional fields as `add-job`; JSON field names use underscores for `employment_type`, `start_date`, and `posted_at`. The input must be no larger than 64 KiB. Unknown fields, duplicate LinkedIn IDs, invalid or closed jobs, and any failed classification reject the whole batch before a canonical transaction commits. The repository applies all accepted rows in one transaction. By default the command then refreshes the normal projections; `--no-render` changes only SQLite. It makes no LinkedIn request and creates no synthetic search provenance.
 
 ## `check-availability`
 
@@ -318,6 +352,8 @@ GitHub Actions handling of these codes is documented in [Automation](../operatio
 | `scrape --no-render` | Yes, after authorization gate | Yes | No |
 | `add-job` | No | Yes | README + registry docs + public exports |
 | `add-job --no-render` | No | Yes | No |
+| `add-jobs` | No | Yes, one transaction | README + registry docs + public exports |
+| `add-jobs --no-render` | No | Yes, one transaction | No |
 | `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports |
 | `check-availability --no-render` | Yes, after authorization gate | Yes | No |
 | `render` | No | No | README + registry docs + public exports |

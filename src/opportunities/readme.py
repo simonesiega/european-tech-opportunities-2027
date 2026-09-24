@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
+import json
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
 from opportunities.models.enums import EmploymentType
 from opportunities.models.job import StoredJob
+from opportunities.public_exports import directory_state_rows
 from opportunities.utils.files import atomic_write_text
 from opportunities.utils.time import ensure_utc
 
@@ -19,6 +23,8 @@ END_MARKER = "<!-- END OPPORTUNITIES -->"
 TABLE_HEADER = "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
 README_PREVIEW_LIMIT = 5
 DIRECTORY_URL = "https://opportunities2027.simonesiega.com/"
+STATE_SEAL_PREFIX = "<!-- Public directory state v1 sha256: "
+STATE_SEAL_PATTERN = re.compile(r"<!-- Public directory state v1 sha256: [0-9a-f]{64} -->")
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,7 +47,7 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
         internship_count,
         new_grad_count,
         metadata.last_successful_collection,
-    )
+    ) + _directory_state_seal(jobs, metadata.last_successful_collection)
     content = (
         content[:summary_begin]
         + SUMMARY_BEGIN_MARKER
@@ -101,6 +107,32 @@ def opportunity_count_cards(
         f'alt="New Grad opportunities: {new_grad}" />\n'
         "</p>\n"
     )
+
+
+def directory_state_digest(
+    jobs: list[StoredJob], last_successful_collection: datetime | None
+) -> str:
+    """Hash the complete public directory state and exact collection timestamp."""
+    timestamp = (
+        ensure_utc(last_successful_collection).isoformat(timespec="microseconds")
+        if last_successful_collection is not None
+        else None
+    )
+    payload = {
+        "version": 1,
+        "last_successful_collection": timestamp,
+        "opportunities": directory_state_rows(jobs),
+    }
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _directory_state_seal(
+    jobs: list[StoredJob], last_successful_collection: datetime | None
+) -> str:
+    return f"{STATE_SEAL_PREFIX}{directory_state_digest(jobs, last_successful_collection)} -->\n"
 
 
 def _type_counts(jobs: list[StoredJob]) -> tuple[int, int]:
@@ -173,17 +205,27 @@ def validate_readme(
         errors.append(str(exc))
         return errors
     block = content[begin + len(BEGIN_MARKER) : end].strip()
+    summary = content[summary_begin + len(SUMMARY_BEGIN_MARKER) : summary_end].strip()
+    seal_lines = [line for line in summary.splitlines() if line.startswith(STATE_SEAL_PREFIX)]
+    if (
+        content.count(STATE_SEAL_PREFIX) != 1
+        or len(seal_lines) != 1
+        or STATE_SEAL_PATTERN.fullmatch(seal_lines[0]) is None
+    ):
+        errors.append("README public directory state seal is missing or malformed")
     if jobs is not None and metadata is not None:
         internship_count, new_grad_count = _type_counts(jobs)
-        summary = content[summary_begin + len(SUMMARY_BEGIN_MARKER) : summary_end].strip()
-        expected_summary = opportunity_count_cards(
-            metadata.open_positions,
-            internship_count,
-            new_grad_count,
-            metadata.last_successful_collection,
+        expected_summary = (
+            opportunity_count_cards(
+                metadata.open_positions,
+                internship_count,
+                new_grad_count,
+                metadata.last_successful_collection,
+            )
+            + _directory_state_seal(jobs, metadata.last_successful_collection)
         ).strip()
         if summary != expected_summary:
-            errors.append("README opportunity count cards do not match open jobs in SQLite")
+            errors.append("README opportunity counts or directory state seal do not match SQLite")
     if TABLE_HEADER.strip() not in block:
         errors.append("README position tables must have Company, Title, Location, Listing columns")
     if (

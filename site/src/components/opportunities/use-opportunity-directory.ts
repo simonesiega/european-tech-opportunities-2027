@@ -8,6 +8,7 @@ import {
 import {
   DIRECTORY_PAGE_SIZES,
   DIRECTORY_SORTS,
+  DEFAULT_DIRECTORY_PAGE_SIZE,
   FIRST_SEEN_OPTIONS,
   type DirectoryPageSize,
   type DirectorySort,
@@ -16,7 +17,6 @@ import type {EmploymentType, Opportunity} from "@/types/opportunity";
 
 const EMPLOYMENT_TYPE_OPTIONS: EmploymentType[] = ["internship", "new-grad"];
 const DEFAULT_SORT: DirectorySort = "first-seen-desc";
-const DEFAULT_PAGE_SIZE: DirectoryPageSize = 10;
 const FIRST_SEEN_VALUES = FIRST_SEEN_OPTIONS.map((option) => option.value);
 
 const FILTER_PARAMETERS = {
@@ -115,10 +115,7 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
   const pageCount = Math.max(Math.ceil(filteredOpportunities.length / pageSize), 1);
   const page = Math.min(requestedPage, pageCount);
 
-  function updateUrl(
-    updates: Partial<Record<DirectoryParameter, string | null>>,
-    historyMode: HistoryMode
-  ) {
+  function directoryUrl(updates: Partial<Record<DirectoryParameter, string | null>>) {
     const parameters = new URLSearchParams(searchParams.toString());
 
     for (const [parameter, value] of Object.entries(updates)) {
@@ -130,7 +127,14 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
     }
 
     const queryString = parameters.toString();
-    const url = queryString ? `${pathname}?${queryString}` : pathname;
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }
+
+  function updateUrl(
+    updates: Partial<Record<DirectoryParameter, string | null>>,
+    historyMode: HistoryMode
+  ) {
+    const url = directoryUrl(updates);
     if (historyMode === "push") {
       window.history.pushState({}, "", url);
     } else {
@@ -169,6 +173,8 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
       setFirstSeen: (value: string) => setFilter("firstSeen", value, "push"),
     },
     view: {sort, page, pageSize},
+    pageHref: (value: number) =>
+      directoryUrl({[VIEW_PARAMETERS.page]: value > 1 ? String(value) : null}),
     viewSetters: {
       setSort: (value: DirectorySort) =>
         updateUrl(
@@ -183,7 +189,8 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
       setPageSize: (value: DirectoryPageSize) =>
         updateUrl(
           {
-            [VIEW_PARAMETERS.pageSize]: value === DEFAULT_PAGE_SIZE ? null : String(value),
+            [VIEW_PARAMETERS.pageSize]:
+              value === DEFAULT_DIRECTORY_PAGE_SIZE ? null : String(value),
             [VIEW_PARAMETERS.page]: null,
           },
           "push"
@@ -216,7 +223,9 @@ function isDirectorySort(value: string | null): value is DirectorySort {
 
 function validPageSize(requested: string | null): DirectoryPageSize {
   const parsed = Number(requested);
-  return DIRECTORY_PAGE_SIZES.find((pageSize) => pageSize === parsed) ?? DEFAULT_PAGE_SIZE;
+  return (
+    DIRECTORY_PAGE_SIZES.find((pageSize) => pageSize === parsed) ?? DEFAULT_DIRECTORY_PAGE_SIZE
+  );
 }
 
 function validPage(requested: string | null): number {

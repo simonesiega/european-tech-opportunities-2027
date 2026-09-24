@@ -2,6 +2,12 @@ name: Verify canonical state recovery
 
 on:
   workflow_dispatch:
+    inputs:
+      adopt_public_review_seal:
+        description: Propose the initial public-state review seal from the verified snapshot without publishing state
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: opportunity-collection
@@ -24,9 +30,29 @@ jobs:
       VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
     with:
       generate_exports: true
+      adopt_public_review_seal: ${{ inputs.adopt_public_review_seal }}
       require_crawl_authorization: false
       timeout_minutes: 30
       projection_artifact_name: opportunities-recovery-projections-${{ github.run_id }}
+      readme_artifact_name: ${{ inputs.adopt_public_review_seal && format('opportunities-review-seal-readme-{0}', github.run_id) || '' }}
       backup_user: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
       ssh_port: ${{ vars.VPS_SSH_PORT || '22' }}
       retention_days: ${{ vars.CANONICAL_STATE_RETENTION_DAYS || '365' }}
+
+  propose-review-seal:
+    name: Propose reviewed public-state seal
+    if: inputs.adopt_public_review_seal
+    needs: verify-recovery
+    uses: ./.github/workflows/reusable-readme-pr.yml
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    with:
+      artifact_name: opportunities-review-seal-readme-${{ github.run_id }}
+      branch: automated/public-review-seal
+      title: "data: establish public directory review seal"
+      commit_message: "data: establish public directory review seal"
+      body: >-
+        Initial reviewed public-directory seal generated from verified canonical state.
+        Review the sanitized public projections in this workflow's artifact before merging.

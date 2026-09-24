@@ -78,7 +78,7 @@ Sortable columns include:
 
 Search, filtering, sorting, page size, and pagination affect only the displayed result set. The table defaults to newest first with 10 rows per page and offers 10, 20, 30, 50, or 100 rows per page. None of this presentation state mutates lifecycle state or influences collection.
 
-The complete directory view is encoded in the URL so its filters, sorting, page size, and current page can be bookmarked or shared. Default values are omitted to keep canonical URLs concise.
+The complete directory view is encoded in the URL so its filters, sorting, page size, and current page can be bookmarked or shared. Default values are omitted to keep shared URLs concise.
 
 A browser interaction or URL state is not lifecycle evidence, collection input, or a pipeline instruction.
 
@@ -93,7 +93,7 @@ A browser interaction or URL state is not lifecycle evidence, collection input, 
 | Employment type | Deterministic title classification; always `Internship` or `New Grad` |
 | Location | Normalized explicit detail or search-card location |
 | Start date | Explicit month or season plus year from title or narrow start-date context |
-| First seen | Inferred publication time from LinkedIn's relative posting age when available on first acceptance; otherwise the first accepted observation; immutable afterward |
+| First seen | LinkedIn relative posting-age estimate or reviewed manual posting timestamp when supplied at insertion; otherwise the first accepted observation; immutable afterward |
 
 The website renders normalized publication fields rather than raw source HTML.
 
@@ -110,7 +110,7 @@ Both files contain every currently open opportunity at generation time. Their fi
 
 The Python pipeline generates and validates both files from SQLite. CSV output neutralizes cells that spreadsheet applications could interpret as formulas. The website serves the generated files as read-only attachments and returns a generic unavailable response when a file is absent; it never creates exports from browser input.
 
-Downloads represent the latest deployed projection, not a backup or complete historical dataset.
+Downloads represent the latest deployed projection, not a backup or complete historical dataset. In versioned production mode the database and exports share one atomic release-pointer cutover; each request pins a release once, but a page and a later download may straddle the cutover. Legacy fixed-path mode remains available only for migration/local development. See [Rollout and rollback](../operations/automation.md#coordinated-first-rollout-and-rollback).
 
 ## Data interpretation
 
@@ -130,7 +130,7 @@ The website does not claim:
 
 Verify role requirements, location, deadline, compensation, work authorization, and current availability on the original listing before applying.
 
-For a new row, `First seen` uses LinkedIn's relative posting age when it is available at the first accepted observation and otherwise uses that observation time. An inferred value is an approximate publication timestamp rather than an exact employer-supplied date, and later observations do not rewrite either value.
+For a new row, `First seen` uses LinkedIn's relative posting age when available, or a reviewed manual posting timestamp if the listing was added offline; otherwise it uses the first accepted observation. A relative-age estimate is approximate, not an exact employer-supplied date. Later observations never rewrite `first_seen_at`.
 
 A listing may disappear from search results without being marked closed. Closure follows the explicit lifecycle rules in [Database lifecycle](../operations/database.md#closure-lifecycle).
 
@@ -175,7 +175,9 @@ https://opportunities2027.simonesiega.com/?country=Germany&type=internship&first
 
 Selecting a filter, sorting a column, changing page size, or moving between pages updates browser history, and browser back/forward navigation restores the complete earlier view. Search typing replaces the current history entry to avoid creating one entry per keystroke. Changing filters, sorting, or page size returns the view to page one. Reset removes the filter parameters and current page while preserving sorting, page size, and unrelated parameters.
 
-The first-seen filter uses the immutable `first_seen_at` value relative to the directory request time. For a new listing, that value is initialized from LinkedIn's relative posting age when available and otherwise from the project's first accepted observation. It is therefore an approximate publication timestamp in the first case, not a precise employer-supplied date.
+Pagination renders sequential links with real `href` values. Crawlers and browsers without JavaScript can follow the unfiltered default view from page one through later result pages; client-side navigation preserves the same URLs for interactive use.
+
+The first-seen filter uses the immutable `first_seen_at` value relative to the directory request time. For a new listing, that value is initialized from LinkedIn's relative posting age or a reviewed manual posting timestamp when supplied, and otherwise from the project's first accepted observation. Relative-age estimates are approximate, not precise employer-supplied dates.
 
 Unsupported filter, sort, page-size, and page values are ignored or safely constrained. Query parameters are untrusted presentation input and never reach a database write path.
 
@@ -183,7 +185,8 @@ Unsupported filter, sort, page-size, and page values are ignored or safely const
 
 The website publishes:
 
-- a canonical URL that excludes transient filter parameters;
+- self canonical URLs for the unfiltered default view (`/` and valid `/?page=2` onward), so each result page can be discovered separately;
+- `noindex, follow` on search, filter, alternate sort, alternate page-size, and out-of-range page views, with `/` as their canonical URL;
 - descriptive title, description, authorship, and crawler directives;
 - Open Graph and large-card social metadata;
 - a generated 1200 × 630 social preview image;
@@ -192,7 +195,7 @@ The website publishes:
 
 The structured data describes the directory-level dataset only. It does not emit `JobPosting` records for individual source listings because the directory does not own or expose every field required for compliant job-posting markup.
 
-`SITE_URL` must contain the canonical public origin so absolute metadata, sitemap, structured-data download, and crawler URLs are correct in production.
+`SITE_URL` must contain the canonical public origin so absolute metadata, sitemap, structured-data download, and crawler URLs are correct in production. The robots and sitemap routes render at request time from the runtime value; a build made with a local origin must not leave either route pointing to localhost after deployment.
 
 ## Read-only database contract
 
@@ -206,7 +209,7 @@ site/src/lib/
 
 It also reads the latest successful collection timestamp from `search_runs` for public status metadata; a later failed run cannot make the displayed data appear fresher.
 
-The root page is dynamically rendered. Each server request opens a short-lived read-only database connection and closes it after loading the directory data.
+The root page is dynamically rendered. Each server request resolves `OPPORTUNITIES_RELEASE_ROOT/current` once when versioned mode is enabled, then opens and closes a short-lived read-only database connection within that immutable release. An invalid/missing pointer is an error, never a fallback to a stale legacy file.
 
 The website:
 
@@ -251,20 +254,19 @@ The root Dockerfile’s `site` target:
 3. copies only required standalone and static output into a Debian 13 slim runtime image;
 4. installs exact reviewed Debian security revisions and removes npm from the runtime;
 5. runs as UID/GID `10001:10001`;
-6. reads `/app/data/opportunities.db` from a read-only bind mount;
+6. reads the selected versioned SQLite release from a read-only bind mount after the coordinated rollout (legacy fixed paths until then);
 7. listens on container port `3000`.
 
 Every route receives defensive content-type, referrer, framing, cross-origin, and permissions headers. Production additionally sends a Content Security Policy and `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`; Docker CI smoke-tests both production-only headers.
 
-Production variables:
+After the [coordinated first rollout](../operations/automation.md#coordinated-first-rollout-and-rollback), production sets:
 
 ```dotenv
 SITE_URL=https://opportunities2027.simonesiega.com
-OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db
-OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports
+OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 
-`SITE_URL` defines the canonical public origin used by website metadata.
+Compose also supplies `OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db` and `OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports` for legacy mode. When release-root mode is enabled, these fixed paths are ignored; do not use them as a fallback if `current` is missing or invalid. `SITE_URL` defines the canonical public origin used by website metadata.
 
 A reverse proxy such as Dokploy routes the public domain to the `site` service on container port `3000`; a fixed host port is not required.
 
@@ -280,9 +282,9 @@ Normal automation keeps collection/review and production deployment separate:
 2. the resulting state and public exports are validated, then SQLite is checkpointed and published as a verified durable snapshot;
 3. the owned README projection is proposed through the scoped automation pull request;
 4. after review and merge, deployment-only automation restores the reviewed durable state, regenerates the public exports, and validates every projection against `main`;
-5. the production SQLite file and generated downloads are checksum-verified and replaced in the shared host state directory.
+5. deployment verifies checksums, publishes the database and downloads together under `data/releases/<id>`, and atomically switches `data/current` to that release; the legacy fixed files are not replaced.
 
-The website opens a new read-only connection on the next request, so reviewed deployed state becomes visible without an application rebuild, write endpoint, or in-process migration.
+In versioned mode, each new website request resolves the current release and reads it without an application rebuild, write endpoint, or in-process migration. Requests that span a cutover may see different releases.
 
 Do not run a second local or VPS collector while GitHub Actions owns canonical state.
 

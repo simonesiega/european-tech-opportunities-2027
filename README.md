@@ -1,10 +1,6 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
 <p align="center">
-  <strong>Find validated 2027 tech internships and new-grad roles across Europe.</strong>
-</p>
-
-<p align="center">
   <a href="#latest-internships">Internships</a> ·
   <a href="#latest-new-grad-opportunities">New Grad</a> ·
   <a href="docs/README.md">Documentation</a> ·
@@ -57,7 +53,7 @@
   />
 </p>
 
-The public directory has surpassed **1,000 unique visitors across 50+ countries since launch**. Search hundreds of validated opportunities by company, country, category, employment type, and first-seen recency, with sortable results, pagination, shareable directory views, direct links to the original listings, and sanitized [CSV](https://opportunities2027.simonesiega.com/open-opportunities.csv) and [JSON](https://opportunities2027.simonesiega.com/open-opportunities.json) downloads.
+The public directory has generated **10,000+ page views across 60+ countries since launch** and ranks **#1 for searches such as “European opportunities 2027” and “European tech opportunities 2027”**, along with related queries. Search hundreds of validated opportunities by company, country, category, employment type, and first-seen recency, with sortable results, pagination, shareable directory views, direct links to the original listings, and sanitized [CSV](https://opportunities2027.simonesiega.com/open-opportunities.csv) and [JSON](https://opportunities2027.simonesiega.com/open-opportunities.json) downloads.
 
 ## Why this exists
 
@@ -112,7 +108,7 @@ Missing a relevant opportunity? [Suggest a listing](https://github.com/simonesie
 - **TypeScript web application:** server-rendered Next.js directory with search, filters, sorting, pagination, and shareable URLs.
 - **Canonical lifecycle state:** SQLite tracks provenance, first/last-seen timestamps, isolated search outcomes, conservative closure evidence, and daily availability checks.
 - **Production-grade validation:** strict typing, unit and integration tests, Playwright end-to-end tests, branch coverage gates, CodeQL security analysis, and parsing/classification benchmarks.
-- **Automated operations:** Alembic migrations, scheduled collection, availability checks, sanitized public CSV/JSON exports, restore-verified backups, CI, and locked deployment with checksum-verified atomic file replacement.
+- **Automated operations:** Alembic migrations, scheduled collection, availability checks, sanitized public CSV/JSON exports, restore-verified backups, CI, and locked deployment with a checksum-verified, versioned release-pointer cutover (after a coordinated site rollout).
 
 ## How it works
 
@@ -144,7 +140,7 @@ A listing is published only when all five checks pass:
 | Check | Required evidence |
 |---|---|
 | Employment type | The title explicitly identifies either an internship (including placement or co-op) or a New Grad role. Internship terminology takes precedence if both appear. |
-| Cycle evidence | Explicit `2027` evidence is accepted, and any explicit conflicting cycle year is rejected. A listing with no explicit cycle year can qualify only when LinkedIn’s relative posting age resolves to May 1, 2026 or later. Graduation-year eligibility alone is ignored for internships. |
+| Cycle evidence | Explicit `2027` opportunity-cycle evidence is accepted, and any explicit conflicting cycle year is rejected. Without explicit cycle evidence, posting-date evidence must resolve to May 1, 2026 or later. Graduation-year eligibility alone is ignored for internships. |
 | Seniority | The title contains no configured senior-level or management terminology. |
 | Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
 | European location | The parsed location explicitly resolves to Europe or a supported European country. |
@@ -162,8 +158,8 @@ The offline suite measures critical classification and lifecycle paths and enfor
 <!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 90.5% | ≥ 85.0% |
-| Branch coverage | 83.6% | Reported |
+| Combined statement and branch coverage | 91.7% | ≥ 85.0% |
+| Branch coverage | 85.9% | Reported |
 | Classifier branch coverage | 97.5% | Reported |
 <!-- END PYTHON COVERAGE -->
 
@@ -220,6 +216,8 @@ Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. Partici
 Project code and documentation are available under the [MIT License](LICENSE). Third-party assets remain subject to their respective licenses and terms.
 
 ## Contributors
+
+A huge thank you to everyone who has contributed to the project!
 
 <p align="center">
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/graphs/contributors">

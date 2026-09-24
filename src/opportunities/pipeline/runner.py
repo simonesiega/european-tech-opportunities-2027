@@ -93,7 +93,6 @@ class CollectionPipeline:
         scraper: Scraper | None = None,
         clock: Clock = utc_now,
     ) -> None:
-        """Initialize the instance dependencies and state."""
         self.settings = settings
         self.repository = repository
         self.classifier = Classifier(rules, settings.target_cycle)
@@ -124,7 +123,11 @@ class CollectionPipeline:
 
         successful = failed = found = accepted = excluded = warnings = 0
         summary = PersistSummary()
-        for outcome in outcomes:
+        # Searches finish concurrently. Apply their observations in time order so
+        # older 404 confirmations cannot follow and undo a newer valid rediscovery.
+        # The concurrent mapper returns configured search order; Python's stable
+        # sort keeps that order when finish timestamps are equal.
+        for outcome in sorted(outcomes, key=lambda item: item.finished_at):
             if outcome.result is None:
                 # Persist each failure independently; one broken search must not roll
                 # back successful searches from the same collection run.

@@ -1,4 +1,4 @@
-# The CLI is the sole SQLite writer; the site waits for migration and mounts state read-only.
+# The CLI is the sole SQLite writer; site startup never initializes canonical state.
 services:
   opportunities:
     build:
@@ -42,14 +42,12 @@ services:
       SITE_URL: "${SITE_URL:-http://localhost:3000}"
       OPPORTUNITIES_DATABASE_PATH: /app/data/opportunities.db
       OPPORTUNITIES_PUBLIC_EXPORT_DIR: /app/data/exports
+      # Enable only after the first verified versioned release and coordinated site switch.
+      OPPORTUNITIES_RELEASE_ROOT: "${OPPORTUNITIES_RELEASE_ROOT:-}"
 
     volumes:
       # Defense in depth: website code cannot mutate canonical lifecycle state.
       - /srv/european-tech-opportunities-2027/data:/app/data:ro
-
-    depends_on:
-      opportunities:
-        condition: service_completed_successfully
 
     expose:
       - "3000"

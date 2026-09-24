@@ -3,11 +3,6 @@ name: Scrape jobs or deploy reviewed state
 on:
   workflow_dispatch:
     inputs:
-      open_pull_request:
-        description: "Open a scrape-only pull request when README changes (ignored for deployment)"
-        required: false
-        default: true
-        type: boolean
       deploy_to_vps:
         description: "Deploy reviewed durable state from main (skips collection)"
         required: false
@@ -38,7 +33,7 @@ jobs:
       run_scrape: true
       crawl_authorized: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
       projection_artifact_name: opportunities-scrape-projections-${{ github.run_id }}
-      readme_artifact_name: ${{ inputs.open_pull_request && format('opportunities-scrape-readme-{0}', github.run_id) || '' }}
+      readme_artifact_name: opportunities-scrape-readme-${{ github.run_id }}
       backup_user: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
       ssh_port: ${{ vars.VPS_SSH_PORT || '22' }}
       retention_days: ${{ vars.CANONICAL_STATE_RETENTION_DAYS || '365' }}
@@ -69,7 +64,7 @@ jobs:
   # GitHub mutation is isolated from canonical state and VPS credentials.
   update-readme:
     name: Propose reviewed README projection
-    if: inputs.deploy_to_vps != true && inputs.open_pull_request
+    if: inputs.deploy_to_vps != true
     needs: collect
     uses: ./.github/workflows/reusable-readme-pr.yml
     permissions:

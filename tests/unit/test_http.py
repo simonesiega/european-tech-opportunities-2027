@@ -146,32 +146,23 @@ def test_http_fetcher_caps_exponential_backoff() -> None:
     assert delays == [30, 60]
 
 
-def test_http_fetcher_honors_429_retry_after() -> None:
+def test_http_fetcher_stops_on_429_without_reading_response_body() -> None:
     attempts = 0
     delays: list[float] = []
-    retry_stream = ChunkedStream((b"rate limited", b"ignored"))
+    rate_limit_stream = ChunkedStream((b"rate limited", b"ignored"))
 
     def handler(request: httpx.Request) -> httpx.Response:
         nonlocal attempts
         attempts += 1
-        if attempts == 1:
-            return httpx.Response(
-                429,
-                stream=retry_stream,
-                request=request,
-                headers={"retry-after": "2"},
-            )
         return httpx.Response(
-            200,
-            text="<html></html>",
+            429,
+            stream=rate_limit_stream,
             request=request,
-            headers={"content-type": "text/html"},
+            headers={"retry-after": "2"},
         )
 
     async def sleep(delay: float) -> None:
         delays.append(delay)
-        if delay == 2.0:
-            assert retry_stream.closed is True
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
     settings = Settings(
@@ -183,15 +174,186 @@ def test_http_fetcher_honors_429_retry_after() -> None:
 
     async def run() -> None:
         async with client:
-            await HttpFetcher(settings, client=client, sleep=sleep).get_text(
-                LINKEDIN_SEARCH_ENDPOINT
-            )
+            with pytest.raises(FetchError, match="HTTP 429") as error:
+                await HttpFetcher(settings, client=client, sleep=sleep).get_text(
+                    LINKEDIN_SEARCH_ENDPOINT
+                )
+            assert error.value.status_code == 429
 
     asyncio.run(run())
-    assert attempts == 2
-    assert delays == [2.0]
-    assert retry_stream.read_count == 0
-    assert retry_stream.closed is True
+    assert attempts == 1
+    assert delays == []
+    assert rate_limit_stream.read_count == 0
+    assert rate_limit_stream.closed is True
+
+
+@pytest.mark.parametrize("status_code", [302, 401, 403, 429])
+def test_redirect_or_access_denial_stops_queued_and_later_requests(status_code: int) -> None:
+    started = asyncio.Event()
+    queued = asyncio.Event()
+    release_queued = asyncio.Event()
+    requests = 0
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal requests
+        requests += 1
+        started.set()
+        await queued.wait()
+        return httpx.Response(
+            status_code,
+            request=request,
+            headers={"location": "https://www.linkedin.com/login"} if status_code == 302 else None,
+        )
+
+    async def sleep(_delay: float) -> None:
+        queued.set()
+        await release_queued.wait()
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(
+        rate_limit_seconds=60,
+        max_retries=2,
+        linkedin_crawl_authorized=True,
+    )
+
+    async def run() -> None:
+        async with client:
+            fetcher = HttpFetcher(settings, client=client, sleep=sleep)
+            first = asyncio.create_task(fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT))
+            await started.wait()
+            waiting = asyncio.create_task(fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT))
+            await queued.wait()
+            with pytest.raises(FetchError) as first_error:
+                await first
+            assert first_error.value.status_code == status_code
+            release_queued.set()
+            with pytest.raises(FetchError) as waiting_error:
+                await waiting
+            assert waiting_error.value.code == "source_blocked"
+            with pytest.raises(FetchError) as later_error:
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            assert later_error.value.status_code == status_code
+
+    asyncio.run(run())
+    assert requests == 1
+
+
+def test_challenge_page_stops_queued_and_later_requests() -> None:
+    started = asyncio.Event()
+    queued = asyncio.Event()
+    release_queued = asyncio.Event()
+    requests = 0
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal requests
+        requests += 1
+        started.set()
+        await queued.wait()
+        return httpx.Response(
+            200,
+            text="<html>Security verification challenge-page</html>",
+            request=request,
+        )
+
+    async def sleep(_delay: float) -> None:
+        queued.set()
+        await release_queued.wait()
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(rate_limit_seconds=60, linkedin_crawl_authorized=True)
+
+    async def run() -> None:
+        async with client:
+            fetcher = HttpFetcher(settings, client=client, sleep=sleep)
+            first = asyncio.create_task(fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT))
+            await started.wait()
+            waiting = asyncio.create_task(fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT))
+            await queued.wait()
+            with pytest.raises(FetchError, match="verification page") as first_error:
+                await first
+            assert first_error.value.code == "source_blocked"
+            release_queued.set()
+            with pytest.raises(FetchError) as waiting_error:
+                await waiting
+            assert waiting_error.value.code == "source_blocked"
+            with pytest.raises(FetchError) as later_error:
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            assert later_error.value.code == "source_blocked"
+
+    asyncio.run(run())
+    assert requests == 1
+
+
+def test_http_fetcher_never_retains_or_sends_source_cookies() -> None:
+    sent_cookies: list[str | None] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent_cookies.append(request.headers.get("cookie"))
+        return httpx.Response(
+            200,
+            text="<html></html>",
+            request=request,
+            headers={"set-cookie": "li_at=synthetic; Domain=.linkedin.com; Path=/"},
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(rate_limit_seconds=0, linkedin_crawl_authorized=True)
+
+    async def run() -> None:
+        async with client:
+            fetcher = HttpFetcher(settings, client=client)
+            await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+
+    asyncio.run(run())
+    assert sent_cookies == [None, None]
+    assert list(client.cookies.jar) == []
+
+
+def test_http_fetcher_rejects_preconfigured_cookie_header() -> None:
+    client = httpx.AsyncClient(headers={"Cookie": "li_at=synthetic"})
+
+    async def run() -> None:
+        async with client:
+            with pytest.raises(ValueError, match="must not have a Cookie header"):
+                HttpFetcher(Settings(), client=client)
+
+    asyncio.run(run())
+
+
+def test_owned_http_client_ignores_ambient_https_proxy(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("HTTPS_PROXY", "http://127.0.0.1:9")
+    monkeypatch.setenv("NO_PROXY", "")
+    real_client = httpx.AsyncClient
+
+    sent_cookies: list[str | None] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        sent_cookies.append(request.headers.get("cookie"))
+        return httpx.Response(
+            200,
+            text="<html></html>",
+            request=request,
+            headers={"set-cookie": "guest=synthetic; Path=/"},
+        )
+
+    transport = httpx.MockTransport(handler)
+
+    def client_with_offline_transport(*, trust_env: bool, **_kwargs: object) -> httpx.AsyncClient:
+        assert trust_env is False
+        return real_client(transport=transport, trust_env=trust_env)
+
+    monkeypatch.setattr(httpx, "AsyncClient", client_with_offline_transport)
+    settings = Settings(rate_limit_seconds=0, linkedin_crawl_authorized=True)
+
+    async def run() -> tuple[str, str]:
+        async with HttpFetcher(settings) as fetcher:
+            first = await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            second = await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            return first, second
+
+    assert asyncio.run(run()) == ("<html></html>", "<html></html>")
+    assert sent_cookies == [None, None]
 
 
 def test_http_fetcher_rejects_non_html_response() -> None:

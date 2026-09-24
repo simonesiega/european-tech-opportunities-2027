@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -24,7 +25,7 @@ COLLECTED_AT = "2026-07-20 03:15:00.000000"
 
 def _database(path: Path) -> None:
     upgrade_database(f"sqlite:///{path.as_posix()}", repository_root=ROOT)
-    with sqlite3.connect(path) as connection:
+    with closing(sqlite3.connect(path)) as connection, connection:
         connection.execute(
             "INSERT INTO searches "
             "(slug, name, keywords, location, enabled, config_hash, updated_at) "
@@ -105,6 +106,32 @@ def test_snapshot_manifest_captures_recovery_metadata(tmp_path: Path) -> None:
     assert manifest.retention.retain_until == datetime(2027, 7, 20, 3, 30, tzinfo=UTC)
     assert manifest.size_bytes == snapshot.stat().st_size
     assert len(manifest.sha256) == 64
+
+
+def test_snapshot_from_live_wal_is_cold_and_sidecar_free(tmp_path: Path) -> None:
+    source = tmp_path / "source.db"
+    _database(source)
+    with closing(sqlite3.connect(source)) as writer:
+        assert writer.execute("PRAGMA journal_mode=WAL").fetchone() == ("wal",)
+        writer.execute("PRAGMA wal_autocheckpoint=0")
+        writer.execute(
+            "INSERT INTO searches "
+            "(slug, name, keywords, location, enabled, config_hash, updated_at) "
+            "VALUES ('in-wal', 'WAL row', 'intern', 'Europe', 1, ?, ?)",
+            ("a" * 64, COLLECTED_AT),
+        )
+        writer.commit()
+        assert (tmp_path / "source.db-wal").stat().st_size > 0
+        snapshot, manifest = _create_bundle(tmp_path)
+
+    verify_snapshot(snapshot, manifest)
+    with closing(sqlite3.connect(snapshot.resolve().as_uri() + "?mode=ro", uri=True)) as reader:
+        assert reader.execute("PRAGMA journal_mode").fetchone() == ("delete",)
+        assert reader.execute("SELECT name FROM searches WHERE slug='in-wal'").fetchone() == (
+            "WAL row",
+        )
+    assert not (tmp_path / "first.db-wal").exists()
+    assert not (tmp_path / "first.db-shm").exists()
 
 
 def test_snapshot_links_to_previous_immutable_objects(tmp_path: Path) -> None:

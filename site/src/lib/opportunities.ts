@@ -1,6 +1,9 @@
 import "server-only";
 
 import {DatabaseSync} from "node:sqlite";
+import path from "node:path";
+import {cache} from "react";
+import {currentReleaseDirectory} from "@/lib/release-path";
 import {isCanonicalListingUrl} from "@/lib/listing-url";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -32,8 +35,11 @@ type DirectoryData = {
   lastUpdatedAt: string | null;
 };
 
-export function getDirectoryData(): DirectoryData {
-  const databasePath = process.env.OPPORTUNITIES_DATABASE_PATH ?? "../data/opportunities.db";
+// Metadata and the page share one read of the selected release per request.
+export const getDirectoryData = cache(function getDirectoryData(): DirectoryData {
+  const databasePath = process.env.OPPORTUNITIES_RELEASE_ROOT
+    ? path.join(currentReleaseDirectory(process.env.OPPORTUNITIES_RELEASE_ROOT), "opportunities.db")
+    : (process.env.OPPORTUNITIES_DATABASE_PATH ?? "../data/opportunities.db");
   const database = new DatabaseSync(databasePath, {readOnly: true});
 
   try {
@@ -54,4 +60,4 @@ export function getDirectoryData(): DirectoryData {
   } finally {
     database.close();
   }
-}
+});

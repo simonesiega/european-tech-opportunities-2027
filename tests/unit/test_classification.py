@@ -204,12 +204,25 @@ def test_non_technology_and_non_european_jobs_are_excluded(
         title="Software Engineering Intern 2027",
         locations=["Remote"],
     )
+    ambiguous_emea = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["EMEA"],
+    )
+    emea_with_european_country = classify(
+        rules,
+        title="Software Engineering Intern 2027",
+        locations=["EMEA; Berlin, Germany"],
+    )
     assert not finance.include
     assert not usa.include
     assert not european_city_namesake.include
     assert not abbreviated_namesake.include
     assert not explicitly_outside_europe.include
     assert not ambiguous_remote.include
+    assert not ambiguous_emea.include
+    assert ambiguous_emea.exclusion_reason == "location is not explicitly European"
+    assert emea_with_european_country.include
     assert ambiguous_remote.exclusion_reason == "location is not explicitly European"
 
 

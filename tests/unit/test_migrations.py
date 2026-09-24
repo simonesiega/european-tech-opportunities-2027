@@ -1,4 +1,5 @@
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
@@ -38,7 +39,7 @@ def test_employment_type_migration_backfills_existing_jobs(tmp_path: Path) -> No
     config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
     command.upgrade(config, "e4a7c9d21b60")
 
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection, connection:
         connection.execute(
             """INSERT INTO jobs (
                 linkedin_job_id, company, title, location, link, category, industries,
@@ -63,7 +64,7 @@ def test_employment_type_migration_backfills_existing_jobs(tmp_path: Path) -> No
 
     command.upgrade(config, "head")
 
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection:
         value = connection.execute(
             "SELECT employment_type FROM jobs WHERE linkedin_job_id = '1111111111'"
         ).fetchone()
@@ -87,7 +88,7 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
     command.upgrade(config, "f2b8d4c61a90")
 
     observed_at = "2026-07-01 00:00:00"
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection, connection:
         connection.execute(
             "INSERT INTO searches VALUES (?, ?, ?, ?, ?, ?, ?)",
             ("test", "Test", "software intern", "Europe", 1, "a" * 64, observed_at),
@@ -163,7 +164,7 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
             "ck_job_searches_seen_at_order",
         ),
     )
-    with sqlite3.connect(database) as connection:
+    with closing(sqlite3.connect(database)) as connection, connection:
         assert connection.execute("SELECT COUNT(*) FROM jobs").fetchone() == (1,)
         assert connection.execute("SELECT COUNT(*) FROM search_runs").fetchone() == (1,)
         assert connection.execute("SELECT COUNT(*) FROM job_searches").fetchone() == (1,)

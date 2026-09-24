@@ -2,7 +2,7 @@
 
 [← Project README](README.md) · [Documentation hub](docs/README.md) · [Website guide](docs/guides/user-guide/website.md) · [Security policy](SECURITY.md)
 
-Effective: September 21, 2026
+Effective: September 24, 2026
 
 This notice explains how the European Tech Opportunities 2027 website handles visitor information. It applies to the public directory at [opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/) and its CSV and JSON download routes.
 
@@ -14,7 +14,7 @@ Cloudflare, Umami, GitHub, and external websites may control some processing for
 
 ## Information the project publishes
 
-The directory publishes public job-listing metadata: LinkedIn job ID, company, title, location, canonical listing URL, technology category, industries, employment type, and start date. It does not publish visitor information in the opportunity dataset.
+The directory publishes public job-listing metadata: LinkedIn job ID, company, title, location, canonical listing URL, technology category, industries, employment type, start date, and first-seen time. It also displays the latest successful collection time. The downloadable CSV and JSON use a smaller field set that excludes timestamps. The opportunity dataset does not publish visitor information.
 
 The website does not provide accounts, application forms, résumé uploads, saved profiles, or a mutation API. Applications take place on third-party websites.
 
@@ -41,7 +41,7 @@ See [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/) for
 
 The canonical production site loads Umami Cloud analytics only on the production domain. Umami reports aggregate usage such as page views, referrer URLs, browser, operating system, device type, and country of origin. The project uses these metrics to understand directory usage and maintain the service.
 
-The project does not configure advertising or cross-site tracking. According to Umami's documentation, its tracker uses no cookies, stores no personally identifiable information, anonymizes collected data, and does not track visitors across websites. Analytics processing is subject to [Umami's Privacy Policy](https://umami.is/privacy) and [analytics FAQ](https://umami.is/docs/faq).
+The project does not configure advertising or cross-site tracking. According to Umami's documentation, its tracker uses no cookies, stores no personally identifiable information, anonymizes collected data, and does not track visitors across websites. Analytics processing is subject to [Umami's Privacy Policy](https://umami.is/privacy) and [analytics FAQ](https://docs.umami.is/docs/faq).
 
 Browser or network privacy tools may prevent the analytics script from loading without preventing normal directory use.
 

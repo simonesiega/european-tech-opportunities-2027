@@ -11,6 +11,7 @@ from pathlib import Path
 from opportunities.models.enums import JobStatus
 from opportunities.models.job import StoredJob
 from opportunities.utils.files import atomic_write_text
+from opportunities.utils.time import ensure_utc
 
 CSV_FILENAME = "open-opportunities.csv"
 JSON_FILENAME = "open-opportunities.json"
@@ -59,7 +60,14 @@ def validate_public_exports(directory: Path, jobs: list[StoredJob]) -> list[str]
 
 
 def _public_rows(jobs: list[StoredJob]) -> list[dict[str, str | None]]:
-    """Select only approved public fields in deterministic newest-first order."""
+    """Project directory rows to the smaller public-download allowlist."""
+    return [
+        {field: row[field] for field in PUBLIC_EXPORT_FIELDS} for row in directory_state_rows(jobs)
+    ]
+
+
+def directory_state_rows(jobs: list[StoredJob]) -> list[dict[str, str | None]]:
+    """Select website-visible open fields in deterministic publication order."""
     ordered = sorted(
         (job for job in jobs if job.status == JobStatus.OPEN),
         key=lambda job: (job.first_seen_at, job.linkedin_job_id),
@@ -76,6 +84,7 @@ def _public_rows(jobs: list[StoredJob]) -> list[dict[str, str | None]]:
             "industries": job.industries,
             "employment_type": job.employment_type.value,
             "start_date": job.start_date,
+            "first_seen_at": ensure_utc(job.first_seen_at).isoformat(timespec="microseconds"),
         }
         for job in ordered
     ]

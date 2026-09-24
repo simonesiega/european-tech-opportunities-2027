@@ -97,23 +97,25 @@ The pipeline service uses:
 | Repository root | `/workspace` | Read/write | Atomic README and search-registry documentation replacement |
 | `/srv/european-tech-opportunities-2027/data` | `/app/data` | Read/write | Canonical SQLite state |
 
-The website service mounts only the same host state directory, in read-only mode, opens SQLite read-only, and serves the pipeline-generated files under `/app/data/exports`.
+The website service mounts only the same host state directory in read-only mode. With `OPPORTUNITIES_RELEASE_ROOT=/app/data` it reads the database and exports from one selected `current` release per server operation; without it, it continues to use the legacy fixed paths. Switch only after the coordinated rollout in [Automation](automation.md#coordinated-first-rollout-and-rollback).
 
-The Compose startup path applies the idempotent database upgrade before the website is started.
+Starting the website does **not** run a migration or initialize canonical state. In production, restore verified state before running `docker compose run --rm opportunities db-upgrade`, followed by `export-public`; in local development only, an intentionally empty database may be initialized explicitly. A missing or unmigrated production database is an operational failure, not a reason to create an empty history. Do not run a migration concurrently with the canonical-state workflow.
 
-Expected container database URLs:
+Expected container paths:
 
 ```text
-pipeline database: sqlite:////app/data/opportunities.db
-website database:  /app/data/opportunities.db
-public exports:    /app/data/exports
+pipeline database:      sqlite:////app/data/opportunities.db
+site (legacy mode):     /app/data/opportunities.db and /app/data/exports/
+site (versioned mode):  /app/data/current/opportunities.db and /app/data/current/exports/
 ```
+
+The pipeline's working database and the site's versioned read-only release are separate copies. Do not point the pipeline writer at `current`.
 
 Only the controlled pipeline service may mutate canonical state or replace generated exports. The `site` service has a read-only bind mount and a read-only SQLite connection, providing defense in depth.
 
 ## Start the website locally
 
-Initialize local state and the downloadable projections, then build and start the website service:
+For an intentionally empty **local-only** state directory, initialize the database and downloadable projections explicitly, then build and start the website service. In production, restore and verify existing canonical state first:
 
 ```bash
 docker compose run --rm opportunities db-upgrade
@@ -128,7 +130,7 @@ docker compose ps
 docker compose logs site
 ```
 
-The default Compose configuration uses `SITE_URL=http://localhost:3000`, which keeps production-only analytics disabled, and exposes port `3000` only to the Compose network; it does not publish a fixed host port. Production must explicitly override `SITE_URL` with the canonical HTTPS origin.
+The default Compose configuration uses `SITE_URL=http://localhost:3000`, which keeps production-only analytics disabled, and exposes port `3000` only to the Compose network; it does not publish a fixed host port. Production must explicitly override `SITE_URL` with the canonical HTTPS origin at runtime. The Docker smoke test deliberately builds with the local default and serves with the production origin to verify that robots and sitemap do not retain the build-time URL.
 
 For direct browser access during local development:
 
@@ -205,7 +207,7 @@ Production site:
 
 ### Legacy deployment migration
 
-Deployments created before the Opportunities rename must stop every writer, move existing canonical state into `/srv/european-tech-opportunities-2027/data`, and provision the restricted `opportunities-site` host group. Restart collection and the website only after both services resolve the same database file.
+Deployments created before the Opportunities rename must stop every writer, move existing canonical state into `/srv/european-tech-opportunities-2027/data`, and provision the restricted `opportunities-site` host group. For this **legacy fixed-path migration**, restart collection and the website only after both services resolve the same database file. Later versioned publication uses a separate read-only site release; follow [Coordinated first rollout and rollback](automation.md#coordinated-first-rollout-and-rollback).
 
 ### Dokploy configuration
 
@@ -219,19 +221,18 @@ Configure Dokploy to:
 6. preserve `/srv/european-tech-opportunities-2027/data` as persistent host state;
 7. set the canonical website origin.
 
-Required website environment:
+Production website environment **after** the coordinated first rollout:
 
 ```dotenv
 SITE_URL=https://opportunities2027.simonesiega.com
-OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db
-OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports
+OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 
-The site service must receive the host state directory as a read-only bind mount.
+Compose also supplies the fixed-path database and export variables for local/legacy mode; release-root mode takes precedence. The site service must receive the whole host state directory as a read-only bind mount.
 
-The manual deployment mode in `scrape.yml` replaces the SQLite file and sanitized CSV/JSON exports in that host directory through the main-only `production` GitHub environment, verified SSH, checksum comparison, locking, restricted permissions, and atomic rename.
+The manual deployment mode in `scrape.yml` stages an immutable SQLite + CSV + JSON release through the main-only `production` GitHub environment, verified SSH, checksum comparison, locking, restricted permissions, and an atomic `current` symlink rename. The legacy fixed files are not replaced. Production **must** set `OPPORTUNITIES_RELEASE_ROOT=/app/data` only after the first release is verified and old site instances have drained. Keep old releases until active readers have closed.
 
-The website opens a new short-lived read-only connection for each server request, so deployed state becomes visible without:
+The directory opens a new short-lived read-only SQLite connection for each request, while download routes open files from the selected release. Deployed state becomes visible without:
 
 - a write API;
 - an application migration endpoint;
@@ -249,7 +250,7 @@ UID 10001
 GID 10001
 ```
 
-The website requires read access to the SQLite database, the generated exports, and their parent directories.
+The website requires read access to the SQLite database, the generated exports, and their parent directories. When versioned mode is enabled it also needs traversal access to `/app/data/releases` and the selected release. Do not mount only the symlink target: the same directory must contain `current` and `releases`.
 
 Generated-document rendering additionally requires write and execute access to the relevant parent directories. The CLI atomically replaces both the owned README regions and the generated registry-layout block in `docs/guides/user-guide/search-registry.md`.
 
@@ -263,12 +264,14 @@ sudo setfacl -m u:10001:rwx docs/guides/user-guide
 sudo setfacl -m u:10001:rw docs/guides/user-guide/search-registry.md
 ```
 
-For a production database deployed by automation, the workflow assigns:
+For a production release deployed by automation, the workflow assigns:
 
 ```text
-group: opportunities-site
-mode:  0660
+release directories: group opportunities-site, mode 0550 (releases parent: 0750)
+release database, exports, and checksums: group opportunities-site, mode 0440
 ```
+
+The host data directory, `releases/`, and the selected release must be traversable by GID `10001`; symlink permissions themselves do not control traversal. The deployment user must own the data directory and have permission to create `.incoming`, `releases`, and the deployment lock.
 
 The host-side `opportunities-site` group must map to GID `10001` so the unprivileged containers can access the bind-mounted file without broadening permissions.
 
@@ -312,7 +315,7 @@ A named volume survives `--rm`, but this standalone example is separate from the
 
 ## Application release and rollback
 
-An application release changes the container image or Compose configuration. It is separate from the deployment-only canonical-state workflow, which replaces the reviewed database and public exports without rebuilding the website.
+An application release changes the container image or Compose configuration. It is separate from the deployment-only canonical-state workflow, which publishes a reviewed database-and-exports release and switches `current` without rebuilding the website.
 
 Before releasing an application revision:
 
@@ -355,7 +358,7 @@ deploy the reviewed state and public exports
 </pre>
 </div>
 
-Normal automation keeps collection and deployment separate: newly collected state is proposed through a README pull request and validated on its generated commit, while deployment-only mode restores and validates the reviewed durable state from `main` before entering the protected `production` environment and replacing the production database.
+Normal automation keeps collection and deployment separate: newly collected state is proposed through a README pull request and validated on its generated commit. A deployment-only run enters the protected `production` environment before accessing state, restores and validates reviewed durable state against `main` in that job, then switches the versioned release pointer. It does not replace the legacy fixed-path database.
 
 After changing Dockerfile or Compose behavior, run:
 

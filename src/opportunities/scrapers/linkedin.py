@@ -22,6 +22,7 @@ from opportunities.scrapers.http import (
     LINKEDIN_PUBLIC_JOB_URL,
     LINKEDIN_SEARCH_ENDPOINT,
     FetchError,
+    is_linkedin_access_challenge,
 )
 from opportunities.utils.text import clean_text, contains_normalized_phrase, normalized_key
 from opportunities.utils.time import ensure_utc, utc_now
@@ -43,12 +44,6 @@ _RELATIVE_POSTED_UNITS = {
     "month": timedelta(days=31),
     "year": timedelta(days=365),
 }
-_BLOCK_MARKERS = (
-    "captcha-internal",
-    "challenge-page",
-    "security verification",
-    "unusual activity",
-)
 _CLOSED_APPLICATION_MARKERS = frozenset({"no longer accepting applications"})
 _DATE_POSTED_PARAMETERS = {
     "day": "r86400",
@@ -341,7 +336,6 @@ class LinkedInScraper:
         new_grad_title_terms: tuple[str, ...] = _DEFAULT_NEW_GRAD_TITLE_TERMS,
         clock: Callable[[], datetime] = utc_now,
     ) -> None:
-        """Initialize the instance dependencies and state."""
         self._opportunity_title_terms = tuple(
             normalized_key(term) for term in (*internship_title_terms, *new_grad_title_terms)
         )
@@ -405,12 +399,10 @@ class LinkedInScraper:
             try:
                 html = await self._detail(card.job_id, fetcher)
                 job = parse_job_detail(html, card, observed_at=observed_at)
-                if card.job_id in known_job_ids or _posting_is_eligible(job.posted_at):
-                    positions.append(job)
-                else:
-                    warnings.append(
-                        "LinkedIn job detail skipped: posting date is missing or before 2026-05-01"
-                    )
+                # The classifier decides whether cycle evidence or a posting date is
+                # sufficient. Filtering here would discard explicit-cycle listings
+                # when LinkedIn omits the relative posting age.
+                positions.append(job)
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
                     raise
@@ -492,11 +484,6 @@ class LinkedInScraper:
         return await asyncio.shield(task)
 
 
-def _posting_is_eligible(posted_at: datetime | None) -> bool:
-    """Check whether posting evidence satisfies the fixed publication cutoff."""
-    return posted_at is not None and ensure_utc(posted_at) >= MINIMUM_POSTED_AT
-
-
 def _required_text(node: Tag, selector: str) -> str:
     """Extract required text from a parsed element."""
     value = _optional_text(node, selector)
@@ -524,6 +511,5 @@ def _company_allowed(company: str, allowed_companies: frozenset[str]) -> bool:
 
 def _reject_blocked_document(html: str) -> None:
     """Reject authentication, challenge, and block pages."""
-    normalized = html.casefold()
-    if any(marker in normalized for marker in _BLOCK_MARKERS):
+    if is_linkedin_access_challenge(html):
         raise LinkedInPayloadError("LinkedIn returned an access or verification page")

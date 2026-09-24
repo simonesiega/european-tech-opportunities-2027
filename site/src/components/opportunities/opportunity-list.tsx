@@ -1,5 +1,6 @@
 "use client";
 
+import type {MouseEvent} from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -35,6 +36,7 @@ const SORTING_BY_DIRECTORY_SORT: Record<DirectorySort, SortingState[number]> = {
 type OpportunityListProps = {
   opportunities: Opportunity[];
   view: DirectoryView;
+  pageHref: (page: number) => string;
   hasActiveFilters: boolean;
   onSortChange: (sort: DirectorySort) => void;
   onPageChange: (page: number) => void;
@@ -45,6 +47,7 @@ type OpportunityListProps = {
 export function OpportunityList({
   opportunities,
   view,
+  pageHref,
   hasActiveFilters,
   onSortChange,
   onPageChange,
@@ -53,6 +56,16 @@ export function OpportunityList({
 }: OpportunityListProps) {
   const sorting: SortingState = [SORTING_BY_DIRECTORY_SORT[view.sort]];
   const pagination = {pageIndex: view.page - 1, pageSize: view.pageSize};
+  const paginationLinkClassName =
+    "inline-flex size-[34px] items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-[0_1px_2px_rgb(0_0_0/3%)] transition-colors duration-150 hover:bg-[var(--surface-hover)] [&_svg]:size-[15px]";
+
+  function followPageLink(event: MouseEvent<HTMLAnchorElement>, page: number) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    onPageChange(page);
+  }
 
   // TanStack Table intentionally returns non-memoizable functions as part of its API.
   // eslint-disable-next-line react-hooks/incompatible-library
@@ -195,24 +208,34 @@ export function OpportunityList({
           <span className="mr-1.5">
             Page {view.page} of {Math.max(table.getPageCount(), 1)}
           </span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onPageChange(view.page - 1)}
-            disabled={!table.getCanPreviousPage()}
-            aria-label="Previous page"
-          >
-            <ChevronLeft aria-hidden="true" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onPageChange(view.page + 1)}
-            disabled={!table.getCanNextPage()}
-            aria-label="Next page"
-          >
-            <ChevronRight aria-hidden="true" />
-          </Button>
+          {table.getCanPreviousPage() ? (
+            <a
+              className={paginationLinkClassName}
+              href={pageHref(view.page - 1)}
+              onClick={(event) => followPageLink(event, view.page - 1)}
+              aria-label="Previous page"
+            >
+              <ChevronLeft aria-hidden="true" />
+            </a>
+          ) : (
+            <Button variant="outline" size="icon" disabled aria-label="Previous page">
+              <ChevronLeft aria-hidden="true" />
+            </Button>
+          )}
+          {table.getCanNextPage() ? (
+            <a
+              className={paginationLinkClassName}
+              href={pageHref(view.page + 1)}
+              onClick={(event) => followPageLink(event, view.page + 1)}
+              aria-label="Next page"
+            >
+              <ChevronRight aria-hidden="true" />
+            </a>
+          ) : (
+            <Button variant="outline" size="icon" disabled aria-label="Next page">
+              <ChevronRight aria-hidden="true" />
+            </Button>
+          )}
         </div>
       </div>
     </div>

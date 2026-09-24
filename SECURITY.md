@@ -41,12 +41,12 @@ Security fixes currently target `main`. The project has no published versioned r
 | Surface | Security contract |
 |---|---|
 | Source access | Authorized public LinkedIn guest HTML only |
-| Authentication | No LinkedIn credentials, sessions, cookies, account tokens, or browser storage |
-| Transport | Fixed HTTPS hosts, disabled redirects, and bounded pacing, concurrency, retries, timeouts, and response sizes |
+| Authentication | No LinkedIn credentials, sessions, cookies, account tokens, or browser storage; source response cookies are discarded |
+| Transport | Fixed HTTPS hosts, redirects treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
 | Processing | Local deterministic parsing and classification with sanitized errors |
 | Persistence | Canonical SQLite writes through repository transactions and Alembic migrations |
 | Website | Read-only SQLite, validated links, no mutation API, and defensive production headers |
-| README | Bounded generated projection with atomic replacement |
+| README | Bounded visible projection plus a public-directory review seal, generated with atomic replacement |
 | Public exports | Fixed field allowlist, spreadsheet-safe CSV text, atomic replacement, and read-only delivery |
 | Automation | Offline validation separated from authorized collection, verified durable snapshots, no canonical state in Actions cache or artifacts, job-scoped permissions, sanitized handoffs, and locked deployment |
 | Containers | Unprivileged processes, explicit mounts, pinned images, and reduced runtime tooling |

@@ -4,11 +4,13 @@ import asyncio
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 
+import httpx
 import pytest
 
+from opportunities.config.settings import Settings
 from opportunities.models.raw import KnownJob
 from opportunities.models.search import LinkedInSearchConfig
-from opportunities.scrapers.http import LINKEDIN_DETAIL_ENDPOINT, FetchError
+from opportunities.scrapers.http import LINKEDIN_DETAIL_ENDPOINT, FetchError, HttpFetcher
 from opportunities.scrapers.linkedin import (
     LinkedInPayloadError,
     LinkedInScraper,
@@ -358,7 +360,7 @@ def test_title_prefilter_continues_to_later_search_pages(
     assert all("2222222222" not in call for call in fetcher.calls)
 
 
-def test_linkedin_scraper_rejects_postings_before_may_cutoff() -> None:
+def test_linkedin_scraper_leaves_cycle_and_posting_evidence_to_classifier() -> None:
     search = configured_search(max_pages=1, max_results=25)
     page = """<!doctype html>
     <div class="base-search-card" data-entity-urn="urn:li:jobPosting:1111111111">
@@ -389,9 +391,9 @@ def test_linkedin_scraper_rejects_postings_before_may_cutoff() -> None:
 
     result = asyncio.run(scraper.scrape(search, fetcher))
 
-    assert [job.source_job_id for job in result.positions] == ["1111111111"]
+    assert [job.source_job_id for job in result.positions] == ["1111111111", "2222222222"]
     assert result.positions[0].posted_at == datetime(2026, 5, 1, tzinfo=UTC)
-    assert any("before 2026-05-01" in warning for warning in result.warnings)
+    assert result.positions[1].posted_at == datetime(2026, 4, 30, tzinfo=UTC)
 
 
 def test_linkedin_company_filter_is_applied_before_detail_fetch(
@@ -489,3 +491,52 @@ def test_known_job_404_is_reported_as_confirmed_unavailable() -> None:
 def test_linkedin_access_challenge_is_rejected() -> None:
     with pytest.raises(LinkedInPayloadError, match="verification"):
         parse_search_page("<html><body>Security verification challenge-page</body></html>")
+
+
+def test_detail_challenge_stops_later_details_and_searches() -> None:
+    search = configured_search(max_pages=1, max_results=25)
+    later_search = search.model_copy(update={"slug": "later-search", "keywords": "other intern"})
+    search_url = build_search_url(search, start=0)
+    first_detail = LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111")
+    requested_urls: list[str] = []
+    page = """<!doctype html>
+    <div data-entity-urn="urn:li:jobPosting:1111111111">
+      <h3 class="base-search-card__title">Software Intern 2027</h3>
+      <h4 class="base-search-card__subtitle">Test Technology</h4>
+      <span class="job-search-card__location">Berlin, Germany</span>
+    </div>
+    <div data-entity-urn="urn:li:jobPosting:2222222222">
+      <h3 class="base-search-card__title">Software Intern 2027</h3>
+      <h4 class="base-search-card__subtitle">Test Technology</h4>
+      <span class="job-search-card__location">Paris, France</span>
+    </div>"""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        url = str(request.url)
+        requested_urls.append(url)
+        if url == search_url:
+            return httpx.Response(200, text=page, request=request)
+        if url == first_detail:
+            return httpx.Response(
+                200,
+                text="<html>Security verification challenge-page</html>",
+                request=request,
+            )
+        raise AssertionError(f"Unexpected LinkedIn request: {url}")
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    settings = Settings(rate_limit_seconds=0, linkedin_crawl_authorized=True)
+
+    async def run() -> None:
+        async with client:
+            fetcher = HttpFetcher(settings, client=client)
+            scraper = LinkedInScraper()
+            with pytest.raises(FetchError, match="verification page") as detail_error:
+                await scraper.scrape(search, fetcher)
+            assert detail_error.value.code == "source_blocked"
+            with pytest.raises(FetchError) as later_error:
+                await scraper.scrape(later_search, fetcher)
+            assert later_error.value.code == "source_blocked"
+
+    asyncio.run(run())
+    assert requested_urls == [search_url, first_detail]

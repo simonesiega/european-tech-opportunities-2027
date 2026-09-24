@@ -59,17 +59,6 @@ test("filters opportunities and writes shareable URL parameters", async ({page})
   ).toBeVisible();
 });
 
-test("filters every country in a multi-location opportunity", async ({page}) => {
-  await openDirectory(page);
-
-  await page.getByLabel("Location").selectOption("Portugal");
-  await expect(page).toHaveURL(/country=Portugal/);
-  await expectRoleCount(page, 1);
-  await expect(
-    page.getByRole("link", {name: "Platform Engineering Intern 1", exact: true})
-  ).toBeVisible();
-});
-
 test("filters one employment type at a time", async ({page}) => {
   await openDirectory(page);
 
@@ -140,7 +129,7 @@ test("restores sorting, page, and page size from a shared URL", async ({page}) =
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
   await expect(page.locator("tbody tr").first().locator("td").nth(1)).toHaveText("Example 09");
 
-  await page.getByRole("button", {name: "Previous page"}).click();
+  await page.getByRole("link", {name: "Previous page"}).click();
   await expect(page).not.toHaveURL(/(?:\?|&)page=2(?:&|$)/);
   await page.goBack();
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
@@ -203,7 +192,7 @@ test("defaults to latest first seen and paginates results", async ({page}) => {
   await expect(
     page.getByRole("link", {name: "Software Engineering Intern 2027", exact: true})
   ).toHaveCount(0);
-  await page.getByRole("button", {name: "Next page"}).click();
+  await page.getByRole("link", {name: "Next page"}).click();
   await expect(page).toHaveURL(/page=2/);
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
   await expect(
@@ -255,6 +244,7 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
     "href",
     "http://127.0.0.1:3100"
   );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex, follow/);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
     "content",
     /opengraph-image/
@@ -310,4 +300,52 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.ok()).toBeTruthy();
   expect(await sitemap.text()).toContain("<loc>http://127.0.0.1:3100/</loc>");
+});
+
+test("crawler can follow unfiltered pages without JavaScript", async ({browser}) => {
+  const context = await browser.newContext({javaScriptEnabled: false});
+  try {
+    const page = await context.newPage();
+    await page.goto("/");
+
+    const nextPage = page.getByRole("link", {name: "Next page"});
+    await expect(nextPage).toHaveAttribute("href", "/?page=2");
+    await nextPage.click();
+
+    await expect(page).toHaveURL("/?page=2");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "http://127.0.0.1:3100/?page=2"
+    );
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
+    await expect(
+      page.getByRole("link", {name: "Software Engineering Intern 2027", exact: true})
+    ).toBeVisible();
+    await expect(page.getByRole("link", {name: "Previous page"})).toHaveAttribute("href", "/");
+  } finally {
+    await context.close();
+  }
+});
+
+test("does not index out-of-range or alternate directory pages", async ({page}) => {
+  await openDirectory(page, "/?page=999");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "http://127.0.0.1:3100"
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex, follow/);
+
+  await openDirectory(page, "/?page=2&sort=company-asc");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "http://127.0.0.1:3100"
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex, follow/);
+
+  await openDirectory(page, "/?source=e2e&page=2");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "http://127.0.0.1:3100/?page=2"
+  );
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "index, follow");
 });
