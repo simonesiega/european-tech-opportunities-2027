@@ -94,8 +94,10 @@ jobs:
           sudo cp "$data_dir/exports/open-opportunities.json" "$data_dir/releases/1-1/exports/"
           sudo chown -R 10001:10001 "$data_dir/releases"
           sudo chmod 550 "$data_dir/releases/1-1" "$data_dir/releases/1-1/exports"
-          sudo chmod 440 "$data_dir/releases/1-1/opportunities.db" "$data_dir/releases/1-1/exports/"*
-          sudo -u '#10001' ln -s releases/1-1 "$data_dir/current"
+          sudo chmod 440 "$data_dir/releases/1-1/opportunities.db" \
+            "$data_dir/releases/1-1/exports/open-opportunities.csv" \
+            "$data_dir/releases/1-1/exports/open-opportunities.json"
+          sudo ln -s releases/1-1 "$data_dir/current"
           printf 'legacy-only\n' | sudo tee "$data_dir/exports/open-opportunities.csv" >/dev/null
           # The image was built with Compose's localhost default; runtime metadata
           # routes must still advertise the production origin.
