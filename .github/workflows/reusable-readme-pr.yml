@@ -160,7 +160,7 @@ jobs:
             exit 1
           fi
 
-          validation_workflows=(python-ci.yml site-ci.yml docker-ci.yml codeql.yml)
+          validation_workflows=(python-ci.yml site-ci.yml docker-ci.yml codeql.yml gitleaks.yml)
           validation_started_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           for validation_workflow in "${validation_workflows[@]}"; do
             gh workflow run "$validation_workflow" --ref "$UPDATE_BRANCH"
