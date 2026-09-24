@@ -1,0 +1,5 @@
+# Generated README job links can expire or reject automated requests.
+exclude = ['^https://www\.linkedin\.com/jobs/view/[0-9]+/?$']
+
+# Documentation images are link targets, not input documents.
+exclude_path = ['docs[/\\]assets[/\\]']

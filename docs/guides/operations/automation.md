@@ -38,6 +38,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `site-ci.yml` | Push to `main`, pull request, manual | Prettier, ESLint, strict TypeScript, the Next.js production build, unit tests, browser checks, and axe-core accessibility scans against synthetic SQLite state |
 | `codeql.yml` | Push to `main`, pull request, Monday 05:31 UTC, manual | CodeQL `security-extended` analysis for Python and TypeScript, with findings uploaded to GitHub code scanning |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Action and Dockerfile linting, image builds and vulnerability scans, plus migrated read-only SQLite and production-header smoke tests |
+| `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; its explicit adoption mode proposes the first public-state review seal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
@@ -56,6 +57,8 @@ The four validation workflows require no LinkedIn access:
 - **Site CI** uses the documented Node.js and Bun versions to validate formatting, linting, strict TypeScript, the production Next.js build, unit tests, Playwright behavior, and axe-core accessibility checks against synthetic SQLite state.
 - **CodeQL** runs GitHub's extended security query suite independently for Python and TypeScript on pushes, pull requests, manual runs, and every Monday at 05:31 UTC. It uses interpreted-language no-build extraction and uploads results only to GitHub code scanning.
 - **Docker CI** runs `actionlint`, audits every workflow and composite action with blocking zizmor, and runs Hadolint. It builds both production targets, uses Trivy to reject high or critical vulnerabilities for which a fix is available, and verifies migration, read-only website access, public-export delivery, Content Security Policy, and HTTP Strict Transport Security. Unfixed findings are excluded from the image-vulnerability gate.
+
+The weekly **Documentation links** workflow uses Lychee to check root Markdown and documentation Markdown/HTML. Its [configuration](../../../lychee.toml) excludes only numeric LinkedIn job URLs, which can expire or reject automated checks, and skips documentation image files as inputs. Broken internal and other external links fail the check. Maintainers can also run it manually.
 
 Validation jobs have explicit timeouts, cancel superseded runs only on the same workflow/ref, and checkout without persisted Git credentials. Third-party actions and CI tool images are pinned to immutable revisions where practical and should remain pinned. Runtime and package-manager versions should stay explicit rather than being resolved through latest-release APIs.
 
