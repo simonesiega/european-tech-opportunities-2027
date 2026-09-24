@@ -20,7 +20,7 @@ jobs:
   collect:
     name: Collect and preserve state
     if: inputs.deploy_to_vps != true
-    uses: ./.github/workflows/reusable-process-state.yml
+    uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read
     secrets:
@@ -42,7 +42,7 @@ jobs:
   deploy:
     name: Validate, preserve, and deploy reviewed state
     if: inputs.deploy_to_vps
-    uses: ./.github/workflows/reusable-process-state.yml
+    uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read
     secrets:
@@ -66,7 +66,7 @@ jobs:
     name: Propose reviewed README projection
     if: inputs.deploy_to_vps != true
     needs: collect
-    uses: ./.github/workflows/reusable-readme-pr.yml
+    uses: $/.github/workflows/reusable-readme-pr.yml
     permissions:
       actions: write
       contents: write

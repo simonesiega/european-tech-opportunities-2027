@@ -19,7 +19,7 @@ jobs:
   # Recovery verification never enables or contacts the LinkedIn source.
   verify-recovery:
     name: Restore, validate, and round-trip state
-    uses: ./.github/workflows/reusable-process-state.yml
+    uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read
     secrets:
@@ -43,7 +43,7 @@ jobs:
     name: Propose reviewed public-state seal
     if: inputs.adopt_public_review_seal
     needs: verify-recovery
-    uses: ./.github/workflows/reusable-readme-pr.yml
+    uses: $/.github/workflows/reusable-readme-pr.yml
     permissions:
       actions: write
       contents: write

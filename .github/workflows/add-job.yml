@@ -17,7 +17,7 @@ permissions: {}
 jobs:
   process-state:
     name: Add reviewed jobs and preserve state
-    uses: ./.github/workflows/reusable-process-state.yml
+    uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read
     secrets:
@@ -40,7 +40,7 @@ jobs:
   update-readme:
     name: Propose manually reviewed README projection
     needs: process-state
-    uses: ./.github/workflows/reusable-readme-pr.yml
+    uses: $/.github/workflows/reusable-readme-pr.yml
     permissions:
       actions: write
       contents: write
