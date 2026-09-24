@@ -39,6 +39,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `codeql.yml` | Push to `main`, pull request, Monday 05:31 UTC, manual | CodeQL `security-extended` analysis for Python and TypeScript, with findings uploaded to GitHub code scanning |
 | `docker-ci.yml` | Push to `main`, pull request, manual | Action and Dockerfile linting, image builds and vulnerability scans, plus migrated read-only SQLite and production-header smoke tests |
 | `gitleaks.yml` | Push to `main`, pull request, manual | Scan relevant Git history for committed secrets with redacted output and no finding artifacts or pull-request comments |
+| `dependency-review.yml` | Pull request | Reject newly introduced dependencies with high or critical known vulnerabilities |
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; its explicit adoption mode proposes the first public-state review seal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
@@ -52,7 +53,7 @@ Workflow files under `.github/workflows/` are the executable source of truth. Up
 
 ## Validation workflows
 
-The five pull-request validation workflows require no LinkedIn access:
+The five validation workflows dispatched for generated README proposals require no LinkedIn access:
 
 - **Python CI** validates the pipeline, CLI, migrations, lifecycle behavior, README projection, and documentation contracts; it publishes critical-path coverage and benchmark reports for 30 days. Current measured values are summarized in the root [Python quality baseline](../../../README.md#python-quality-baseline).
 - **Site CI** uses the documented Node.js and Bun versions to validate formatting, linting, strict TypeScript, the production Next.js build, unit tests, Playwright behavior, and axe-core accessibility checks against synthetic SQLite state.
@@ -61,6 +62,8 @@ The five pull-request validation workflows require no LinkedIn access:
 - **Gitleaks** checks commits introduced by pull requests and pushes to `main`; manual runs scan the full fetched history. Checkout fetches full history without persisting credentials. Findings fail the job, but comments, summaries, and report artifacts are disabled to avoid publishing sensitive values. No detection allowlist is configured.
 
 The weekly **Documentation links** workflow uses Lychee to check root Markdown and documentation Markdown/HTML. Its [configuration](../../../lychee.toml) excludes only numeric LinkedIn job URLs, which can expire or reject automated checks, and skips documentation image files as inputs. Broken internal and other external links fail the check. Maintainers can also run it manually.
+
+**Dependency Review** checks vulnerability changes reported by GitHub's dependency graph on ordinary pull requests, including development and unknown scopes. The repository dependency graph must be enabled for its API to work. The job requires only repository read access. License enforcement is disabled because the project has no dependency-license policy; OpenSSF scorecard warnings are also disabled to keep this gate focused. Dependabot proposes version updates and CodeQL analyzes project code separately. Generated README-only proposals have an exact changed-file check and use the five explicitly dispatched validation workflows, so this pull-request-only check is not part of their dispatch list.
 
 Validation jobs have explicit timeouts, cancel superseded runs only on the same workflow/ref, and checkout without persisted Git credentials. Third-party actions and CI tool images are pinned to immutable revisions where practical and should remain pinned. Runtime and package-manager versions should stay explicit rather than being resolved through latest-release APIs.
 
