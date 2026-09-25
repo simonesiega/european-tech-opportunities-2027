@@ -25,12 +25,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 24, 2026 at 10:44 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-690-2563eb?style=for-the-badge" alt="Total opportunities: 690" />
-  <img src="https://img.shields.io/badge/Internships-312-16a34a?style=for-the-badge" alt="Internships: 312" />
-  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
+  <strong>Last successful collection: September 25, 2026 at 10:13 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-704-2563eb?style=for-the-badge" alt="Total opportunities: 704" />
+  <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
+  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
 </p>
-<!-- Public directory state v1 sha256: d3533a56f2cba5ef501f3b7861eeb9afa8556e79f8597bcfe8ff4d753a2b8fba -->
+<!-- Public directory state v1 sha256: e970b57a3573e16d2c5fb505c3c9f8aea3948946eac5ddfd9e4d89ddcaf3c7f6 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
@@ -69,34 +69,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 690 (Internships: 312 · New Grad: 378)<br>
-**Last successful collection:** September 24, 2026 at 10:44 UTC
+**Open opportunities:** 704 (Internships: 316 · New Grad: 388)<br>
+**Last successful collection:** September 25, 2026 at 10:13 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 378 open New Grad opportunities:
+Showing the 5 most recently discovered of 388 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4469633075>) |
-| Kneat Solutions | Kneat Graduate Programme 2027 - Information Technology | Limerick, County Limerick, Ireland | [View](<https://www.linkedin.com/jobs/view/4471101744>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4469476820>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4469478721>) |
-| Ericsson | Entry Level: Software Developer Integrated Sensing and Communication | Lund, Skåne County, Sweden | [View](<https://www.linkedin.com/jobs/view/4469474507>) |
+| IBM | Entry Level Software Developer 2027 | Markham, Wales, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4469771847>) |
+| UBS | 2027 Graduate Talent Program – Software Full Stack Engineer – ZH | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4471485844>) |
+| Appvia | Graduate Platform Engineer - Appvia Academy | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471480988>) |
+| Autodesk | Graduate Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4469690310>) |
+| IMC Trading | Graduate Software Engineer \(2027\) | Aarhus, Central Denmark Region, Denmark | [View](<https://www.linkedin.com/jobs/view/4469687017>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 312 open internships:
+Showing the 5 most recently discovered of 316 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Barco | Internship - Computer Vision &amp; Image Analysis | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470012929>) |
+| Barco | Internship - Software Engineering | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470030125>) |
+| Sanofi | internship 6 months data science | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4471448722>) |
+| Dassault Systèmes | Software Developer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4471457361>) |
 | Motorola Solutions | Intern Software Developer \(React/JS\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4470948509>) |
-| Arm | Software Engineer Intern - CE Software | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4469446447>) |
-| Murex | INTERNSHIP 2027 – Software Engineer C++ | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470418196>) |
-| Bigblue | Software Engineer Intern | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4470914531>) |
-| Hapag-Lloyd AG | Quality Assurance Intern | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4468984626>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
