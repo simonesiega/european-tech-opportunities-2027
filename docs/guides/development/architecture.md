@@ -27,9 +27,9 @@ The architecture is intentionally narrow:
 - one deterministic classification pipeline;
 - one SQLite lifecycle store;
 - one controlled application writer;
-- three read-only public projections.
+- four read-only public projections (website, README, downloads, and API).
 
-The website is the complete public directory. The README contains only a bounded preview, while sanitized CSV and JSON files expose all open rows through a fixed public-field allowlist.
+The website is the complete public directory. The API is a bounded, filterable JSON view of its open rows. The README contains only a bounded preview, while sanitized CSV and JSON files expose all open rows through a fixed public-field allowlist.
 
 ## System flow
 
@@ -47,10 +47,10 @@ normalization + deterministic classification
 ↓
 transactional SQLite lifecycle state
 ↓
-┌──────────────────────┬──────────────────────┬──────────────────────┐
-│ searchable website   │ README preview       │ public CSV + JSON    │
-│ all open listings    │ 5 latest rows/type   │ approved fields only │
-└──────────────────────┴──────────────────────┴──────────────────────┘
+┌──────────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
+│ searchable website   │ README preview       │ public CSV + JSON    │ read-only API        │
+│ all open listings    │ 5 latest rows/type   │ approved fields only │ versioned JSON pages │
+└──────────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
 </pre>
 </div>
 
@@ -186,7 +186,7 @@ Schema, transactions, provenance, closure, migrations, backup, and restore are o
 
 ## Public projections
 
-SQLite state feeds exactly three read-only public projections.
+SQLite state feeds four read-only public projections.
 
 ### Website
 
@@ -199,6 +199,10 @@ The Next.js website:
 - never runs collection, classification, migrations, or lifecycle writes.
 
 The website contract is documented in the [website guide](../user-guide/website.md).
+
+### Versioned public API
+
+`site/src/app/api/v1/opportunities/route.ts` reuses the website's read-only SQLite query and atomic release selection. Its bounded, validated query parameters feed shared presentation filtering; an explicit public-field allowlist produces JSON, never SQL constructed from user input. The API neither writes lifecycle state nor reads exports as a source of truth. See the [public API contract](../user-guide/public-api.md).
 
 ### README preview
 
@@ -243,7 +247,7 @@ CLI
 
 repository → ORM → database session
 migrations → ORM metadata
-website → read-only SQLite + generated public exports
+website + API → read-only SQLite; downloads → generated public exports
 ```
 
 Dependency boundaries are intentional:

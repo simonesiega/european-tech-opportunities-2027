@@ -3,7 +3,8 @@
 <p align="center">
   <a href="#latest-internships">Internships</a> ·
   <a href="#latest-new-grad-opportunities">New Grad</a> ·
-  <a href="https://docs.techopportunities.eu/">Site documentation</a>
+  <a href="https://docs.techopportunities.eu/">Site documentation</a> ·
+  <a href="https://techopportunities.eu/api/v1/opportunities">Public API</a>
 </p>
 
 <p align="center">
@@ -52,17 +53,23 @@
   />
 </p>
 
-Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets.
+Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets. For programmatic access, use the read-only [public API](docs/guides/user-guide/public-api.md) at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). Applications and eligibility checks remain on the original listing.
 
 `https://techopportunities.eu/` is the sole canonical public origin. The former `https://opportunities2027.simonesiega.com` host is retained only for permanent redirects to the same path and query on the canonical site, not as an alternative canonical URL. See [deployment instructions](docs/guides/operations/docker.md#dokploy-deployment).
 
 ## Why this exists
 
-Finding early-career tech roles across Europe is noisy: listings often mix hiring cycles, senior positions, unrelated roles, stale jobs, and unsupported locations.
+Finding early-career tech roles across Europe is noisy: listings are fragmented across companies and platforms and often mix hiring cycles, senior positions, unrelated roles, stale jobs, and unsupported locations.
 
-European Tech Opportunities 2027 turns that stream into a focused dataset of validated internships and new-grad roles. An automated pipeline discovers, classifies, tracks, and publishes only opportunities that satisfy explicit acceptance rules.
+European Tech Opportunities 2027 turns that stream into a focused, continuously maintained dataset of validated internships and new-grad roles. An automated pipeline discovers, normalizes, classifies, tracks, and publishes only opportunities that satisfy explicit acceptance rules, while preserving one canonical lifecycle state behind every public interface.
 
-The project intentionally favors **precision over coverage**. Ambiguous listings are excluded rather than guessed into the dataset.
+The project intentionally favors **precision over coverage**. Ambiguous listings are excluded rather than guessed into the dataset, and every public surface is designed to make the same reviewed data useful both to people browsing opportunities and to developers consuming it programmatically.
+
+### Access options
+
+- **Searchable website:** browse all currently open opportunities at [techopportunities.eu](https://techopportunities.eu/) with search, filters, sorting, pagination, shareable views, and direct links to the original listings.
+- **CSV and JSON exports:** download the complete sanitized open-opportunity dataset as [CSV](https://techopportunities.eu/open-opportunities.csv) or [JSON](https://techopportunities.eu/open-opportunities.json) for analysis, spreadsheets, scripts, or other offline workflows.
+- **Public API:** query the same canonical data through the versioned, read-only [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities) endpoint with validated filters, bounded pagination, deterministic responses, and HTTP caching. See the [API documentation](docs/guides/user-guide/public-api.md) for the full contract.
 
 ## Latest opportunities
 
@@ -123,14 +130,14 @@ normalization + deterministic classification
 ↓
 transactional SQLite lifecycle state
 ↓
-┌──────────────────────┬──────────────────────┬──────────────────────┐
-│ searchable website   │ README preview       │ public CSV + JSON    │
-│ all open listings    │ 5/type latest rows   │ approved fields only │
-└──────────────────────┴──────────────────────┴──────────────────────┘
+┌──────────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
+│  searchable website  │    README preview    │  public CSV + JSON   │      public API      │
+│  all open listings   │  5/type latest rows  │ approved fields only │   v1 filtered JSON   │
+└──────────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
 </pre>
 </div>
 
-SQLite is the canonical store. The website, README, and sanitized downloads are read-only projections; none can mutate lifecycle state.
+SQLite is the canonical store. The website, README, sanitized downloads, and public API are read-only projections; none can mutate lifecycle state.
 
 See the [architecture guide](docs/guides/development/architecture.md) for the complete data flow, component boundaries, and extension policy.
 
@@ -194,7 +201,7 @@ Browse the [searchable documentation](https://docs.techopportunities.eu/) or rea
 | Area | Canonical guides |
 |---|---|
 | Setup | [Installation](docs/guides/getting-started/installation.md) · [Configuration](docs/guides/getting-started/configuration.md) |
-| Using the project | [Website](docs/guides/user-guide/website.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
+| Using the project | [Website](docs/guides/user-guide/website.md) · [Public API](docs/guides/user-guide/public-api.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
 | Production operation | [Automation](docs/guides/operations/automation.md) · [Database](docs/guides/operations/database.md) · [Docker](docs/guides/operations/docker.md) · [Troubleshooting](docs/guides/operations/troubleshooting.md) |
 | Development | [Architecture](docs/guides/development/architecture.md) · [Development](docs/guides/development/development.md) · [Contributing](CONTRIBUTING.md) |
 | Policies | [Security](SECURITY.md) · [Privacy](PRIVACY.md) · [Code of Conduct](CODE_OF_CONDUCT.md) |

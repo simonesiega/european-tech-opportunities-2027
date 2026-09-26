@@ -45,7 +45,7 @@ Security fixes currently target `main`. The project has no published versioned r
 | Transport | Fixed HTTPS hosts, redirects treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
 | Processing | Local deterministic parsing and classification with sanitized errors |
 | Persistence | Canonical SQLite writes through repository transactions and Alembic migrations |
-| Website | Read-only SQLite, validated links, no mutation API, and defensive production headers |
+| Website and public API | Read-only SQLite, validated links, bounded API input and output, no mutation API, and defensive production headers |
 | README | Bounded visible projection plus a public-directory review seal, generated with atomic replacement |
 | Public exports | Fixed field allowlist, spreadsheet-safe CSV text, atomic replacement, and read-only delivery |
 | Automation | Offline validation separated from authorized collection, verified durable snapshots, no canonical state in Actions cache or artifacts, job-scoped permissions, sanitized handoffs, and locked deployment |
@@ -74,7 +74,7 @@ Never weaken or default-enable an authorization gate. An upstream block or chall
 
 `data/opportunities.db` contains public listing metadata and sensitive operational history. It must never contain credentials, sessions, or authenticated HTML.
 
-Public CSV and JSON exports may contain only LinkedIn job ID, company, title, location, canonical listing URL, category, industries, employment type, and start date. They must exclude status, timestamps, provenance, run history, closure evidence, diagnostics, database paths, and environment values.
+Public CSV and JSON exports may contain only LinkedIn job ID, company, title, location, canonical listing URL, category, industries, employment type, and start date. They must exclude status, timestamps, provenance, run history, closure evidence, diagnostics, database paths, and environment values. The read-only public API separately includes the website-visible first-seen timestamp with those listing fields, and excludes all other lifecycle and operational fields.
 
 The website must not:
 

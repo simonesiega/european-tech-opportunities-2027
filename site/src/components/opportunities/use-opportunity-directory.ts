@@ -1,5 +1,6 @@
 import {useMemo} from "react";
 import {usePathname, useSearchParams} from "next/navigation";
+import {filterOpportunities} from "@/lib/opportunity-filter";
 import {
   ALL_FILTER_VALUE,
   getCountries,
@@ -67,47 +68,32 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
     searchParams.get(FILTER_PARAMETERS.firstSeen),
     options.firstSeenPeriods
   );
-  const firstSeenOption = FIRST_SEEN_OPTIONS.find((option) => option.value === firstSeen);
   const referenceTimestamp = parseOpportunityTimestamp(referenceTime);
-  const firstSeenCutoff = firstSeenOption ? referenceTimestamp - firstSeenOption.durationMs : null;
-
-  const filteredOpportunities = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return opportunities.filter((opportunity) => {
-      const firstSeenTimestamp = parseOpportunityTimestamp(opportunity.firstSeenAt);
-      const searchableText = [
-        opportunity.company,
-        opportunity.title,
-        opportunity.category,
-        opportunity.industries,
-        opportunity.employmentType,
-        opportunity.location,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-      return (
-        (!normalizedQuery || searchableText.includes(normalizedQuery)) &&
-        (company === ALL_FILTER_VALUE || opportunity.company === company) &&
-        (location === ALL_FILTER_VALUE || getCountries(opportunity.location).includes(location)) &&
-        (category === ALL_FILTER_VALUE || opportunity.category === category) &&
-        (employmentType === ALL_FILTER_VALUE || opportunity.employmentType === employmentType) &&
-        (firstSeenCutoff === null ||
-          (firstSeenTimestamp >= firstSeenCutoff && firstSeenTimestamp <= referenceTimestamp))
-      );
-    });
-  }, [
-    category,
-    company,
-    employmentType,
-    firstSeenCutoff,
-    location,
-    opportunities,
-    query,
-    referenceTimestamp,
-  ]);
+  const filteredOpportunities = useMemo(
+    () =>
+      filterOpportunities(
+        opportunities,
+        {
+          q: query,
+          company: company === ALL_FILTER_VALUE ? "" : company,
+          country: location === ALL_FILTER_VALUE ? "" : location,
+          category: category === ALL_FILTER_VALUE ? "" : category,
+          type: employmentType === ALL_FILTER_VALUE ? "" : employmentType,
+          firstSeen: firstSeen === ALL_FILTER_VALUE ? "" : firstSeen,
+        },
+        referenceTimestamp
+      ),
+    [
+      category,
+      company,
+      employmentType,
+      firstSeen,
+      location,
+      opportunities,
+      query,
+      referenceTimestamp,
+    ]
+  );
 
   const sort = validSort(searchParams.get(VIEW_PARAMETERS.sort));
   const pageSize = validPageSize(searchParams.get(VIEW_PARAMETERS.pageSize));

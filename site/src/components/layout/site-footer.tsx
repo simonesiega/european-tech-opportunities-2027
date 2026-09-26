@@ -27,6 +27,13 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
           <span aria-hidden="true">·</span>
           <a
             className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
+            href="/api/v1/opportunities"
+          >
+            Public API
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
             href={repositoryUrl}
             target="_blank"
             rel="noreferrer"

@@ -116,6 +116,29 @@ test("restores filters from a shared URL and browser history", async ({page}) =>
   await expectRoleCount(page, 1);
 });
 
+test("composes search, country, category, first-seen filtering, and company sorting", async ({
+  page,
+}) => {
+  await openDirectory(
+    page,
+    "/?q=platform&country=Spain&category=software-engineering&first-seen=7-days&sort=company-asc"
+  );
+
+  await expect(page.getByLabel("Search")).toHaveValue("platform");
+  await expect(page.getByLabel("Location")).toHaveValue("Spain");
+  await expect(page.getByLabel("Category")).toHaveValue("software-engineering");
+  await expect(page.getByLabel("First seen")).toHaveValue("7-days");
+  await expectRoleCount(page, 7);
+  await expect(page.getByRole("columnheader", {name: "Company"})).toHaveAttribute(
+    "aria-sort",
+    "ascending"
+  );
+  const rows = page.locator("tbody tr");
+  await expect(rows).toHaveCount(7);
+  await expect(rows.first().locator("td").nth(1)).toHaveText("Example 03");
+  await expect(rows.last().locator("td").nth(1)).toHaveText("Example 09");
+});
+
 test("restores sorting, page, and page size from a shared URL", async ({page}) => {
   await openDirectory(page, "/?q=intern&sort=company-asc&page=2&page-size=10");
 

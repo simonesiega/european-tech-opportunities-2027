@@ -10,6 +10,7 @@ This is the canonical website guide for the project. **[https://techopportunitie
 - [Search, filters, and sorting](#search-filters-and-sorting)
 - [Displayed fields](#displayed-fields)
 - [Public data downloads](#public-data-downloads)
+- [Public API](#public-api)
 - [Data interpretation](#data-interpretation)
 - [Accessibility and responsive behavior](#accessibility-and-responsive-behavior)
 - [Shareable directory URLs](#shareable-directory-urls)
@@ -111,6 +112,10 @@ Both files contain every currently open opportunity at generation time. Their fi
 The Python pipeline generates and validates both files from SQLite. CSV output neutralizes cells that spreadsheet applications could interpret as formulas. The website serves the generated files as read-only attachments and returns a generic unavailable response when a file is absent; it never creates exports from browser input.
 
 Downloads represent the latest deployed projection, not a backup or complete historical dataset. In versioned production mode the database and exports share one atomic release-pointer cutover; each request pins a release once, but a page and a later download may straddle the cutover. Legacy fixed-path mode remains available only for migration/local development. See [Rollout and rollback](../operations/automation.md#coordinated-first-rollout-and-rollback).
+
+## Public API
+
+The unauthenticated [versioned public API](public-api.md) serves bounded, filterable JSON at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). It uses the same read-only database query and release-pointer selection as the website, with a fixed public-field allowlist and conditional HTTP caching. Applications and eligibility verification remain on the original listing.
 
 ## Data interpretation
 
@@ -217,7 +222,7 @@ The website:
 - never inserts, updates, closes, or reopens jobs;
 - never performs LinkedIn requests;
 - never treats browser activity as lifecycle state;
-- never exposes a mutation API;
+- exposes a strictly read-only GET/HEAD API, with OPTIONS for CORS preflight; never exposes a mutation API;
 - serves only the two fixed generated public-export filenames;
 - observes a newly deployed database and exports on subsequent requests.
 
