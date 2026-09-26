@@ -106,7 +106,8 @@ jobs:
   process:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout_minutes }}
-    # VPS secrets live only in the selected main-only environment; callers never pass them.
+    # The selected main-only environment overrides identically named caller secrets.
+    # Do not configure repository- or organization-level copies of VPS secrets.
     environment: ${{ inputs.environment_name }}
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ inputs.crawl_authorized }}

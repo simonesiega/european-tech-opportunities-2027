@@ -54,7 +54,7 @@
   />
 </p>
 
-The public directory has generated **10,000+ page views across 60+ countries since launch** and ranks **#1 for searches such as “European opportunities 2027” and “European tech opportunities 2027”**, along with related queries. Search hundreds of validated opportunities by company, country, category, employment type, and first-seen recency, with sortable results, pagination, shareable directory views, direct links to the original listings, and sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) downloads.
+Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets.
 
 `https://techopportunities.eu/` is the sole canonical public origin. The former `https://opportunities2027.simonesiega.com` host is retained only for permanent redirects to the same path and query on the canonical site, not as an alternative canonical URL. See [deployment instructions](docs/guides/operations/docker.md#dokploy-deployment).
 
@@ -191,7 +191,7 @@ Continue with the [installation guide](docs/guides/getting-started/installation.
 
 ## Documentation
 
-Browse the [searchable documentation](https://docs.techopportunities.eu/) or use the [documentation hub](docs/README.md) on GitHub. The Markdown in `docs/` remains the source of truth.
+Browse the [searchable documentation](https://docs.techopportunities.eu/) or read the [documentation hub](docs/README.md) in this repository. The guides in `docs/` and the linked root policy files are the source documents.
 
 | Area | Canonical guides |
 |---|---|

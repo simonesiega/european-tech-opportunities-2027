@@ -2,9 +2,9 @@
 
 [← Project README](README.md) · [Documentation hub](docs/README.md) · [Website guide](docs/guides/user-guide/website.md) · [Security policy](SECURITY.md)
 
-Effective: September 24, 2026
+Effective: September 26, 2026
 
-This notice explains how the European Tech Opportunities 2027 website handles visitor information. It applies to the public directory at [techopportunities.eu](https://techopportunities.eu/) and its CSV and JSON download routes. Requests to the former hostname are permanently redirected to this canonical site; the legacy hostname does not serve a second directory.
+This notice explains how European Tech Opportunities 2027 handles visitor information. The public directory at [techopportunities.eu](https://techopportunities.eu/) and its CSV and JSON downloads run on the project website. The [documentation site](https://docs.techopportunities.eu/) is hosted separately on GitHub Pages. Requests to the former directory hostname are permanently redirected to the canonical site; the legacy hostname does not serve a second directory.
 
 ## Controller and contact
 
@@ -26,7 +26,7 @@ The project limits visitor-data handling to what is needed to operate and unders
 |---|---|---|
 | Website delivery, reliability, and security | Serve requests, prevent abuse, diagnose failures, and protect the service | Legitimate interests in operating a secure, reliable public website |
 | Aggregate usage analytics | Understand use of the directory and maintain it | Legitimate interests in privacy-conscious service measurement, where permitted |
-| Local theme preference | Remember the visitor's chosen theme | No project-controlled personal-data processing; the value remains on the visitor's device and provides the requested preference |
+| Local theme preference | Remember the visitor's chosen theme | Stored in the browser to provide the requested preference; the theme value is not sent to the project |
 | Privacy correspondence | Answer requests and keep any necessary record of the response | Compliance with applicable legal obligations and legitimate interests in handling and documenting requests |
 
 These bases describe the project's current operation and may be limited or supplemented by local law.
@@ -36,6 +36,8 @@ These bases describe the project's current operation and may be limited or suppl
 The production site uses Cloudflare in front of the application. As with ordinary web delivery, Cloudflare and the hosting infrastructure may process request information such as IP address, requested URL, timestamp, browser or user-agent information, and security or routing data to deliver and protect the service.
 
 See [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/) for its processing and retention terms.
+
+Documentation is served as static files by GitHub Pages, not the directory's VPS. GitHub may process request information to deliver and protect Pages; see [GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Documentation search uses a published search index in the browser; the project does not send search terms to the directory or configure Umami analytics on the documentation site. The documentation site uses system fonts rather than requesting Google Fonts. Its theme switch stores a local browser preference. The project README, available on GitHub and the documentation site, also embeds status and license badges from GitHub and Shields.io and a contributor image from contrib.rocks; opening that page requests those resources from their providers.
 
 ### Privacy-focused analytics
 
@@ -51,7 +53,7 @@ The site uses browser local storage under the key `opportunities-theme` to remem
 
 ## Service providers, recipients, and transfers
 
-Cloudflare provides edge delivery and security services, while Umami provides hosted aggregate analytics. They process information needed to provide those services and may also process information for purposes described in their own privacy notices. The hosting infrastructure necessarily receives ordinary web requests.
+Cloudflare provides edge delivery and security services for the directory, Umami provides hosted aggregate directory analytics, and GitHub Pages hosts the documentation. They process information needed to provide those services and may also process information for purposes described in their own privacy notices. The hosting infrastructure necessarily receives ordinary web requests.
 
 These providers may process information outside the visitor's country or the European Economic Area, depending on their infrastructure and service configuration. International transfers are governed by the providers' applicable transfer mechanisms and privacy terms.
 

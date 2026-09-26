@@ -300,7 +300,7 @@ Displays aggregate canonical state, including:
 
 It performs no network access and does not modify state.
 
-Use it after migration, collection, restoration, or deployment to verify that the command is reading the intended database.
+Use it after migration, collection, or restoration to check the configured pipeline database. In versioned production mode, `stats` does **not** inspect the website's selected `data/current` release; verify the served release and downloads using the [deployment checks](../operations/automation.md#post-nightly-production-runbook).
 
 ## `validate`
 

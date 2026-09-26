@@ -7,6 +7,7 @@ same links. Never point MkDocs at the repository root (which contains private st
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -14,6 +15,12 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+SITE_ICON = ROOT / "site" / "src" / "app" / "icon.svg"
+STAGED_ICON = Path("docs/assets/site-icon.svg")
+# GitHub alert syntax is not understood by Python-Markdown. Convert only staged
+# copies so the same source remains readable as an alert on GitHub.
+_ALERT_RE = re.compile(r"^> \[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:\n>.*)*", re.MULTILINE)
+
 PUBLIC_ROOT_FILES = (
     "README.md",
     "CONTRIBUTING.md",
@@ -23,6 +30,17 @@ PUBLIC_ROOT_FILES = (
     "lychee.toml",
     "LICENSE",
 )
+
+
+def _render_alerts(text: str) -> str:
+    """Translate GitHub alerts to Material admonitions without changing source files."""
+
+    def replace(match: re.Match[str]) -> str:
+        lines = match.group().splitlines()
+        body = "\n".join("    " + line.removeprefix("> ") for line in lines[1:])
+        return f"!!! {match.group(1).lower()}\n{body}"
+
+    return _ALERT_RE.sub(replace, text)
 
 
 def main() -> int:
@@ -37,12 +55,26 @@ def main() -> int:
                     raise ValueError(f"Unexpected documentation file: {source}")
                 destination = staging / source.relative_to(ROOT)
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(source, destination)
+                if source.suffix.lower() == ".md":
+                    destination.write_text(
+                        _render_alerts(source.read_text(encoding="utf-8")), encoding="utf-8"
+                    )
+                else:
+                    shutil.copyfile(source, destination)
+        if SITE_ICON.is_symlink() or not SITE_ICON.is_file():
+            raise ValueError(f"Website icon is missing or a symlink: {SITE_ICON}")
+        shutil.copyfile(SITE_ICON, staging / STAGED_ICON)
         for filename in PUBLIC_ROOT_FILES:
             source = ROOT / filename
             if source.is_symlink():
                 raise ValueError(f"Public document symlinks are not allowed: {source}")
-            shutil.copyfile(source, staging / filename)
+            destination = staging / filename
+            if source.suffix == ".md":
+                destination.write_text(
+                    _render_alerts(source.read_text(encoding="utf-8")), encoding="utf-8"
+                )
+            else:
+                shutil.copyfile(source, destination)
         # MkDocs does not rewrite links inside raw HTML; keep GitHub source untouched.
         readme = staging / "README.md"
         text = readme.read_text(encoding="utf-8")

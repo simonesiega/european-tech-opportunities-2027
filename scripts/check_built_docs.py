@@ -9,11 +9,42 @@ from urllib.parse import unquote, urlsplit
 from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1] / "build" / "docs-site"
+PUBLIC_FILES = {
+    "CNAME",
+    "LICENSE",
+    "lychee.toml",
+    "search/search_index.json",
+    "sitemap.xml",
+    "sitemap.xml.gz",
+}
+THEME_ASSET_SUFFIXES = {".css", ".js", ".map", ".png", ".webp"}
+SITE_ICON = Path(__file__).resolve().parents[1] / "site" / "src" / "app" / "icon.svg"
+STAGED_ICON = "docs/assets/site-icon.svg"
+ALLOWED_FILES = PUBLIC_FILES | {STAGED_ICON}
 
 
 def main() -> int:
     """Reject broken rendered references, including raw HTML image sources."""
     errors: list[str] = []
+    for path in ROOT.rglob("*"):
+        if path.is_symlink():
+            errors.append(f"Unexpected symlink in published site: {path.relative_to(ROOT)}")
+        elif path.is_file():
+            relative = path.relative_to(ROOT).as_posix()
+            if (
+                path.suffix not in THEME_ASSET_SUFFIXES | {".html"}
+                and relative not in ALLOWED_FILES
+            ):
+                errors.append(f"Unexpected published file: {relative}")
+
+    cname = ROOT / "CNAME"
+    if not cname.is_file() or cname.read_text(encoding="utf-8") != "docs.techopportunities.eu\n":
+        errors.append("Missing or incorrect CNAME")
+
+    icon = ROOT / STAGED_ICON
+    if not icon.is_file() or icon.is_symlink() or icon.read_bytes() != SITE_ICON.read_bytes():
+        errors.append("Documentation favicon does not match the website icon")
+
     pages = sorted(ROOT.rglob("*.html"))
     if not pages:
         sys.stderr.write("No built documentation pages found. Run scripts/build_docs.py first.\n")

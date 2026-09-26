@@ -227,11 +227,7 @@ Do not create several near-identical searches only to broaden wording. Prefer on
 
 ## Add an employer search
 
-Place employer searches under:
-
-```text
-configs/searches/companies/
-```
+Place employer searches under `configs/searches/companies/`. For example, the existing `company-amazon` slug is defined in `configs/searches/companies/amazon.yml`; the filename does not need the `company-` prefix.
 
 Requirements:
 
@@ -269,11 +265,7 @@ The allowlist restricts discovery. It does not bypass classification. Listings m
 
 ## Add a country search
 
-Place country searches under:
-
-```text
-configs/searches/countries/
-```
+Place country searches under `configs/searches/countries/`. For example, the existing `country-portugal` slug is defined in `configs/searches/countries/portugal.yml`; the filename does not need the `country-` prefix.
 
 Requirements:
 

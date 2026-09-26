@@ -147,7 +147,7 @@ uv run --frozen --group docs python scripts/check_built_docs.py
 git diff --check
 ```
 
-The documentation build stages only public Markdown, images, and explicitly approved root files in a temporary directory; never point MkDocs at the repository root. Output is ignored under `build/docs-site/`. MkDocs dependencies are locked in the `docs` group. GitHub Pages must use **GitHub Actions** as its source and have the custom domain `docs.techopportunities.eu` configured in repository settings. Add a DNS CNAME record for `docs` pointing to `simonesiega.github.io`; the successful build places the matching `CNAME` file in the deploy artifact. Enable HTTPS after GitHub verifies the domain. The workflow validates pull requests and publishes the checked artifact from `main` without accessing canonical state. Run `uv build` when changing packaging, dependencies, metadata, entry points, or release behavior.
+The documentation build stages only public Markdown, images, and explicitly approved root files in a temporary directory; it also copies the website favicon from `site/src/app/icon.svg` so both sites use the same icon. Never point MkDocs at the repository root. Output is ignored under `build/docs-site/`. MkDocs dependencies are locked in the `docs` group. GitHub Pages must use **GitHub Actions** as its source and have the custom domain `docs.techopportunities.eu` configured in repository settings. Add a DNS CNAME record for `docs` pointing to `simonesiega.github.io`; the successful build places the matching `CNAME` file in the deploy artifact. Enable HTTPS after GitHub verifies the domain. The workflow validates pull requests and publishes the checked artifact from `main` without accessing canonical state. Run `uv build` when changing packaging, dependencies, metadata, entry points, or release behavior.
 
 ### Website validation
 
@@ -219,6 +219,8 @@ uv run python scripts/coverage_docs.py
 uv run pytest tests/benchmarks --benchmark-only
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
+uv run --frozen --group docs python scripts/build_docs.py
+uv run --frozen --group docs python scripts/check_built_docs.py
 cd site && bun run ci && cd ..
 docker compose config
 git diff --check
@@ -322,12 +324,14 @@ Do not edit any generated region or reproduce a complete marker pair in examples
 
 Task-oriented Markdown belongs under `docs/guides/`; visual assets belong under `docs/assets/`. Contributor-facing documentation conventions are canonical in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md#documentation-changes).
 
-Validate documentation with:
+Validate source and rendered documentation with:
 
 ```bash
-make docs
+make docs-site
 git diff --check
 ```
+
+`make docs` checks only source Markdown references; `make docs-site` also builds the published site in strict mode and checks the rendered links, images, anchors, and public-file allowlist. Without Make, use the three documentation commands under [Python and documentation](#python-and-documentation).
 
 ## Final review
 

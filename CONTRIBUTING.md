@@ -47,7 +47,7 @@ Use the [installation guide](docs/guides/getting-started/installation.md) for co
 | Search YAML | [Search registry](docs/guides/user-guide/search-registry.md) | Registry command and config tests |
 | Schema or migration | [Database](docs/guides/operations/database.md) | Fresh and representative upgrades plus migration checks |
 | Docker or automation | [Docker](docs/guides/operations/docker.md) and [Automation](docs/guides/operations/automation.md) | Compose validation and affected build or runtime checks |
-| Documentation only | [Documentation hub](docs/README.md) | Documentation validation and `git diff --check` |
+| Documentation only | [Documentation hub](docs/README.md) | `make docs-site` (or the equivalent `uv` commands), plus `git diff --check` |
 
 Discuss changes to architecture, source access, canonical identity, lifecycle rules, schema design, deployment, or trust boundaries before implementation. Small fixes and documentation improvements can normally go directly to a pull request.
 
@@ -199,6 +199,8 @@ Validate documentation with:
 
 ```bash
 uv run python scripts/check_docs.py
+uv run --frozen --group docs python scripts/build_docs.py
+uv run --frozen --group docs python scripts/check_built_docs.py
 git diff --check
 ```
 

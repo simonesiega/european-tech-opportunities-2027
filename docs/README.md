@@ -6,7 +6,8 @@ Read this hub on [GitHub](https://github.com/simonesiega/european-tech-opportuni
 
 ## Start here
 
-- **Looking for a role?** Open the [live opportunity directory](https://techopportunities.eu/) or read the [website guide](guides/user-guide/website.md).
+- **Looking for a role?** Open the [live opportunity directory](https://techopportunities.eu/) or read the [website guide](guides/user-guide/website.md). Check eligibility, availability, and application details on the original listing before applying.
+- **Found a missing listing?** [Suggest an opportunity](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml); suggestions are reviewed against the publication rules.
 - **Running locally?** Start with [installation](guides/getting-started/installation.md) and [configuration](guides/getting-started/configuration.md).
 - **Using the CLI or changing searches?** Read the [CLI reference](guides/user-guide/cli.md) and [search registry guide](guides/user-guide/search-registry.md).
 - **Operating production?** Use [automation](guides/operations/automation.md), [database and lifecycle](guides/operations/database.md), [Docker and deployment](guides/operations/docker.md), and [troubleshooting](guides/operations/troubleshooting.md).
@@ -49,7 +50,7 @@ Read this hub on [GitHub](https://github.com/simonesiega/european-tech-opportuni
 |---|---|
 | [Contributing](../CONTRIBUTING.md) | Contributor workflow, coding expectations, validation, documentation rules, and pull-request requirements. |
 | [Security policy](../SECURITY.md) | Vulnerability reporting, source-access boundaries, trust boundaries, secrets, and safe operation. |
-| [Privacy notice](../PRIVACY.md) | Website infrastructure, analytics, browser storage, external services, and visitor choices. |
+| [Privacy notice](../PRIVACY.md) | Directory and documentation hosting, analytics, browser storage, external services, and visitor choices. |
 | [Code of Conduct](../CODE_OF_CONDUCT.md) | Community standards, conduct reporting, and enforcement. |
 
 ## Visual assets
