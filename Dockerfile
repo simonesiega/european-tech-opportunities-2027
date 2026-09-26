@@ -64,7 +64,7 @@ RUN bun install --frozen-lockfile
 FROM node:26-alpine@sha256:ef24c5053d50fdc3e4e56eb4e7ddb7861874ab0fdc797046ba897581deb8e868 AS site-builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG SITE_URL=https://opportunities2027.simonesiega.com
+ARG SITE_URL=https://techopportunities.eu
 ENV SITE_URL=$SITE_URL
 COPY --from=site-deps /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=site-deps /app/node_modules ./node_modules
@@ -79,7 +79,7 @@ ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
     PORT=3000 \
-    SITE_URL=https://opportunities2027.simonesiega.com \
+    SITE_URL=https://techopportunities.eu \
     OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db \
     OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports
 

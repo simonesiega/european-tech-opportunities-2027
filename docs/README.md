@@ -1,12 +1,12 @@
 # European Tech Opportunities 2027 Documentation
 
-[← Project README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Privacy notice](../PRIVACY.md) · [Open the opportunity directory](https://opportunities2027.simonesiega.com/)
+[← Project README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Privacy notice](../PRIVACY.md) · [Open the opportunity directory](https://techopportunities.eu/)
 
 The live website is the primary interface for browsing opportunities. This documentation is the canonical reference for setup, CLI usage, search configuration, production operation, architecture, development, and project policies.
 
 ## Start here
 
-- **Looking for a role?** Open the [live opportunity directory](https://opportunities2027.simonesiega.com/) or read the [website guide](guides/user-guide/website.md).
+- **Looking for a role?** Open the [live opportunity directory](https://techopportunities.eu/) or read the [website guide](guides/user-guide/website.md).
 - **Running locally?** Start with [installation](guides/getting-started/installation.md) and [configuration](guides/getting-started/configuration.md).
 - **Using the CLI or changing searches?** Read the [CLI reference](guides/user-guide/cli.md) and [search registry guide](guides/user-guide/search-registry.md).
 - **Operating production?** Use [automation](guides/operations/automation.md), [database and lifecycle](guides/operations/database.md), [Docker and deployment](guides/operations/docker.md), and [troubleshooting](guides/operations/troubleshooting.md).

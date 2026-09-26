@@ -322,6 +322,29 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   expect(await sitemap.text()).toContain("<loc>http://127.0.0.1:3100/</loc>");
 });
 
+test("legacy host permanently redirects paths and queries without serving alternate content", async ({
+  request,
+}) => {
+  const origin = "https://techopportunities.eu";
+  const legacyHost = "opportunities2027.simonesiega.com";
+  for (const path of [
+    "/",
+    "/?country=Germany&type=internship",
+    "/open-opportunities.csv?source=old",
+    "/robots.txt",
+    "/sitemap.xml",
+  ]) {
+    const response = await request.get(path, {
+      headers: {host: legacyHost},
+      maxRedirects: 0,
+    });
+    expect(response.status()).toBe(308);
+    expect(response.headers().location).toBe(
+      `${origin}${path.startsWith("/?") || path === "/" ? path.slice(1) : path}`
+    );
+  }
+});
+
 test("crawler can follow unfiltered pages without JavaScript", async ({browser}) => {
   const context = await browser.newContext({javaScriptEnabled: false});
   try {

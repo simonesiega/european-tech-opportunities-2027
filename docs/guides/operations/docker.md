@@ -201,9 +201,21 @@ Exact interlock behavior belongs to [Configuration](../getting-started/configura
 
 ## Dokploy deployment
 
-Production site:
+The public directory's sole canonical origin is **https://techopportunities.eu/**.
+The former `https://opportunities2027.simonesiega.com` hostname is retained only
+so existing links continue to work; it does not serve an alternative version of
+the site. A request to the former hostname receives a permanent **308** redirect
+to the corresponding URL on the canonical origin, retaining its path and query.
+For example, a request for
+`https://opportunities2027.simonesiega.com/open-opportunities.csv?source=old`
+redirects to `https://techopportunities.eu/open-opportunities.csv?source=old`.
+Metadata, structured data, robots, the sitemap, and public links all point directly
+to the canonical origin.
 
-**https://opportunities2027.simonesiega.com/**
+Both hostnames terminate HTTPS at the reverse proxy. The proxy can implement the
+redirect itself, or pass the original `Host` header to the site service, where
+Next.js handles the legacy-host redirect. The canonical site continues to use
+the same production CSP and HSTS headers.
 
 ### Legacy deployment migration
 
@@ -215,7 +227,7 @@ Configure Dokploy to:
 
 1. deploy the Compose project;
 2. build the `site` image target;
-3. assign the public domain to the `site` service;
+3. configure HTTPS for both hostnames and route the canonical domain to the `site` service; handle the legacy hostname using either redirect approach described above;
 4. route traffic to container port `3000`;
 5. avoid publishing a conflicting fixed host port;
 6. preserve `/srv/european-tech-opportunities-2027/data` as persistent host state;
@@ -224,7 +236,7 @@ Configure Dokploy to:
 Production website environment **after** the coordinated first rollout:
 
 ```dotenv
-SITE_URL=https://opportunities2027.simonesiega.com
+SITE_URL=https://techopportunities.eu
 OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 
@@ -331,7 +343,8 @@ Release through the configured Dokploy project without changing the persistent h
 After deployment, verify over HTTPS:
 
 - the directory returns `200`, displays the expected count and last successful collection time, and supports filtering and pagination;
-- `/robots.txt`, `/sitemap.xml`, `/open-opportunities.csv`, and `/open-opportunities.json` return the expected content and attachment headers;
+- `/robots.txt`, `/sitemap.xml`, `/open-opportunities.csv`, and `/open-opportunities.json` return the expected content and attachment headers on the canonical origin; metadata, JSON-LD, downloads, robots, and sitemap contain only the canonical origin;
+- requests to the former hostname redirect with 308 to the equivalent canonical URL, including filtered query URLs and downloads;
 - Content Security Policy, HSTS, content-type, framing, referrer, cross-origin, and permissions headers remain present;
 - the site container is healthy, runs as UID/GID `10001:10001`, and can read but not write the mounted state;
 - startup and request logs contain no secrets, paths, stack traces, database rows, or repeated errors.

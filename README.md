@@ -34,12 +34,17 @@
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
-  <a href="https://opportunities2027.simonesiega.com/open-opportunities.csv"><strong>Download CSV</strong></a> ·
-  <a href="https://opportunities2027.simonesiega.com/open-opportunities.json"><strong>Download JSON</strong></a> ·
-  <a href="https://opportunities2027.simonesiega.com/"><strong>Explore the live directory →</strong></a>
+  <a href="https://techopportunities.eu/open-opportunities.csv"><strong>Download CSV</strong></a> ·
+  <a href="https://techopportunities.eu/open-opportunities.json"><strong>Download JSON</strong></a> ·
+  <a href="https://techopportunities.eu/"><strong>Explore the live directory →</strong></a>
 </p>
 
 ## Live directory
+
+**https://techopportunities.eu/** is the sole canonical public origin. The former
+`https://opportunities2027.simonesiega.com` host is retained only for permanent
+redirects to the same path and query on the canonical site, not as an alternative
+canonical URL. See [deployment instructions](docs/guides/operations/docker.md#dokploy-deployment).
 
 <p align="center">
   <img
@@ -54,7 +59,7 @@
   />
 </p>
 
-The public directory has generated **10,000+ page views across 60+ countries since launch** and ranks **#1 for searches such as “European opportunities 2027” and “European tech opportunities 2027”**, along with related queries. Search hundreds of validated opportunities by company, country, category, employment type, and first-seen recency, with sortable results, pagination, shareable directory views, direct links to the original listings, and sanitized [CSV](https://opportunities2027.simonesiega.com/open-opportunities.csv) and [JSON](https://opportunities2027.simonesiega.com/open-opportunities.json) downloads.
+The public directory has generated **10,000+ page views across 60+ countries since launch** and ranks **#1 for searches such as “European opportunities 2027” and “European tech opportunities 2027”**, along with related queries. Search hundreds of validated opportunities by company, country, category, employment type, and first-seen recency, with sortable results, pagination, shareable directory views, direct links to the original listings, and sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) downloads.
 
 ## Why this exists
 
@@ -72,7 +77,7 @@ The README shows up to five opportunities for each employment type as a lightwei
 **Open opportunities:** 724 (Internships: 316 · New Grad: 408)<br>
 **Last successful collection:** September 26, 2026 at 09:34 UTC
 
-Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
+Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 

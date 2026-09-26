@@ -253,7 +253,7 @@ The Next.js website uses these runtime or build variables:
 | `OPPORTUNITIES_DATABASE_PATH` | `../data/opportunities.db` | Read-only SQLite file when versioned mode is disabled |
 | `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `../data/exports` | Read-only generated CSV/JSON directory when versioned mode is disabled |
 | `OPPORTUNITIES_RELEASE_ROOT` | unset or empty | When nonempty, resolve `<root>/current` once per server operation and read the database or exports from that release; an invalid or missing pointer fails closed, without using the legacy paths |
-| `SITE_URL` | `http://localhost:3000` | HTTP(S) canonical origin used by metadata, structured data, robots, and the sitemap; credentials, paths, queries, and fragments are rejected |
+| `SITE_URL` | `http://localhost:3000` | HTTP(S) origin used by metadata, structured data, robots, and the sitemap; credentials, paths, queries, fragments, and the legacy redirect hostname are rejected. The production hostname `techopportunities.eu` requires the exact HTTPS origin (no custom port). |
 
 Create the local website environment file:
 
@@ -275,7 +275,7 @@ OPPORTUNITIES_PUBLIC_EXPORT_DIR=../data/exports
 After the [coordinated production rollout](../operations/automation.md#coordinated-first-rollout-and-rollback), the container uses:
 
 ```dotenv
-SITE_URL=https://opportunities2027.simonesiega.com
+SITE_URL=https://techopportunities.eu
 OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 

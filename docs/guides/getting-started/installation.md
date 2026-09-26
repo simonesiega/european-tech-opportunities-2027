@@ -1,8 +1,8 @@
 # European Tech Opportunities 2027 Installation Guide
 
-[← Documentation hub](../../README.md) · [Configuration](configuration.md) · [CLI reference](../user-guide/cli.md) · [Development guide](../development/development.md) · [Open the opportunity directory](https://opportunities2027.simonesiega.com/)
+[← Documentation hub](../../README.md) · [Configuration](configuration.md) · [CLI reference](../user-guide/cli.md) · [Development guide](../development/development.md) · [Open the opportunity directory](https://techopportunities.eu/)
 
-You do not need to install the project to browse internships. Use the [live directory](https://opportunities2027.simonesiega.com/).
+You do not need to install the project to browse internships. Use the [live directory](https://techopportunities.eu/).
 
 This is the canonical installation guide for the project. It covers local installation, database initialization, the first website launch, and basic verification. Runtime settings, production operation, and contribution procedures belong to their dedicated guides.
 

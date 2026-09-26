@@ -47,6 +47,16 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{source: "/:path*", headers: securityHeaders}];
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{type: "host", value: "opportunities2027.simonesiega.com"}],
+        destination: "https://techopportunities.eu/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

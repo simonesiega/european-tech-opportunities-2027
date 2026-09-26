@@ -4,7 +4,7 @@
 
 Effective: September 24, 2026
 
-This notice explains how the European Tech Opportunities 2027 website handles visitor information. It applies to the public directory at [opportunities2027.simonesiega.com](https://opportunities2027.simonesiega.com/) and its CSV and JSON download routes.
+This notice explains how the European Tech Opportunities 2027 website handles visitor information. It applies to the public directory at [techopportunities.eu](https://techopportunities.eu/) and its CSV and JSON download routes. Requests to the former hostname are permanently redirected to this canonical site; the legacy hostname does not serve a second directory.
 
 ## Controller and contact
 

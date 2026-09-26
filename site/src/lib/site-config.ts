@@ -11,5 +11,5 @@ export const siteConfig = {
     url: "https://simonesiega.com/",
     id: "https://simonesiega.com/#person",
   },
-  analyticsDomain: "opportunities2027.simonesiega.com",
+  analyticsDomain: "techopportunities.eu",
 } as const;

@@ -37,5 +37,5 @@ jobs:
         run: bunx playwright install --with-deps chromium
       - name: Check formatting, lint, types, build, and behavior
         env:
-          SITE_URL: https://opportunities2027.simonesiega.com
+          SITE_URL: https://techopportunities.eu
         run: bun run ci

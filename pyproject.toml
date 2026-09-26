@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://opportunities2027.simonesiega.com"
+Homepage = "https://techopportunities.eu"
 Documentation = "https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/docs"
 Repository = "https://github.com/simonesiega/european-tech-opportunities-2027"
 Issues = "https://github.com/simonesiega/european-tech-opportunities-2027/issues"

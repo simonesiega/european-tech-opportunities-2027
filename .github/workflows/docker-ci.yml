@@ -114,7 +114,7 @@ jobs:
           printf 'legacy-only\n' | sudo tee "$data_dir/exports/open-opportunities.csv" >/dev/null
           # The image was built with Compose's localhost default; runtime metadata
           # routes must still advertise the production origin.
-          if ! SITE_URL=https://opportunities2027.simonesiega.com OPPORTUNITIES_RELEASE_ROOT=/app/data docker compose up --detach site; then
+          if ! SITE_URL=https://techopportunities.eu OPPORTUNITIES_RELEASE_ROOT=/app/data docker compose up --detach site; then
             docker compose logs site opportunities
             exit 1
           fi
@@ -122,13 +122,23 @@ jobs:
           for _ in $(seq 1 10); do
             if docker compose exec --no-TTY site node --input-type=module <<'NODE'
           const baseUrl = "http://127.0.0.1:3000";
-          const canonicalOrigin = "https://opportunities2027.simonesiega.com";
+          const canonicalOrigin = "https://techopportunities.eu";
           const [page, csv, json, robots, sitemap] = await Promise.all([
             fetch(baseUrl),
             fetch(`${baseUrl}/open-opportunities.csv`),
             fetch(`${baseUrl}/open-opportunities.json`),
             fetch(`${baseUrl}/robots.txt`),
             fetch(`${baseUrl}/sitemap.xml`),
+          ]);
+          const legacyOrigin = "https://opportunities2027.simonesiega.com";
+          const [legacyRoot, legacyDownload, legacyFiltered] = await Promise.all([
+            fetch(baseUrl, {headers: {host: new URL(legacyOrigin).host}, redirect: "manual"}),
+            fetch(`${baseUrl}/open-opportunities.csv?source=old`, {
+              headers: {host: new URL(legacyOrigin).host}, redirect: "manual",
+            }),
+            fetch(`${baseUrl}/?country=Germany&type=internship`, {
+              headers: {host: new URL(legacyOrigin).host}, redirect: "manual",
+            }),
           ]);
           const csp = page.headers.get("content-security-policy") ?? "";
           const hsts = page.headers.get("strict-transport-security") ?? "";
@@ -154,10 +164,29 @@ jobs:
             csvDisposition.includes("open-opportunities.csv") &&
             jsonDisposition.includes("open-opportunities.json") &&
             pageHtml.includes(`rel="canonical" href="${canonicalOrigin}"`) &&
+            pageHtml.includes(`property="og:url" content="${canonicalOrigin}/"`) &&
+            pageHtml.includes(`property="og:image" content="${canonicalOrigin}/opengraph-image`) &&
+            pageHtml.includes(`"@id":"${canonicalOrigin}/#website"`) &&
+            pageHtml.includes(`"@id":"${canonicalOrigin}/#dataset"`) &&
+            pageHtml.includes(`${canonicalOrigin}/open-opportunities.csv`) &&
+            pageHtml.includes(`${canonicalOrigin}/open-opportunities.json`) &&
+            pageHtml.includes(`data-domains="techopportunities.eu"`) &&
+            !pageHtml.includes(legacyOrigin) &&
+            !robotsText.includes(legacyOrigin) &&
+            !sitemapText.includes(legacyOrigin) &&
+            legacyRoot.status === 308 &&
+            legacyRoot.headers.get("location") === canonicalOrigin &&
+            legacyDownload.status === 308 &&
+            legacyDownload.headers.get("location") ===
+              `${canonicalOrigin}/open-opportunities.csv?source=old` &&
+            legacyFiltered.status === 308 &&
+            legacyFiltered.headers.get("location") ===
+              `${canonicalOrigin}?country=Germany&type=internship` &&
             csvText.startsWith(
               "linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date"
             ) &&
             jsonText.trim() === "[]" &&
+            robotsText.includes(`Host: ${canonicalOrigin}`) &&
             robotsText.includes(`Sitemap: ${canonicalOrigin}/sitemap.xml`) &&
             sitemapText.includes(`<loc>${canonicalOrigin}/</loc>`);
           process.exit(valid ? 0 : 1);

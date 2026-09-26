@@ -4,8 +4,8 @@ import {parseSiteUrl} from "@/lib/site-url-value";
 describe("site URL validation", () => {
   test("accepts canonical HTTP and HTTPS origins", () => {
     expect(parseSiteUrl(undefined).toString()).toBe("http://localhost:3000/");
-    expect(parseSiteUrl("https://opportunities2027.simonesiega.com").toString()).toBe(
-      "https://opportunities2027.simonesiega.com/"
+    expect(parseSiteUrl("https://techopportunities.eu").toString()).toBe(
+      "https://techopportunities.eu/"
     );
   });
 
@@ -17,6 +17,9 @@ describe("site URL validation", () => {
       "https://example.com/directory",
       "https://example.com/?source=test",
       "https://example.com/#directory",
+      "https://opportunities2027.simonesiega.com",
+      "http://techopportunities.eu",
+      "https://techopportunities.eu:8443",
     ];
 
     for (const value of invalidValues) {

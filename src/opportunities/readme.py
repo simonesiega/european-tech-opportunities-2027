@@ -22,7 +22,7 @@ BEGIN_MARKER = "<!-- BEGIN OPPORTUNITIES -->"
 END_MARKER = "<!-- END OPPORTUNITIES -->"
 TABLE_HEADER = "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
 README_PREVIEW_LIMIT = 5
-DIRECTORY_URL = "https://opportunities2027.simonesiega.com/"
+DIRECTORY_URL = "https://techopportunities.eu/"
 STATE_SEAL_PREFIX = "<!-- Public directory state v1 sha256: "
 STATE_SEAL_PATTERN = re.compile(r"<!-- Public directory state v1 sha256: [0-9a-f]{64} -->")
 

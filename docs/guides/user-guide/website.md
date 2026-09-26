@@ -1,8 +1,8 @@
 # European Tech Opportunities 2027 Website Guide
 
-[← Documentation hub](../../README.md) · [CLI reference](cli.md) · [Search registry](search-registry.md) · [Docker and deployment](../operations/docker.md) · [Security policy](../../../SECURITY.md) · [Privacy notice](../../../PRIVACY.md) · [Open the live site](https://opportunities2027.simonesiega.com/)
+[← Documentation hub](../../README.md) · [CLI reference](cli.md) · [Search registry](search-registry.md) · [Docker and deployment](../operations/docker.md) · [Security policy](../../../SECURITY.md) · [Privacy notice](../../../PRIVACY.md) · [Open the live site](https://techopportunities.eu/)
 
-This is the canonical website guide for the project. The [live website](https://opportunities2027.simonesiega.com/) is the primary public interface: it exposes every currently open Internship and New Grad opportunity from canonical SQLite state, while the root README intentionally shows bounded previews for both types.
+This is the canonical website guide for the project. **https://techopportunities.eu/** is the sole canonical production origin. The former `https://opportunities2027.simonesiega.com` host exists only to permanently redirect requests to the equivalent canonical path and query; it is not an alternative canonical URL. The [live website](https://techopportunities.eu/) is the primary public interface: it exposes every currently open Internship and New Grad opportunity from canonical SQLite state, while the root README intentionally shows bounded previews for both types.
 
 ## Contents
 
@@ -170,7 +170,7 @@ The directory recognizes these query parameters:
 For example:
 
 ```text
-https://opportunities2027.simonesiega.com/?country=Germany&type=internship&first-seen=7-days&sort=first-seen-desc
+https://techopportunities.eu/?country=Germany&type=internship&first-seen=7-days&sort=first-seen-desc
 ```
 
 Selecting a filter, sorting a column, changing page size, or moving between pages updates browser history, and browser back/forward navigation restores the complete earlier view. Search typing replaces the current history entry to avoid creating one entry per keystroke. Changing filters, sorting, or page size returns the view to page one. Reset removes the filter parameters and current page while preserving sorting, page size, and unrelated parameters.
@@ -262,7 +262,7 @@ Every route receives defensive content-type, referrer, framing, cross-origin, an
 After the [coordinated first rollout](../operations/automation.md#coordinated-first-rollout-and-rollback), production sets:
 
 ```dotenv
-SITE_URL=https://opportunities2027.simonesiega.com
+SITE_URL=https://techopportunities.eu
 OPPORTUNITIES_RELEASE_ROOT=/app/data
 ```
 
@@ -292,7 +292,7 @@ Workflow orchestration belongs to [Automation](../operations/automation.md), and
 
 ## Privacy and browser integrations
 
-The canonical production layout loads the hosted Umami analytics script from `https://cloud.umami.is/script.js`, sends analytics events to `https://gateway.umami.is`, and restricts collection to `opportunities2027.simonesiega.com`. The production Content Security Policy permits only those distinct script and connection origins. The script is rendered only when `NODE_ENV` is `production` and the configured `SITE_URL` hostname is that canonical domain, so it is absent from development, tests, and noncanonical deployments. The project-wide disclosure of infrastructure processing, analytics fields, local browser storage, external links, retention, and visitor choices is in [`PRIVACY.md`](../../../PRIVACY.md). This third-party browser integration must remain within privacy and security review.
+The canonical production layout loads the hosted Umami analytics script from `https://cloud.umami.is/script.js`, sends analytics events to `https://gateway.umami.is`, and restricts collection to `techopportunities.eu`. The production Content Security Policy permits only those distinct script and connection origins. The script is rendered only when `NODE_ENV` is `production` and the configured `SITE_URL` hostname is that canonical domain, so it is absent from development, tests, and noncanonical deployments. The project-wide disclosure of infrastructure processing, analytics fields, local browser storage, external links, retention, and visitor choices is in [`PRIVACY.md`](../../../PRIVACY.md). This third-party browser integration must remain within privacy and security review.
 
 The directory itself requires no:
 
