@@ -219,7 +219,27 @@ test("keeps directory controls usable at a mobile viewport", async ({page}) => {
 
   await expect(page.getByRole("heading", {name: "Opportunity directory"})).toBeVisible();
   await expect(page.getByRole("search", {name: "Opportunity filters"})).toBeVisible();
-  await expect(page.getByRole("link", {name: "Download CSV"})).toBeVisible();
+  const csvLink = page.getByRole("link", {name: "Download CSV"});
+  const jsonLink = page.getByRole("link", {name: "Download JSON"});
+  await expect(csvLink).toBeVisible();
+  await expect(jsonLink).toBeVisible();
+  expect(
+    await csvLink.evaluate((element) =>
+      element instanceof HTMLElement ? element.innerText.trim() : ""
+    )
+  ).toBe("CSV");
+  expect(
+    await jsonLink.evaluate((element) =>
+      element instanceof HTMLElement ? element.innerText.trim() : ""
+    )
+  ).toBe("JSON");
+  const exportAndCountRow = csvLink.locator("..");
+  expect(
+    await exportAndCountRow.evaluate((element) => {
+      const tops = Array.from(element.children, (child) => child.getBoundingClientRect().top);
+      return Math.max(...tops) - Math.min(...tops);
+    })
+  ).toBeLessThan(1);
   await expect(page.getByRole("button", {name: "Toggle color theme"})).toBeVisible();
 
   const table = page.getByRole("table", {name: "Open opportunities"});

@@ -67,16 +67,18 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
             {siteConfig.description}
           </p>
         </div>
-        <div className="flex items-center gap-2 max-[760px]:w-full max-[480px]:flex-wrap">
+        <div className="flex items-center gap-2 max-[760px]:w-full max-[480px]:flex-wrap max-[400px]:flex-nowrap">
           {(["csv", "json"] as const).map((format) => (
             <a
               key={format}
+              aria-label={`Download ${format.toUpperCase()}`}
               className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 text-[12px] font-medium whitespace-nowrap text-[var(--text)] shadow-[0_1px_2px_rgb(0_0_0/3%)] transition-colors duration-150 hover:bg-[var(--surface-hover)] [&_svg]:size-3.5"
               href={`/open-opportunities.${format}`}
               download
             >
               <Download aria-hidden="true" />
-              Download {format.toUpperCase()}
+              <span className="max-[400px]:hidden">Download </span>
+              {format.toUpperCase()}
             </a>
           ))}
           <Badge
