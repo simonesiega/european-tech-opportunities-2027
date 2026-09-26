@@ -1,4 +1,4 @@
-.PHONY: install lock migrate scrape render validate searches stats lint format typecheck test coverage benchmark test-live migrations docs check
+.PHONY: install lock migrate scrape render validate searches stats lint format typecheck test coverage benchmark test-live migrations docs docs-site check
 
 install:
 	uv sync --dev
@@ -56,4 +56,8 @@ migrations:
 docs:
 	uv run python scripts/check_docs.py
 
-check: lock lint typecheck coverage migrations docs
+docs-site: docs
+	uv run --frozen --group docs python scripts/build_docs.py
+	uv run --frozen --group docs python scripts/check_built_docs.py
+
+check: lock lint typecheck coverage migrations docs-site

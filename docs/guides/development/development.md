@@ -109,7 +109,8 @@ GNU Make provides the shortcuts below. On Windows or another environment without
 | `make benchmark` | Measure offline LinkedIn parsing and classification performance |
 | `make test-live` | Explicitly select authorization-gated live tests |
 | `make migrations` | Check Alembic and ORM consistency |
-| `make docs` | Validate documentation links, images, and anchors |
+| `make docs` | Validate source Markdown links, images, and anchors |
+| `make docs-site` | Build the searchable MkDocs Material site and check rendered links, images, and anchors |
 | `make check` | Run the main Python and documentation quality gate |
 
 > [!IMPORTANT]
@@ -141,10 +142,12 @@ uv run pytest -m "not live and not performance" --cov \
 uv run python scripts/coverage_docs.py
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
+uv run --frozen --group docs python scripts/build_docs.py
+uv run --frozen --group docs python scripts/check_built_docs.py
 git diff --check
 ```
 
-Run `uv build` when changing packaging, dependencies, metadata, entry points, or release behavior.
+The documentation build stages only public Markdown, images, and explicitly approved root files in a temporary directory; never point MkDocs at the repository root. Output is ignored under `build/docs-site/`. MkDocs dependencies are locked in the `docs` group. GitHub Pages must use **GitHub Actions** as its source and have the custom domain `docs.techopportunities.eu` configured in repository settings. Add a DNS CNAME record for `docs` pointing to `simonesiega.github.io`; the successful build places the matching `CNAME` file in the deploy artifact. Enable HTTPS after GitHub verifies the domain. The workflow validates pull requests and publishes the checked artifact from `main` without accessing canonical state. Run `uv build` when changing packaging, dependencies, metadata, entry points, or release behavior.
 
 ### Website validation
 

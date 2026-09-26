@@ -3,7 +3,7 @@
 <p align="center">
   <a href="#latest-internships">Internships</a> ·
   <a href="#latest-new-grad-opportunities">New Grad</a> ·
-  <a href="docs/README.md">Documentation</a> ·
+  <a href="https://docs.techopportunities.eu/">Documentation</a> ·
   <a href="CONTRIBUTING.md">Contributing</a> ·
   <a href="PRIVACY.md">Privacy</a>
 </p>
@@ -191,7 +191,7 @@ Continue with the [installation guide](docs/guides/getting-started/installation.
 
 ## Documentation
 
-Use the [documentation hub](docs/README.md) to find the canonical guide for each task.
+Browse the [searchable documentation](https://docs.techopportunities.eu/) or use the [documentation hub](docs/README.md) on GitHub. The Markdown in `docs/` remains the source of truth.
 
 | Area | Canonical guides |
 |---|---|

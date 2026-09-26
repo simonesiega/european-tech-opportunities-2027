@@ -2,7 +2,7 @@
 
 [← Project README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Privacy notice](../PRIVACY.md) · [Open the opportunity directory](https://techopportunities.eu/)
 
-The live website is the primary interface for browsing opportunities. This documentation is the canonical reference for setup, CLI usage, search configuration, production operation, architecture, development, and project policies.
+Read this hub on [GitHub](https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/docs) or browse the [searchable documentation](https://docs.techopportunities.eu/). The live website is the primary interface for browsing opportunities. This documentation is the canonical reference for setup, CLI usage, search configuration, production operation, architecture, development, and project policies.
 
 ## Start here
 
@@ -54,7 +54,7 @@ The live website is the primary interface for browsing opportunities. This docum
 
 ## Visual assets
 
-Screenshots, sanitized listing examples, and project identity assets live under [`docs/assets/`](assets/):
+Screenshots, sanitized listing examples, and project identity assets live under [`docs/assets/`](assets/README.md):
 
 ```text
 assets/

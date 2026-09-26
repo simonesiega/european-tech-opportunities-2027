@@ -1,0 +1,64 @@
+site_name: European Tech Opportunities 2027 Documentation
+site_url: https://docs.techopportunities.eu/
+site_description: Guides and policies for the European Tech Opportunities 2027 project
+repo_url: https://github.com/simonesiega/european-tech-opportunities-2027
+repo_name: simonesiega/european-tech-opportunities-2027
+edit_uri: edit/main/
+docs_dir: !ENV DOCS_BUILD_DIR
+site_dir: build/docs-site
+# File-style URLs preserve relative paths in existing raw HTML images on both hosts.
+use_directory_urls: false
+strict: true
+nav:
+  - Documentation: docs/README.md
+  - Visual assets: docs/assets/README.md
+  - Getting Started:
+      - Installation: docs/guides/getting-started/installation.md
+      - Configuration: docs/guides/getting-started/configuration.md
+  - User Guide:
+      - Website: docs/guides/user-guide/website.md
+      - CLI: docs/guides/user-guide/cli.md
+      - Search registry: docs/guides/user-guide/search-registry.md
+  - Operations:
+      - Automation: docs/guides/operations/automation.md
+      - Database and lifecycle: docs/guides/operations/database.md
+      - Docker and deployment: docs/guides/operations/docker.md
+      - Troubleshooting: docs/guides/operations/troubleshooting.md
+  - Development:
+      - Architecture: docs/guides/development/architecture.md
+      - Development workflow: docs/guides/development/development.md
+      - Project README: README.md
+  - Policies:
+      - Contributing: CONTRIBUTING.md
+      - Security: SECURITY.md
+      - Privacy: PRIVACY.md
+      - Code of Conduct: CODE_OF_CONDUCT.md
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - tables
+plugins:
+  - search
