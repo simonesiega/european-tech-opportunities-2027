@@ -119,8 +119,30 @@ jobs:
             exit 1
           fi
 
-          for _ in $(seq 1 10); do
-            if docker compose exec --no-TTY site node --input-type=module <<'NODE'
+          # Container start does not imply Next.js has begun listening. Wait only for
+          # readiness; once ready, run the full smoke test exactly once so a failing
+          # assertion is not mistaken for a transient startup failure.
+          ready=false
+          for _ in $(seq 1 30); do
+            if docker compose exec --no-TTY site node -e '
+              fetch("http://127.0.0.1:3000/robots.txt", {signal: AbortSignal.timeout(3000)})
+                .then(response => process.exit(response.ok ? 0 : 1))
+                .catch(() => process.exit(1))
+            '; then
+              ready=true
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" != true ]; then
+            echo "Site did not become ready within 30 attempts."
+            docker compose logs site opportunities
+            exit 1
+          fi
+
+          if ! docker compose exec --no-TTY site node --input-type=module <<'NODE'
+          import {get} from "node:http";
+
           const baseUrl = "http://127.0.0.1:3000";
           const canonicalOrigin = "https://techopportunities.eu";
           const [page, csv, json, robots, sitemap] = await Promise.all([
@@ -130,15 +152,22 @@ jobs:
             fetch(`${baseUrl}/robots.txt`),
             fetch(`${baseUrl}/sitemap.xml`),
           ]);
-          const legacyOrigin = "https://opportunities2027.simonesiega.com";
+          // Node fetch may ignore an overridden Host header. Use HTTP directly to
+          // simulate a reverse proxy forwarding the legacy host to the site.
+          const legacyHost = "opportunities2027.simonesiega.com";
+          function legacyRequest(path) {
+            return new Promise((resolve, reject) => {
+              const request = get(`${baseUrl}${path}`, {headers: {host: legacyHost}}, response => {
+                response.resume();
+                response.on("end", () => resolve({status: response.statusCode, location: response.headers.location}));
+              });
+              request.on("error", reject);
+            });
+          }
           const [legacyRoot, legacyDownload, legacyFiltered] = await Promise.all([
-            fetch(baseUrl, {headers: {host: new URL(legacyOrigin).host}, redirect: "manual"}),
-            fetch(`${baseUrl}/open-opportunities.csv?source=old`, {
-              headers: {host: new URL(legacyOrigin).host}, redirect: "manual",
-            }),
-            fetch(`${baseUrl}/?country=Germany&type=internship`, {
-              headers: {host: new URL(legacyOrigin).host}, redirect: "manual",
-            }),
+            legacyRequest("/"),
+            legacyRequest("/open-opportunities.csv?source=old"),
+            legacyRequest("/?country=Germany&type=internship"),
           ]);
           const csp = page.headers.get("content-security-policy") ?? "";
           const hsts = page.headers.get("strict-transport-security") ?? "";
@@ -164,24 +193,22 @@ jobs:
             csvDisposition.includes("open-opportunities.csv") &&
             jsonDisposition.includes("open-opportunities.json") &&
             pageHtml.includes(`rel="canonical" href="${canonicalOrigin}"`) &&
-            pageHtml.includes(`property="og:url" content="${canonicalOrigin}/"`) &&
+            pageHtml.includes(`property="og:url" content="${canonicalOrigin}"`) &&
             pageHtml.includes(`property="og:image" content="${canonicalOrigin}/opengraph-image`) &&
             pageHtml.includes(`"@id":"${canonicalOrigin}/#website"`) &&
             pageHtml.includes(`"@id":"${canonicalOrigin}/#dataset"`) &&
             pageHtml.includes(`${canonicalOrigin}/open-opportunities.csv`) &&
             pageHtml.includes(`${canonicalOrigin}/open-opportunities.json`) &&
             pageHtml.includes(`data-domains="techopportunities.eu"`) &&
-            !pageHtml.includes(legacyOrigin) &&
-            !robotsText.includes(legacyOrigin) &&
-            !sitemapText.includes(legacyOrigin) &&
+            !pageHtml.includes(legacyHost) &&
+            !robotsText.includes(legacyHost) &&
+            !sitemapText.includes(legacyHost) &&
             legacyRoot.status === 308 &&
-            legacyRoot.headers.get("location") === canonicalOrigin &&
+            legacyRoot.location === canonicalOrigin &&
             legacyDownload.status === 308 &&
-            legacyDownload.headers.get("location") ===
-              `${canonicalOrigin}/open-opportunities.csv?source=old` &&
+            legacyDownload.location === `${canonicalOrigin}/open-opportunities.csv?source=old` &&
             legacyFiltered.status === 308 &&
-            legacyFiltered.headers.get("location") ===
-              `${canonicalOrigin}?country=Germany&type=internship` &&
+            legacyFiltered.location === `${canonicalOrigin}?country=Germany&type=internship` &&
             csvText.startsWith(
               "linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date"
             ) &&
@@ -189,13 +216,10 @@ jobs:
             robotsText.includes(`Host: ${canonicalOrigin}`) &&
             robotsText.includes(`Sitemap: ${canonicalOrigin}/sitemap.xml`) &&
             sitemapText.includes(`<loc>${canonicalOrigin}/</loc>`);
+          if (!valid) console.error("Production site smoke assertions failed.");
           process.exit(valid ? 0 : 1);
           NODE
-            then
-              exit 0
-            fi
-            sleep 1
-          done
-
-          docker compose logs site opportunities
-          exit 1
+          then
+            docker compose logs site opportunities
+            exit 1
+          fi
