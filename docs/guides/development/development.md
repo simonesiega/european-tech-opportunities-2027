@@ -23,7 +23,7 @@ This is the canonical development guide for the project. It covers the local eng
 - Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, and Rich;
 - pytest with branch coverage and microbenchmarks, Ruff, and strict mypy;
 - Node.js 22.13 or newer with unflagged `node:sqlite` support, Bun 1.4.2, strict TypeScript, Tailwind CSS 4, ESLint, Prettier, and Next.js 16;
-- GNU Make for optional command shortcuts, and Docker for container and production-path validation.
+- GNU Make for optional command shortcuts, and Docker for pinned documentation linters, container, and production-path validation.
 
 These versions define the supported local and CI development environment. Container build and runtime versions are pinned independently; the [Docker guide](../operations/docker.md#image-targets) and root `Dockerfile` are authoritative for container versions.
 
@@ -110,7 +110,8 @@ GNU Make provides the shortcuts below. On Windows or another environment without
 | `make test-live` | Explicitly select authorization-gated live tests |
 | `make migrations` | Check Alembic and ORM consistency |
 | `make docs` | Validate source Markdown links, images, and anchors |
-| `make docs-site` | Build the searchable MkDocs Material site and check rendered links, images, and anchors |
+| `make docs-lint` | Lint maintained Markdown with pinned markdownlint-cli2 and Vale images |
+| `make docs-site` | Run source links and documentation lint, build the MkDocs site, and check rendered links, images, and anchors |
 | `make check` | Run the main Python and documentation quality gate |
 
 > [!IMPORTANT]
@@ -142,10 +143,15 @@ uv run pytest -m "not live and not performance" --cov \
 uv run python scripts/coverage_docs.py
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
+uv run --frozen python scripts/lint_docs.py
 uv run --frozen --group docs python scripts/build_docs.py
 uv run --frozen --group docs python scripts/check_built_docs.py
 git diff --check
 ```
+
+`scripts/lint_docs.py` checks the root policies, README, contributor and agent guidance, pull-request and Markdown issue templates, and all maintained Markdown under `docs/`. Only `docs/generated/`, `docs/vendor/`, and asset Markdown other than `docs/assets/README.md` are excluded, along with build output and dependencies outside these explicit inputs. It checks README structure without editing renderer-owned content; Vale skips the generated opportunity and coverage sections while checking authored prose. Both digest-pinned Docker images run with a read-only repository mount and no container networking. Vale uses only the committed local rules: canonical product names and standalone directory labels. Lowercase employment-type slugs and descriptive uses of “internship” or “new grad” are valid; inline code, fenced examples, URL targets, and bare URLs are not linted as prose, but authored link labels are. Built-in spelling and repetition rules are omitted because source titles and third-party names are not project style errors. Run `uv run --frozen python scripts/lint_docs.py markdownlint` or `uv run --frozen python scripts/lint_docs.py vale` for a focused check.
+
+Markdownlint keeps the following existing exceptions, each documented in `.markdownlint-cli2.jsonc`: MD013 (unwrapped explanatory prose), MD060 (compact or variable-width tables, including generated tables), MD031/MD032 only in `AGENTS.md` (compact instruction blocks), MD029 only in `database.md` (numbered steps continue across examples), MD001/MD041 only in the HTML-titled README, and MD041 only in the form-inserted pull-request template. MD033 instead allows only the HTML elements used for existing documentation layouts; fenced code blocks must specify a language. Vale intentionally does not enforce subjective wordiness or a second heading-punctuation rule; markdownlint already checks heading punctuation. Review genuine findings rather than weakening a global rule.
 
 The documentation build stages only public Markdown, images, and explicitly approved root files in a temporary directory; it also copies the website favicon from `site/src/app/icon.svg` so both sites use the same icon. Never point MkDocs at the repository root. Output is ignored under `build/docs-site/`. MkDocs dependencies are locked in the `docs` group. GitHub Pages must use **GitHub Actions** as its source and have the custom domain `docs.techopportunities.eu` configured in repository settings. Add a DNS CNAME record for `docs` pointing to `simonesiega.github.io`; the successful build places the matching `CNAME` file in the deploy artifact. Enable HTTPS after GitHub verifies the domain. The workflow validates pull requests and publishes the checked artifact from `main` without accessing canonical state. Run `uv build` when changing packaging, dependencies, metadata, entry points, or release behavior.
 
@@ -219,6 +225,7 @@ uv run python scripts/coverage_docs.py
 uv run pytest tests/benchmarks --benchmark-only
 uv run python scripts/check_migrations.py
 uv run python scripts/check_docs.py
+uv run --frozen python scripts/lint_docs.py
 uv run --frozen --group docs python scripts/build_docs.py
 uv run --frozen --group docs python scripts/check_built_docs.py
 cd site && bun run ci && cd ..
@@ -324,7 +331,7 @@ Do not edit any generated region or reproduce a complete marker pair in examples
 
 Task-oriented Markdown belongs under `docs/guides/`; visual assets belong under `docs/assets/`. Contributor-facing documentation conventions are canonical in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md#documentation-changes).
 
-Validate source and rendered documentation with:
+Validate Markdown structure, project terminology, source links, and rendered documentation with:
 
 ```bash
 make docs-site

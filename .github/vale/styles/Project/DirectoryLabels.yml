@@ -1,0 +1,14 @@
+extends: substitution
+message: "Use '%s' instead of '%s' for a standalone directory label."
+level: error
+scope: heading
+ignorecase: false
+# In prose, 'internship', 'new grad', and the slug 'new-grad' are valid.
+# Enforce title case only for standalone headings naming the UI types.
+swap:
+  '^internship$': Internship
+  '^InternShip$': Internship
+  '^new grad$': New Grad
+  '^New grad$': New Grad
+  '^New-Grad$': New Grad
+  '^NewGrad$': New Grad

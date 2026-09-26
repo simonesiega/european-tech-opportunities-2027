@@ -41,7 +41,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `gitleaks.yml` | Push to `main`, pull request, manual | Scan relevant Git history for committed secrets with redacted output and no finding artifacts or pull-request comments |
 | `dependency-review.yml` | Pull request | Reject newly introduced dependencies with high or critical known vulnerabilities |
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
-| `documentation.yml` | Push to `main`, pull request, manual | Strict MkDocs Material build and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
+| `documentation.yml` | Push to `main`, pull request, manual | Digest-pinned Markdown and prose lint, strict MkDocs Material build, and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; its explicit adoption mode proposes the first public-state review seal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
@@ -54,19 +54,20 @@ Workflow files under `.github/workflows/` are the executable source of truth. Up
 
 ## Validation workflows
 
-The five validation workflows dispatched for generated README proposals require no LinkedIn access:
+The six validation workflows dispatched for generated README proposals require no LinkedIn access:
 
 - **Python CI** validates the pipeline, CLI, migrations, lifecycle behavior, README projection, and documentation contracts; it publishes critical-path coverage and benchmark reports for 30 days. Current measured values are summarized in the root [Python quality baseline](../../../README.md#python-quality-baseline).
 - **Site CI** uses the documented Node.js and Bun versions to validate formatting, linting, strict TypeScript, the production Next.js build, unit tests, Playwright behavior, and axe-core accessibility checks against synthetic SQLite state.
 - **CodeQL** runs GitHub's extended security query suite independently for Python and TypeScript on pushes, pull requests, manual runs, and every Monday at 05:31 UTC. It uses interpreted-language no-build extraction and uploads results only to GitHub code scanning.
 - **Docker CI** runs `actionlint`, audits every workflow and composite action with blocking zizmor, and runs Hadolint. It builds both production targets, uses Trivy to reject high or critical vulnerabilities for which a fix is available, and verifies migration, read-only website access, public-export delivery, Content Security Policy, and HTTP Strict Transport Security. Unfixed findings are excluded from the image-vulnerability gate.
 - **Gitleaks** checks commits introduced by pull requests and pushes to `main`; manual runs scan the full fetched history. Checkout fetches full history without persisting credentials. Findings fail the job, but comments, summaries, and report artifacts are disabled to avoid publishing sensitive values. No detection allowlist is configured.
+- **Documentation site** lints maintained Markdown with markdownlint-cli2 and Vale before strict building and link validation; it does not deploy from an automation branch.
 
 The weekly **Documentation links** workflow uses Lychee to check root Markdown and documentation Markdown/HTML. Its [configuration](../../../lychee.toml) excludes only numeric LinkedIn job URLs, which can expire or reject automated checks, and skips documentation image files as inputs. Broken internal and other external links fail the check. Maintainers can also run it manually.
 
-The **Documentation site** workflow strictly builds the MkDocs Material site and checks rendered local links, anchors, and images on pull requests. Only a successful `main` build deploys its allowlisted public artifact to GitHub Pages; the deploy job alone receives the Pages write and OIDC permissions. For first-time setup, set GitHub Pages' source to **GitHub Actions**, configure `docs.techopportunities.eu` as the custom domain, and create a DNS CNAME record from `docs` to `simonesiega.github.io`. The build adds the matching `CNAME` file to the artifact. DNS changes and GitHub repository settings are maintainer-managed and are not performed by CI.
+The **Documentation site** workflow runs markdownlint-cli2 and the local Vale style over maintained Markdown, strictly builds the MkDocs Material site, and checks rendered local links, anchors, and images on pull requests. Both linters run in digest-pinned containers without network access or write access to the checkout. Only a successful `main` build deploys its allowlisted public artifact to GitHub Pages; the deploy job alone receives the Pages write and OIDC permissions. For first-time setup, set GitHub Pages' source to **GitHub Actions**, configure `docs.techopportunities.eu` as the custom domain, and create a DNS CNAME record from `docs` to `simonesiega.github.io`. The build adds the matching `CNAME` file to the artifact. DNS changes and GitHub repository settings are maintainer-managed and are not performed by CI.
 
-**Dependency Review** checks vulnerability changes reported by GitHub's dependency graph on ordinary pull requests, including development and unknown scopes. The repository dependency graph must be enabled for its API to work. The job requires only repository read access. License enforcement is disabled because the project has no dependency-license policy; OpenSSF scorecard warnings are also disabled to keep this gate focused. Dependabot proposes version updates and CodeQL analyzes project code separately. Generated README-only proposals have an exact changed-file check and use the five explicitly dispatched validation workflows, so this pull-request-only check is not part of their dispatch list.
+**Dependency Review** checks vulnerability changes reported by GitHub's dependency graph on ordinary pull requests, including development and unknown scopes. The repository dependency graph must be enabled for its API to work. The job requires only repository read access. License enforcement is disabled because the project has no dependency-license policy; OpenSSF scorecard warnings are also disabled to keep this gate focused. Dependabot proposes version updates and CodeQL analyzes project code separately. Generated README-only proposals have an exact changed-file check and use the six explicitly dispatched validation workflows, so this pull-request-only check is not part of their dispatch list.
 
 Validation jobs have explicit timeouts, cancel superseded runs only on the same workflow/ref, and checkout without persisted Git credentials. Third-party actions and CI tool images are pinned to immutable revisions where practical and should remain pinned. Runtime and package-manager versions should stay explicit rather than being resolved through latest-release APIs.
 
@@ -100,7 +101,7 @@ Workflow defaults are read-only or empty. Permissions are elevated at job bounda
 
 GitHub cache entries on the default branch are readable by pull-request workflows, including forks, and public-repository artifacts are available to anyone with repository read access. Canonical SQLite therefore never enters Actions cache or artifacts. Thirty-day artifacts contain only the already-public README and sanitized CSV/JSON projections; the one-day cross-job artifact contains only `README.md`. Checkout never persists Git credentials.
 
-GitHub intentionally suppresses ordinary workflow recursion after a branch push made with `GITHUB_TOKEN`. After verifying that the automation pull request targets `main`, uses a same-repository fixed head branch and the expected title, and changes only `README.md`, the mutation workflow therefore dispatches `python-ci.yml`, `site-ci.yml`, `docker-ci.yml`, `codeql.yml`, and `gitleaks.yml` explicitly on the generated head commit. It identifies those exact dispatch runs and waits for all five to succeed before requesting nightly auto-merge against that validated head SHA. This keeps the branch alive long enough for GitHub to create every job even when branch protection is missing or misconfigured; configured required checks and human review remain additional merge controls. Manual scrape and availability pull requests receive and await the same validation but still require human merge.
+GitHub intentionally suppresses ordinary workflow recursion after a branch push made with `GITHUB_TOKEN`. After verifying that the automation pull request targets `main`, uses a same-repository fixed head branch and the expected title, and changes only `README.md`, the mutation workflow therefore dispatches `python-ci.yml`, `site-ci.yml`, `docker-ci.yml`, `codeql.yml`, `gitleaks.yml`, and `documentation.yml` explicitly on the generated head commit. It identifies those exact dispatch runs and waits for all six to succeed before requesting nightly auto-merge against that validated head SHA. This keeps the branch alive long enough for GitHub to create every job even when branch protection is missing or misconfigured; configured required checks and human review remain additional merge controls. Manual scrape and availability pull requests receive and await the same validation but still require human merge.
 
 ## Protected environments and repository settings
 
@@ -126,7 +127,7 @@ Repository configuration must also:
 
 1. set the default `GITHUB_TOKEN` permission to read-only, permit GitHub Actions to create pull requests, and keep elevated permissions explicit at job boundaries;
 2. require third-party Actions to use full-length commit SHAs and enable pull-request auto-merge;
-3. protect `main` and require the check contexts emitted by the current workflows: `ruff`, `python`, `site`, `docker`, `Analyze (Python)`, `Analyze (TypeScript)`, and `Gitleaks secret scan`;
+3. protect `main` and require the check contexts emitted by the current workflows: `ruff`, `python`, `site`, `docker`, `Analyze (Python)`, `Analyze (TypeScript)`, `Gitleaks secret scan`, and `build` (Documentation site);
 4. prevent direct pushes and choose the review policy deliberately—if an approving review is required, the nightly pull request waits for that human review before auto-merge;
 5. enable the dependency graph, Dependabot alerts, secret scanning and push protection, private vulnerability reporting, and CodeQL code scanning where GitHub makes those controls available;
 6. retain Actions logs and the documented 30-day sanitized projection artifacts according to repository policy.
@@ -140,7 +141,7 @@ Complete this once before relying on the scheduled run:
 1. merge the release commit into the default `main` branch before the scheduled time; schedules always use the default-branch workflow revision;
 2. create and restrict the `canonical-state` and `production` environments exactly as described above, then remove broader copies of their secrets;
 3. configure the repository variables and verify that `LINKEDIN_CRAWL_AUTHORIZED=true` reflects current express authorization rather than convenience;
-4. enable Actions pull-request creation, auto-merge, branch protection, and all seven required check contexts;
+4. enable Actions pull-request creation, auto-merge, branch protection, and all eight required check contexts;
 5. complete the [one-time public-state seal review](#first-public-state-review-seal) from `main`, then run **Verify canonical state recovery** with its default input; require successful migration, projection validation, round-trip snapshot verification, and the retained sanitized projection artifact;
 6. only after that verified durable snapshot exists, delete every legacy `opportunities-db-*` Actions cache and legacy `opportunities-state-*` or `opportunities-nightly-state-*` artifact; these older state bundles are neither approved backups nor safe public artifacts;
 7. confirm no local or VPS collector can write the same database and no stale operational workflow is still running or queued;
@@ -461,5 +462,5 @@ Before changing or manually running automation, confirm:
 - [ ] Canonical processing remains read-only to GitHub; only the README mutation job has repository and pull-request write permissions.
 - [ ] No canonical database or manifest enters GitHub cache or artifacts; only the README handoff expires after one day.
 - [ ] `canonical-state` and `production` allow only `main`, and VPS secrets are unavailable to this repository outside those environments.
-- [ ] The README mutation job has `actions: write` only to dispatch the five validation workflows on the generated commit.
+- [ ] The README mutation job has `actions: write` only to dispatch the six validation workflows on the generated commit.
 - [ ] Artifact visibility, environment protection, and SSH access follow least privilege.

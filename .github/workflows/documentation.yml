@@ -22,6 +22,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: $/.github/actions/setup-python
+      - name: Lint maintained Markdown with pinned markdownlint-cli2 and Vale
+        run: uv run --frozen python scripts/lint_docs.py
       - name: Validate Markdown references
         run: uv run --frozen python scripts/check_docs.py
       - name: Build documentation (strict)

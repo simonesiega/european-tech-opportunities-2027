@@ -2,7 +2,7 @@
 
 [← Documentation hub](../../README.md) · [CLI reference](cli.md) · [Search registry](search-registry.md) · [Docker and deployment](../operations/docker.md) · [Security policy](../../../SECURITY.md) · [Privacy notice](../../../PRIVACY.md) · [Open the live site](https://techopportunities.eu/)
 
-This is the canonical website guide for the project. **https://techopportunities.eu/** is the sole canonical production origin. The former `https://opportunities2027.simonesiega.com` host exists only to permanently redirect requests to the equivalent canonical path and query; it is not an alternative canonical URL. The [live website](https://techopportunities.eu/) is the primary public interface: it exposes every currently open Internship and New Grad opportunity from canonical SQLite state, while the root README intentionally shows bounded previews for both types.
+This is the canonical website guide for the project. **[https://techopportunities.eu/](https://techopportunities.eu/)** is the sole canonical production origin. The former `https://opportunities2027.simonesiega.com` host exists only to permanently redirect requests to the equivalent canonical path and query; it is not an alternative canonical URL. The [live website](https://techopportunities.eu/) is the primary public interface: it exposes every currently open Internship and New Grad opportunity from canonical SQLite state, while the root README intentionally shows bounded previews for both types.
 
 ## Contents
 

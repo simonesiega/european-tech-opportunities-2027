@@ -201,7 +201,7 @@ Exact interlock behavior belongs to [Configuration](../getting-started/configura
 
 ## Dokploy deployment
 
-The public directory's sole canonical origin is **https://techopportunities.eu/**.
+The public directory's sole canonical origin is **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 The former `https://opportunities2027.simonesiega.com` hostname is retained only
 so existing links continue to work; it does not serve an alternative version of
 the site. A request to the former hostname receives a permanent **308** redirect

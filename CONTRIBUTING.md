@@ -47,7 +47,7 @@ Use the [installation guide](docs/guides/getting-started/installation.md) for co
 | Search YAML | [Search registry](docs/guides/user-guide/search-registry.md) | Registry command and config tests |
 | Schema or migration | [Database](docs/guides/operations/database.md) | Fresh and representative upgrades plus migration checks |
 | Docker or automation | [Docker](docs/guides/operations/docker.md) and [Automation](docs/guides/operations/automation.md) | Compose validation and affected build or runtime checks |
-| Documentation only | [Documentation hub](docs/README.md) | `make docs-site` (or the equivalent `uv` commands), plus `git diff --check` |
+| Documentation only | [Documentation hub](docs/README.md) | `make docs-site` (including both prose linters), plus `git diff --check` |
 
 Discuss changes to architecture, source access, canonical identity, lifecycle rules, schema design, deployment, or trust boundaries before implementation. Small fixes and documentation improvements can normally go directly to a pull request.
 
@@ -195,9 +195,10 @@ Keep task guides under `docs/guides/` and assets under `docs/assets/`. Link to t
 - Use repository-relative links, stable anchors, descriptive alt text, and sanitized assets.
 - Keep claims aligned with implemented behavior and safety boundaries.
 
-Validate documentation with:
+Run markdownlint-cli2 and Vale before the link and site checks. The linters use digest-pinned Docker images; install Docker, but do not install separate global Node or Vale packages. On systems without Make, run:
 
 ```bash
+uv run --frozen python scripts/lint_docs.py
 uv run python scripts/check_docs.py
 uv run --frozen --group docs python scripts/build_docs.py
 uv run --frozen --group docs python scripts/check_built_docs.py

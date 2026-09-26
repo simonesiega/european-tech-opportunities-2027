@@ -16,7 +16,7 @@ This is the canonical installation guide for the project. It covers local instal
 | Node.js | 22.13+ | Website builds and production-style local startup with unflagged `node:sqlite` support |
 | Bun | 1.4.2 | Website dependency installation, tests, and development |
 | GNU Make | Optional | Python validation shortcuts; direct `uv` commands are documented too |
-| Docker | Optional | Container and deployment workflows |
+| Docker | Current supported release | Documentation lint and optional container and deployment checks |
 
 Confirm the required tools:
 
@@ -28,7 +28,7 @@ node --version
 bun --version
 ```
 
-Docker is not required for ordinary local Python or website development. Installation, local website development, and the default test paths require no LinkedIn access.
+Docker is not required for ordinary local Python or website development, but the complete `make check` and `make docs-site` gates include the Docker-based documentation linters. Installation, local website development, and the default test paths require no LinkedIn access.
 
 ## Clone the repository
 

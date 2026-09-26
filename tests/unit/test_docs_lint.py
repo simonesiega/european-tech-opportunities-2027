@@ -1,0 +1,92 @@
+"""Offline checks for the maintained Markdown scope and pinned lint runners."""
+
+from __future__ import annotations
+
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+from scripts import lint_docs
+
+
+def test_documentation_linters_use_the_same_curated_read_only_inputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(lint_docs, "ROOT", tmp_path)
+    monkeypatch.setattr("scripts.lint_docs.shutil.which", lambda _name: "docker")
+    monkeypatch.setattr(sys, "argv", ["lint_docs.py"])
+    for file in lint_docs.ROOT_FILES:
+        path = tmp_path / file
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("# Maintained\n", encoding="utf-8")
+    guide = tmp_path / "docs/guides/guide.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text("# Guide\n", encoding="utf-8")
+    (tmp_path / "docs/reference.md").write_text("# Maintained\n", encoding="utf-8")
+    for excluded in (
+        "docs/generated/report.md",
+        "docs/vendor/upstream.md",
+        "docs/assets/listings/third-party.md",
+    ):
+        path = tmp_path / excluded
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("# Not maintained\n", encoding="utf-8")
+    template = tmp_path / ".github/ISSUE_TEMPLATE/question.md"
+    template.parent.mkdir(parents=True)
+    template.write_text("# Question\n", encoding="utf-8")
+
+    commands: list[list[str]] = []
+
+    def run(command: list[str], *, cwd: Path, check: bool) -> subprocess.CompletedProcess[str]:
+        assert cwd == tmp_path
+        assert not check
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr("scripts.lint_docs.subprocess.run", run)
+    assert lint_docs.main() == 0
+    assert len(commands) == 2
+    for command in commands:
+        assert command[:5] == ["docker", "run", "--rm", "--network", "none"]
+        assert f"type=bind,source={tmp_path},target=/workdir,readonly" in command
+        assert "docs/guides/guide.md" in command
+        assert "docs/reference.md" in command
+        assert ".github/ISSUE_TEMPLATE/question.md" in command
+        assert "docs/generated/report.md" not in command
+        assert "docs/vendor/upstream.md" not in command
+        assert "docs/assets/listings/third-party.md" not in command
+        assert all(file in command for file in lint_docs.ROOT_FILES)
+    assert lint_docs.MARKDOWNLINT in commands[0]
+    assert lint_docs.VALE in commands[1]
+
+
+def test_generated_readme_validation_dispatches_documentation_workflow() -> None:
+    mutation = (lint_docs.ROOT / ".github/workflows/reusable-readme-pr.yml").read_text(
+        encoding="utf-8"
+    )
+    docs = (lint_docs.ROOT / ".github/workflows/documentation.yml").read_text(encoding="utf-8")
+    assert "gitleaks.yml documentation.yml)" in mutation
+    assert "workflow_dispatch:" in docs
+    assert "run: uv run --frozen python scripts/lint_docs.py" in docs
+
+
+def test_documentation_lint_stops_after_failed_markdownlint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(lint_docs, "ROOT", tmp_path)
+    monkeypatch.setattr(lint_docs, "ROOT_FILES", ())
+    monkeypatch.setattr("scripts.lint_docs.shutil.which", lambda _name: "docker")
+    monkeypatch.setattr(sys, "argv", ["lint_docs.py"])
+    guide = tmp_path / "docs/guides/guide.md"
+    guide.parent.mkdir(parents=True)
+    guide.write_text("# Guide\n", encoding="utf-8")
+    commands: list[list[str]] = []
+
+    def run(command: list[str], *, cwd: Path, check: bool) -> subprocess.CompletedProcess[str]:
+        commands.append(command)
+        return subprocess.CompletedProcess(command, 1)
+
+    monkeypatch.setattr("scripts.lint_docs.subprocess.run", run)
+    assert lint_docs.main() == 1
+    assert len(commands) == 1

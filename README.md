@@ -3,9 +3,7 @@
 <p align="center">
   <a href="#latest-internships">Internships</a> ·
   <a href="#latest-new-grad-opportunities">New Grad</a> ·
-  <a href="https://docs.techopportunities.eu/">Documentation</a> ·
-  <a href="CONTRIBUTING.md">Contributing</a> ·
-  <a href="PRIVACY.md">Privacy</a>
+  <a href="https://docs.techopportunities.eu/">Site documentation</a>
 </p>
 
 <p align="center">

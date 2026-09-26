@@ -1,0 +1,33 @@
+extends: substitution
+message: "Use '%s' instead of '%s' for the project's canonical name."
+level: error
+scope: text
+# Case-sensitive variants do not match correct names; Vale skips code and URLs.
+ignorecase: false
+swap:
+  Github: GitHub
+  github: GitHub
+  GITHUB: GitHub
+  Linkedin: LinkedIn
+  linkedin: LinkedIn
+  LINKEDIN: LinkedIn
+  Javascript: JavaScript
+  javascript: JavaScript
+  JAVASCRIPT: JavaScript
+  Typescript: TypeScript
+  typescript: TypeScript
+  TYPESCRIPT: TypeScript
+  Sqlite: SQLite
+  sqlite: SQLite
+  SQLITE: SQLite
+  Readme: README
+  readme: README
+  Nextjs: Next.js
+  NextJS: Next.js
+  nextjs: Next.js
+  Nodejs: Node.js
+  NodeJS: Node.js
+  nodejs: Node.js
+  'Techopportunities\.eu': techopportunities.eu
+  'TechOpportunities\.eu': techopportunities.eu
+  'techOpportunities\.eu': techopportunities.eu
