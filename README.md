@@ -25,12 +25,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 25, 2026 at 10:13 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-704-2563eb?style=for-the-badge" alt="Total opportunities: 704" />
+  <strong>Last successful collection: September 26, 2026 at 09:34 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-724-2563eb?style=for-the-badge" alt="Total opportunities: 724" />
   <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
-  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
+  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New Grad opportunities: 408" />
 </p>
-<!-- Public directory state v1 sha256: e970b57a3573e16d2c5fb505c3c9f8aea3948946eac5ddfd9e4d89ddcaf3c7f6 -->
+<!-- Public directory state v1 sha256: cc6928d576c145816e4076f8b68aadff1957e061862522b11ee32f00f4351910 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
@@ -69,22 +69,22 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 704 (Internships: 316 · New Grad: 388)<br>
-**Last successful collection:** September 25, 2026 at 10:13 UTC
+**Open opportunities:** 724 (Internships: 316 · New Grad: 408)<br>
+**Last successful collection:** September 26, 2026 at 09:34 UTC
 
 Browse and filter the complete directory at **[https://opportunities2027.simonesiega.com/](https://opportunities2027.simonesiega.com/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 388 open New Grad opportunities:
+Showing the 5 most recently discovered of 408 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| IBM | Entry Level Software Developer 2027 | Markham, Wales, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4469771847>) |
-| UBS | 2027 Graduate Talent Program – Software Full Stack Engineer – ZH | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4471485844>) |
-| Appvia | Graduate Platform Engineer - Appvia Academy | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471480988>) |
-| Autodesk | Graduate Software Engineer | Oslo, Oslo, Norway | [View](<https://www.linkedin.com/jobs/view/4469690310>) |
-| IMC Trading | Graduate Software Engineer \(2027\) | Aarhus, Central Denmark Region, Denmark | [View](<https://www.linkedin.com/jobs/view/4469687017>) |
+| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4470315065>) |
+| Bending Spoons | Graduate software engineer | Padua, Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4470315062>) |
+| Bending Spoons | Graduate software engineer | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4470311283>) |
+| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4470310316>) |
+| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4470310313>) |
 
 ### Latest internships
 
