@@ -1,4 +1,5 @@
 import {describe, expect, test} from "bun:test";
+import fc from "fast-check";
 import {apiEtag, apiPayload, matchesIfNoneMatch, parseApiQuery} from "@/lib/opportunity-api";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -104,6 +105,40 @@ describe("public API contract", () => {
       Object.keys(payload().data[0])
     );
     expect(JSON.stringify(payload("", [extraFieldRow]))).not.toContain("internalPath");
+  });
+
+  test("bounded property fuzzing preserves encoded queries and rejects duplicate keys", () => {
+    const queryText = fc
+      .array(fc.constantFrom("a", "Z", "0", " ", "&", "=", "%", "+", "-", "_"), {
+        maxLength: 200,
+      })
+      .map((characters) => characters.join(""));
+
+    fc.assert(
+      fc.property(
+        queryText,
+        fc.integer({min: 1, max: 10000}),
+        fc.integer({min: 1, max: 100}),
+        (q, page, pageSize) => {
+          const params = new URLSearchParams({
+            q,
+            page: String(page),
+            "page-size": String(pageSize),
+          });
+          const parsed = parseApiQuery(`?${params}`);
+          expect(parsed.filters.q).toBe(q);
+          expect(parsed.page).toBe(page);
+          expect(parsed.pageSize).toBe(pageSize);
+
+          const reversed = new URLSearchParams([...params].reverse());
+          expect(JSON.stringify(payload(`?${params}`))).toBe(
+            JSON.stringify(payload(`?${reversed}`))
+          );
+          expect(() => parseApiQuery(`?${params}&q=duplicate`)).toThrow();
+        }
+      ),
+      {seed: 2027, numRuns: 150}
+    );
   });
 
   test("rejects malformed, duplicate, unknown and excessive input", () => {

@@ -34,15 +34,16 @@ on:
         default: false
         type: boolean
 
-permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   propose:
     runs-on: ubuntu-latest
     timeout-minutes: 75
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
     steps:
       # Defense in depth: repository mutation is valid only for a main-branch caller.
       - name: Require the default branch for repository mutation

@@ -79,7 +79,10 @@ Review Scorecard alerts individually under **Security → Code scanning**. Score
 Use the following context when triaging:
 
 - **Branch protection:** verify the default branch, rulesets or branch-protection rules, required checks, and review policy in GitHub settings. Repository rulesets are visible to Scorecard's default token; some classic branch-protection details may not be, so verify them directly rather than granting an administrative token.
-- **Pinned dependencies:** this repository pins third-party Actions to full commit SHAs, container images to digests, and application dependencies with `uv.lock` and `site/bun.lock`; Dependabot is configured for updates. If a check does not recognize a lockfile or local action reference, inspect its evidence before treating it as an actual missing pin.
+- **Best Practices (#34):** the [OpenSSF Best Practices project](https://www.bestpractices.dev/projects/14982) records its current assessment and badge status. Scorecard reads that external project record; adding a badge image alone cannot resolve the alert. Review the evidence for each claim, distinguish in-progress from passing, and rerun Scorecard after changes to the record.
+- **Pinned dependencies:** this repository pins third-party Actions to full commit SHAs, container images to digests, and application dependencies with `uv.lock` and `site/bun.lock`; Dependabot is configured for updates. The `$/...` syntax resolves repository-owned workflows and actions; Scorecard may misidentify these as unpinned third-party actions. Do not change them to `./...` merely to silence Scorecard: blocking zizmor recommends `$/...` for self-repository references.
+- **Fuzzing:** the website unit suite runs seeded, bounded `fast-check` properties against the public API query parser. This is offline input fuzzing, not a live-source test; confirm Scorecard recognizes it after the change reaches `main`.
+- **SAST (#31) and CI-Tests (#35):** Scorecard samples recent commits and merged pull requests. CodeQL and the offline test workflows already run on every pull request and push to `main`; the README automation explicitly dispatches and waits for those checks because `GITHUB_TOKEN` pushes do not trigger normal CI. A historical missing check is not repaired by changing triggers; investigate failed or absent checks on future commits before merging, and let the sample roll forward rather than fabricating status results.
 - **Token permissions and workflows:** compare repository-wide token defaults with each workflow's explicit permissions. Actionlint and blocking zizmor audits are the dedicated workflow checks; Scorecard complements them and does not replace them.
 - **Packaging and releases:** the project has no published versioned release, as documented in [`SECURITY.md`](../../../SECURITY.md#supported-versions). A release-related check may therefore be inapplicable under the current release policy. Do not publish a release solely to raise the Scorecard result; record the rationale when triaging such an alert.
 
@@ -106,7 +109,7 @@ The wrappers, rather than the reusable processor, decide which source phase runs
 
 ## Workflow permissions
 
-Workflow defaults are read-only or empty. Permissions are elevated at job boundaries only:
+The repository's default `GITHUB_TOKEN` permission is read-only. Workflow defaults are read-only or empty; permissions are elevated at job boundaries only. The reusable README workflow defaults to no token permissions; its single mutation job declares the required writes, and callers explicitly pass those permissions to that job. Scorecard may still warn about these necessary job-level writes; do not replace them with a broader token just to suppress a warning.
 
 | Job class | Token permissions | Credentials and data |
 |---|---|---|

@@ -261,6 +261,8 @@ Tests should assert observable behavior rather than internal execution order.
 
 Use temporary paths, fixed UTC timestamps, synthetic IDs, injected clients, and minimal sanitized fixtures.
 
+The public API query parser has a seeded, bounded `fast-check` property test for encoded inputs, parameter-order invariance, and duplicate-key rejection. It runs offline with the website unit suite (`cd site && bun run test:unit`); it does not contact a live source or website.
+
 Unit coverage includes:
 
 - configuration and search-registry validation;

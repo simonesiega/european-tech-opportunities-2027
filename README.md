@@ -17,8 +17,8 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/codeql.yml">
     <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/codeql.yml/badge.svg" alt="CodeQL security analysis status" />
   </a>
-  <a href="https://scorecard.dev/viewer/?uri=github.com/simonesiega/european-tech-opportunities-2027">
-    <img src="https://api.scorecard.dev/projects/github.com/simonesiega/european-tech-opportunities-2027/badge" alt="OpenSSF Scorecard results" />
+  <a href="https://www.bestpractices.dev/projects/14982">
+    <img src="https://www.bestpractices.dev/projects/14982/badge" alt="OpenSSF Best Practices badge status" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027" alt="MIT license" />
