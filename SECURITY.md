@@ -48,7 +48,7 @@ Security fixes currently target `main`. The project has no published versioned r
 | Website and public API | Read-only SQLite, validated links, bounded API input and output, no mutation API, and defensive production headers |
 | README | Bounded visible projection plus a public-directory review seal, generated with atomic replacement |
 | Public exports | Fixed field allowlist, spreadsheet-safe CSV text, atomic replacement, and read-only delivery |
-| Automation | Offline validation separated from authorized collection, verified durable snapshots, no canonical state in Actions cache or artifacts, job-scoped permissions, sanitized handoffs, and locked deployment |
+| Automation | Offline validation separated from authorized collection, verified durable snapshots, no canonical state in Actions cache or artifacts, job-scoped permissions, sanitized handoffs, locked deployment, and independent scheduled Scorecard reporting to code scanning and the public Scorecard API |
 | Containers | Unprivileged processes, explicit mounts, pinned images, and reduced runtime tooling |
 
 Detailed behavior is documented in [Architecture](docs/guides/development/architecture.md), [Configuration](docs/guides/getting-started/configuration.md), [Database](docs/guides/operations/database.md), [Automation](docs/guides/operations/automation.md), and [Docker](docs/guides/operations/docker.md).
