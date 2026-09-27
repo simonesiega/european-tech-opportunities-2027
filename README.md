@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 26, 2026 at 09:34 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-724-2563eb?style=for-the-badge" alt="Total opportunities: 724" />
-  <img src="https://img.shields.io/badge/Internships-316-16a34a?style=for-the-badge" alt="Internships: 316" />
-  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New Grad opportunities: 408" />
+  <strong>Last successful collection: September 27, 2026 at 10:45 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-732-2563eb?style=for-the-badge" alt="Total opportunities: 732" />
+  <img src="https://img.shields.io/badge/Internships-321-16a34a?style=for-the-badge" alt="Internships: 321" />
+  <img src="https://img.shields.io/badge/New%20Grad-411-9333ea?style=for-the-badge" alt="New Grad opportunities: 411" />
 </p>
-<!-- Public directory state v1 sha256: cc6928d576c145816e4076f8b68aadff1957e061862522b11ee32f00f4351910 -->
+<!-- Public directory state v1 sha256: 7454d5945910a9f13482940696490d6e0c2169233197c642f790fd8483f58eed -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
@@ -79,34 +79,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 724 (Internships: 316 · New Grad: 408)<br>
-**Last successful collection:** September 26, 2026 at 09:34 UTC
+**Open opportunities:** 732 (Internships: 321 · New Grad: 411)<br>
+**Last successful collection:** September 27, 2026 at 10:45 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 408 open New Grad opportunities:
+Showing the 5 most recently discovered of 411 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4470098618>) |
 | Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4470315065>) |
 | Bending Spoons | Graduate software engineer | Padua, Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4470315062>) |
 | Bending Spoons | Graduate software engineer | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4470311283>) |
 | Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4470310316>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4470310313>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 316 open internships:
+Showing the 5 most recently discovered of 321 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Motorola Solutions | Intern Software Developer - Java | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4472070630>) |
+| VIVADATA | Data Scientist Intern – Paris | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4469776313>) |
 | Barco | Internship - Computer Vision &amp; Image Analysis | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470012929>) |
 | Barco | Internship - Software Engineering | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470030125>) |
 | Sanofi | internship 6 months data science | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4471448722>) |
-| Dassault Systèmes | Software Developer Intern | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4471457361>) |
-| Motorola Solutions | Intern Software Developer \(React/JS\) | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4470948509>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
