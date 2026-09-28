@@ -20,18 +20,28 @@ if [[ ! "$VPS_HOST" =~ ^[A-Za-z0-9.-]+$ ]] \
   exit 2
 fi
 for required_file in data/opportunities.db \
-  data/exports/open-opportunities.csv data/exports/open-opportunities.json; do
+  data/exports/open-opportunities.csv data/exports/open-opportunities.json \
+  data/exports/dataset-metadata.json; do
   if [[ ! -s "$required_file" ]]; then
     echo "Validated deployment file is missing or empty: $required_file" >&2
     exit 1
   fi
 done
-for sidecar in data/opportunities.db-wal data/opportunities.db-shm data/opportunities.db-journal; do
-  if [[ -e "$sidecar" ]]; then
-    echo "Checkpoint and close the local SQLite database before deployment." >&2
-    exit 1
-  fi
-done
+check_sidecars() {
+  for sidecar in data/opportunities.db-wal data/opportunities.db-shm data/opportunities.db-journal; do
+    if [[ -e "$sidecar" ]]; then
+      echo "Checkpoint and close the local SQLite database before deployment." >&2
+      exit 1
+    fi
+  done
+}
+check_sidecars
+
+# Repeat the canonical SQLite/projection validation immediately before uploading.
+# Existence checks and transport checksums alone cannot detect stale but intact files.
+uv run opportunities validate
+# Validation opens SQLite; never upload its main file if a WAL appeared meanwhile.
+check_sidecars
 
 created_ssh_dir=false
 if [[ -n "${CANONICAL_STATE_SSH_DIR:-}" ]]; then
@@ -85,6 +95,7 @@ chmod 600 "$private_key" "$known_hosts"
 database_sha=$(sha256sum data/opportunities.db | cut -d ' ' -f 1)
 csv_sha=$(sha256sum data/exports/open-opportunities.csv | cut -d ' ' -f 1)
 json_sha=$(sha256sum data/exports/open-opportunities.json | cut -d ' ' -f 1)
+metadata_sha=$(sha256sum data/exports/dataset-metadata.json | cut -d ' ' -f 1)
 
 # A unique run/attempt owns its uploads. Do not overwrite a prior partial upload.
 ssh "${ssh_options[@]}" "$ssh_target" \
@@ -95,8 +106,10 @@ scp "${scp_options[@]}" data/exports/open-opportunities.csv \
   "$ssh_target:$staging/exports/open-opportunities.csv"
 scp "${scp_options[@]}" data/exports/open-opportunities.json \
   "$ssh_target:$staging/exports/open-opportunities.json"
+scp "${scp_options[@]}" data/exports/dataset-metadata.json \
+  "$ssh_target:$staging/exports/dataset-metadata.json"
 
 # Only fixed paths, validated numeric IDs and locally computed digests enter this command.
 ssh "${ssh_options[@]}" "$ssh_target" \
-  "RELEASE_DATA_DIR='$root' RELEASE_ID='$release_id' DATABASE_SHA='$database_sha' CSV_SHA='$csv_sha' JSON_SHA='$json_sha' bash -s" \
+  "RELEASE_DATA_DIR='$root' RELEASE_ID='$release_id' DATABASE_SHA='$database_sha' CSV_SHA='$csv_sha' JSON_SHA='$json_sha' METADATA_SHA='$metadata_sha' bash -s" \
   <scripts/activate_canonical_release.sh

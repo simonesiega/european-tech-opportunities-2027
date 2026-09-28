@@ -109,13 +109,13 @@ Two download controls appear immediately to the left of the open-role count:
 
 Both files contain every currently open opportunity at generation time. Their fixed schema includes only LinkedIn job ID, company, title, location, canonical listing URL, category, industries, employment type, and start date. They exclude status, first/last-seen and update timestamps, provenance, search runs, closure evidence, diagnostics, and all other lifecycle or operational state.
 
-The Python pipeline generates and validates both files from SQLite. CSV output neutralizes cells that spreadsheet applications could interpret as formulas. The website serves the generated files as read-only attachments and returns a generic unavailable response when a file is absent; it never creates exports from browser input.
+The Python pipeline generates and validates both files from SQLite. CSV output neutralizes cells that spreadsheet applications could interpret as formulas. The [public dataset contracts](public-dataset.md) define the v1 JSON, CSV, API, and metadata structures in one schema. `/dataset-metadata.json` is generated alongside the two downloads and reports `schema_version` (`v1`), UTC `generated_at`, `total`, `internship_count`, `new_grad_count`, and `json_sha256` / `csv_sha256` of the exact UTF-8 export bytes. An empty dataset is `[]` with zero counts. Verify the hashes against the downloaded bytes; the metadata is not a signature or a lifecycle backup. The website serves these three fixed generated files as read-only attachments and returns a generic unavailable response when a file is absent; it never creates exports from browser input.
 
 Downloads represent the latest deployed projection, not a backup or complete historical dataset. In versioned production mode the database and exports share one atomic release-pointer cutover; each request pins a release once, but a page and a later download may straddle the cutover. Legacy fixed-path mode remains available only for migration/local development. See [Rollout and rollback](../operations/automation.md#coordinated-first-rollout-and-rollback).
 
 ## Public API
 
-The unauthenticated [versioned public API](public-api.md) serves bounded, filterable JSON at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). It uses the same read-only database query and release-pointer selection as the website, with a fixed public-field allowlist and conditional HTTP caching. Applications and eligibility verification remain on the original listing.
+The unauthenticated [versioned public API](public-dataset.md#api-response) serves bounded, filterable JSON at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). It uses the same read-only database query and release-pointer selection as the website, with a fixed public-field allowlist and conditional HTTP caching. Applications and eligibility verification remain on the original listing.
 
 ## Data interpretation
 
@@ -223,7 +223,7 @@ The website:
 - never performs LinkedIn requests;
 - never treats browser activity as lifecycle state;
 - exposes a strictly read-only GET/HEAD API, with OPTIONS for CORS preflight; never exposes a mutation API;
-- serves only the two fixed generated public-export filenames;
+- serves only the three fixed generated public-dataset filenames;
 - observes a newly deployed database and exports on subsequent requests.
 
 The Python pipeline is the sole application writer.

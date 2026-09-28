@@ -105,13 +105,16 @@ jobs:
           sudo cp "$data_dir/opportunities.db" "$data_dir/releases/1-1/opportunities.db"
           sudo cp "$data_dir/exports/open-opportunities.csv" "$data_dir/releases/1-1/exports/"
           sudo cp "$data_dir/exports/open-opportunities.json" "$data_dir/releases/1-1/exports/"
+          sudo cp "$data_dir/exports/dataset-metadata.json" "$data_dir/releases/1-1/exports/"
           sudo chown -R 10001:10001 "$data_dir/releases"
           sudo chmod 550 "$data_dir/releases/1-1" "$data_dir/releases/1-1/exports"
           sudo chmod 440 "$data_dir/releases/1-1/opportunities.db" \
             "$data_dir/releases/1-1/exports/open-opportunities.csv" \
-            "$data_dir/releases/1-1/exports/open-opportunities.json"
+            "$data_dir/releases/1-1/exports/open-opportunities.json" \
+            "$data_dir/releases/1-1/exports/dataset-metadata.json"
           sudo ln -s releases/1-1 "$data_dir/current"
           printf 'legacy-only\n' | sudo tee "$data_dir/exports/open-opportunities.csv" >/dev/null
+          printf 'legacy-only\n' | sudo tee "$data_dir/exports/dataset-metadata.json" >/dev/null
           # The image was built with Compose's localhost default; runtime metadata
           # routes must still advertise the production origin.
           if ! SITE_URL=https://techopportunities.eu OPPORTUNITIES_RELEASE_ROOT=/app/data docker compose up --detach site; then
@@ -141,14 +144,18 @@ jobs:
           fi
 
           if ! docker compose exec --no-TTY site node --input-type=module <<'NODE'
+          import {createHash} from "node:crypto";
+          import {readFileSync} from "node:fs";
           import {get} from "node:http";
 
           const baseUrl = "http://127.0.0.1:3000";
           const canonicalOrigin = "https://techopportunities.eu";
-          const [page, csv, json, robots, sitemap] = await Promise.all([
+          const [page, csv, json, metadata, schema, robots, sitemap] = await Promise.all([
             fetch(baseUrl),
             fetch(`${baseUrl}/open-opportunities.csv`),
             fetch(`${baseUrl}/open-opportunities.json`),
+            fetch(`${baseUrl}/dataset-metadata.json`),
+            fetch(`${baseUrl}/schemas/opportunities-v1.schema.json`),
             fetch(`${baseUrl}/robots.txt`),
             fetch(`${baseUrl}/sitemap.xml`),
           ]);
@@ -173,17 +180,29 @@ jobs:
           const hsts = page.headers.get("strict-transport-security") ?? "";
           const csvDisposition = csv.headers.get("content-disposition") ?? "";
           const jsonDisposition = json.headers.get("content-disposition") ?? "";
-          const [pageHtml, csvText, jsonText, robotsText, sitemapText] = await Promise.all([
+          const [pageHtml, csvBytes, jsonBytes, metadataText, schemaBytes, robotsText, sitemapText] = await Promise.all([
             page.text(),
-            csv.text(),
-            json.text(),
+            csv.arrayBuffer(),
+            json.arrayBuffer(),
+            metadata.text(),
+            schema.arrayBuffer(),
             robots.text(),
             sitemap.text(),
           ]);
+          const datasetMetadata = metadata.ok ? JSON.parse(metadataText) : null;
+          const csvText = Buffer.from(csvBytes).toString("utf8");
+          const jsonText = Buffer.from(jsonBytes).toString("utf8");
+          const sha256 = bytes => createHash("sha256").update(Buffer.from(bytes)).digest("hex");
           const valid =
             page.ok &&
             csv.ok &&
             json.ok &&
+            metadata.ok &&
+            schema.ok &&
+            schema.headers.get("content-type")?.includes("application/schema+json") &&
+            Buffer.from(schemaBytes).equals(readFileSync("/app/schemas/opportunities-v1.schema.json")) &&
+            JSON.parse(Buffer.from(schemaBytes).toString("utf8")).$id ===
+              `${canonicalOrigin}/schemas/opportunities-v1.schema.json` &&
             robots.ok &&
             sitemap.ok &&
             csp.includes("default-src 'self'") &&
@@ -213,6 +232,13 @@ jobs:
               "linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date"
             ) &&
             jsonText.trim() === "[]" &&
+            datasetMetadata.schema_version === "v1" &&
+            datasetMetadata.total === 0 &&
+            datasetMetadata.internship_count === 0 &&
+            datasetMetadata.new_grad_count === 0 &&
+            datasetMetadata.csv_sha256 === sha256(csvBytes) &&
+            datasetMetadata.json_sha256 === sha256(jsonBytes) &&
+            !metadataText.includes("legacy-only") &&
             robotsText.includes(`Host: ${canonicalOrigin}`) &&
             robotsText.includes(`Sitemap: ${canonicalOrigin}/sitemap.xml`) &&
             sitemapText.includes(`<loc>${canonicalOrigin}/</loc>`);

@@ -1,0 +1,3 @@
+linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date
+1000000001,Example Labs,Software Engineering Intern 2027,"Berlin, Germany",https://www.linkedin.com/jobs/view/1000000001,software-engineering,Software Development,internship,June 2027
+1000000002,Example Data,Graduate Data Engineer 2027,"Paris, France",https://www.linkedin.com/jobs/view/1000000002,data-engineering,,new-grad,

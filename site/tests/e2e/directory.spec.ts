@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {expect, test} from "@playwright/test";
 import {siteConfig} from "@/lib/site-config";
 import {expectRoleCount, openDirectory} from "./helpers";
@@ -37,6 +38,23 @@ test("downloads sanitized public CSV and JSON exports", async ({page, request}) 
   ]);
   expect(rows[0]).not.toHaveProperty("status");
   expect(rows[0]).not.toHaveProperty("first_seen_at");
+
+  const metadataResponse = await request.get("/dataset-metadata.json");
+  expect(metadataResponse.ok()).toBeTruthy();
+  const metadata = await metadataResponse.json();
+  expect(metadata.schema_version).toBe("v1");
+  expect(metadata.total).toBe(rows.length);
+  expect(metadata.internship_count + metadata.new_grad_count).toBe(rows.length);
+  expect(metadata.csv_sha256).toBe(
+    createHash("sha256")
+      .update(await csvResponse.body())
+      .digest("hex")
+  );
+  expect(metadata.json_sha256).toBe(
+    createHash("sha256")
+      .update(await jsonResponse.body())
+      .digest("hex")
+  );
 });
 
 test("filters opportunities and writes shareable URL parameters", async ({page}) => {

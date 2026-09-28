@@ -20,6 +20,7 @@ dependencies = [
   "alembic>=1.19.1,<2",
   "beautifulsoup4>=4.12.3,<5",
   "httpx>=0.27.0,<1",
+  "jsonschema>=4.23,<5",
   "pydantic>=2.8.2,<3",
   "python-dotenv>=1.0.1,<2",
   "pyyaml>=6.0.2,<7",
@@ -45,6 +46,7 @@ dev = [
   "pytest-cov>=7.0.0,<8",
   "ruff>=0.16.2,<1",
   "types-beautifulsoup4>=4.12.0.20240511",
+  "types-jsonschema>=4.26.0.20260518",
   "types-pyyaml>=6.0.12.20260724",
 ]
 docs = [
@@ -61,6 +63,7 @@ include = [
   "/src/opportunities",
   "/configs",
   "/migrations",
+  "/schemas",
   "/alembic.ini",
   "/LICENSE",
   "/README.md",
@@ -73,6 +76,7 @@ packages = ["src/opportunities"]
 "alembic.ini" = "opportunities/resources/alembic.ini"
 "configs" = "opportunities/resources/configs"
 "migrations" = "opportunities/resources/migrations"
+"schemas" = "opportunities/resources/schemas"
 
 [tool.ruff]
 target-version = "py312"

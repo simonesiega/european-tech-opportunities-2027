@@ -81,12 +81,20 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     assert "# 23 technology paths" in docs_path.read_text(encoding="utf-8")
     assert (tmp_path / "exports" / "open-opportunities.csv").is_file()
     assert (tmp_path / "exports" / "open-opportunities.json").is_file()
+    assert (tmp_path / "exports" / "dataset-metadata.json").is_file()
 
     statistics = runner.invoke(app, ["stats"], env=environment)
     assert statistics.exit_code == 0
     assert "Total positions" in statistics.output
     validated = runner.invoke(app, ["validate"], env=environment)
     assert validated.exit_code == 0, validated.output
+    metadata_path = tmp_path / "exports" / "dataset-metadata.json"
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    metadata["total"] = 1
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    invalid = runner.invoke(app, ["validate"], env=environment)
+    assert invalid.exit_code == 1
+    assert "metadata counts or hashes" in invalid.output
 
 
 def test_controlled_insertion_and_removal_require_projection_regeneration(tmp_path: Path) -> None:
