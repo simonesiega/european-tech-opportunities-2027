@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 27, 2026 at 10:45 UTC</strong><br>
+  <strong>Last successful collection: September 28, 2026 at 11:03 UTC</strong><br>
   <img src="https://img.shields.io/badge/Total%20opportunities-732-2563eb?style=for-the-badge" alt="Total opportunities: 732" />
   <img src="https://img.shields.io/badge/Internships-321-16a34a?style=for-the-badge" alt="Internships: 321" />
   <img src="https://img.shields.io/badge/New%20Grad-411-9333ea?style=for-the-badge" alt="New Grad opportunities: 411" />
 </p>
-<!-- Public directory state v1 sha256: 7454d5945910a9f13482940696490d6e0c2169233197c642f790fd8483f58eed -->
+<!-- Public directory state v1 sha256: 290a7075c28d50b12892a77aa14d08c45eb023b60fe9fb41f003814baf2a48dd -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
@@ -80,7 +80,7 @@ The README shows up to five opportunities for each employment type as a lightwei
 
 <!-- BEGIN OPPORTUNITIES -->
 **Open opportunities:** 732 (Internships: 321 · New Grad: 411)<br>
-**Last successful collection:** September 27, 2026 at 10:45 UTC
+**Last successful collection:** September 28, 2026 at 11:03 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
