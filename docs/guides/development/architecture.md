@@ -202,7 +202,7 @@ The website contract is documented in the [website guide](../user-guide/website.
 
 ### Versioned public API
 
-`site/src/app/api/v1/opportunities/route.ts` reuses the website's read-only SQLite query and atomic release selection. Its bounded, validated query parameters feed shared presentation filtering; an explicit public-field allowlist produces JSON, never SQL constructed from user input. The API neither writes lifecycle state nor reads exports as a source of truth. See the [public API contract](../user-guide/public-api.md).
+`site/src/app/api/v1/opportunities/route.ts` reuses the website's read-only SQLite query and atomic release selection. Its bounded, validated query parameters feed shared presentation filtering; an explicit public-field allowlist produces JSON, never SQL constructed from user input. The API neither writes lifecycle state nor reads exports as a source of truth. See the [public dataset and API contract](../user-guide/public-dataset.md#api-response).
 
 ### README preview
 
@@ -221,7 +221,7 @@ The README cannot reconstruct lifecycle state because it omits most jobs, closed
 
 ### Public CSV and JSON exports
 
-The pipeline atomically generates `open-opportunities.csv` and `open-opportunities.json` from all currently open SQLite rows. The export schema is an explicit allowlist:
+The pipeline atomically generates `open-opportunities.csv`, `open-opportunities.json`, and their `dataset-metadata.json` manifest from all currently open SQLite rows. The shared v1 schema at `schemas/opportunities-v1.schema.json` defines the JSON, decoded CSV, API response, and metadata contracts; validation checks actual downloads and manifest counts and hashes before publication. See the [public dataset contracts](../user-guide/public-dataset.md). The export schema is an explicit allowlist:
 
 - LinkedIn job ID;
 - company, title, and location;

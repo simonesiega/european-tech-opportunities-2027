@@ -32,6 +32,7 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY alembic.ini ./
 COPY migrations ./migrations
 COPY configs ./configs
+COPY schemas ./schemas
 COPY src ./src
 
 RUN uv sync --frozen --no-dev \
@@ -81,7 +82,8 @@ ENV NODE_ENV=production \
     PORT=3000 \
     SITE_URL=https://techopportunities.eu \
     OPPORTUNITIES_DATABASE_PATH=/app/data/opportunities.db \
-    OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports
+    OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports \
+    OPPORTUNITIES_SCHEMA_PATH=/app/schemas/opportunities-v1.schema.json
 
 # Install exact security revisions until they are incorporated into the pinned
 # base image, then omit npm because the standalone server does not use it.
@@ -101,6 +103,7 @@ RUN apt-get update \
 
 COPY --from=site-builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=site-builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --chown=nextjs:nodejs schemas/opportunities-v1.schema.json ./schemas/opportunities-v1.schema.json
 
 EXPOSE 3000
 USER 10001:10001

@@ -84,6 +84,21 @@ describe("public API contract", () => {
     ]);
   });
 
+  test("publishes UTC RFC 3339 first-seen timestamps without losing microseconds", () => {
+    const examples = [
+      ["2026-07-17 12:00:00.123456", "2026-07-17T12:00:00.123456+00:00"],
+      ["2026-07-17T12:00:00Z", "2026-07-17T12:00:00.000000+00:00"],
+      ["2026-07-17T14:00:00.123456+02:00", "2026-07-17T12:00:00.123456+00:00"],
+    ] as const;
+    for (const [stored, published] of examples) {
+      expect(payload("", [row("100", {firstSeenAt: stored})]).data[0].firstSeenAt).toBe(published);
+    }
+    expect(
+      payload("", [row("100", {firstSeenAt: "2026-07-17T12:00:00.1Z"})]).data[0].firstSeenAt
+    ).toBe("2026-07-17T12:00:00.100000+00:00");
+    expect(() => payload("", [row("100", {firstSeenAt: "not a date"})])).toThrow();
+  });
+
   test("stable explicit public field allowlist", () => {
     expect(Object.keys(payload().data[0])).toEqual([
       "linkedinJobId",

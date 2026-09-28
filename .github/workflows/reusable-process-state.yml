@@ -278,6 +278,10 @@ jobs:
         shell: bash
         run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 
+      - name: Revalidate release files immediately before deployment
+        if: inputs.deploy_to_vps
+        run: uv run opportunities validate
+
       - name: Publish versioned database and exports release
         if: inputs.deploy_to_vps
         env:
@@ -298,6 +302,7 @@ jobs:
           mkdir -p "$bundle/exports"
           cp data/exports/open-opportunities.csv "$bundle/exports/open-opportunities.csv"
           cp data/exports/open-opportunities.json "$bundle/exports/open-opportunities.json"
+          cp data/exports/dataset-metadata.json "$bundle/exports/dataset-metadata.json"
           cp README.md "$bundle/README.md"
 
       - name: Upload retained public-projection bundle

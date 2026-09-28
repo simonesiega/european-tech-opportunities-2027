@@ -1,3 +1,4 @@
+import {createHash} from "node:crypto";
 import {mkdirSync, rmSync, writeFileSync} from "node:fs";
 import path from "node:path";
 import {Database} from "bun:sqlite";
@@ -106,6 +107,9 @@ for (let index = 1; index <= 9; index += 1) {
   ]);
 }
 
+// Exercise the real SQLite timestamp representation at the API boundary.
+jobs[0][9] = jobs[0][9].replace("T", " ").replace("Z", "");
+
 const transaction = database.transaction((rows) => {
   for (const job of rows) insertJob.run(...job);
 });
@@ -137,9 +141,21 @@ const csv = [
   ...publicRows.map((row) => publicFields.map((field) => csvCell(row[field])).join(",")),
 ].join("\n");
 
-writeFileSync(path.join(fixtureDirectory, "open-opportunities.csv"), `${csv}\n`, "utf8");
+const csvContent = `${csv}\n`;
+const jsonContent = `${JSON.stringify(publicRows, null, 2)}\n`;
+writeFileSync(path.join(fixtureDirectory, "open-opportunities.csv"), csvContent, "utf8");
+writeFileSync(path.join(fixtureDirectory, "open-opportunities.json"), jsonContent, "utf8");
+const sha256 = (content) => createHash("sha256").update(content).digest("hex");
 writeFileSync(
-  path.join(fixtureDirectory, "open-opportunities.json"),
-  `${JSON.stringify(publicRows, null, 2)}\n`,
+  path.join(fixtureDirectory, "dataset-metadata.json"),
+  `${JSON.stringify({
+    schema_version: "v1",
+    generated_at: "2026-07-17T12:00:00+00:00",
+    total: publicRows.length,
+    internship_count: publicRows.filter((row) => row.employment_type === "internship").length,
+    new_grad_count: publicRows.filter((row) => row.employment_type === "new-grad").length,
+    json_sha256: sha256(jsonContent),
+    csv_sha256: sha256(csvContent),
+  })}\n`,
   "utf8"
 );

@@ -56,7 +56,7 @@
   />
 </p>
 
-Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets. For programmatic access, use the read-only [public API](docs/guides/user-guide/public-api.md) at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). Applications and eligibility checks remain on the original listing.
+Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets. For programmatic access, use the read-only [public API](docs/guides/user-guide/public-dataset.md#api-response) at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). Applications and eligibility checks remain on the original listing.
 
 `https://techopportunities.eu/` is the sole canonical public origin. The former `https://opportunities2027.simonesiega.com` host is retained only for permanent redirects to the same path and query on the canonical site, not as an alternative canonical URL. See [deployment instructions](docs/guides/operations/docker.md#dokploy-deployment).
 
@@ -72,7 +72,7 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 
 - **Searchable website:** browse all currently open opportunities at [techopportunities.eu](https://techopportunities.eu/) with search, filters, sorting, pagination, shareable views, and direct links to the original listings.
 - **CSV and JSON exports:** download the complete sanitized open-opportunity dataset as [CSV](https://techopportunities.eu/open-opportunities.csv) or [JSON](https://techopportunities.eu/open-opportunities.json) for analysis, spreadsheets, scripts, or other offline workflows.
-- **Public API:** query the same canonical data through the versioned, read-only [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities) endpoint with validated filters, bounded pagination, deterministic responses, and HTTP caching. See the [API documentation](docs/guides/user-guide/public-api.md) for the full contract.
+- **Public API:** query the same canonical data through the versioned, read-only [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities) endpoint with validated filters, bounded pagination, deterministic responses, and HTTP caching. See the [API documentation](docs/guides/user-guide/public-dataset.md#api-response) for the full contract.
 
 ## Latest opportunities
 
@@ -204,7 +204,7 @@ Browse the [searchable documentation](https://docs.techopportunities.eu/) or rea
 | Area | Canonical guides |
 |---|---|
 | Setup | [Installation](docs/guides/getting-started/installation.md) · [Configuration](docs/guides/getting-started/configuration.md) |
-| Using the project | [Website](docs/guides/user-guide/website.md) · [Public API](docs/guides/user-guide/public-api.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
+| Using the project | [Website](docs/guides/user-guide/website.md) · [Public dataset and API](docs/guides/user-guide/public-dataset.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
 | Production operation | [Automation](docs/guides/operations/automation.md) · [Database](docs/guides/operations/database.md) · [Docker](docs/guides/operations/docker.md) · [Troubleshooting](docs/guides/operations/troubleshooting.md) |
 | Development | [Architecture](docs/guides/development/architecture.md) · [Development](docs/guides/development/development.md) · [Contributing](CONTRIBUTING.md) |
 | Policies | [Security](SECURITY.md) · [Privacy](PRIVACY.md) · [Code of Conduct](CODE_OF_CONDUCT.md) |

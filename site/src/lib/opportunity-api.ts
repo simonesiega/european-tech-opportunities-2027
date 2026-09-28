@@ -147,9 +147,18 @@ export function apiPayload(
       industries: item.industries,
       employmentType: item.employmentType,
       startDate: item.startDate,
-      firstSeenAt: item.firstSeenAt,
+      firstSeenAt: apiFirstSeenAt(item.firstSeenAt),
     })),
   };
+}
+
+function apiFirstSeenAt(value: string): string {
+  const match =
+    /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.(\d{1,6}))?(?:Z|[+-]\d{2}:\d{2})?$/.exec(value);
+  const timestamp = parseOpportunityTimestamp(value);
+  if (!match || !Number.isFinite(timestamp)) throw new Error("Invalid first-seen timestamp");
+  const fraction = (match[1] ?? "").padEnd(6, "0");
+  return `${new Date(timestamp).toISOString().slice(0, 19)}.${fraction}+00:00`;
 }
 
 export function apiEtag(body: string): string {
