@@ -251,7 +251,8 @@ The Next.js website uses these runtime or build variables:
 | Variable | Default | Purpose |
 |---|---|---|
 | `OPPORTUNITIES_DATABASE_PATH` | `../data/opportunities.db` | Read-only SQLite file when versioned mode is disabled |
-| `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `../data/exports` | Read-only generated CSV/JSON directory when versioned mode is disabled |
+| `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `../data/exports` | Read-only generated CSV/JSON and dataset metadata directory when versioned mode is disabled |
+| `OPPORTUNITIES_SCHEMA_PATH` | `../schemas/opportunities-v1.schema.json` | Fixed read-only v1 schema file served at `/schemas/opportunities-v1.schema.json`; the site image sets this to its copy of the repository source |
 | `OPPORTUNITIES_RELEASE_ROOT` | unset or empty | When nonempty, resolve `<root>/current` once per server operation and read the database or exports from that release; an invalid or missing pointer fails closed, without using the legacy paths |
 | `SITE_URL` | `http://localhost:3000` | HTTP(S) origin used by metadata, structured data, robots, and the sitemap; credentials, paths, queries, fragments, and the legacy redirect hostname are rejected. The production hostname `techopportunities.eu` requires the exact HTTPS origin (no custom port). |
 
@@ -277,6 +278,7 @@ After the [coordinated production rollout](../operations/automation.md#coordinat
 ```dotenv
 SITE_URL=https://techopportunities.eu
 OPPORTUNITIES_RELEASE_ROOT=/app/data
+OPPORTUNITIES_SCHEMA_PATH=/app/schemas/opportunities-v1.schema.json
 ```
 
 For each directory or download request, the site selects a release once and reads its database or exports through `/app/data/current/`. A page and a later download may select different releases during a cutover. Compose still supplies the legacy fixed-path variables for local development and migration; setting `OPPORTUNITIES_RELEASE_ROOT` takes precedence over both. The site must retain a read-only bind mount containing **both** `current` and `releases/`. Do not enable versioned mode until the first release has been deployed and verified.

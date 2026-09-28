@@ -1,6 +1,47 @@
+import {readFileSync} from "node:fs";
+import path from "node:path";
+import Ajv2020 from "ajv/dist/2020.js";
 import {expect, test} from "@playwright/test";
 
 const endpoint = "/api/v1/opportunities";
+const contract = JSON.parse(
+  readFileSync(path.resolve("../schemas/opportunities-v1.schema.json"), "utf8")
+);
+const ajv = new Ajv2020();
+const validateApi = ajv.compile({$ref: "#/$defs/apiResponse", $defs: contract.$defs});
+const validateDownload = ajv.compile(contract);
+
+test("serves the exact repository v1 schema at its canonical product URL", async ({request}) => {
+  const response = await request.get("/schemas/opportunities-v1.schema.json");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("application/schema+json");
+  expect(await response.body()).toEqual(
+    readFileSync(path.resolve("../schemas/opportunities-v1.schema.json"))
+  );
+  expect((await response.json()).$id).toBe(
+    "https://techopportunities.eu/schemas/opportunities-v1.schema.json"
+  );
+});
+
+test("v1 schema rejects private API fields and invalid envelopes", () => {
+  expect(
+    validateApi({version: "v1", error: {code: "unavailable", message: "Directory unavailable"}})
+  ).toBe(true);
+  expect(
+    validateApi({
+      version: "v1",
+      error: {code: "invalid_query", message: "Invalid query", privatePath: "/tmp/db"},
+    })
+  ).toBe(false);
+  expect(
+    validateApi({
+      version: "v1",
+      pagination: {page: 0, pageSize: 10, total: 0, totalPages: 0},
+      data: [],
+    })
+  ).toBe(false);
+  expect(validateDownload([{company: "incomplete"}])).toBe(false);
+});
 
 test("read-only API serves canonical rows with stable schema, filtering and pagination", async ({
   request,
@@ -11,6 +52,23 @@ test("read-only API serves canonical rows with stable schema, filtering and pagi
   expect(response.headers()["access-control-allow-origin"]).toBe("*");
   expect(response.headers()["access-control-expose-headers"]).toBe("ETag, Cache-Control");
   const body = await response.json();
+  expect(validateApi(body), JSON.stringify(validateApi.errors)).toBe(true);
+  expect(body.data[0].firstSeenAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00$/);
+  expect(
+    validateApi({
+      ...body,
+      data: [{...body.data[0], firstSeenAt: "2026-07-17 12:00:00.000000"}],
+    })
+  ).toBe(false);
+  for (const noncanonical of [
+    "2026-07-17T12:00:00",
+    "2026-07-17T12:00:00Z",
+    "2026-07-17T12:00:00.123+00:00",
+  ]) {
+    expect(validateApi({...body, data: [{...body.data[0], firstSeenAt: noncanonical}]})).toBe(
+      false
+    );
+  }
   expect(body.version).toBe("v1");
   expect(body.pagination).toEqual({page: 1, pageSize: 10, total: 12, totalPages: 2});
   expect(body.data).toHaveLength(10);
@@ -37,6 +95,31 @@ test("read-only API serves canonical rows with stable schema, filtering and pagi
   expect(filteredBody.pagination).toEqual({page: 1, pageSize: 1, total: 1, totalPages: 1});
   expect(filteredBody.data[0].linkedinJobId).toBe("1000000002");
   expect((await (await request.get(`${endpoint}?country=Unknown`)).json()).data).toEqual([]);
+
+  const allApiRows = (await (await request.get(`${endpoint}?page-size=100`)).json()).data;
+  expect(
+    allApiRows.find((row: {linkedinJobId: string}) => row.linkedinJobId === "1000000001")
+      ?.firstSeenAt
+  ).toMatch(/T.*\+00:00$/);
+  const exportRows = await (await request.get("/open-opportunities.json")).json();
+  expect(validateDownload(exportRows), JSON.stringify(validateDownload.errors)).toBe(true);
+  const byId = (left: {linkedin_job_id: string}, right: {linkedin_job_id: string}) =>
+    left.linkedin_job_id.localeCompare(right.linkedin_job_id, "en", {numeric: true});
+  expect(
+    allApiRows
+      .map((row: (typeof allApiRows)[number]) => ({
+        linkedin_job_id: row.linkedinJobId,
+        company: row.company,
+        title: row.title,
+        location: row.location,
+        link: row.link,
+        category: row.category,
+        industries: row.industries,
+        employment_type: row.employmentType,
+        start_date: row.startDate,
+      }))
+      .sort(byId)
+  ).toEqual(exportRows.sort(byId));
 });
 
 test("semantically equivalent query strings return identical representations and ETags", async ({
@@ -90,7 +173,9 @@ test("ETag revalidation, validation errors, and no mutation endpoints", async ({
   ]) {
     const invalid = await request.get(`${endpoint}${query}`);
     expect(invalid.status()).toBe(400);
-    expect(await invalid.json()).toMatchObject({version: "v1", error: {code: "invalid_query"}});
+    const errorBody = await invalid.json();
+    expect(validateApi(errorBody), JSON.stringify(validateApi.errors)).toBe(true);
+    expect(errorBody).toMatchObject({version: "v1", error: {code: "invalid_query"}});
     expect(invalid.headers()["cache-control"]).toBe("no-store");
     expect(invalid.headers()["access-control-allow-origin"]).toBe("*");
   }

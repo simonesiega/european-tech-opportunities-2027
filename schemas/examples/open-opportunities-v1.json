@@ -1,0 +1,24 @@
+[
+  {
+    "linkedin_job_id": "1000000001",
+    "company": "Example Labs",
+    "title": "Software Engineering Intern 2027",
+    "location": "Berlin, Germany",
+    "link": "https://www.linkedin.com/jobs/view/1000000001",
+    "category": "software-engineering",
+    "industries": "Software Development",
+    "employment_type": "internship",
+    "start_date": "June 2027"
+  },
+  {
+    "linkedin_job_id": "1000000002",
+    "company": "Example Data",
+    "title": "Graduate Data Engineer 2027",
+    "location": "Paris, France",
+    "link": "https://www.linkedin.com/jobs/view/1000000002",
+    "category": "data-engineering",
+    "industries": null,
+    "employment_type": "new-grad",
+    "start_date": null
+  }
+]

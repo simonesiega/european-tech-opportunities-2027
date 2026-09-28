@@ -49,6 +49,7 @@ Normal tests and builds require no LinkedIn access. First-time setup belongs in 
 ├── data/                    # ignored SQLite runtime state
 ├── docs/                    # Markdown guides and visual assets
 ├── migrations/              # Alembic history
+├── schemas/                 # versioned public JSON dataset contract
 ├── scripts/                 # operational helpers and validation checks
 ├── site/                    # Next.js website and Playwright tests
 ├── src/opportunities/       # Python package
@@ -97,7 +98,7 @@ GNU Make provides the shortcuts below. On Windows or another environment without
 | `make install` | Install Python development dependencies |
 | `make lock` | Verify that `uv.lock` matches project metadata |
 | `make migrate` | Upgrade the configured local database |
-| `make render` | Regenerate the README, registry documentation, and public CSV/JSON projections from representative state |
+| `make render` | Regenerate the README, registry documentation, and public CSV/JSON projections plus dataset metadata from representative state |
 | `make validate` | Validate SQLite state and every generated projection |
 | `make searches` | Inspect the effective search registry |
 | `make stats` | Inspect aggregate database state |
@@ -194,7 +195,7 @@ uv run opportunities validate
 uv run pytest tests/integration/test_readme.py -q
 ```
 
-Generated files must be updated through their owning commands rather than edited manually. Public exports are written under the configured export directory and must contain only the approved field allowlist.
+Generated files must be updated through their owning commands rather than edited manually. Public exports and `dataset-metadata.json` are written under the configured export directory. `opportunities validate` checks the JSON, decoded CSV, and metadata against the shared `schemas/opportunities-v1.schema.json`, compares the CSV/JSON to SQLite, and checks counts and byte-level SHA-256 hashes. Website CI validates API response bodies against the same schema. Do not commit local generated datasets.
 
 ### Containers
 

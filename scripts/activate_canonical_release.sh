@@ -7,6 +7,7 @@ set -euo pipefail
 : "${DATABASE_SHA:?}"
 : "${CSV_SHA:?}"
 : "${JSON_SHA:?}"
+: "${METADATA_SHA:?}"
 : "${RELEASE_GROUP:=opportunities-site}"
 
 if [[ "$RELEASE_DATA_DIR" != /* || "$RELEASE_DATA_DIR" == *".."* \
@@ -15,7 +16,7 @@ if [[ "$RELEASE_DATA_DIR" != /* || "$RELEASE_DATA_DIR" == *".."* \
   echo "Invalid release configuration." >&2
   exit 2
 fi
-for hash in "$DATABASE_SHA" "$CSV_SHA" "$JSON_SHA"; do
+for hash in "$DATABASE_SHA" "$CSV_SHA" "$JSON_SHA" "$METADATA_SHA"; do
   if [[ ! "$hash" =~ ^[0-9a-f]{64}$ ]]; then
     echo "Invalid release checksum." >&2
     exit 2
@@ -51,7 +52,8 @@ for sidecar in "$staging/opportunities.db-wal" "$staging/opportunities.db-shm" "
 done
 for entry in "opportunities.db:$DATABASE_SHA" \
   "exports/open-opportunities.csv:$CSV_SHA" \
-  "exports/open-opportunities.json:$JSON_SHA"; do
+  "exports/open-opportunities.json:$JSON_SHA" \
+  "exports/dataset-metadata.json:$METADATA_SHA"; do
   file="${entry%:*}"
   expected="${entry#*:}"
   if [[ ! -f "$staging/$file" || -L "$staging/$file" \
@@ -61,29 +63,33 @@ for entry in "opportunities.db:$DATABASE_SHA" \
   fi
 done
 
-# Retain the three expected digests alongside the release for offline inspection
+# Retain the four expected digests alongside the release for offline inspection
 # and rollback verification. This is not a substitute for the restricted snapshot.
 printf '%s  %s\n' \
   "$DATABASE_SHA" opportunities.db \
   "$CSV_SHA" exports/open-opportunities.csv \
-  "$JSON_SHA" exports/open-opportunities.json >"$staging/checksums.sha256"
+  "$JSON_SHA" exports/open-opportunities.json \
+  "$METADATA_SHA" exports/dataset-metadata.json >"$staging/checksums.sha256"
 
 # The deployment user owns releases for controlled maintenance; the site group
 # can only traverse directories and read payloads, never write canonical state.
 mkdir -p "$releases"
 chgrp "$RELEASE_GROUP" "$releases" "$staging" "$staging/exports" \
   "$staging/opportunities.db" "$staging/exports/open-opportunities.csv" \
-  "$staging/exports/open-opportunities.json" "$staging/checksums.sha256"
+  "$staging/exports/open-opportunities.json" "$staging/exports/dataset-metadata.json" \
+  "$staging/checksums.sha256"
 chmod 750 "$releases" "$staging" "$staging/exports"
 chmod 640 "$staging/opportunities.db" "$staging/exports/open-opportunities.csv" \
-  "$staging/exports/open-opportunities.json" "$staging/checksums.sha256"
+  "$staging/exports/open-opportunities.json" "$staging/exports/dataset-metadata.json" \
+  "$staging/checksums.sha256"
 
 # Promote the complete directory, then remove write bits before advertising it.
 # The deployment owner can still change permissions for deliberate rollback or repair.
 mv -T "$staging" "$release"
 chmod 550 "$release" "$release/exports"
 chmod 440 "$release/opportunities.db" "$release/exports/open-opportunities.csv" \
-  "$release/exports/open-opportunities.json" "$release/checksums.sha256"
+  "$release/exports/open-opportunities.json" "$release/exports/dataset-metadata.json" \
+  "$release/checksums.sha256"
 
 # Flush complete files and directory metadata before advertising this release. Both
 # renames must be on the same host filesystem; the pointer rename is the cutover.
@@ -93,7 +99,7 @@ import sys
 from pathlib import Path
 
 release = Path(sys.argv[1])
-for name in ("opportunities.db", "exports/open-opportunities.csv", "exports/open-opportunities.json", "checksums.sha256"):
+for name in ("opportunities.db", "exports/open-opportunities.csv", "exports/open-opportunities.json", "exports/dataset-metadata.json", "checksums.sha256"):
     with (release / name).open("rb") as stream:
         os.fsync(stream.fileno())
 for directory in (release / "exports", release):

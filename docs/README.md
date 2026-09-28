@@ -25,7 +25,7 @@ Read this hub on [GitHub](https://github.com/simonesiega/european-tech-opportuni
 | Guide | Covers |
 |---|---|
 | [Website](guides/user-guide/website.md) | Search, filters, sorting, pagination, themes, sanitized CSV/JSON downloads, and read-only behavior. |
-| [Public API](guides/user-guide/public-api.md) | Versioned read-only JSON endpoint, query parameters, schema, caching, and errors. |
+| [Public dataset and API](guides/user-guide/public-dataset.md) | Examples and the shared v1 contract for JSON, CSV, API responses, metadata, query parameters, and caching. |
 | [CLI reference](guides/user-guide/cli.md) | Commands, options, side effects, network behavior, and exit codes. |
 | [Search registry](guides/user-guide/search-registry.md) | Search groups, YAML schema, validation, limit tiers, and query changes. |
 

@@ -147,9 +147,65 @@ export function apiPayload(
       industries: item.industries,
       employmentType: item.employmentType,
       startDate: item.startDate,
-      firstSeenAt: item.firstSeenAt,
+      firstSeenAt: apiFirstSeenAt(item.firstSeenAt),
     })),
   };
+}
+
+function apiFirstSeenAt(value: string): string {
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])(\d{2}):(\d{2}))?$/.exec(
+      value
+    );
+  if (!match) throw new Error("Invalid first-seen timestamp");
+
+  const [
+    ,
+    yearText,
+    monthText,
+    dayText,
+    hourText,
+    minuteText,
+    secondText,
+    fractionText,
+    ,
+    sign,
+    offsetHourText,
+    offsetMinuteText,
+  ] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  const offsetHour = Number(offsetHourText ?? 0);
+  const offsetMinute = Number(offsetMinuteText ?? 0);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > daysInMonth[month - 1]! ||
+    hour > 23 ||
+    minute > 59 ||
+    second > 59 ||
+    offsetHour > 23 ||
+    offsetMinute > 59
+  ) {
+    throw new Error("Invalid first-seen timestamp");
+  }
+
+  const timestamp = new Date(0);
+  timestamp.setUTCFullYear(year, month - 1, day);
+  timestamp.setUTCHours(hour, minute, second, 0);
+  const offset = (offsetHour * 60 + offsetMinute) * (sign === "+" ? 1 : -1);
+  timestamp.setTime(timestamp.getTime() - offset * 60_000);
+  const normalized = timestamp.toISOString();
+  if (!/^\d{4}-/.test(normalized)) throw new Error("Invalid first-seen timestamp");
+  const fraction = (fractionText ?? "").padEnd(6, "0");
+  return `${normalized.slice(0, 19)}.${fraction}+00:00`;
 }
 
 export function apiEtag(body: string): string {

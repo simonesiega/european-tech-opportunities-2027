@@ -20,6 +20,8 @@ def run_deploy(
     tmp_path: Path,
     *,
     fake_transport: bool = False,
+    fail_validation: bool = False,
+    validation_sidecar: bool = False,
     use_ssh_override: bool = True,
     home: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
@@ -37,9 +39,16 @@ def run_deploy(
         env["CANONICAL_STATE_SSH_DIR"] = str(tmp_path / "ssh")
     if home is not None:
         env["HOME"] = str(home)
-    if fake_transport:
+    if fake_transport or fail_validation or validation_sidecar:
         binaries = tmp_path / "bin"
         binaries.mkdir()
+        sidecar = "echo uncheckpointed > data/opportunities.db-wal\n" if validation_sidecar else ""
+        (binaries / "uv").write_text(
+            f"#!/bin/sh\n{sidecar}exit {1 if fail_validation else 0}\n", encoding="utf-8"
+        )
+        (binaries / "uv").chmod(0o755)
+        env["PATH"] = f"{binaries}:{os.environ['PATH']}"
+    if fake_transport:
         (binaries / "ssh").write_text(
             '#!/bin/sh\nprintf "%s\\n" ssh >> "$DEPLOY_CALLS"\nexit 0\n', encoding="utf-8"
         )
@@ -49,7 +58,6 @@ def run_deploy(
         for command in ("ssh", "scp"):
             (binaries / command).chmod(0o755)
         env["DEPLOY_CALLS"] = str(tmp_path / "calls")
-        env["PATH"] = f"{binaries}:{os.environ['PATH']}"
     return subprocess.run(
         ["bash", str(ROOT / "scripts/deploy_canonical_state.sh")],
         cwd=tmp_path,
@@ -66,6 +74,7 @@ def prepare(tmp_path: Path) -> None:
     (tmp_path / "data/opportunities.db").write_bytes(b"synthetic local db")
     (exports / "open-opportunities.csv").write_text("id\n", encoding="utf-8")
     (exports / "open-opportunities.json").write_text("[]\n", encoding="utf-8")
+    (exports / "dataset-metadata.json").write_text('{"total": 0}\n', encoding="utf-8")
 
 
 def test_missing_local_file_fails_before_network(tmp_path: Path) -> None:
@@ -74,6 +83,30 @@ def test_missing_local_file_fails_before_network(tmp_path: Path) -> None:
     result = run_deploy(tmp_path)
     assert result.returncode != 0
     assert "missing or empty" in result.stderr
+    assert not (tmp_path / "ssh").exists()
+
+
+def test_missing_metadata_fails_before_network(tmp_path: Path) -> None:
+    prepare(tmp_path)
+    (tmp_path / "data/exports/dataset-metadata.json").unlink()
+    result = run_deploy(tmp_path)
+    assert result.returncode != 0
+    assert not (tmp_path / "ssh").exists()
+
+
+def test_stale_bundle_fails_validation_before_network(tmp_path: Path) -> None:
+    prepare(tmp_path)
+    result = run_deploy(tmp_path, fail_validation=True)
+    assert result.returncode != 0
+    assert not (tmp_path / "ssh").exists()
+
+
+def test_validation_creating_wal_fails_before_network(tmp_path: Path) -> None:
+    prepare(tmp_path)
+    result = run_deploy(tmp_path, validation_sidecar=True)
+    assert result.returncode != 0
+    assert "Checkpoint" in result.stderr
+    assert (tmp_path / "data/opportunities.db-wal").is_file()
     assert not (tmp_path / "ssh").exists()
 
 

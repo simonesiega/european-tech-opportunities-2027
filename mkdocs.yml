@@ -17,7 +17,7 @@ nav:
       - Configuration: docs/guides/getting-started/configuration.md
   - User Guide:
       - Website: docs/guides/user-guide/website.md
-      - Public API: docs/guides/user-guide/public-api.md
+      - Public dataset and API: docs/guides/user-guide/public-dataset.md
       - CLI: docs/guides/user-guide/cli.md
       - Search registry: docs/guides/user-guide/search-registry.md
   - Operations:

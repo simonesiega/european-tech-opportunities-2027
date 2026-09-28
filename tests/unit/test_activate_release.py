@@ -32,10 +32,12 @@ def stage(root: Path, release_id: str, company: str) -> dict[str, str]:
     (directory / "exports/open-opportunities.json").write_text(
         '["' + company + '"]\n', encoding="utf-8"
     )
+    (directory / "exports/dataset-metadata.json").write_text('{"total": 1}\n', encoding="utf-8")
     files = [
         directory / "opportunities.db",
         directory / "exports/open-opportunities.csv",
         directory / "exports/open-opportunities.json",
+        directory / "exports/dataset-metadata.json",
     ]
     hashes = [hashlib.sha256(file.read_bytes()).hexdigest() for file in files]
     return {
@@ -45,6 +47,7 @@ def stage(root: Path, release_id: str, company: str) -> dict[str, str]:
         "DATABASE_SHA": hashes[0],
         "CSV_SHA": hashes[1],
         "JSON_SHA": hashes[2],
+        "METADATA_SHA": hashes[3],
     }
 
 
@@ -82,13 +85,17 @@ def test_single_cutover_retains_active_reader_and_legacy_paths(tmp_path: Path) -
     assert (tmp_path / "releases/2-1/opportunities.db").stat().st_mode & 0o777 == 0o440
 
 
-@pytest.mark.parametrize("defect", ["missing", "checksum", "sidecar", "pointer", "duplicate"])
+@pytest.mark.parametrize(
+    "defect", ["missing", "metadata", "checksum", "sidecar", "pointer", "duplicate"]
+)
 def test_failure_preserves_active_release(tmp_path: Path, defect: str) -> None:
     assert activate(stage(tmp_path, "1-1", "old")).returncode == 0
     second = stage(tmp_path, "2-1", "new")
     staged = tmp_path / ".incoming/2-1"
     if defect == "missing":
         (staged / "exports/open-opportunities.json").unlink()
+    elif defect == "metadata":
+        (staged / "exports/dataset-metadata.json").unlink()
     elif defect == "checksum":
         (staged / "exports/open-opportunities.csv").write_text("corrupt\n")
     elif defect == "sidecar":

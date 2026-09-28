@@ -4,7 +4,7 @@ import {readFile} from "node:fs/promises";
 import path from "node:path";
 import {currentReleaseDirectory} from "@/lib/release-path";
 
-type PublicExportFormat = "csv" | "json";
+type PublicExportFormat = "csv" | "json" | "metadata";
 
 const exportMetadata: Record<PublicExportFormat, {filename: string; contentType: string}> = {
   csv: {
@@ -13,6 +13,10 @@ const exportMetadata: Record<PublicExportFormat, {filename: string; contentType:
   },
   json: {
     filename: "open-opportunities.json",
+    contentType: "application/json; charset=utf-8",
+  },
+  metadata: {
+    filename: "dataset-metadata.json",
     contentType: "application/json; charset=utf-8",
   },
 };

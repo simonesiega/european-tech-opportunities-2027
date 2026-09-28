@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://techopportunities.eu/schemas/opportunities-v1.schema.json",
+  "title": "Public opportunities contracts v1",
+  "description": "The root validates the JSON download. $defs/csvDataset validates decoded CSV cells; $defs/apiResponse validates JSON API success and error bodies. CSV byte encoding and HTTP semantics are specified in the public dataset guide.",
+  "$ref": "#/$defs/jsonDataset",
+  "$defs": {
+    "jobId": {"type": "string", "pattern": "^[0-9]{1,30}$"},
+    "company": {"type": "string", "minLength": 1, "maxLength": 200},
+    "title": {"type": "string", "minLength": 1, "maxLength": 500},
+    "location": {"type": "string", "minLength": 1, "maxLength": 500},
+    "link": {"type": "string", "pattern": "^https://www\\.linkedin\\.com/jobs/view/[0-9]{1,30}$", "maxLength": 2048},
+    "category": {"type": "string", "minLength": 1},
+    "industries": {"type": ["string", "null"], "maxLength": 500},
+    "employmentType": {"enum": ["internship", "new-grad"]},
+    "startDate": {"type": ["string", "null"], "maxLength": 100},
+    "jsonRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["linkedin_job_id", "company", "title", "location", "link", "category", "industries", "employment_type", "start_date"],
+      "properties": {
+        "linkedin_job_id": {"$ref": "#/$defs/jobId"},
+        "company": {"$ref": "#/$defs/company"},
+        "title": {"$ref": "#/$defs/title"},
+        "location": {"$ref": "#/$defs/location"},
+        "link": {"$ref": "#/$defs/link"},
+        "category": {"$ref": "#/$defs/category"},
+        "industries": {"$ref": "#/$defs/industries"},
+        "employment_type": {"$ref": "#/$defs/employmentType"},
+        "start_date": {"$ref": "#/$defs/startDate"}
+      }
+    },
+    "jsonDataset": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/jsonRow"}
+    },
+    "csvRow": {
+      "description": "Nine decoded CSV cells in the exact header order. Optional null values become empty strings; formula-sensitive text is prefixed with an apostrophe.",
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "prefixItems": [
+        {"$ref": "#/$defs/jobId"},
+        {"type": "string"},
+        {"type": "string"},
+        {"type": "string"},
+        {"$ref": "#/$defs/link"},
+        {"type": "string"},
+        {"type": "string"},
+        {"$ref": "#/$defs/employmentType"},
+        {"type": "string"}
+      ],
+      "items": false
+    },
+    "csvDataset": {
+      "description": "Parsed RFC 4180-style UTF-8 CSV with LF line endings, one header and zero or more decoded data rows.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["header", "rows"],
+      "properties": {
+        "header": {
+          "const": ["linkedin_job_id", "company", "title", "location", "link", "category", "industries", "employment_type", "start_date"]
+        },
+        "rows": {"type": "array", "items": {"$ref": "#/$defs/csvRow"}}
+      }
+    },
+    "apiRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["linkedinJobId", "company", "title", "location", "link", "category", "industries", "employmentType", "startDate", "firstSeenAt"],
+      "properties": {
+        "linkedinJobId": {"$ref": "#/$defs/jobId"},
+        "company": {"$ref": "#/$defs/company"},
+        "title": {"$ref": "#/$defs/title"},
+        "location": {"$ref": "#/$defs/location"},
+        "link": {"$ref": "#/$defs/link"},
+        "category": {"$ref": "#/$defs/category"},
+        "industries": {"$ref": "#/$defs/industries"},
+        "employmentType": {"$ref": "#/$defs/employmentType"},
+        "startDate": {"$ref": "#/$defs/startDate"},
+        "firstSeenAt": {"type": "string", "description": "UTC RFC 3339 timestamp with exactly six fractional digits and an explicit +00:00 offset.", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}\\+00:00$"}
+      }
+    },
+    "apiSuccess": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "pagination", "data"],
+      "properties": {
+        "version": {"const": "v1"},
+        "pagination": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["page", "pageSize", "total", "totalPages"],
+          "properties": {
+            "page": {"type": "integer", "minimum": 1, "maximum": 10000},
+            "pageSize": {"type": "integer", "minimum": 1, "maximum": 100},
+            "total": {"type": "integer", "minimum": 0},
+            "totalPages": {"type": "integer", "minimum": 0}
+          }
+        },
+        "data": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/apiRow"}}
+      }
+    },
+    "apiError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "error"],
+      "properties": {
+        "version": {"const": "v1"},
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {"enum": ["invalid_query", "unavailable"]},
+            "message": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "apiResponse": {"oneOf": [{"$ref": "#/$defs/apiSuccess"}, {"$ref": "#/$defs/apiError"}]},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "generated_at", "total", "internship_count", "new_grad_count", "json_sha256", "csv_sha256"],
+      "properties": {
+        "schema_version": {"const": "v1"},
+        "generated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]+)?(?:Z|\\+00:00)$"},
+        "total": {"type": "integer", "minimum": 0},
+        "internship_count": {"type": "integer", "minimum": 0},
+        "new_grad_count": {"type": "integer", "minimum": 0},
+        "json_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "csv_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}
