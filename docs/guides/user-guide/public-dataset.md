@@ -11,7 +11,7 @@ The canonical machine-readable contract is served at [`/schemas/opportunities-v1
 | API | [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities) | `#/$defs/apiResponse` | Paginated success or JSON error object |
 | Dataset metadata | [`/dataset-metadata.json`](https://techopportunities.eu/dataset-metadata.json) | `#/$defs/metadata` | Version, UTC generation time, counts, and download hashes |
 
-The three **synthetic, non-live examples** below are also maintained as separate, test-validated files under `schemas/examples/`. The JSON Schema reuses common field definitions rather than maintaining three unrelated sets of constraints. Schema validation covers structures and field types; the pipeline additionally validates SQLite provenance, sanitized output, and exact file content.
+The four **synthetic, non-live examples** below are also maintained as separate, test-validated files under `schemas/examples/`. The JSON Schema reuses common field definitions rather than maintaining three unrelated sets of constraints. Schema validation covers structures and field types; the pipeline additionally validates SQLite provenance, sanitized output, and exact file content.
 
 ## JSON download
 

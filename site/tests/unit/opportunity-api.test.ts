@@ -99,6 +99,24 @@ describe("public API contract", () => {
     expect(() => payload("", [row("100", {firstSeenAt: "not a date"})])).toThrow();
   });
 
+  test("rejects impossible first-seen calendar and time values", () => {
+    const invalidTimestamps = [
+      "2026-00-17T12:00:00Z",
+      "2026-13-17T12:00:00Z",
+      "2026-02-29T12:00:00Z",
+      "2026-02-31T12:00:00Z",
+      "2026-04-31T12:00:00Z",
+      "2026-07-17T24:00:00Z",
+      "2026-07-17T12:60:00Z",
+      "2026-07-17T12:00:60Z",
+    ];
+    for (const firstSeenAt of invalidTimestamps) {
+      expect(() => payload("", [row("100", {firstSeenAt})])).toThrow(
+        "Invalid first-seen timestamp"
+      );
+    }
+  });
+
   test("stable explicit public field allowlist", () => {
     expect(Object.keys(payload().data[0])).toEqual([
       "linkedinJobId",
