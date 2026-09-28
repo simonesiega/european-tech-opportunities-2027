@@ -25,6 +25,7 @@
     "test:unit": "bun test tests/unit",
     "test:e2e:setup": "bun run tests/e2e/create-fixture.mjs",
     "test:e2e": "bun run test:e2e:setup && playwright test",
+    "lighthouse": "lhci autorun",
     "ci": "bun run check && bun run test:unit && bun run test:e2e"
   },
   "dependencies": {
@@ -40,6 +41,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@lhci/cli": "0.15.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/bun": "1.3.14",

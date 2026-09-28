@@ -39,3 +39,20 @@ jobs:
         env:
           SITE_URL: https://techopportunities.eu
         run: bun run ci
+      - name: Audit built site with Lighthouse CI
+        id: lighthouse
+        env:
+          SITE_URL: https://techopportunities.eu
+        run: |
+          OPPORTUNITIES_DATABASE_PATH="$(pwd)/tests/e2e/.tmp/opportunities.db" \
+          OPPORTUNITIES_PUBLIC_EXPORT_DIR="$(pwd)/tests/e2e/.tmp" \
+          CHROME_PATH="$(bun -e 'import {chromium} from "@playwright/test"; console.log(chromium.executablePath())')" \
+            bun run lighthouse
+      - name: Upload failed Lighthouse reports
+        if: ${{ !cancelled() && steps.lighthouse.outcome == 'failure' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-reports
+          path: site/.lighthouseci/*.report.*
+          if-no-files-found: ignore
+          retention-days: 7

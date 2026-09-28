@@ -1,5 +1,6 @@
 .next
 .next-e2e
+.lighthouseci
 build
 coverage
 playwright-report
