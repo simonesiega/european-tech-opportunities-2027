@@ -246,7 +246,7 @@ bunx playwright install chromium
 bun run ci
 ```
 
-`bun run ci` checks formatting, lint, strict TypeScript, the production build, Bun unit tests, Playwright browser behavior, and axe-core accessibility scans against a generated temporary SQLite fixture. It does not contact LinkedIn.
+`bun run ci` checks formatting, lint, strict TypeScript, the production build, Bun unit tests, Playwright browser behavior, and axe-core accessibility scans against a generated temporary SQLite fixture. Site CI also runs `bun run lighthouse` against that built standalone server and fixture, auditing `/` and indexable `/?page=2` twice each. Lighthouse requires the Playwright Chromium executable (`CHROME_PATH`) and absolute fixture paths for the standalone server. It asserts performance ≥ 0.80, accessibility/best practices/SEO ≥ 0.95, layout shift ≤ 0.1, and total blocking time ≤ 400 ms. The non-indexable filtered views remain covered by Playwright and axe-core; Lighthouse SEO audits instead use the indexable directory page. The audit blocks the optional analytics endpoints and writes ignored local reports; on Lighthouse failure CI uploads the synthetic-fixture HTML/JSON reports for seven days. These checks do not contact LinkedIn.
 
 The complete validation path and coding expectations are documented in [Development](../development/development.md#website-validation).
 
