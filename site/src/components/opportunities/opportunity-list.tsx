@@ -21,6 +21,7 @@ import {
   type DirectoryView,
 } from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
+import type {LocalOpportunityState} from "@/lib/local-opportunity-state";
 
 const SORTING_BY_DIRECTORY_SORT: Record<DirectorySort, SortingState[number]> = {
   "company-asc": {id: "company", desc: false},
@@ -42,6 +43,10 @@ type OpportunityListProps = {
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: DirectoryPageSize) => void;
   onReset: () => void;
+  localState: LocalOpportunityState | null;
+  onToggle: (field: "saved" | "hidden" | "applied", id: string) => void;
+  isHiddenView: boolean;
+  newIds: Set<string>;
 };
 
 export function OpportunityList({
@@ -53,7 +58,12 @@ export function OpportunityList({
   onPageChange,
   onPageSizeChange,
   onReset,
+  localState,
+  onToggle,
+  isHiddenView,
+  newIds,
 }: OpportunityListProps) {
+  const columns = opportunityColumns(localState, onToggle, newIds);
   const sorting: SortingState = [SORTING_BY_DIRECTORY_SORT[view.sort]];
   const pagination = {pageIndex: view.page - 1, pageSize: view.pageSize};
   const paginationLinkClassName =
@@ -71,7 +81,7 @@ export function OpportunityList({
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: opportunities,
-    columns: opportunityColumns,
+    columns,
     state: {sorting, pagination},
     onSortingChange: (updater) => {
       const nextSorting = typeof updater === "function" ? updater(sorting) : updater;
@@ -85,7 +95,7 @@ export function OpportunityList({
 
   return (
     <div className="mt-4">
-      <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-[0_1px_2px_rgb(0_0_0/3%)]">
+      <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-[0_1px_2px_rgb(0_0_0/3%)]">
         <Table aria-label="Open opportunities">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -106,12 +116,14 @@ export function OpportunityList({
                         index === 0 && "w-7 pr-0 pl-1",
                         index === 1 &&
                           "w-[8%] pl-1.5 [&_button]:relative [&_button]:-left-1.5 [&_button]:p-0",
-                        index === 2 && "w-[26%]",
-                        index === 3 && "w-[11%]",
-                        index === 4 && "w-[calc(11%+8px)]",
-                        index === 5 && "w-[9%]",
-                        index === 6 && "w-[13%]",
-                        (index === 7 || index === 8) && "w-[8%]"
+                        index === 2 && "w-16 min-w-16 text-center",
+                        index === 3 && "w-[calc(26%-174px)]",
+                        index === 4 && "w-[11%]",
+                        index === 5 && "w-[calc(11%+8px)]",
+                        index === 6 && "w-[9%]",
+                        index === 7 && "w-[13%]",
+                        (index === 8 || index === 9) && "w-[8%]",
+                        index === 10 && "w-[110px] min-w-[110px]"
                       )}
                     >
                       {header.isPlaceholder
@@ -133,13 +145,15 @@ export function OpportunityList({
                       className={cn(
                         index === 0 && "w-7 pr-0 pl-1",
                         index === 1 && "w-[8%] pl-3",
-                        index === 2 && "w-[26%]",
-                        index === 3 && "w-[11%] text-center",
-                        index === 4 && "w-[calc(11%+8px)] text-center",
-                        index === 5 && "w-[9%] text-center",
-                        index === 6 && "w-[13%]",
-                        index === 7 && "w-[8%] text-center",
-                        index === 8 && "w-[8%]"
+                        index === 2 && "w-16 min-w-16 text-center",
+                        index === 3 && "w-[calc(26%-174px)]",
+                        index === 4 && "w-[11%] text-center",
+                        index === 5 && "w-[calc(11%+8px)] text-center",
+                        index === 6 && "w-[9%] text-center",
+                        index === 7 && "w-[13%]",
+                        index === 8 && "w-[8%] text-center",
+                        index === 9 && "w-[8%]",
+                        index === 10 && "w-[110px] min-w-[110px]"
                       )}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -149,10 +163,14 @@ export function OpportunityList({
               ))
             ) : (
               <TableRow>
-                <TableCell className="h-[260px] text-center" colSpan={opportunityColumns.length}>
+                <TableCell className="h-[260px] text-center" colSpan={columns.length}>
                   <div className="flex flex-col items-center gap-[7px]">
                     <strong className="text-sm">
-                      {hasActiveFilters ? "No opportunities found" : "No open opportunities"}
+                      {hasActiveFilters
+                        ? "No opportunities found"
+                        : isHiddenView
+                          ? "No hidden opportunities"
+                          : "No open opportunities"}
                     </strong>
                     <span
                       className={cn(
@@ -162,7 +180,9 @@ export function OpportunityList({
                     >
                       {hasActiveFilters
                         ? "Try changing or clearing your filters."
-                        : "The directory currently has no open roles."}
+                        : isHiddenView
+                          ? "Hidden opportunities can be restored here."
+                          : "The directory currently has no open roles."}
                     </span>
                     {hasActiveFilters ? (
                       <Button variant="outline" size="sm" onClick={onReset}>

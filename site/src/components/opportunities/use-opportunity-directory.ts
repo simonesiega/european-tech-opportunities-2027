@@ -41,7 +41,11 @@ type DirectoryParameter =
   | (typeof VIEW_PARAMETERS)[keyof typeof VIEW_PARAMETERS];
 type HistoryMode = "push" | "replace";
 
-export function useOpportunityDirectory(opportunities: Opportunity[], referenceTime: string) {
+export function useOpportunityDirectory(
+  opportunities: Opportunity[],
+  referenceTime: string,
+  visibleOpportunities: Opportunity[]
+) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -72,7 +76,7 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
   const filteredOpportunities = useMemo(
     () =>
       filterOpportunities(
-        opportunities,
+        visibleOpportunities,
         {
           q: query,
           company: company === ALL_FILTER_VALUE ? "" : company,
@@ -89,7 +93,7 @@ export function useOpportunityDirectory(opportunities: Opportunity[], referenceT
       employmentType,
       firstSeen,
       location,
-      opportunities,
+      visibleOpportunities,
       query,
       referenceTimestamp,
     ]

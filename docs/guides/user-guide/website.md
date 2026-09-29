@@ -43,6 +43,7 @@ The directory provides:
 - sortable columns;
 - pagination with selectable page size;
 - light and dark themes stored as browser preferences;
+- local saved, applied, and hidden lists and a returning-visit new-opportunity count;
 - direct links to public source listings;
 - downloadable sanitized CSV and JSON datasets;
 - shareable directory URLs covering filters, sorting, page size, and pagination;
@@ -83,12 +84,21 @@ The complete directory view is encoded in the URL so its filters, sorting, page 
 
 A browser interaction or URL state is not lifecycle evidence, collection input, or a pipeline instruction.
 
+### Your browser lists
+
+Use the bookmark and check controls on a row to save it or mark it applied. The adjacent More actions menu contains Hide (or Restore in the Hidden view). The sentence beneath the directory description shows saved, applied, and hidden counts; select a count to browse that local view, or use View all opportunities to return to normal results. All, Saved, and Applied exclude hidden rows. These controls do not change the URL; shared URLs still describe only public filters and sorting. When the count of opportunities first seen after your previous visit is nonzero, a matching line appears beneath the local-list summary with a “View new opportunities” control; selecting it shows the new, non-hidden rows, which also show a check in the narrow New column between Company and Role (other rows show an X). The count is based on immutable `first_seen_at` (which may be approximate) across all currently open, non-hidden rows, not just the current filters; hidden rows remain excluded from the New view. There is no count on a first visit. Closing or removing a listing clears its local ID the next time the directory loads.
+
+The `opportunities-directory-state` localStorage key uses version `1` with `lastVisitAt` (ISO timestamp) and `saved`, `hidden`, and `applied` arrays of numeric LinkedIn job IDs. It contains no job metadata or application details. Unsupported or corrupt data is reset; disabled storage leaves the current tab usable without persistence. Clear the key in browser site-data controls to erase your lists and previous visit. These preferences stay strictly in this browser: they are never uploaded, included in analytics payloads, or stored in the backend, API, or canonical SQLite state.
+
+The local visit baseline is retained across reloads and tabs until 30 minutes without a directory load or local action. The next load after that interval starts a new visit. The existing version-1 localStorage record additionally stores `previousVisitAt` (nullable ISO timestamp); `lastVisitAt` records the latest local activity. Older records without the baseline are upgraded locally on load. No visit timestamps leave the browser.
+
 ## Displayed fields
 
 | Column | Source and behavior |
 |---|---|
 | Company | LinkedIn detail heading, with search-card fallback |
 | Role | Normalized detail title, with search-card fallback |
+| New | Browser-local comparison of immutable first-seen time with the previous visit; check for new rows, X otherwise (not part of SQLite status) |
 | Category | Deterministic internal technology classification |
 | Industries | Structured LinkedIn `Industries` criterion |
 | Employment type | Deterministic title classification; always `Internship` or `New Grad` |
@@ -228,7 +238,7 @@ The website:
 
 The Python pipeline is the sole application writer.
 
-Authentication, user-provided content, saved application state, write endpoints, or administrative mutation interfaces require an explicit architecture and security decision before implementation.
+Authentication, user-provided content, server-stored application state, write endpoints, or administrative mutation interfaces require an explicit architecture and security decision before implementation.
 
 ## Local website development
 

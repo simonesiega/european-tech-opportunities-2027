@@ -16,7 +16,7 @@ Cloudflare, Umami, GitHub, and external websites may control some processing for
 
 The directory publishes public job-listing metadata: LinkedIn job ID, company, title, location, canonical listing URL, technology category, industries, employment type, start date, and first-seen time. It also displays the latest successful collection time. The downloadable CSV and JSON use a smaller field set that excludes timestamps. The opportunity dataset does not publish visitor information.
 
-The website does not provide accounts, application forms, résumé uploads, saved profiles, or a mutation API. Applications take place on third-party websites.
+The website does not provide accounts, application forms, résumé uploads, saved profiles, or a mutation API. Optional saved, hidden, and applied markers exist only in the visitor's browser. Applications take place on third-party websites.
 
 ## Processing, purposes, and legal bases
 
@@ -27,6 +27,7 @@ The project limits visitor-data handling to what is needed to operate and unders
 | Website delivery, reliability, and security | Serve requests, prevent abuse, diagnose failures, and protect the service | Legitimate interests in operating a secure, reliable public website |
 | Aggregate usage analytics | Understand use of the directory and maintain it | Legitimate interests in privacy-conscious service measurement, where permitted |
 | Local theme preference | Remember the visitor's chosen theme | Stored in the browser to provide the requested preference; the theme value is not sent to the project |
+| Local opportunity lists and previous visit | Remember saved, hidden, and applied roles and show new roles since a previous visit | Stored only in the browser; never uploaded or included in analytics |
 | Privacy correspondence | Answer requests and keep any necessary record of the response | Compliance with applicable legal obligations and legitimate interests in handling and documenting requests |
 
 These bases describe the project's current operation and may be limited or supplemented by local law.
@@ -47,9 +48,13 @@ The project does not configure advertising or cross-site tracking. According to 
 
 Browser or network privacy tools may prevent the analytics script from loading without preventing normal directory use.
 
-### Local browser preference
+### Local browser preferences
 
 The site uses browser local storage under the key `opportunities-theme` to remember a light or dark theme choice; without a saved choice, it follows the system preference. A saved value remains on the device until the browser or user removes it. It is not sent to the project, used for advertising, or included in project state.
+
+The directory also uses `opportunities-directory-state` (version 1) for the previous-visit timestamp and arrays of stable public job IDs marked saved, hidden, or applied. It stores no job metadata, application details, or personal profile. It stays strictly client-side in this browser; it is never uploaded, sent in analytics payloads, stored on a server, or part of canonical SQLite state. Closed or removed listing IDs are pruned on the next directory load. Clearing browser site data removes it; blocking local storage leaves the directory usable but prevents persistence.
+
+The local visit baseline is retained across reloads and tabs until 30 minutes without a directory load or local action. The next load after that interval starts a new visit. The existing version-1 localStorage record additionally stores `previousVisitAt` (nullable ISO timestamp); `lastVisitAt` records the latest local activity. Older records without the baseline are upgraded locally on load. No visit timestamps leave the browser.
 
 ## Service providers, recipients, and transfers
 
@@ -63,13 +68,13 @@ Listing suggestions and issue reports are submitted through GitHub. Information 
 
 ## Retention
 
-The project does not retain account, application, résumé, or profile data because the website does not collect it. The local theme preference remains until it is cleared in the browser.
+The project does not retain account, application, résumé, or profile data because the website does not collect it. Local theme and opportunity preferences remain until cleared in the browser; removed opportunity IDs are pruned when the directory next loads.
 
 Infrastructure request data and analytics records are retained according to the applicable service configuration and provider terms, and should be kept no longer than needed for security, reliability, and aggregate service measurement. Privacy correspondence is retained only as long as needed to answer the request, meet applicable obligations, and maintain a necessary record of the response. No fixed period is stated where the project does not control or cannot accurately determine it.
 
 ## Your choices and rights
 
-You can block the analytics script with browser or network privacy controls without preventing normal directory use, clear the theme preference through browser storage controls, and avoid posting personal information in public issues.
+You can block the analytics script with browser or network privacy controls without preventing normal directory use, clear local theme and opportunity preferences through browser storage controls, and avoid posting personal information in public issues.
 
 Subject to applicable law, you may request access to, correction of, or deletion of personal data associated with you, and may have rights to restrict or object to processing and to data portability where relevant. You may also lodge a complaint with the competent data-protection supervisory authority. In Italy, this is the [Garante per la protezione dei dati personali](https://www.garanteprivacy.it/); visitors elsewhere may contact their local authority.
 

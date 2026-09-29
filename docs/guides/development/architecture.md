@@ -198,6 +198,8 @@ The Next.js website:
 - performs search, filtering, sorting, and pagination as presentation behavior;
 - never runs collection, classification, migrations, or lifecycle writes.
 
+Saved, hidden, and applied selections and previous-visit time are a separate versioned browser `localStorage` preference keyed only by stable job IDs. They stay strictly client-side: they are never uploaded, sent in analytics payloads, written to an API or backend, or part of canonical SQLite state. The server-rendered directory remains independent of this preference; stale IDs are pruned on browser load.
+
 The website contract is documented in the [website guide](../user-guide/website.md).
 
 ### Versioned public API
