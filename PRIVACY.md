@@ -54,6 +54,8 @@ The site uses browser local storage under the key `opportunities-theme` to remem
 
 The directory also uses `opportunities-directory-state` (version 1) for the previous-visit timestamp and arrays of stable public job IDs marked saved, hidden, or applied. It stores no job metadata, application details, or personal profile. It stays strictly client-side in this browser; it is never uploaded, sent in analytics payloads, stored on a server, or part of canonical SQLite state. Closed or removed listing IDs are pruned on the next directory load. Clearing browser site data removes it; blocking local storage leaves the directory usable but prevents persistence.
 
+The local visit baseline is retained across reloads and tabs until 30 minutes without a directory load or local action. The next load after that interval starts a new visit. The existing version-1 localStorage record additionally stores `previousVisitAt` (nullable ISO timestamp); `lastVisitAt` records the latest local activity. Older records without the baseline are upgraded locally on load. No visit timestamps leave the browser.
+
 ## Service providers, recipients, and transfers
 
 Cloudflare provides edge delivery and security services for the directory, Umami provides hosted aggregate directory analytics, and GitHub Pages hosts the documentation. They process information needed to provide those services and may also process information for purposes described in their own privacy notices. The hosting infrastructure necessarily receives ordinary web requests.

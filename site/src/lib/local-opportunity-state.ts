@@ -1,3 +1,4 @@
+import {parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
 import type {Opportunity} from "@/types/opportunity";
 
 export const LOCAL_STATE_KEY = "opportunities-directory-state";
@@ -5,6 +6,7 @@ export const LOCAL_STATE_KEY = "opportunities-directory-state";
 export type LocalOpportunityState = {
   version: 1;
   lastVisitAt: string;
+  previousVisitAt?: string | null;
   saved: string[];
   hidden: string[];
   applied: string[];
@@ -40,6 +42,12 @@ export function parseLocalState(
     return {
       version: 1,
       lastVisitAt: record.lastVisitAt,
+      ...(record.previousVisitAt === null ||
+      (typeof record.previousVisitAt === "string" &&
+        Number.isFinite(Date.parse(record.previousVisitAt)) &&
+        Date.parse(record.previousVisitAt) <= Date.parse(record.lastVisitAt))
+        ? {previousVisitAt: record.previousVisitAt}
+        : {}),
       saved: keep(record.saved),
       hidden: keep(record.hidden),
       applied: keep(record.applied),
@@ -58,11 +66,27 @@ export function newOpportunityIds(
   return new Set(
     opportunities
       .filter((item) => {
-        const seen = Date.parse(item.firstSeenAt);
+        const seen = parseOpportunityTimestamp(item.firstSeenAt);
         return Number.isFinite(seen) && seen > cutoff;
       })
       .map((item) => item.linkedinJobId)
   );
+}
+
+// A visit continues across reloads and tabs until 30 minutes of inactivity.
+export function resumeLocalVisit(state: LocalOpportunityState, now: string): LocalOpportunityState {
+  const continuing =
+    state.previousVisitAt !== undefined &&
+    Date.parse(now) - Date.parse(state.lastVisitAt) < 30 * 60 * 1000;
+  return {
+    ...state,
+    previousVisitAt: continuing
+      ? state.previousVisitAt
+      : state.lastVisitAt === now
+        ? null
+        : state.lastVisitAt,
+    lastVisitAt: now,
+  };
 }
 
 export function toggleLocalId(

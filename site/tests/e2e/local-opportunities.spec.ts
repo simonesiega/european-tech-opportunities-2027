@@ -44,6 +44,22 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
   await page.getByRole("button", {name: "View new opportunities"}).click();
   await expectRoleCount(page, 2);
   await expect(page.getByRole("cell", {name: /New since your last visit/})).toHaveCount(2);
+  const markedBeforeReload = await page
+    .getByRole("row")
+    .filter({has: page.getByRole("cell", {name: /New since your last visit/})})
+    .allTextContents();
+  await page.reload();
+  await expect(
+    page.getByText("We found 2 new opportunities since your last visit.", {exact: false})
+  ).toBeVisible();
+  await page.getByRole("button", {name: "View new opportunities"}).click();
+  await expectRoleCount(page, 2);
+  expect(
+    await page
+      .getByRole("row")
+      .filter({has: page.getByRole("cell", {name: /New since your last visit/})})
+      .allTextContents()
+  ).toEqual(markedBeforeReload);
   const newest = page
     .getByRole("row")
     .filter({has: page.getByRole("cell", {name: /New since your last visit/})})

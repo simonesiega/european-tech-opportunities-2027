@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {
   LOCAL_STATE_KEY,
   parseLocalState,
+  resumeLocalVisit,
   toggleLocalId,
   type LocalOpportunityState,
 } from "@/lib/local-opportunity-state";
@@ -27,10 +28,8 @@ export function useLocalOpportunities(opportunities: Opportunity[]) {
       // Storage may be blocked; the directory still works in memory for this tab.
     }
     const stored = parseLocalState(raw, ids, now);
-    // Capture the previous visit before recording this one, so actions and reloads
-    // during this visit do not change the displayed new-opportunity count.
-    setPreviousVisit(raw && stored.lastVisitAt !== now ? stored.lastVisitAt : null);
-    const current = {...stored, lastVisitAt: now};
+    const current = resumeLocalVisit(stored, now);
+    setPreviousVisit(current.previousVisitAt ?? null);
     currentState.current = current;
     setState(current);
     try {
@@ -43,7 +42,10 @@ export function useLocalOpportunities(opportunities: Opportunity[]) {
   function toggle(field: "saved" | "hidden" | "applied", id: string) {
     if (!opportunities.some((item) => item.linkedinJobId === id)) return;
     if (!currentState.current) return;
-    const next = toggleLocalId(currentState.current, field, id);
+    const next = {
+      ...toggleLocalId(currentState.current, field, id),
+      lastVisitAt: new Date().toISOString(),
+    };
     currentState.current = next;
     setState(next);
     try {
