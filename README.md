@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 28, 2026 at 11:03 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-732-2563eb?style=for-the-badge" alt="Total opportunities: 732" />
-  <img src="https://img.shields.io/badge/Internships-321-16a34a?style=for-the-badge" alt="Internships: 321" />
-  <img src="https://img.shields.io/badge/New%20Grad-411-9333ea?style=for-the-badge" alt="New Grad opportunities: 411" />
+  <strong>Last successful collection: September 29, 2026 at 11:28 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-753-2563eb?style=for-the-badge" alt="Total opportunities: 753" />
+  <img src="https://img.shields.io/badge/Internships-329-16a34a?style=for-the-badge" alt="Internships: 329" />
+  <img src="https://img.shields.io/badge/New%20Grad-424-9333ea?style=for-the-badge" alt="New Grad opportunities: 424" />
 </p>
-<!-- Public directory state v1 sha256: 290a7075c28d50b12892a77aa14d08c45eb023b60fe9fb41f003814baf2a48dd -->
+<!-- Public directory state v1 sha256: bf8c0ea6300b8348006ded5010811b4de58bdcc180176908db689afc6687ed54 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 <p align="center">
@@ -79,34 +79,34 @@ The project intentionally favors **precision over coverage**. Ambiguous listings
 The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 732 (Internships: 321 · New Grad: 411)<br>
-**Last successful collection:** September 28, 2026 at 11:03 UTC
+**Open opportunities:** 753 (Internships: 329 · New Grad: 424)<br>
+**Last successful collection:** September 29, 2026 at 11:28 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 411 open New Grad opportunities:
+Showing the 5 most recently discovered of 424 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4470098618>) |
-| Bending Spoons | Graduate software engineer | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4470315065>) |
-| Bending Spoons | Graduate software engineer | Padua, Veneto, Italy | [View](<https://www.linkedin.com/jobs/view/4470315062>) |
-| Bending Spoons | Graduate software engineer | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4470311283>) |
-| Bending Spoons | Graduate software engineer | Seville, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4470310316>) |
+| Elwood | Graduate/Junior Software Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471701851>) |
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4471586101>) |
+| CACI Digital Experience \(formerly Cyber-Duck\) | Graduate Software Engineer - September 2027 \(National Security\) | Bristol, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471566524>) |
+| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4471518858>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4471536140>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 321 open internships:
+Showing the 5 most recently discovered of 329 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| BorgWarner | Professional Internship Information Technology - Client Support \(m/f/d\) | Viana do Castelo, Viana do Castelo, Portugal | [View](<https://www.linkedin.com/jobs/view/4471510701>) |
+| Accenture Poland | Cloud DevOps Engineer Intern | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4471509785>) |
+| Deloitte | Intern Fullstack Software Engineer \(.NET &amp; React\) 1 | Luxembourg, Luxembourg, Luxembourg | [View](<https://www.linkedin.com/jobs/view/4470876368>) |
+| Ericsson | Python Developer Intern | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4471353189>) |
 | Motorola Solutions | Intern Software Developer - Java | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4472070630>) |
-| VIVADATA | Data Scientist Intern – Paris | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4469776313>) |
-| Barco | Internship - Computer Vision &amp; Image Analysis | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470012929>) |
-| Barco | Internship - Software Engineering | Kortrijk, Flemish Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4470030125>) |
-| Sanofi | internship 6 months data science | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4471448722>) |
 <!-- END OPPORTUNITIES -->
 
 Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
