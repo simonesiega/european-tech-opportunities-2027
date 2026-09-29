@@ -21,6 +21,7 @@ site/node_modules/
 site/*.tsbuildinfo
 site/next-env.d.ts
 site/playwright-report/
+site/.lighthouseci/
 site/test-results/
 site/tests/e2e/.tmp/
 

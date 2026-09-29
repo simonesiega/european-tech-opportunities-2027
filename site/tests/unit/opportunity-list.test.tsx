@@ -12,6 +12,10 @@ const commonProps = {
   onPageChange: noOp,
   onPageSizeChange: noOp,
   onReset: noOp,
+  localState: null,
+  onToggle: noOp,
+  isHiddenView: false,
+  newIds: new Set<string>(),
 };
 
 test("renders an actionable message only when filters hide every opportunity", () => {

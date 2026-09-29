@@ -1,7 +1,7 @@
-import type {ButtonHTMLAttributes} from "react";
+import type {ComponentPropsWithRef} from "react";
 import {cn} from "@/lib/cn";
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type ButtonProps = ComponentPropsWithRef<"button"> & {
   variant: "outline" | "ghost";
   size?: "default" | "sm" | "icon";
 };

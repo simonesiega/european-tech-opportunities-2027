@@ -1,11 +1,13 @@
 "use client";
 
-import {useEffect, useRef, useSyncExternalStore} from "react";
+import {useEffect, useMemo, useRef, useState, useSyncExternalStore} from "react";
 import {Download} from "lucide-react";
 import {OpportunityFilters} from "@/components/opportunities/opportunity-filters";
 import {OpportunityList} from "@/components/opportunities/opportunity-list";
+import {useLocalOpportunities} from "@/components/opportunities/use-local-opportunities";
 import {useOpportunityDirectory} from "@/components/opportunities/use-opportunity-directory";
 import {Badge} from "@/components/ui/badge";
+import {newOpportunityIds} from "@/lib/local-opportunity-state";
 import {siteConfig} from "@/lib/site-config";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -18,8 +20,33 @@ const subscribeToHydration = () => () => undefined;
 const getClientHydrationState = () => true;
 const getServerHydrationState = () => false;
 
+type LocalView = "all" | "saved" | "applied" | "hidden" | "new";
+
 export function OpportunityDirectory({opportunities, referenceTime}: OpportunityDirectoryProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const hiddenViewRef = useRef<HTMLButtonElement>(null);
+  const allViewRef = useRef<HTMLButtonElement>(null);
+  const savedViewRef = useRef<HTMLButtonElement>(null);
+  const appliedViewRef = useRef<HTMLButtonElement>(null);
+  const [localView, setLocalView] = useState<LocalView>("all");
+  const {state, previousVisit, toggle} = useLocalOpportunities(opportunities);
+  const newIds = useMemo(
+    () => newOpportunityIds(opportunities, previousVisit),
+    [opportunities, previousVisit]
+  );
+  const visibleOpportunities = useMemo(
+    () =>
+      opportunities.filter((item) => {
+        if (!state) return true;
+        const id = item.linkedinJobId;
+        if (localView === "hidden") return state.hidden.includes(id);
+        if (state.hidden.includes(id)) return false;
+        if (localView === "new") return newIds.has(id);
+        return localView === "all" || state[localView].includes(id);
+      }),
+    [opportunities, state, localView, newIds]
+  );
+  const newCount = [...newIds].filter((id) => !state?.hidden.includes(id)).length;
   const isInteractive = useSyncExternalStore(
     subscribeToHydration,
     getClientHydrationState,
@@ -35,7 +62,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
     filteredOpportunities,
     hasActiveFilters,
     clearFilters,
-  } = useOpportunityDirectory(opportunities, referenceTime);
+  } = useOpportunityDirectory(opportunities, referenceTime, visibleOpportunities);
 
   useEffect(() => {
     function focusSearch(event: KeyboardEvent) {
@@ -55,7 +82,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
       aria-busy={!isInteractive}
       aria-labelledby="opportunities-title"
     >
-      <div className="flex items-start justify-between gap-6 max-[760px]:flex-col">
+      <div className="flex items-start justify-between gap-6 max-[1090px]:flex-col">
         <div>
           <h1
             id="opportunities-title"
@@ -66,8 +93,71 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
           <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
             {siteConfig.description}
           </p>
+          {state ? (
+            <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:text-[13px] max-[600px]:leading-normal">
+              You have saved{" "}
+              <button
+                ref={savedViewRef}
+                type="button"
+                aria-pressed={localView === "saved"}
+                aria-label={`View ${state.saved.length} saved opportunities`}
+                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                onClick={() => setLocalView("saved")}
+              >
+                {state.saved.length}
+              </button>{" "}
+              {state.saved.length === 1 ? "opportunity" : "opportunities"}, marked{" "}
+              <button
+                ref={appliedViewRef}
+                type="button"
+                aria-pressed={localView === "applied"}
+                aria-label={`View ${state.applied.length} applied opportunities`}
+                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                onClick={() => setLocalView("applied")}
+              >
+                {state.applied.length}
+              </button>{" "}
+              {state.applied.length === 1 ? "opportunity" : "opportunities"} as applied, and hidden{" "}
+              <button
+                ref={hiddenViewRef}
+                type="button"
+                aria-pressed={localView === "hidden"}
+                aria-label={`View ${state.hidden.length} hidden opportunities`}
+                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                onClick={() => setLocalView("hidden")}
+              >
+                {state.hidden.length}
+              </button>
+              .{" "}
+              <button
+                ref={allViewRef}
+                type="button"
+                aria-pressed={localView === "all"}
+                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                onClick={() => setLocalView("all")}
+              >
+                View all opportunities
+              </button>
+              .
+            </p>
+          ) : null}
+          {state && newCount > 0 ? (
+            <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:text-[13px] max-[600px]:leading-normal">
+              We found <span className="text-[var(--text)]">{newCount}</span> new{" "}
+              {newCount === 1 ? "opportunity" : "opportunities"} since your last visit.{" "}
+              <button
+                type="button"
+                aria-pressed={localView === "new"}
+                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                onClick={() => setLocalView("new")}
+              >
+                View new opportunities
+              </button>
+              .
+            </p>
+          ) : null}
         </div>
-        <div className="flex items-center gap-2 max-[760px]:w-full max-[480px]:flex-wrap max-[400px]:flex-nowrap">
+        <div className="flex items-center gap-2 max-[1090px]:w-full max-[480px]:flex-wrap max-[400px]:flex-nowrap">
           {(["csv", "json"] as const).map((format) => (
             <a
               key={format}
@@ -82,7 +172,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
             </a>
           ))}
           <Badge
-            className="min-h-8 gap-1.5 rounded-md px-2.5 py-0 max-[760px]:ml-auto"
+            className="min-h-8 gap-1.5 rounded-md px-2.5 py-0 max-[1090px]:ml-auto"
             variant="outline"
             role="status"
             aria-atomic="true"
@@ -119,6 +209,17 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
         onPageChange={viewSetters.setPage}
         onPageSizeChange={viewSetters.setPageSize}
         onReset={clearFilters}
+        localState={state}
+        onToggle={(field, id) => {
+          if (field === "hidden") {
+            (localView === "hidden" ? allViewRef : hiddenViewRef).current?.focus();
+          }
+          if (field === "saved" && localView === "saved") savedViewRef.current?.focus();
+          if (field === "applied" && localView === "applied") appliedViewRef.current?.focus();
+          toggle(field, id);
+        }}
+        isHiddenView={localView === "hidden"}
+        newIds={newIds}
       />
     </section>
   );
