@@ -23,13 +23,13 @@ jobs:
           persist-credentials: false
       - uses: $/.github/actions/setup-python
       - name: Lint maintained Markdown with pinned markdownlint-cli2 and Vale
-        run: uv run --frozen python scripts/lint_docs.py
+        run: uv run --frozen python scripts/docs/lint_docs.py
       - name: Validate Markdown references
-        run: uv run --frozen python scripts/check_docs.py
+        run: uv run --frozen python scripts/docs/check_docs.py
       - name: Build documentation (strict)
-        run: uv run --frozen --group docs python scripts/build_docs.py
+        run: uv run --frozen --group docs python scripts/docs/build_docs.py
       - name: Check built links, anchors, and images
-        run: uv run --frozen --group docs python scripts/check_built_docs.py
+        run: uv run --frozen --group docs python scripts/docs/check_built_docs.py
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5

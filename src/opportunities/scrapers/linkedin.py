@@ -157,6 +157,10 @@ def parse_search_page(html: str) -> SearchPageResult:
     cards: list[LinkedInSearchCard] = []
     warnings: list[str] = []
     nodes = soup.select("[data-entity-urn*='urn:li:jobPosting:']", limit=LINKEDIN_PAGE_SIZE + 1)
+    # An exhausted guest endpoint returns an empty fragment. A nonempty page
+    # without result cards is not evidence of a successful empty search.
+    if not nodes and (soup.find() is not None or soup.get_text(strip=True)):
+        raise LinkedInPayloadError("LinkedIn search page has no recognizable result structure")
     if len(nodes) > LINKEDIN_PAGE_SIZE:
         raise LinkedInPayloadError("LinkedIn search page exceeds the 25-card page limit")
     for node in nodes:
@@ -194,17 +198,16 @@ def parse_job_detail(
     card: LinkedInSearchCard,
     *,
     observed_at: datetime | None = None,
-    require_identity: bool = False,
 ) -> RawJob:
-    """Parse a detail page, optionally requiring identity instead of card fallback."""
+    """Parse a detail page that independently establishes listing identity."""
     _reject_blocked_document(html)
     soup = BeautifulSoup(html, "html.parser")
-    detail_title = _optional_text(soup, ".top-card-layout__title, .topcard__title")
-    detail_company = _optional_text(soup, ".topcard__org-name-link")
-    if require_identity and (not detail_title or not detail_company):
+    title = _optional_text(soup, ".top-card-layout__title, .topcard__title")
+    company = _optional_text(soup, ".topcard__org-name-link")
+    # Discovery is not acceptance: even a current card cannot turn a generic
+    # successful HTTP response into validated listing details.
+    if not title or not company:
         raise LinkedInPayloadError("LinkedIn detail page is missing listing identity fields")
-    title = detail_title or card.title
-    company = detail_company or card.company
     location = (
         _optional_text(
             soup,
@@ -213,8 +216,6 @@ def parse_job_detail(
         )
         or card.location
     )
-    if not title or not company:
-        raise LinkedInPayloadError("LinkedIn detail page is missing title or company")
     if len(title) > 500 or len(company) > 200 or len(location) > 500:
         raise LinkedInPayloadError("LinkedIn detail page fields exceed safe limits")
     description_node = soup.select_one(".show-more-less-html__markup")
@@ -435,14 +436,13 @@ class LinkedInScraper:
             )
             try:
                 html = await self._detail(known.source_job_id, fetcher)
-                # Unlike a current search card, this fallback is synthesized from stored
-                # state, so the response itself must prove that the listing still exists.
+                # Stored location can fill missing display metadata, but listing
+                # identity must come from the response, just as for current cards.
                 positions.append(
                     parse_job_detail(
                         html,
                         fallback,
                         observed_at=observed_at,
-                        require_identity=True,
                     )
                 )
             except FetchError as exc:
@@ -478,10 +478,17 @@ class LinkedInScraper:
                 def discard(completed: asyncio.Task[str]) -> None:
                     if self._detail_tasks.get(job_id) is completed:
                         self._detail_tasks.pop(job_id, None)
+                    # Shielded requests can outlive every cancelled waiter. Retrieve
+                    # their errors so asyncio does not emit an unhandled-task log;
+                    # remaining waiters still receive the same exception on await.
+                    if not completed.cancelled():
+                        completed.exception()
 
                 task.add_done_callback(discard)
-        # One cancelled search must not cancel a detail request shared by another search.
-        return await asyncio.shield(task)
+        # asyncio.wait keeps a cancelled waiter from cancelling the shared request,
+        # without leaving shield's cancellation callback to report its later failure.
+        await asyncio.wait((task,))
+        return task.result()
 
 
 def _required_text(node: Tag, selector: str) -> str:

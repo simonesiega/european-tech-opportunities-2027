@@ -18,9 +18,10 @@ ROOT = find_project_root(Path(__file__))
 def test_bootstrap_fails_when_source_is_missing(tmp_path: Path) -> None:
     source = tmp_path / "missing.db"
     result = subprocess.run(
-        [sys.executable, str(ROOT / "scripts/bootstrap_sqlite.py"), str(source)],
+        [sys.executable, str(ROOT / "scripts/database/bootstrap_sqlite.py"), str(source)],
         capture_output=True,
         check=False,
+        timeout=30,
     )
     assert result.returncode != 0
     assert result.stdout == b""
@@ -46,9 +47,10 @@ def test_bootstrap_stream_includes_committed_wal_rows(tmp_path: Path) -> None:
 
         with destination.open("wb") as output:
             subprocess.run(
-                [sys.executable, str(ROOT / "scripts/bootstrap_sqlite.py"), str(source)],
+                [sys.executable, str(ROOT / "scripts/database/bootstrap_sqlite.py"), str(source)],
                 stdout=output,
                 check=True,
+                timeout=30,
             )
 
     inspect_database(destination)

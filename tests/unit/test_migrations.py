@@ -1,27 +1,37 @@
 import sqlite3
 from contextlib import closing
+from datetime import UTC, datetime
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from alembic import command
 from alembic.config import Config
+from sqlalchemy.orm import Session, sessionmaker
 
+from opportunities.config.settings import Settings
 from opportunities.database.migrations import upgrade_database
+from opportunities.database.repository import Repository
+from opportunities.models.search import LinkedInSearchConfig
 from opportunities.utils.paths import find_project_root
 
 ROOT = find_project_root(Path(__file__))
 
 
-def test_upgrade_database_verifies_second_upgrade_is_a_no_op() -> None:
-    with patch("opportunities.database.migrations.command.upgrade") as upgrade:
-        upgrade_database("sqlite:///data/test.db", repository_root=ROOT)
+def test_repeated_upgrade_preserves_schema_and_existing_data(
+    tmp_path: Path,
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+) -> None:
+    repository = Repository(session_factory, settings)
+    repository.sync_searches([search], datetime(2026, 7, 20, tzinfo=UTC))
+    database = tmp_path / "opportunities.db"
+    original = database.read_bytes()
 
-    assert upgrade.call_count == 2
-    first_config, first_revision = upgrade.call_args_list[0].args
-    second_config, second_revision = upgrade.call_args_list[1].args
-    assert second_config is first_config
-    assert first_revision == second_revision == "head"
+    for _ in range(2):
+        upgrade_database(settings.database_url, repository_root=ROOT)
+        assert database.read_bytes() == original
+        assert repository.stats().configured_searches == 1
 
 
 def test_upgrade_database_creates_a_missing_sqlite_parent(tmp_path: Path) -> None:

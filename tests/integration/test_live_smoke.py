@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 
 import pytest
 
@@ -11,16 +10,8 @@ from opportunities.scrapers.http import HttpFetcher
 from opportunities.scrapers.linkedin import LinkedInScraper
 from tests.conftest import ROOT
 
-pytestmark = [
-    pytest.mark.live,
-    pytest.mark.skipif(
-        os.getenv("OPPORTUNITIES_LIVE_TESTS") != "1"
-        or os.getenv("OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED") != "true",
-        reason=(
-            "live test requires OPPORTUNITIES_LIVE_TESTS=1 and documented LinkedIn crawl permission"
-        ),
-    ),
-]
+# tests/conftest.py enforces explicit selection and both interlocks before execution.
+pytestmark = pytest.mark.live
 
 
 def test_public_linkedin_search_and_detail_are_reachable() -> None:

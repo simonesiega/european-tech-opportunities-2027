@@ -1,6 +1,6 @@
 # Contributing to European Tech Opportunities 2027
 
-[← Project README](README.md) · [Documentation hub](docs/README.md) · [Security policy](SECURITY.md) · [Privacy notice](PRIVACY.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
+[← Project README](README.md) · [Documentation home](docs/README.md) · [Security policy](SECURITY.md) · [Privacy notice](PRIVACY.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
 
 Thank you for contributing. This file is the contributor entry point; detailed setup, architecture, operation, and feature behavior live in the linked canonical guides.
 
@@ -9,9 +9,9 @@ Thank you for contributing. This file is the contributor entry point; detailed s
 
 ## Start here
 
-1. Search existing issues and the [documentation hub](docs/README.md).
+1. Search existing issues and the [documentation home](docs/README.md).
 2. Fork the repository and branch from `main`.
-3. Follow the [installation guide](docs/guides/getting-started/installation.md).
+3. Follow [local setup](docs/maintainers/getting-started/setup.md).
 4. Reproduce the issue offline and make one focused change.
 5. Add tests for observable behavior and run every affected validation path.
 6. Open a pull request that explains the problem, solution, safety impact, and validation performed.
@@ -36,18 +36,18 @@ bun install --frozen-lockfile
 bunx playwright install chromium
 ```
 
-Use the [installation guide](docs/guides/getting-started/installation.md) for complete setup, platform-specific instructions, Docker, and verification.
+Use [local setup](docs/maintainers/getting-started/setup.md) for complete setup, platform-specific instructions, and verification, or [containers and deployment](docs/maintainers/operations/deployment.md) for Docker.
 
 ## Choose the correct path
 
 | Change | Read first | Minimum validation |
 |---|---|---|
-| Python, CLI, classification, persistence | [Development](docs/guides/development/development.md) | `make check` or its documented `uv` equivalent |
-| Website | [Website](docs/guides/user-guide/website.md) | `cd site && bun run ci` |
-| Search YAML | [Search registry](docs/guides/user-guide/search-registry.md) | Registry command and config tests |
-| Schema or migration | [Database](docs/guides/operations/database.md) | Fresh and representative upgrades plus migration checks |
-| Docker or automation | [Docker](docs/guides/operations/docker.md) and [Automation](docs/guides/operations/automation.md) | Compose validation and affected build or runtime checks |
-| Documentation only | [Documentation hub](docs/README.md) | `make docs-site` (including both prose linters), plus `git diff --check` |
+| Python, CLI, classification, persistence | [Testing strategy](docs/maintainers/engineering/testing.md) | `make check` or its documented `uv` equivalent |
+| Website | [Website engineering](docs/maintainers/engineering/website.md) | `cd site && bun run ci` |
+| Search YAML | [Search registry](docs/maintainers/engineering/search-registry.md) | Registry command and config tests |
+| Schema or migration | [Database](docs/maintainers/operations/database.md) | Fresh and representative upgrades plus migration checks |
+| Docker or automation | [Containers and deployment](docs/maintainers/operations/deployment.md) and [Automation](docs/maintainers/operations/automation.md) | Compose validation and affected build or runtime checks |
+| Documentation only | [Documentation maintenance](docs/maintainers/engineering/documentation.md) | `make docs-site` (including both prose linters), plus `git diff --check` |
 
 Discuss changes to architecture, source access, canonical identity, lifecycle rules, schema design, deployment, or trust boundaries before implementation. Small fixes and documentation improvements can normally go directly to a pull request.
 
@@ -66,7 +66,7 @@ Preserve these invariants:
 
 Do not add credentials, sessions, browser automation, private APIs, CAPTCHA handling, proxy evasion, concurrent writers, mutation APIs, or user-submitted data without explicit architecture and security review.
 
-See [Architecture](docs/guides/development/architecture.md) and the [Security policy](SECURITY.md) for the complete trust and component boundaries.
+See [Architecture](docs/maintainers/engineering/architecture.md) and the [Security policy](SECURITY.md) for the complete trust and component boundaries.
 
 ## Code expectations
 
@@ -84,7 +84,7 @@ See [Architecture](docs/guides/development/architecture.md) and the [Security po
 
 ### Adding or changing a search
 
-Follow the [search registry guide](docs/guides/user-guide/search-registry.md). A search must:
+Follow the [search registry guide](docs/maintainers/engineering/search-registry.md). A search must:
 
 - use the correct role, company, or country directory;
 - have a stable, unique lowercase kebab-case slug and query identity;
@@ -128,7 +128,7 @@ Never commit full pages, credentials, cookies, headers, browser captures, or aut
 
 ## Database and migrations
 
-Follow the [database guide](docs/guides/operations/database.md). A schema change must:
+Follow the [database guide](docs/maintainers/operations/database.md). A schema change must:
 
 1. update the SQLAlchemy models;
 2. add a new Alembic revision without rewriting applied history;
@@ -141,13 +141,13 @@ Never commit SQLite state or recommend deleting canonical state as the normal up
 
 ## Website changes
 
-Follow the [website guide](docs/guides/user-guide/website.md).
+Follow [Website engineering](docs/maintainers/engineering/website.md), with [user guides](docs/users/README.md) as the public behavior contract.
 
 Preserve read-only server-side SQLite access, empty states, search, filters, sorting, pagination, shareable URLs, safe HTTPS links, responsive behavior, semantic HTML, keyboard access, and strict TypeScript.
 
 Keep data helpers under `site/src/lib`, browser interaction in client components, Tailwind utilities in components, and global CSS minimal.
 
-Authentication, forms, saved data, write APIs, or administrative mutation require prior architecture and security review.
+Preserve browser-only saved/applied/hidden lists and the visit baseline without uploading them or adding them to shareable URLs. Authentication, forms, server-stored applications, write APIs, or administrative mutation require prior architecture and security review.
 
 ## Testing and validation
 
@@ -171,7 +171,7 @@ Run the full Python and documentation gate with:
 make check
 ```
 
-If Make is unavailable, use the exact commands in [Development](docs/guides/development/development.md#python-and-documentation). Run `make benchmark` for parser, normalization, or classifier hot paths.
+If Make is unavailable, use the exact commands in [Testing](docs/maintainers/engineering/testing.md#python-and-documentation). Run `make benchmark` for parser, normalization, or classifier hot paths.
 
 Docker changes additionally require:
 
@@ -187,21 +187,23 @@ Do not claim a check passed unless it ran. Explain omissions in the pull request
 
 ## Documentation changes
 
-Keep task guides under `docs/guides/` and assets under `docs/assets/`. Link to the canonical guide instead of duplicating procedures.
+Keep product tasks under `docs/users/`, engineering/operations under `docs/maintainers/`, and public visuals under `docs/assets/`. Follow [Documentation maintenance](docs/maintainers/engineering/documentation.md); link to the canonical owner instead of duplicating procedures.
 
 - Preserve README generated markers and never edit generated counts, timestamps, rows, coverage metrics, or public CSV/JSON exports manually.
 - Render opportunity data only from representative canonical state; refresh coverage metrics with `make coverage`.
 - Keep commands executable from their documented directory.
-- Use repository-relative links, stable anchors, descriptive alt text, and sanitized assets.
+- Follow the [shared writing style](docs/maintainers/engineering/documentation.md#shared-writing-style), with plain-language user tasks and separate technical maintainer procedures.
+- Update the documentation router, audience index, and MkDocs navigation when adding a public guide; add diagrams and media to the asset catalog.
+- Use repository-relative links, stable anchors, descriptive alt text, and sanitized assets. Use GitHub links for implementation files outside the published-docs allowlist.
 - Keep claims aligned with implemented behavior and safety boundaries.
 
 Run markdownlint-cli2 and Vale before the link and site checks. The linters use digest-pinned Docker images; install Docker, but do not install separate global Node or Vale packages. On systems without Make, run:
 
 ```bash
-uv run --frozen python scripts/lint_docs.py
-uv run python scripts/check_docs.py
-uv run --frozen --group docs python scripts/build_docs.py
-uv run --frozen --group docs python scripts/check_built_docs.py
+uv run --frozen python scripts/docs/lint_docs.py
+uv run python scripts/docs/check_docs.py
+uv run --frozen --group docs python scripts/docs/build_docs.py
+uv run --frozen --group docs python scripts/docs/check_built_docs.py
 git diff --check
 ```
 

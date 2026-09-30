@@ -13,7 +13,9 @@ from opportunities.normalization.location import EUROPEAN_COUNTRY_CODES, Locatio
 from opportunities.utils.text import contains_normalized_phrase, normalized_key
 from opportunities.utils.time import ensure_utc
 
-_YEAR_RE = re.compile(r"\b20[2-4]\d\b")
+# Include past/future conflicts and the entire configurable cycle range. A
+# conflicting year must never disappear into the recent-posting-date fallback.
+_YEAR_RE = re.compile(r"\b(?:19|20|21)\d{2}\b")
 _OPPORTUNITY_CONTEXT_RE = re.compile(
     r"\b(?:internship|intern|summer|placement|programme|program|cycle|graduate|"
     r"new\s+grad|early\s+career|entry\s+level)\b"

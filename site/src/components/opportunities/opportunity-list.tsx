@@ -1,11 +1,10 @@
 "use client";
 
-import type {MouseEvent} from "react";
+import {useMemo, type MouseEvent} from "react";
 import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   type SortingState,
 } from "@tanstack/react-table";
@@ -21,7 +20,29 @@ import {
   type DirectoryView,
 } from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
-import type {LocalOpportunityState} from "@/lib/local-opportunity-state";
+import type {LocalOpportunityState, LocalOpportunityView} from "@/lib/local-opportunity-state";
+import {sortOpportunities} from "@/lib/opportunity-sort";
+
+const EMPTY_LOCAL_VIEWS = {
+  saved: {
+    title: "No saved opportunities to show",
+    description:
+      "Save roles from the directory to build your shortlist. Hidden roles do not appear here.",
+  },
+  applied: {
+    title: "No applied opportunities to show",
+    description: "Mark roles as applied to track them here. Hidden roles do not appear here.",
+  },
+  hidden: {
+    title: "No hidden opportunities",
+    description: "Hidden opportunities can be restored here.",
+  },
+  new: {
+    title: "No new opportunities to show",
+    description:
+      "Roles first seen after your previous visit appear here. Hidden roles do not appear here.",
+  },
+};
 
 const SORTING_BY_DIRECTORY_SORT: Record<DirectorySort, SortingState[number]> = {
   "company-asc": {id: "company", desc: false},
@@ -45,7 +66,7 @@ type OpportunityListProps = {
   onReset: () => void;
   localState: LocalOpportunityState | null;
   onToggle: (field: "saved" | "hidden" | "applied", id: string) => void;
-  isHiddenView: boolean;
+  localView: LocalOpportunityView;
   newIds: Set<string>;
 };
 
@@ -60,10 +81,26 @@ export function OpportunityList({
   onReset,
   localState,
   onToggle,
-  isHiddenView,
+  localView,
   newIds,
 }: OpportunityListProps) {
   const columns = opportunityColumns(localState, onToggle, newIds);
+  const sortedOpportunities = useMemo(
+    () => sortOpportunities(opportunities, view.sort),
+    [opportunities, view.sort]
+  );
+  const emptyView =
+    localView !== "all"
+      ? EMPTY_LOCAL_VIEWS[localView]
+      : localState?.hidden.length
+        ? {
+            title: "No visible opportunities",
+            description: "View your hidden opportunities to restore them.",
+          }
+        : {
+            title: "No open opportunities",
+            description: "The directory currently has no open roles.",
+          };
   const sorting: SortingState = [SORTING_BY_DIRECTORY_SORT[view.sort]];
   const pagination = {pageIndex: view.page - 1, pageSize: view.pageSize};
   const paginationLinkClassName =
@@ -80,64 +117,67 @@ export function OpportunityList({
   // TanStack Table intentionally returns non-memoizable functions as part of its API.
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
-    data: opportunities,
+    data: sortedOpportunities,
     columns,
+    getRowId: (opportunity) => opportunity.linkedinJobId,
     state: {sorting, pagination},
     onSortingChange: (updater) => {
       const nextSorting = typeof updater === "function" ? updater(sorting) : updater;
       onSortChange(toDirectorySort(nextSorting));
     },
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex: false,
   });
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div className="mt-4">
-      <div className="overflow-x-auto rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-[0_1px_2px_rgb(0_0_0/3%)]">
-        <Table aria-label="Open opportunities">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header, index) => {
-                  const sortDirection = header.column.getIsSorted();
-                  return (
-                    <TableHead
-                      key={header.id}
-                      aria-sort={
-                        sortDirection === "asc"
-                          ? "ascending"
-                          : sortDirection === "desc"
-                            ? "descending"
-                            : undefined
-                      }
-                      className={cn(
-                        index === 0 && "w-7 pr-0 pl-1",
-                        index === 1 &&
-                          "w-[8%] pl-1.5 [&_button]:relative [&_button]:-left-1.5 [&_button]:p-0",
-                        index === 2 && "w-16 min-w-16 text-center",
-                        index === 3 && "w-[calc(26%-174px)]",
-                        index === 4 && "w-[11%]",
-                        index === 5 && "w-[calc(11%+8px)]",
-                        index === 6 && "w-[9%]",
-                        index === 7 && "w-[13%]",
-                        (index === 8 || index === 9) && "w-[8%]",
-                        index === 10 && "w-[110px] min-w-[110px]"
-                      )}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
+      <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-[0_1px_2px_rgb(0_0_0/3%)]">
+        <div className="overflow-x-auto">
+          <Table aria-label="Open opportunities">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header, index) => {
+                    const sortDirection = header.column.getIsSorted();
+                    return (
+                      <TableHead
+                        key={header.id}
+                        aria-sort={
+                          sortDirection === "asc"
+                            ? "ascending"
+                            : sortDirection === "desc"
+                              ? "descending"
+                              : undefined
+                        }
+                        className={cn(
+                          index === 0 && "w-7 pr-0 pl-1",
+                          index === 1 &&
+                            "w-[8%] pl-1.5 [&_button]:relative [&_button]:-left-1.5 [&_button]:p-0",
+                          index === 2 && "w-16 min-w-16 text-center",
+                          index === 3 && "w-[calc(26%-174px)]",
+                          index === 4 && "w-[11%]",
+                          index === 5 && "w-[calc(11%+8px)]",
+                          index === 6 && "w-[9%]",
+                          index === 7 && "w-[13%]",
+                          (index === 8 || index === 9) && "w-[8%]",
+                          index === 10 && "w-[110px] min-w-[110px]"
+                        )}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell, index) => (
                     <TableCell
@@ -160,41 +200,25 @@ export function OpportunityList({
                     </TableCell>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell className="h-[260px] text-center" colSpan={columns.length}>
-                  <div className="flex flex-col items-center gap-[7px]">
-                    <strong className="text-sm">
-                      {hasActiveFilters
-                        ? "No opportunities found"
-                        : isHiddenView
-                          ? "No hidden opportunities"
-                          : "No open opportunities"}
-                    </strong>
-                    <span
-                      className={cn(
-                        "text-[13px] text-[var(--text-soft)]",
-                        hasActiveFilters && "mb-2"
-                      )}
-                    >
-                      {hasActiveFilters
-                        ? "Try changing or clearing your filters."
-                        : isHiddenView
-                          ? "Hidden opportunities can be restored here."
-                          : "The directory currently has no open roles."}
-                    </span>
-                    {hasActiveFilters ? (
-                      <Button variant="outline" size="sm" onClick={onReset}>
-                        Reset filters
-                      </Button>
-                    ) : null}
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        {rows.length === 0 ? (
+          <div className="flex min-h-[260px] flex-col items-center justify-center gap-[7px] px-4 py-8 text-center">
+            <strong className="text-sm">
+              {hasActiveFilters ? "No opportunities found" : emptyView.title}
+            </strong>
+            <span className={cn("text-[13px] text-[var(--text-soft)]", hasActiveFilters && "mb-2")}>
+              {hasActiveFilters ? "Try changing or clearing your filters." : emptyView.description}
+            </span>
+            {hasActiveFilters ? (
+              <Button variant="outline" size="sm" onClick={onReset}>
+                Reset filters
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="flex min-h-[58px] items-center justify-between px-0.5 text-xs text-[var(--text-soft)] max-[600px]:flex-col max-[600px]:items-start max-[600px]:gap-2.5 max-[600px]:pt-3.5">

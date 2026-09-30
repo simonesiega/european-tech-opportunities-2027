@@ -1,17 +1,56 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
-from sqlalchemy import func, select
+from sqlalchemy import Engine, func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
-from opportunities.database.models import JobRow, JobSearchRow, SearchRunRow
-from opportunities.database.repository import Repository
+from opportunities.database.models import JobRow, JobSearchRow, SearchRow, SearchRunRow
+from opportunities.database.repository import PersistSummary, Repository
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.utils.time import ensure_utc
+
+
+@pytest.fixture
+def collected_job() -> DiscoveredJob:
+    return DiscoveredJob(
+        linkedin_job_id="1111111111",
+        company="Synthetic Technology",
+        title="Software Intern 2027",
+        location="Berlin, Germany",
+        link="https://www.linkedin.com/jobs/view/1111111111",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+
+
+def persist_search(
+    repository: Repository,
+    search: LinkedInSearchConfig,
+    run: int,
+    observed: datetime,
+    jobs: list[DiscoveredJob],
+    unavailable: tuple[str, ...] = (),
+    *,
+    finished: datetime | None = None,
+) -> PersistSummary:
+    return repository.persist_success(
+        run_id=f"run-{run}",
+        search=search,
+        jobs=jobs,
+        confirmed_unavailable_ids=unavailable,
+        found_count=len(jobs),
+        excluded_count=0,
+        warning_count=0,
+        started_at=observed,
+        finished_at=finished or observed,
+        duration_ms=1,
+    )
 
 
 def test_manual_upsert_preserves_lifecycle_metadata_and_adds_no_provenance(
@@ -183,4 +222,212 @@ def test_manual_batch_rejects_duplicate_identity_without_writing(
     with pytest.raises(ValueError, match="duplicate LinkedIn job identity"):
         repository.upsert_manual_jobs([job, job], observed_at=observed_at)
 
+    assert repository.list_all_jobs() == []
+
+
+@pytest.mark.parametrize("offset", [-5, 2])
+def test_repository_persists_run_and_provenance_timestamps_in_utc(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+    offset: int,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, 12, tzinfo=UTC)
+    observed = now.astimezone(timezone(timedelta(hours=offset)))
+    repository.sync_searches([search], observed)
+    persist_search(
+        repository, search, 1, observed, [collected_job], finished=observed + timedelta(minutes=1)
+    )
+    repository.persist_failure(
+        run_id="failure",
+        search_slug=search.slug,
+        started_at=observed + timedelta(minutes=2),
+        finished_at=observed + timedelta(minutes=3),
+        duration_ms=1,
+        error_code="synthetic",
+        error_message="synthetic failure",
+    )
+    assert repository.stats().last_success_at == now + timedelta(minutes=1)
+    with session_factory() as session:
+        definition = session.get(SearchRow, search.slug)
+        success = session.get(SearchRunRow, "run-1")
+        failure = session.get(SearchRunRow, "failure")
+        alias = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        assert definition is not None
+        assert success is not None
+        assert failure is not None
+        assert alias is not None
+        assert ensure_utc(definition.updated_at) == now
+        assert ensure_utc(success.started_at) == now
+        assert ensure_utc(success.finished_at) == now + timedelta(minutes=1)
+        assert ensure_utc(failure.started_at) == now + timedelta(minutes=2)
+        assert ensure_utc(failure.finished_at) == now + timedelta(minutes=3)
+        assert ensure_utc(alias.first_seen_at) == ensure_utc(alias.last_seen_at) == now
+    for run in (2, 3):
+        persist_search(
+            repository,
+            search,
+            run,
+            now + timedelta(minutes=10 + run),
+            [],
+            (collected_job.linkedin_job_id,),
+        )
+    assert repository.list_all_jobs()[0].status == JobStatus.CLOSED
+
+
+def test_absence_and_one_closed_search_cannot_close_another_searchs_active_job(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    other = search.model_copy(update={"slug": "other-search", "keywords": "software graduate"})
+    repository.sync_searches([search, other], now)
+    persist_search(repository, search, 1, now, [collected_job])
+    persist_search(repository, other, 2, now, [collected_job])
+    unavailable = (collected_job.linkedin_job_id,)
+    for run in (3, 4):
+        result = persist_search(
+            repository, search, run, now + timedelta(minutes=run), [], unavailable
+        )
+        assert result.closed == 0
+    # Disappearance from the other search is not a second source of closure evidence.
+    persist_search(repository, other, 5, now + timedelta(minutes=5), [])
+    with session_factory() as session:
+        first = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        second = session.get(JobSearchRow, (other.slug, collected_job.linkedin_job_id))
+        assert first is not None
+        assert second is not None
+        assert not first.active
+        assert second.active
+        assert second.unavailable_confirmations == 0
+    assert repository.list_all_jobs()[0].status == JobStatus.OPEN
+    persist_search(repository, other, 6, now + timedelta(minutes=6), [], unavailable)
+    # A fresh rediscovery resets consecutive confirmation evidence for its association.
+    persist_search(repository, other, 7, now + timedelta(minutes=7), [collected_job])
+    assert (
+        persist_search(repository, other, 8, now + timedelta(minutes=8), [], unavailable).closed
+        == 0
+    )
+    assert (
+        persist_search(repository, other, 9, now + timedelta(minutes=9), [], unavailable).closed
+        == 1
+    )
+    assert repository.list_open_jobs() == []
+    reopened = persist_search(repository, search, 10, now + timedelta(minutes=10), [collected_job])
+    assert reopened.reopened == 1
+    assert repository.list_open_jobs()[0].first_seen_at == now
+    with session_factory() as session:
+        alias = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        assert alias is not None
+        assert alias.active
+        assert alias.unavailable_confirmations == 0
+
+
+def test_search_sync_preserves_retired_history_without_closing_jobs(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    repository.sync_searches([search], now)
+    persist_search(repository, search, 1, now, [collected_job])
+    updated = search.model_copy(update={"name": "Updated search", "keywords": "new query"})
+    repository.sync_searches([updated], now + timedelta(minutes=1))
+    with session_factory() as session:
+        row = session.get(SearchRow, search.slug)
+        assert row is not None
+        assert (row.name, row.keywords) == ("Updated search", "new query")
+    repository.sync_searches([], now + timedelta(minutes=2))
+    assert repository.stats().configured_searches == 0
+    assert repository.stats().successful_runs == 1
+    assert repository.search_health() == {}
+    assert repository.list_open_jobs()[0].linkedin_job_id == collected_job.linkedin_job_id
+    with session_factory() as session:
+        assert session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id)) is not None
+
+
+def test_failed_search_transaction_rolls_back_earlier_job_and_provenance_writes(
+    engine: Engine,
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    repository.sync_searches([search], now)
+    persist_search(repository, search, 1, now, [collected_job])
+    before = repository.list_all_jobs()
+    changed = collected_job.model_copy(update={"company": "Must roll back"})
+    second = collected_job.model_copy(
+        update={
+            "linkedin_job_id": "2222222222",
+            "link": "https://www.linkedin.com/jobs/view/2222222222",
+        }
+    )
+    # Inject a real SQLite write failure only in this disposable migrated database.
+    with engine.begin() as connection:
+        connection.exec_driver_sql(
+            "CREATE TRIGGER reject_second BEFORE INSERT ON jobs "
+            "WHEN NEW.linkedin_job_id = '2222222222' "
+            "BEGIN SELECT RAISE(ABORT, 'synthetic write failure'); END"
+        )
+    with pytest.raises(IntegrityError, match="synthetic write failure"):
+        persist_search(repository, search, 2, now + timedelta(minutes=1), [changed, second])
+    assert repository.list_all_jobs() == before
+    assert repository.stats().successful_runs == 1
+    with session_factory() as session:
+        assert session.get(SearchRunRow, "run-2") is None
+        alias = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        assert alias is not None
+        assert alias.last_seen_run_id == "run-1"
+        assert ensure_utc(alias.last_seen_at) == now
+    # The rolled-back transaction must not poison subsequent writes.
+    assert persist_search(repository, search, 2, now + timedelta(minutes=2), [changed]).updated == 1
+
+
+def test_contradictory_availability_evidence_fails_without_writes(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    repository.upsert_manual_job(collected_job, observed_at=now)
+    before = repository.list_all_jobs()
+    with pytest.raises(ValueError, match="both available and unavailable"):
+        repository.apply_availability_audit(
+            available_ids=(collected_job.linkedin_job_id,),
+            unavailable_ids=(collected_job.linkedin_job_id,),
+            observed_at=now,
+        )
+    assert repository.list_all_jobs() == before
+
+
+@pytest.mark.parametrize("size", [0, 11])
+def test_manual_batch_bounds_fail_before_any_write(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    collected_job: DiscoveredJob,
+    size: int,
+) -> None:
+    repository = Repository(session_factory, settings)
+    jobs = [
+        collected_job.model_copy(
+            update={
+                "linkedin_job_id": str(1000000000 + index),
+                "link": f"https://www.linkedin.com/jobs/view/{1000000000 + index}",
+            }
+        )
+        for index in range(size)
+    ]
+    with pytest.raises(ValueError, match="1 to 10 jobs"):
+        repository.upsert_manual_jobs(jobs, observed_at=datetime(2026, 7, 20, tzinfo=UTC))
     assert repository.list_all_jobs() == []

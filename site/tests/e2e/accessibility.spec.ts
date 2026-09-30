@@ -25,6 +25,10 @@ test.describe("automated accessibility", () => {
     await openDirectory(page, "/?q=does-not-match-any-opportunity");
     await expectRoleCount(page, 0);
     await expectNoAccessibilityViolations(page);
+    await page.getByRole("button", {name: "Reset filters"}).click();
+    await expectRoleCount(page, 12);
+    await expect(page.getByLabel("Search")).toHaveValue("");
+    await expect(page).not.toHaveURL(/q=/);
   });
 
   test("dark mode", async ({page}) => {

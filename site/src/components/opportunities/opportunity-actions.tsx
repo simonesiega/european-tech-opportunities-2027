@@ -62,27 +62,40 @@ export function OpportunityActions({
       )
         setPosition(null);
     }
-    function escape(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") {
-        setPosition(null);
+    function restoreFocusAndDismiss() {
+      if (menuRef.current?.contains(document.activeElement)) {
         triggerRef.current?.focus({preventScroll: true});
       }
+      setPosition(null);
     }
-    const dismissOnScroll = () => setPosition(null);
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setPosition(null);
+        triggerRef.current?.focus({preventScroll: true});
+      } else if (event.key === "Tab") {
+        // The portal is at the end of the document. Resume normal tab order
+        // from its trigger rather than jumping to the browser toolbar.
+        restoreFocusAndDismiss();
+      }
+    }
+    const dismissOnScroll = restoreFocusAndDismiss;
     // Opening the menu may finish scrolling the trigger into view. Ignore that
     // initial browser scroll; subsequent page/table scrolling dismisses it.
     const scrollTimer = window.setTimeout(() => {
       window.addEventListener("scroll", dismissOnScroll, true);
     }, 150);
     document.addEventListener("pointerdown", dismiss);
-    document.addEventListener("keydown", escape);
+    document.addEventListener("keydown", handleKeyDown);
     document.addEventListener("focusin", dismissOnFocus);
+    window.addEventListener("resize", restoreFocusAndDismiss);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       window.clearTimeout(scrollTimer);
       window.removeEventListener("scroll", dismissOnScroll, true);
-      document.removeEventListener("keydown", escape);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", dismissOnFocus);
+      window.removeEventListener("resize", restoreFocusAndDismiss);
     };
   }, [position]);
 

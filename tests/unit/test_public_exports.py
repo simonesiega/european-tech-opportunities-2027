@@ -7,8 +7,10 @@ import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
 from jsonschema import Draft202012Validator
 
+import opportunities.public_exports as exports_module
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import StoredJob
 from opportunities.public_exports import (
@@ -21,6 +23,11 @@ from opportunities.public_exports import (
     render_public_exports,
     validate_public_exports,
 )
+
+
+@pytest.fixture(autouse=True)
+def fixed_export_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(exports_module, "utc_now", lambda: datetime(2026, 7, 16, tzinfo=UTC))
 
 
 def stored_job(index: int, first_seen_at: datetime) -> StoredJob:
@@ -59,14 +66,25 @@ def test_public_exports_include_only_approved_fields_in_stable_order(tmp_path: P
 
     json_rows = json.loads((tmp_path / JSON_FILENAME).read_text(encoding="utf-8"))
     assert [row["linkedin_job_id"] for row in json_rows] == ["1000000002", "1000000001"]
-    assert tuple(json_rows[0]) == PUBLIC_EXPORT_FIELDS
-    assert "first_seen_at" not in json_rows[0]
-    assert "status" not in json_rows[0]
+    # Keep the approved boundary independent of the production serializer's allowlist.
+    approved = (
+        "linkedin_job_id",
+        "company",
+        "title",
+        "location",
+        "link",
+        "category",
+        "industries",
+        "employment_type",
+        "start_date",
+    )
+    assert approved == PUBLIC_EXPORT_FIELDS
+    assert all(tuple(row) == approved for row in json_rows)
     assert "Zürich" in json_rows[0]["location"]
 
     with (tmp_path / CSV_FILENAME).open(encoding="utf-8", newline="") as handle:
         csv_rows = list(csv.DictReader(handle))
-    assert tuple(csv_rows[0]) == PUBLIC_EXPORT_FIELDS
+    assert all(tuple(row) == approved for row in csv_rows)
     assert [row["linkedin_job_id"] for row in csv_rows] == ["1000000002", "1000000001"]
     metadata = json.loads((tmp_path / METADATA_FILENAME).read_text(encoding="utf-8"))
     assert metadata["schema_version"] == SCHEMA_VERSION
@@ -75,7 +93,16 @@ def test_public_exports_include_only_approved_fields_in_stable_order(tmp_path: P
         2,
         0,
     )
-    datetime.fromisoformat(metadata["generated_at"])
+    assert set(metadata) == {
+        "schema_version",
+        "generated_at",
+        "total",
+        "internship_count",
+        "new_grad_count",
+        "csv_sha256",
+        "json_sha256",
+    }
+    assert metadata["generated_at"] == "2026-07-16T00:00:00+00:00"
     for filename, key in ((CSV_FILENAME, "csv_sha256"), (JSON_FILENAME, "json_sha256")):
         assert metadata[key] == hashlib.sha256((tmp_path / filename).read_bytes()).hexdigest()
     schema = json.loads(_schema_path().read_text(encoding="utf-8"))
@@ -88,20 +115,23 @@ def test_public_exports_include_only_approved_fields_in_stable_order(tmp_path: P
     assert validate_public_exports(tmp_path, jobs) == []
 
 
+@pytest.mark.parametrize("field", ["company", "title", "location", "industries", "start_date"])
+@pytest.mark.parametrize("prefix", ["=", "+", "-", "@", "\t", "\r"])
 def test_public_csv_neutralizes_formulas_and_validation_detects_stale_files(
     tmp_path: Path,
+    field: str,
+    prefix: str,
 ) -> None:
     now = datetime(2026, 7, 15, tzinfo=UTC)
-    job = stored_job(1, now).model_copy(update={"company": "=DANGEROUS()"})
+    text = f"{prefix}SYNTHETIC()"
+    job = stored_job(1, now).model_copy(update={field: text})
 
     render_public_exports(tmp_path, [job])
 
     with (tmp_path / CSV_FILENAME).open(encoding="utf-8", newline="") as handle:
         row = next(csv.DictReader(handle))
-    assert row["company"] == "'=DANGEROUS()"
-    assert json.loads((tmp_path / JSON_FILENAME).read_text(encoding="utf-8"))[0]["company"] == (
-        "=DANGEROUS()"
-    )
+    assert row[field] == f"'{text}"
+    assert json.loads((tmp_path / JSON_FILENAME).read_text(encoding="utf-8"))[0][field] == text
 
     (tmp_path / JSON_FILENAME).write_text("[]\n", encoding="utf-8")
     errors = validate_public_exports(tmp_path, [job])
@@ -167,26 +197,25 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     schema = json.loads(_schema_path().read_text(encoding="utf-8"))
     assert schema["$id"] == "https://techopportunities.eu/schemas/opportunities-v1.schema.json"
     examples = root / "schemas" / "examples"
-    guide = (root / "docs/guides/user-guide/public-dataset.md").read_text(encoding="utf-8")
+    guide = (root / "docs/users/data/data.md").read_text(encoding="utf-8")
 
-    def shown_example(heading: str, language: str) -> str:
-        match = re.search(
-            rf"^## {heading}\n.*?^```{language}\n(.*?)^```",
-            guide,
-            flags=re.MULTILINE | re.DOTALL,
-        )
-        assert match is not None
-        return match.group(1)
+    def shown_examples(document: str, language: str) -> list[str]:
+        blocks = re.findall(rf"^```{language}\n(.*?)^```", document, re.MULTILINE | re.DOTALL)
+        assert blocks, f"No {language} examples found"
+        return blocks
 
     json_rows = json.loads((examples / "open-opportunities-v1.json").read_text(encoding="utf-8"))
     assert Draft202012Validator(schema).is_valid(json_rows)
-    assert json.loads(shown_example("JSON download", "json")) == json_rows
+    for example in shown_examples(guide, "json"):
+        Draft202012Validator(schema).validate(json.loads(example))
 
     csv_content = (examples / "open-opportunities-v1.csv").read_text(encoding="utf-8")
     parsed = list(csv.reader(csv_content.splitlines(keepends=True), strict=True))
     csv_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/csvDataset"}
     assert Draft202012Validator(csv_contract).is_valid({"header": parsed[0], "rows": parsed[1:]})
-    assert shown_example("CSV download", "csv") == csv_content
+    for example in shown_examples(guide, "csv"):
+        header, *rows = list(csv.reader(example.splitlines(keepends=True), strict=True))
+        Draft202012Validator(csv_contract).validate({"header": header, "rows": rows})
     assert [dict(zip(parsed[0], cells, strict=True)) for cells in parsed[1:]] == [
         {field: "" if row[field] is None else row[field] for field in PUBLIC_EXPORT_FIELDS}
         for row in json_rows
@@ -195,7 +224,9 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     api = json.loads((examples / "api-opportunities-v1.json").read_text(encoding="utf-8"))
     api_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/apiResponse"}
     assert Draft202012Validator(api_contract).is_valid(api)
-    assert json.loads(shown_example("API response", "json")) == api
+    api_guide = (root / "docs/users/data/api.md").read_text(encoding="utf-8")
+    for example in shown_examples(api_guide, "json"):
+        Draft202012Validator(api_contract).validate(json.loads(example))
     assert api["pagination"]["total"] == len(json_rows) == len(api["data"])
     assert [
         {

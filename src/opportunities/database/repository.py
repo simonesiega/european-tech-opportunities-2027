@@ -80,6 +80,7 @@ class Repository:
 
     def sync_searches(self, searches: list[LinkedInSearchConfig], now: datetime) -> None:
         """Synchronize configured searches with database state."""
+        now = ensure_utc(now)
         active_slugs = {search.slug for search in searches}
         with self.factory.begin() as session:
             for search in searches:
@@ -148,6 +149,10 @@ class Repository:
         duration_ms: int,
     ) -> PersistSummary:
         """Persist one successful search transaction."""
+        # SQLite's DateTime adapter discards offsets; normalize before any row
+        # or provenance write, not just while converting jobs back to models.
+        started_at = ensure_utc(started_at)
+        finished_at = ensure_utc(finished_at)
         summary = PersistSummary()
         with self.factory.begin() as session:
             session.add(
@@ -196,6 +201,8 @@ class Repository:
         error_message: str,
     ) -> None:
         """Persist diagnostics for one failed search."""
+        started_at = ensure_utc(started_at)
+        finished_at = ensure_utc(finished_at)
         with self.factory.begin() as session:
             session.add(
                 SearchRunRow(

@@ -2,6 +2,7 @@ import {parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
 import type {Opportunity} from "@/types/opportunity";
 
 export const LOCAL_STATE_KEY = "opportunities-directory-state";
+export type LocalOpportunityView = "all" | "saved" | "applied" | "hidden" | "new";
 
 export type LocalOpportunityState = {
   version: 1;

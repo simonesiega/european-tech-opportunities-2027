@@ -149,7 +149,11 @@ _CITY_COUNTRIES: dict[str, str] = {
     "zurich": "CH",
 }
 
-_NON_EUROPEAN_REGION_CODES = frozenset({"GA", "NH", "OH", "ON", "TX"})
+# Include common country abbreviations as well as namesake-city region codes.
+# A location such as "Paris, US" must not fall back to the European city map.
+_NON_EUROPEAN_REGION_CODES = frozenset(
+    {"AU", "CA", "GA", "IN", "NH", "NZ", "OH", "ON", "SG", "TX", "US"}
+)
 
 _NON_EUROPEAN_MARKERS = frozenset(
     {
@@ -213,12 +217,11 @@ def normalize_locations(values: list[str]) -> LocationResult:
             for city, country_code in _CITY_COUNTRIES.items():
                 if contains_normalized_phrase(key, city):
                     codes.add(country_code)
-        # Two-letter codes are recognized only when the source writes uppercase ISO
-        # tokens. Lowercased matching would mistake common words such as "at" or "it"
-        # for Austria and Italy.
-        for code in uppercase_codes:
-            if code in EUROPEAN_COUNTRY_CODES:
-                codes.add(code)
+            # Uppercase tokens alone are not country evidence when this location
+            # has a non-European qualifier: DE/US means Delaware, NL/Canada can
+            # mean Newfoundland, and RS/Brazil can mean Rio Grande do Sul.
+            # Named European countries above still support explicit mixed locations.
+            codes.update(uppercase_codes & EUROPEAN_COUNTRY_CODES)
         # EMEA includes the Middle East and Africa, so it does not by itself
         # establish a European posting location. A named country or city above
         # can still supply explicit European evidence for a mixed label.

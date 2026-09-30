@@ -1,6 +1,6 @@
 # Code of Conduct
 
-[← Project README](README.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Privacy notice](PRIVACY.md) · [Documentation hub](docs/README.md)
+[← Project README](README.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Privacy notice](PRIVACY.md) · [Documentation home](docs/README.md)
 
 We as contributors, maintainers, and community members pledge to make participation in European Tech Opportunities 2027 a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socioeconomic status, nationality, personal appearance, race, caste, color, religion, or sexual identity and orientation.
 

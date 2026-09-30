@@ -1,3 +1,4 @@
+import {parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
 import {repositoryUrl} from "@/lib/project-links";
 import {siteConfig} from "@/lib/site-config";
 
@@ -7,6 +8,7 @@ export function buildStructuredData(siteUrl: URL, lastUpdatedAt: string | null) 
   const directoryUrl = siteUrl.toString();
   const websiteId = `${directoryUrl}#website`;
   const datasetId = `${directoryUrl}#dataset`;
+  const updated = lastUpdatedAt ? parseOpportunityTimestamp(lastUpdatedAt) : NaN;
 
   return {
     "@context": {
@@ -39,12 +41,11 @@ export function buildStructuredData(siteUrl: URL, lastUpdatedAt: string | null) 
         creator: {"@id": siteConfig.maintainer.id},
         publisher: {"@id": siteConfig.maintainer.id},
         maintainer: {"@id": siteConfig.maintainer.id},
-        isPartOf: {"@id": websiteId},
         "dcterms:accrualPeriodicity": {
           "@id": "http://purl.org/cld/freq/daily",
           name: "Daily",
         },
-        ...(lastUpdatedAt ? {dateModified: lastUpdatedAt} : {}),
+        ...(Number.isFinite(updated) ? {dateModified: new Date(updated).toISOString()} : {}),
         distribution: [
           {
             "@type": "DataDownload",

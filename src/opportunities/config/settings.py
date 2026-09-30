@@ -28,7 +28,9 @@ _DEFAULT_CONFIG_DIR = _PACKAGED_CONFIG_DIR if _PACKAGED_CONFIG_DIR.is_dir() else
 class Settings(BaseModel):
     """Define validated application settings."""
 
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    # CLI validation errors must not echo environment values or credentials from
+    # a rejected database URL. Field names and validation reasons remain visible.
+    model_config = ConfigDict(extra="forbid", frozen=True, hide_input_in_errors=True)
 
     database_url: str = "sqlite:///data/opportunities.db"
     search_config_dir: Path = _DEFAULT_CONFIG_DIR / "searches"
@@ -62,6 +64,8 @@ class Settings(BaseModel):
             raise ValueError("database_url must be a valid SQLAlchemy URL") from exc
         if url.get_backend_name() != "sqlite":
             raise ValueError("database_url must use SQLite")
+        if any(value is not None for value in (url.username, url.password, url.host, url.port)):
+            raise ValueError("SQLite database URLs must not include credentials or a hostname")
         return normalized
 
     @field_validator(

@@ -320,6 +320,14 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   );
   await expect(page.locator('script[src="https://cloud.umami.is/script.js"]')).toHaveCount(0);
   await expect(page.getByText("Last successful collection: 17 Jul 2026")).toBeVisible();
+  await expect(page.getByRole("link", {name: "Help", exact: true})).toHaveAttribute(
+    "href",
+    "https://docs.techopportunities.eu/docs/users/index.html"
+  );
+  await expect(page.getByRole("link", {name: "Privacy", exact: true})).toHaveAttribute(
+    "href",
+    "https://docs.techopportunities.eu/PRIVACY.html"
+  );
 
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).not.toBeNull();
@@ -328,9 +336,10 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
     "@graph": Array<Record<string, unknown>>;
   };
   const dataset = structuredData["@graph"].find((item) => item["@type"] === "Dataset");
+  expect(dataset).not.toHaveProperty("isPartOf");
   expect(dataset).toMatchObject({
     "@id": "http://127.0.0.1:3100/#dataset",
-    dateModified: "2026-07-17T12:00:00+00:00",
+    dateModified: "2026-07-17T12:00:00.000Z",
     distribution: [
       {contentUrl: "http://127.0.0.1:3100/open-opportunities.csv"},
       {contentUrl: "http://127.0.0.1:3100/open-opportunities.json"},

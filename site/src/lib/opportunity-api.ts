@@ -1,6 +1,10 @@
 import {createHash} from "node:crypto";
 import {filterOpportunities} from "@/lib/opportunity-filter";
-import {parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
+import {
+  normalizeOpportunityTimestamp,
+  parseOpportunityTimestamp,
+} from "@/lib/opportunity-presentation";
+import {sortOpportunities} from "@/lib/opportunity-sort";
 import {DIRECTORY_SORTS, FIRST_SEEN_OPTIONS} from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -53,7 +57,8 @@ export function parseApiQuery(rawSearch: string) {
   }
   const type = readText("type");
   const firstSeen = readText("first-seen");
-  const sort = params.has("sort") ? readText("sort") : "first-seen-desc";
+  const requestedSort = params.has("sort") ? readText("sort") : "first-seen-desc";
+  const sort = DIRECTORY_SORTS.find((option) => option === requestedSort);
   if (params.has("type") && type !== "internship" && type !== "new-grad")
     throw new InvalidApiQuery("Invalid type");
   if (
@@ -62,7 +67,7 @@ export function parseApiQuery(rawSearch: string) {
   ) {
     throw new InvalidApiQuery("Invalid first-seen");
   }
-  if (!DIRECTORY_SORTS.some((option) => option === sort)) throw new InvalidApiQuery("Invalid sort");
+  if (!sort) throw new InvalidApiQuery("Invalid sort");
   const integer = (key: string, fallback: number, maximum: number) => {
     const value = params.get(key);
     if (value === null) return fallback;
@@ -93,39 +98,15 @@ export function apiPayload(
 ) {
   // A release-relative clock makes recency queries reproducible for the same
   // canonical snapshot. Manual-only databases have no successful search run.
-  const referenceTimestamp = opportunities.reduce(
-    (latest, row) => Math.max(latest, parseOpportunityTimestamp(row.firstSeenAt)),
-    lastUpdatedAt ? parseOpportunityTimestamp(lastUpdatedAt) : 0
-  );
+  const lastUpdatedTimestamp = lastUpdatedAt ? parseOpportunityTimestamp(lastUpdatedAt) : 0;
+  if (!Number.isFinite(lastUpdatedTimestamp)) throw new Error("Invalid collection timestamp");
+  const referenceTimestamp = opportunities.reduce((latest, row) => {
+    const timestamp = parseOpportunityTimestamp(row.firstSeenAt);
+    if (!Number.isFinite(timestamp)) throw new Error("Invalid first-seen timestamp");
+    return Math.max(latest, timestamp);
+  }, lastUpdatedTimestamp);
   const filtered = filterOpportunities(opportunities, query.filters, referenceTimestamp);
-  const descending = query.sort.endsWith("-desc");
-  const field = query.sort.replace(/-(asc|desc)$/, "");
-  const sorted = filtered.sort((a, b) => {
-    const left =
-      field === "role"
-        ? a.title
-        : field === "first-seen"
-          ? a.firstSeenAt
-          : field === "company"
-            ? a.company
-            : a.location;
-    const right =
-      field === "role"
-        ? b.title
-        : field === "first-seen"
-          ? b.firstSeenAt
-          : field === "company"
-            ? b.company
-            : b.location;
-    const order =
-      field === "first-seen"
-        ? Math.sign(parseOpportunityTimestamp(left) - parseOpportunityTimestamp(right))
-        : left.localeCompare(right, "en");
-    return (
-      (descending ? -order : order) ||
-      b.linkedinJobId.localeCompare(a.linkedinJobId, "en", {numeric: true})
-    );
-  });
+  const sorted = sortOpportunities(filtered, query.sort);
   const total = sorted.length;
   const totalPages = Math.ceil(total / query.pageSize);
   const offset = (query.page - 1) * query.pageSize;
@@ -147,65 +128,9 @@ export function apiPayload(
       industries: item.industries,
       employmentType: item.employmentType,
       startDate: item.startDate,
-      firstSeenAt: apiFirstSeenAt(item.firstSeenAt),
+      firstSeenAt: normalizeOpportunityTimestamp(item.firstSeenAt),
     })),
   };
-}
-
-function apiFirstSeenAt(value: string): string {
-  const match =
-    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])(\d{2}):(\d{2}))?$/.exec(
-      value
-    );
-  if (!match) throw new Error("Invalid first-seen timestamp");
-
-  const [
-    ,
-    yearText,
-    monthText,
-    dayText,
-    hourText,
-    minuteText,
-    secondText,
-    fractionText,
-    ,
-    sign,
-    offsetHourText,
-    offsetMinuteText,
-  ] = match;
-  const year = Number(yearText);
-  const month = Number(monthText);
-  const day = Number(dayText);
-  const hour = Number(hourText);
-  const minute = Number(minuteText);
-  const second = Number(secondText);
-  const offsetHour = Number(offsetHourText ?? 0);
-  const offsetMinute = Number(offsetMinuteText ?? 0);
-  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  if (
-    month < 1 ||
-    month > 12 ||
-    day < 1 ||
-    day > daysInMonth[month - 1]! ||
-    hour > 23 ||
-    minute > 59 ||
-    second > 59 ||
-    offsetHour > 23 ||
-    offsetMinute > 59
-  ) {
-    throw new Error("Invalid first-seen timestamp");
-  }
-
-  const timestamp = new Date(0);
-  timestamp.setUTCFullYear(year, month - 1, day);
-  timestamp.setUTCHours(hour, minute, second, 0);
-  const offset = (offsetHour * 60 + offsetMinute) * (sign === "+" ? 1 : -1);
-  timestamp.setTime(timestamp.getTime() - offset * 60_000);
-  const normalized = timestamp.toISOString();
-  if (!/^\d{4}-/.test(normalized)) throw new Error("Invalid first-seen timestamp");
-  const fraction = (fractionText ?? "").padEnd(6, "0");
-  return `${normalized.slice(0, 19)}.${fraction}+00:00`;
 }
 
 export function apiEtag(body: string): string {

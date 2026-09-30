@@ -1,6 +1,6 @@
-# Security Policy
+# Security policy
 
-[← Project README](README.md) · [Contributing](CONTRIBUTING.md) · [Documentation hub](docs/README.md) · [Privacy notice](PRIVACY.md)
+[← Project README](README.md) · [Contributing](CONTRIBUTING.md) · [Documentation home](docs/README.md) · [Privacy notice](PRIVACY.md)
 
 Security reporting, supported versions, and operating boundaries for European Tech Opportunities 2027.
 
@@ -51,7 +51,7 @@ Security fixes currently target `main`. The project has no published versioned r
 | Automation | Offline validation separated from authorized collection, verified durable snapshots, no canonical state in Actions cache or artifacts, job-scoped permissions, sanitized handoffs, locked deployment, and independent scheduled Scorecard reporting to code scanning and the public Scorecard API |
 | Containers | Unprivileged processes, explicit mounts, pinned images, and reduced runtime tooling |
 
-Detailed behavior is documented in [Architecture](docs/guides/development/architecture.md), [Configuration](docs/guides/getting-started/configuration.md), [Database](docs/guides/operations/database.md), [Automation](docs/guides/operations/automation.md), and [Docker](docs/guides/operations/docker.md).
+Detailed behavior is documented in [Architecture](docs/maintainers/engineering/architecture.md), [Configuration](docs/maintainers/getting-started/configuration.md), [Database](docs/maintainers/operations/database.md), [Automation](docs/maintainers/operations/automation.md), and [Containers and deployment](docs/maintainers/operations/deployment.md).
 
 ### Collection boundary
 
@@ -85,7 +85,7 @@ The website must not:
 - emit external links outside validated public HTTPS listing URLs;
 - serve arbitrary filesystem paths or export filenames.
 
-Authentication, forms, user content, saved applications, write APIs, or administration interfaces require explicit architecture and security review.
+Authentication, forms, user content, server-stored applications, write APIs, or administration interfaces require explicit architecture and security review. Existing browser-local saved/applied/hidden marks remain separate from canonical state; see [Privacy](PRIVACY.md#local-browser-preferences).
 
 ## What to report
 

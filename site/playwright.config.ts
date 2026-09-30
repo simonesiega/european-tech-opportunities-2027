@@ -31,6 +31,9 @@ export default defineConfig({
       NEXT_DIST_DIR: ".next-e2e",
       OPPORTUNITIES_DATABASE_PATH: testDatabasePath,
       OPPORTUNITIES_PUBLIC_EXPORT_DIR: testFixtureDirectory,
+      // Never inherit an operator's production release or schema override.
+      OPPORTUNITIES_RELEASE_ROOT: "",
+      OPPORTUNITIES_SCHEMA_PATH: path.resolve("../schemas/opportunities-v1.schema.json"),
       SITE_URL: "http://127.0.0.1:3100",
     },
   },

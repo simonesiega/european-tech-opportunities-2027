@@ -11,6 +11,7 @@ import {
   formatPublishedDate,
   getCategoryHue,
   getEmploymentTypeHue,
+  normalizeOpportunityTimestamp,
 } from "@/lib/opportunity-presentation";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -155,7 +156,7 @@ export function opportunityColumns(
       cell: ({row}) => (
         <time
           className="leading-[1.4] whitespace-nowrap text-[var(--text-soft)]"
-          dateTime={row.original.firstSeenAt}
+          dateTime={normalizeOpportunityTimestamp(row.original.firstSeenAt)}
         >
           {formatPublishedDate(row.original.firstSeenAt)}
         </time>

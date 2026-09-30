@@ -96,6 +96,10 @@ class HttpFetcher:
         )
         if "cookie" in self._client.headers:
             raise ValueError("LinkedIn client must not have a Cookie header")
+        if self._client.auth is not None or any(
+            header in self._client.headers for header in ("authorization", "proxy-authorization")
+        ):
+            raise ValueError("LinkedIn client must not have authentication configured")
         # HTTPX otherwise retains Set-Cookie values and sends them on later guest
         # requests. Reject cookies at the jar so concurrent responses cannot race a
         # post-response clear; apply this to injected offline clients as well.
@@ -177,7 +181,9 @@ class HttpFetcher:
         retry_after: float | None = None
         transient_status: int
         try:
-            async with self._client.stream("GET", url, follow_redirects=False) as response:
+            async with self._client.stream(
+                "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
+            ) as response:
                 if 300 <= response.status_code < 400 or response.status_code in {
                     401,
                     403,
@@ -232,8 +238,15 @@ class HttpFetcher:
                 status_code=response.status_code,
             )
 
+        # HTTPX decompresses each received chunk before aiter_bytes yields it. A
+        # compressed chunk can expand past our memory bound before we can count it.
+        # Request identity encoding and reject any other encoding without reading.
+        content_encoding = response.headers.get("Content-Encoding", "").strip().casefold()
+        if content_encoding not in {"", "identity"}:
+            raise FetchError("content_encoding", "LinkedIn returned unsupported content encoding")
+
         # Reject an advertised oversized body early, then bound the streamed bytes because
-        # Content-Length can be absent, inaccurate, or smaller than decoded content.
+        # Content-Length can be absent, inaccurate, or smaller than the actual content.
         content_length = response.headers.get("Content-Length")
         if (
             content_length

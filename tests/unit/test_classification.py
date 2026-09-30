@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
 from opportunities.config.rules import ClassificationRules
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.normalization.location import normalize_locations
@@ -19,7 +21,7 @@ def classify(
     return Classifier(rules, target_cycle=2027).classify(
         title=title,
         description=description,
-        location=normalize_locations(locations or ["London, UK"]),
+        location=normalize_locations(["London, UK"] if locations is None else locations),
         posted_at=posted_at,
     )
 
@@ -226,6 +228,43 @@ def test_non_technology_and_non_european_jobs_are_excluded(
     assert ambiguous_remote.exclusion_reason == "location is not explicitly European"
 
 
+@pytest.mark.parametrize(
+    "location",
+    [
+        "Paris, US",
+        "London, CA",
+        "Perth, AU",
+        "London, IN",
+        "Paris, NZ",
+        "London, SG",
+        "Wilmington, DE, United States",
+        "Portland, ME, USA",
+        "Birmingham, AL, US",
+        "Whitefish, MT, US",
+        "Richmond, VA, United States",
+        "Baltimore, MD, US",
+        "Regina, SK, Canada",
+        "St. Johns, NL, CA",
+        "Porto Alegre, RS, Brazil",
+    ],
+)
+def test_non_european_country_codes_prevent_city_fallback(
+    rules: ClassificationRules, location: str
+) -> None:
+    result = classify(rules, title="Software Intern 2027", locations=[location])
+    assert not result.include
+    assert result.exclusion_reason == "location is outside Europe"
+
+
+@pytest.mark.parametrize(
+    "location", ["Paris, FR", "Berlin, DE", "London, GB", "London", "Berlin, Germany; US"]
+)
+def test_explicit_european_locations_remain_eligible(
+    rules: ClassificationRules, location: str
+) -> None:
+    assert classify(rules, title="Software Intern 2027", locations=[location]).include
+
+
 def test_description_can_classify_generic_technical_internship(
     rules: ClassificationRules,
 ) -> None:
@@ -236,3 +275,84 @@ def test_description_can_classify_generic_technical_internship(
     )
     assert result.include
     assert result.category == OpportunityCategory.MACHINE_LEARNING
+
+
+@pytest.mark.parametrize("year", [1999, 2000, 2019, 2050, 2099, 2100])
+@pytest.mark.parametrize("evidence", ["title", "description"])
+@pytest.mark.parametrize("title", ["Software Intern", "Software Engineer New Grad"])
+def test_conflicting_years_cannot_fall_back_to_recent_posting_dates(
+    rules: ClassificationRules, year: int, evidence: str, title: str
+) -> None:
+    result = classify(
+        rules,
+        title=f"{title} {year}" if evidence == "title" else title,
+        description=f"Our programme starts in {year}." if evidence == "description" else "",
+        posted_at=datetime(2026, 7, 20, tzinfo=UTC),
+    )
+    assert not result.include
+    assert result.exclusion_reason == f"listing is for the {year} cycle"
+
+
+@pytest.mark.parametrize(
+    ("title", "description", "posted_at"),
+    [
+        ("Software Intern 2027", "An old internship programme ran in 2019.", None),
+        ("Class of 2050 Software Intern 2027", "", None),
+        ("Software Intern", "Applicants must graduate in 2050.", datetime(2026, 7, 20, tzinfo=UTC)),
+    ],
+)
+def test_title_precedence_and_internship_eligibility_remain_distinct(
+    rules: ClassificationRules, title: str, description: str, posted_at: datetime | None
+) -> None:
+    result = classify(rules, title=title, description=description, posted_at=posted_at)
+    assert result.include
+    assert result.employment_type == EmploymentType.INTERNSHIP
+
+
+@pytest.mark.parametrize("target", [2020, 2049, 2050, 2099, 2100])
+def test_supported_target_cycles_need_no_posting_date(
+    rules: ClassificationRules, target: int
+) -> None:
+    result = Classifier(rules, target).classify(
+        title=f"Software Intern {target}",
+        description=None,
+        location=normalize_locations(["Germany"]),
+    )
+    assert result.include
+
+
+@pytest.mark.parametrize("title", ["Software Intern", "Graduate Software Engineer"])
+@pytest.mark.parametrize(
+    ("timestamp", "include"),
+    [
+        ("2026-04-30T23:59:59.999999+00:00", False),
+        ("2026-05-01T00:00:00+00:00", True),
+        ("2026-05-01T01:59:59.999999+02:00", False),
+        ("2026-05-01T02:00:00+02:00", True),
+        ("2026-04-30T19:00:00-05:00", True),
+    ],
+)
+def test_posting_floor_uses_the_utc_instant(
+    rules: ClassificationRules, title: str, timestamp: str, include: bool
+) -> None:
+    result = classify(rules, title=title, posted_at=datetime.fromisoformat(timestamp))
+    assert result.include is include
+    if not include:
+        assert result.exclusion_reason == (
+            "opportunity cycle is not explicitly 2027 and posting date is not eligible"
+        )
+
+
+def test_explicit_separate_european_location_survives_a_mixed_country_list(
+    rules: ClassificationRules,
+) -> None:
+    assert classify(rules, title="Software Intern 2027", locations=["DE", "US"]).include
+
+
+@pytest.mark.parametrize("locations", [[], ["Remote"], ["EMEA"]])
+def test_missing_or_ambiguous_geography_is_not_assumed_european(
+    rules: ClassificationRules, locations: list[str]
+) -> None:
+    result = classify(rules, title="Software Intern 2027", locations=locations)
+    assert not result.include
+    assert result.exclusion_reason == "location is not explicitly European"

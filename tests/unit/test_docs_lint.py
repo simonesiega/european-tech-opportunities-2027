@@ -7,23 +7,27 @@ import sys
 from pathlib import Path
 
 import pytest
-from scripts import lint_docs
+from scripts.docs import lint_docs
 
 
 def test_documentation_linters_use_the_same_curated_read_only_inputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(lint_docs, "ROOT", tmp_path)
-    monkeypatch.setattr("scripts.lint_docs.shutil.which", lambda _name: "docker")
+    monkeypatch.setattr("scripts.docs.lint_docs.shutil.which", lambda _name: "docker")
     monkeypatch.setattr(sys, "argv", ["lint_docs.py"])
     for file in lint_docs.ROOT_FILES:
         path = tmp_path / file
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("# Maintained\n", encoding="utf-8")
-    guide = tmp_path / "docs/guides/guide.md"
+    guide = tmp_path / "docs/maintainers/engineering/guide.md"
     guide.parent.mkdir(parents=True)
     guide.write_text("# Guide\n", encoding="utf-8")
     (tmp_path / "docs/reference.md").write_text("# Maintained\n", encoding="utf-8")
+    for filename in ("README.md", "source.md"):
+        diagram = tmp_path / "docs/assets/diagram" / filename
+        diagram.parent.mkdir(parents=True, exist_ok=True)
+        diagram.write_text("# Diagram\n", encoding="utf-8")
     for excluded in (
         "docs/generated/report.md",
         "docs/vendor/upstream.md",
@@ -44,14 +48,18 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         commands.append(command)
         return subprocess.CompletedProcess(command, 0)
 
-    monkeypatch.setattr("scripts.lint_docs.subprocess.run", run)
+    monkeypatch.setattr("scripts.docs.lint_docs.subprocess.run", run)
     assert lint_docs.main() == 0
     assert len(commands) == 2
     for command in commands:
         assert command[:5] == ["docker", "run", "--rm", "--network", "none"]
         assert f"type=bind,source={tmp_path},target=/workdir,readonly" in command
-        assert "docs/guides/guide.md" in command
+        assert "docs/maintainers/engineering/guide.md" in command
         assert "docs/reference.md" in command
+        assert "docs/assets/diagram/README.md" in command
+        assert "docs/assets/diagram/source.md" in command
+        assert ".github/WORKFLOWS.md" in command
+        assert "scripts/SCRIPT.md" in command
         assert ".github/ISSUE_TEMPLATE/question.md" in command
         assert "docs/generated/report.md" not in command
         assert "docs/vendor/upstream.md" not in command
@@ -68,7 +76,7 @@ def test_generated_readme_validation_dispatches_documentation_workflow() -> None
     docs = (lint_docs.ROOT / ".github/workflows/documentation.yml").read_text(encoding="utf-8")
     assert "gitleaks.yml documentation.yml)" in mutation
     assert "workflow_dispatch:" in docs
-    assert "run: uv run --frozen python scripts/lint_docs.py" in docs
+    assert "run: uv run --frozen python scripts/docs/lint_docs.py" in docs
 
 
 def test_documentation_lint_stops_after_failed_markdownlint(
@@ -76,9 +84,9 @@ def test_documentation_lint_stops_after_failed_markdownlint(
 ) -> None:
     monkeypatch.setattr(lint_docs, "ROOT", tmp_path)
     monkeypatch.setattr(lint_docs, "ROOT_FILES", ())
-    monkeypatch.setattr("scripts.lint_docs.shutil.which", lambda _name: "docker")
+    monkeypatch.setattr("scripts.docs.lint_docs.shutil.which", lambda _name: "docker")
     monkeypatch.setattr(sys, "argv", ["lint_docs.py"])
-    guide = tmp_path / "docs/guides/guide.md"
+    guide = tmp_path / "docs/users/browsing/guide.md"
     guide.parent.mkdir(parents=True)
     guide.write_text("# Guide\n", encoding="utf-8")
     commands: list[list[str]] = []
@@ -87,6 +95,36 @@ def test_documentation_lint_stops_after_failed_markdownlint(
         commands.append(command)
         return subprocess.CompletedProcess(command, 1)
 
-    monkeypatch.setattr("scripts.lint_docs.subprocess.run", run)
+    monkeypatch.setattr("scripts.docs.lint_docs.subprocess.run", run)
     assert lint_docs.main() == 1
     assert len(commands) == 1
+
+
+@pytest.mark.parametrize("problem", ["missing-docker", "missing-document"])
+def test_documentation_lint_preflight_fails_without_starting_a_process(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    problem: str,
+) -> None:
+    monkeypatch.setattr(lint_docs, "ROOT", tmp_path)
+    monkeypatch.setattr(lint_docs, "ROOT_FILES", ("missing.md",))
+    monkeypatch.setattr(
+        "scripts.docs.lint_docs.shutil.which",
+        lambda _name: None if problem == "missing-docker" else "docker",
+    )
+    monkeypatch.setattr(sys, "argv", ["lint_docs.py"])
+
+    def unexpected_run(
+        command: list[str], *, cwd: Path, check: bool
+    ) -> subprocess.CompletedProcess[str]:
+        raise AssertionError("Preflight errors must not launch containers")
+
+    monkeypatch.setattr("scripts.docs.lint_docs.subprocess.run", unexpected_run)
+    with pytest.raises(SystemExit) as error:
+        lint_docs.main()
+    assert error.value.code == 2
+    diagnostic = capsys.readouterr().err
+    assert (
+        "Docker is required" if problem == "missing-docker" else "file is missing"
+    ) in diagnostic

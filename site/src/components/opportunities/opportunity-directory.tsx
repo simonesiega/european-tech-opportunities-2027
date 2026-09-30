@@ -7,7 +7,7 @@ import {OpportunityList} from "@/components/opportunities/opportunity-list";
 import {useLocalOpportunities} from "@/components/opportunities/use-local-opportunities";
 import {useOpportunityDirectory} from "@/components/opportunities/use-opportunity-directory";
 import {Badge} from "@/components/ui/badge";
-import {newOpportunityIds} from "@/lib/local-opportunity-state";
+import {newOpportunityIds, type LocalOpportunityView} from "@/lib/local-opportunity-state";
 import {siteConfig} from "@/lib/site-config";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -20,15 +20,13 @@ const subscribeToHydration = () => () => undefined;
 const getClientHydrationState = () => true;
 const getServerHydrationState = () => false;
 
-type LocalView = "all" | "saved" | "applied" | "hidden" | "new";
-
 export function OpportunityDirectory({opportunities, referenceTime}: OpportunityDirectoryProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const hiddenViewRef = useRef<HTMLButtonElement>(null);
   const allViewRef = useRef<HTMLButtonElement>(null);
   const savedViewRef = useRef<HTMLButtonElement>(null);
   const appliedViewRef = useRef<HTMLButtonElement>(null);
-  const [localView, setLocalView] = useState<LocalView>("all");
+  const [localView, setLocalView] = useState<LocalOpportunityView>("all");
   const {state, previousVisit, toggle} = useLocalOpportunities(opportunities);
   const newIds = useMemo(
     () => newOpportunityIds(opportunities, previousVisit),
@@ -218,7 +216,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
           if (field === "applied" && localView === "applied") appliedViewRef.current?.focus();
           toggle(field, id);
         }}
-        isHiddenView={localView === "hidden"}
+        localView={localView}
         newIds={newIds}
       />
     </section>

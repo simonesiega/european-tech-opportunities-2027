@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-SCRIPT = Path(__file__).parents[2] / "scripts" / "coverage_docs.py"
+SCRIPT = Path(__file__).parents[2] / "scripts" / "docs" / "coverage_docs.py"
 
 
 @pytest.fixture
@@ -60,13 +60,38 @@ def test_renders_table_and_then_passes_check(
     assert "| Classifier branch coverage | 97.5% | Reported |" in content
 
 
+def test_default_document_targets_nested_guide_independently_of_working_directory(
+    generated_inputs: tuple[Path, Path, Path], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.docs import coverage_docs
+
+    coverage_path, pyproject_path, readme_path = generated_inputs
+    root = pyproject_path.parent
+    document = root / "docs/maintainers/engineering/testing.md"
+    document.parent.mkdir(parents=True)
+    document.write_text(_readme_template(), encoding="utf-8")
+    monkeypatch.setattr(coverage_docs, "_ROOT", root)
+    monkeypatch.chdir(root.parent)
+    args = ["--coverage", str(coverage_path)]
+
+    assert coverage_docs.main([*args, "--check"]) == 1
+    assert document.read_text(encoding="utf-8") == _readme_template()
+    assert coverage_docs.main(args) == 0
+    assert coverage_docs.main([*args, "--check"]) == 0
+    assert "| Classifier branch coverage | 97.5% | Reported |" in document.read_text(
+        encoding="utf-8"
+    )
+    assert readme_path.read_text(encoding="utf-8") == _readme_template()
+    assert not (root / "docs/maintainers/testing.md").exists()
+
+
 def test_check_rejects_stale_metrics(generated_inputs: tuple[Path, Path, Path]) -> None:
     coverage_path, pyproject_path, readme_path = generated_inputs
 
     result = _run_script(coverage_path, pyproject_path, readme_path, "--check")
 
     assert result.returncode == 1
-    assert "README coverage metrics are stale" in result.stderr
+    assert "Coverage metrics are stale" in result.stderr
     assert readme_path.read_text(encoding="utf-8") == _readme_template()
 
 
@@ -118,13 +143,14 @@ def _run_script(
             str(coverage_path),
             "--pyproject",
             str(pyproject_path),
-            "--readme",
+            "--document",
             str(readme_path),
             *extra,
         ],
         check=False,
         capture_output=True,
         text=True,
+        timeout=30,
     )
 
 

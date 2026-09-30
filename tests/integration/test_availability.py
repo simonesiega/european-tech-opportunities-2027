@@ -3,10 +3,11 @@ from __future__ import annotations
 import asyncio
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
-from opportunities.database.models import JobRow, JobSearchRow
+from opportunities.database.models import JobSearchRow
 from opportunities.database.repository import Repository
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
@@ -74,29 +75,36 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
         search=search,
         jobs=jobs,
         confirmed_unavailable_ids=(),
-        found_count=3,
+        found_count=len(jobs),
         excluded_count=0,
         warning_count=0,
         started_at=observed_at,
         finished_at=observed_at,
         duration_ms=1,
     )
-    with session_factory.begin() as session:
-        closed_job = session.get(JobRow, "1111111111")
-        closed_alias = session.get(JobSearchRow, (search.slug, "1111111111"))
-        assert closed_job is not None
-        assert closed_alias is not None
-        closed_job.status = JobStatus.CLOSED.value
-        closed_alias.active = False
-        closed_alias.unavailable_confirmations = 2
-
+    for run in (2, 3):
+        when = observed_at + timedelta(minutes=run)
+        repository.persist_success(
+            run_id=f"00000000-0000-0000-0000-{run:012d}",
+            search=search,
+            jobs=[],
+            confirmed_unavailable_ids=("1111111111",),
+            found_count=0,
+            excluded_count=0,
+            warning_count=0,
+            started_at=when,
+            finished_at=when,
+            duration_ms=1,
+        )
+    original = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    assert original["1111111111"].status == JobStatus.CLOSED
     fetcher = FakeAvailabilityFetcher()
     result = asyncio.run(
         audit_job_availability(
             settings=settings,
             repository=repository,
             fetcher=fetcher,
-            observed_at=observed_at,
+            observed_at=observed_at + timedelta(minutes=4),
         )
     )
 
@@ -105,6 +113,9 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
     assert result.deleted == 2
     assert result.reopened == 1
     assert result.inconclusive_ids == ("3333333333", "4444444444")
+    current = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    for job_id in result.inconclusive_ids:
+        assert current[job_id] == original[job_id]
     assert result.exit_code == 2
     assert set(fetcher.requested) == {
         *(LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id) for job in jobs),
@@ -245,3 +256,59 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
     )
     assert changes.reopened == 0
     assert repository.list_open_jobs() == []
+
+
+@pytest.mark.parametrize("endpoint", ["public", "detail"])
+@pytest.mark.parametrize("status", [401, 403, 404, 410, 429, 500, 503, None])
+def test_availability_errors_are_not_closure_evidence_except_not_found_or_gone(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    endpoint: str,
+    status: int | None,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    job = DiscoveredJob(
+        linkedin_job_id="1111111111",
+        company="Synthetic Technology",
+        title="Software Intern 2027",
+        location="Berlin, Germany",
+        link="https://www.linkedin.com/jobs/view/1111111111",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+    repository.upsert_manual_job(job, observed_at=now)
+    before = repository.list_all_jobs()
+    requested: list[str] = []
+
+    class FailingFetcher:
+        async def get_text(self, url: str) -> str:
+            requested.append(url)
+            if endpoint == "public" or url == LINKEDIN_DETAIL_ENDPOINT.format(
+                job_id=job.linkedin_job_id
+            ):
+                if status is None:
+                    raise RuntimeError("synthetic unexpected client failure")
+                raise FetchError("http_status", "synthetic", status_code=status)
+            return "<html>Public listing shell</html>"
+
+    result = asyncio.run(
+        audit_job_availability(
+            settings=settings,
+            repository=repository,
+            fetcher=FailingFetcher(),
+            observed_at=now + timedelta(minutes=1),
+        )
+    )
+    assert result.checked == 1
+    assert result.available == result.reopened == 0
+    assert len(requested) == (1 if endpoint == "public" else 2)
+    if status in {404, 410}:
+        assert result.deleted == 1
+        assert result.exit_code == 0
+        assert repository.list_all_jobs() == []
+    else:
+        assert result.deleted == 0
+        assert result.inconclusive_ids == (job.linkedin_job_id,)
+        assert result.exit_code == 2
+        assert repository.list_all_jobs() == before

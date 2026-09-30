@@ -49,7 +49,7 @@ from opportunities.utils.paths import find_project_root
 from opportunities.utils.time import ensure_utc, utc_now
 from opportunities.utils.url import extract_linkedin_job_id
 
-# App context and console for output. ROOT locates source-checkout or wheel-packaged migrations.
+# Wheels bundle migrations separately from the source checkout.
 try:
     ROOT = find_project_root(Path(__file__))
 except RuntimeError:
@@ -625,7 +625,9 @@ def _dispose_engine(engine: Engine) -> None:
 
 def _search_registry_docs_path(settings: Settings) -> Path:
     """Resolve registry documentation beside the configured README."""
-    return settings.readme_path.parent / "docs" / "guides" / "user-guide" / "search-registry.md"
+    return (
+        settings.readme_path.parent / "docs" / "maintainers" / "engineering" / "search-registry.md"
+    )
 
 
 def _render_projections(settings: Settings, repository: Repository) -> int:

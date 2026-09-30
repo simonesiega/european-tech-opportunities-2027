@@ -152,7 +152,7 @@ jobs:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
         shell: bash
-        run: bash scripts/restore_canonical_state.sh
+        run: bash scripts/database/restore_canonical_state.sh
 
       # Migration failure is a stop condition; restored canonical state is never rebuilt.
       - name: Migrate database
@@ -271,7 +271,7 @@ jobs:
           VPS_BACKUP_PORT: ${{ inputs.ssh_port }}
           CANONICAL_STATE_RETENTION_DAYS: ${{ inputs.retention_days }}
         shell: bash
-        run: bash scripts/canonical_state_store.sh publish
+        run: bash scripts/database/canonical_state_store.sh publish
 
       - name: Remove SSH credentials
         if: always() && inputs.adopt_public_review_seal != true
@@ -291,7 +291,7 @@ jobs:
           VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
         shell: bash
-        run: bash scripts/deploy_canonical_state.sh
+        run: bash scripts/deployment/deploy_canonical_state.sh
 
       # GitHub cache and artifacts are readable from pull requests; retain only public projections.
       - name: Stage retained public-projection bundle
