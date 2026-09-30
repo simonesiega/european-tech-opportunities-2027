@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import gzip
+import zlib
 from collections.abc import AsyncIterator
+from types import SimpleNamespace
 
 import httpx
 import pytest
 
+import opportunities.scrapers.http as http_module
 from opportunities.config.settings import Settings
 from opportunities.scrapers.http import LINKEDIN_SEARCH_ENDPOINT, FetchError, HttpFetcher
 
@@ -188,7 +192,11 @@ def test_http_fetcher_stops_on_429_without_reading_response_body() -> None:
 
 
 @pytest.mark.parametrize("status_code", [302, 401, 403, 429])
-def test_redirect_or_access_denial_stops_queued_and_later_requests(status_code: int) -> None:
+def test_redirect_or_access_denial_stops_queued_and_later_requests(
+    status_code: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Do not depend on the runner having been awake for more than the pacing interval.
+    monkeypatch.setattr(http_module, "time", SimpleNamespace(monotonic=lambda: 1000.0))
     started = asyncio.Event()
     queued = asyncio.Event()
     release_queued = asyncio.Event()
@@ -234,11 +242,12 @@ def test_redirect_or_access_denial_stops_queued_and_later_requests(status_code: 
                 await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
             assert later_error.value.status_code == status_code
 
-    asyncio.run(run())
+    asyncio.run(asyncio.wait_for(run(), timeout=5))
     assert requests == 1
 
 
-def test_challenge_page_stops_queued_and_later_requests() -> None:
+def test_challenge_page_stops_queued_and_later_requests(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(http_module, "time", SimpleNamespace(monotonic=lambda: 1000.0))
     started = asyncio.Event()
     queued = asyncio.Event()
     release_queued = asyncio.Event()
@@ -280,7 +289,7 @@ def test_challenge_page_stops_queued_and_later_requests() -> None:
                 await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
             assert later_error.value.code == "source_blocked"
 
-    asyncio.run(run())
+    asyncio.run(asyncio.wait_for(run(), timeout=5))
     assert requests == 1
 
 
@@ -430,3 +439,94 @@ def test_http_fetcher_stops_streaming_at_response_size_limit() -> None:
     asyncio.run(run())
     assert stream.read_count == 2
     assert stream.closed is True
+
+
+@pytest.mark.parametrize("authentication", ["authorization", "proxy-authorization", "client-auth"])
+def test_injected_http_clients_must_remain_unauthenticated(authentication: str) -> None:
+    requests: list[httpx.Request] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, text="synthetic")
+
+    async def run() -> None:
+        headers = (
+            {authentication: "synthetic-placeholder"} if authentication != "client-auth" else {}
+        )
+        auth = (
+            httpx.BasicAuth("synthetic", "placeholder") if authentication == "client-auth" else None
+        )
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handle), headers=headers, auth=auth
+        ) as client:
+            with pytest.raises(ValueError, match="authentication"):
+                HttpFetcher(Settings(), client=client)
+
+    asyncio.run(run())
+    assert requests == []
+
+
+@pytest.mark.parametrize("encoding", ["gzip", "deflate", "x-unsupported", "identity"])
+def test_response_bounds_apply_before_decompression(encoding: str) -> None:
+    body = b"<html>synthetic fixture</html>"
+    payloads = {"gzip": gzip.compress(body, mtime=0), "deflate": zlib.compress(body)}
+    stream = ChunkedStream((payloads.get(encoding, body),))
+    requested_encodings: list[str] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        requested_encodings.append(request.headers["accept-encoding"])
+        return httpx.Response(
+            200,
+            stream=stream,
+            headers={"content-encoding": encoding, "content-type": "text/html"},
+        )
+
+    async def run() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            fetcher = HttpFetcher(
+                Settings(linkedin_crawl_authorized=True, rate_limit_seconds=0), client=client
+            )
+            if encoding == "identity":
+                assert await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT) == body.decode()
+                assert stream.read_count == 1
+            else:
+                with pytest.raises(FetchError) as error:
+                    await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+                assert error.value.code == "content_encoding"
+                assert stream.read_count == 0
+        assert stream.closed
+        assert requested_encodings == ["identity"]
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("failure", [httpx.ReadTimeout, httpx.ConnectError])
+def test_transport_failures_have_bounded_retries_and_sanitized_errors(
+    failure: type[httpx.TransportError],
+) -> None:
+    attempts = 0
+    delays: list[float] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        raise failure("synthetic-private-response-detail", request=request)
+
+    async def sleep(delay: float) -> None:
+        delays.append(delay)
+
+    async def run() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            fetcher = HttpFetcher(
+                Settings(linkedin_crawl_authorized=True, rate_limit_seconds=0, max_retries=2),
+                client=client,
+                sleep=sleep,
+            )
+            with pytest.raises(FetchError) as error:
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            assert error.value.code == ("timeout" if failure is httpx.ReadTimeout else "transport")
+            assert "synthetic-private-response-detail" not in str(error.value)
+
+    asyncio.run(run())
+    assert attempts == 3
+    assert delays == [0.5, 1.0]

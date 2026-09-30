@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 
@@ -58,6 +59,20 @@ def test_linkedin_search_page_parser_extracts_stable_cards(
     assert result.cards[0].application_url == ("https://www.linkedin.com/jobs/view/1111111111")
 
 
+@pytest.mark.parametrize("html", ["", " \n\t", "<!doctype html>", "<!-- empty -->"])
+def test_search_page_accepts_empty_guest_fragments(html: str) -> None:
+    assert parse_search_page(html).cards == ()
+
+
+@pytest.mark.parametrize(
+    "html",
+    ["Please sign in", "<html><body>Sign in</body></html>", "<html><body></body></html>"],
+)
+def test_search_page_rejects_unrecognized_nonempty_documents(html: str) -> None:
+    with pytest.raises(LinkedInPayloadError, match="result structure"):
+        parse_search_page(html)
+
+
 def test_linkedin_search_page_rejects_more_than_one_page_of_cards() -> None:
     cards = "".join(
         f"""<div data-entity-urn="urn:li:jobPosting:{1_000_000_000 + index}">
@@ -110,6 +125,25 @@ def test_linkedin_job_detail_parser_extracts_description(
     assert "Summer 2027" in job.description
     assert job.start_date == "Summer 2027"
     assert job.industries == "Software Development"
+
+
+@pytest.mark.parametrize(
+    "html",
+    [
+        "",
+        "<html><body>Temporarily unavailable</body></html>",
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>',
+        '<a class="topcard__org-name-link">Test Technology</a>',
+        '<div class="show-more-less-html__markup">Software internship in 2027.</div>',
+    ],
+)
+def test_current_search_card_cannot_supply_missing_detail_identity(
+    fixture_html: Callable[[str], str], html: str
+) -> None:
+    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
+
+    with pytest.raises(LinkedInPayloadError, match="identity"):
+        parse_job_detail(html, card)
 
 
 def test_linkedin_job_detail_infers_posted_at_from_relative_age(
@@ -540,3 +574,97 @@ def test_detail_challenge_stops_later_details_and_searches() -> None:
 
     asyncio.run(run())
     assert requested_urls == [search_url, first_detail]
+
+
+def test_cancelled_search_does_not_leave_unhandled_detail_failures(
+    fixture_html: Callable[[str], str],
+) -> None:
+    errors: list[dict[str, object]] = []
+    search = configured_search(max_pages=1, max_results=25)
+
+    async def run() -> None:
+        loop = asyncio.get_running_loop()
+        previous_handler = loop.get_exception_handler()
+        loop.set_exception_handler(lambda _loop, context: errors.append(context))
+        started, release, completed = asyncio.Event(), asyncio.Event(), asyncio.Event()
+
+        class OfflineFetcher:
+            async def get_text(self, url: str) -> str:
+                if url == build_search_url(search, start=0):
+                    return fixture_html("linkedin_search_page_1.html")
+                assert url == LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111")
+                started.set()
+                await release.wait()
+                completed.set()
+                raise FetchError("synthetic", "synthetic failure")
+
+        try:
+            scraper = LinkedInScraper(clock=lambda: datetime(2026, 7, 20, tzinfo=UTC))
+            waiter = asyncio.create_task(scraper.scrape(search, OfflineFetcher()))
+            await started.wait()
+            waiter.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await waiter
+            release.set()
+            await completed.wait()
+            await asyncio.sleep(0)  # Allow completion callbacks, not a wall-clock race.
+            gc.collect()
+            await asyncio.sleep(0)
+            assert errors == []
+        finally:
+            loop.set_exception_handler(previous_handler)
+
+    asyncio.run(asyncio.wait_for(run(), timeout=5))
+
+
+@pytest.mark.parametrize("detail_fails", [False, True])
+def test_cancelling_one_search_preserves_the_other_shared_detail_waiter(
+    fixture_html: Callable[[str], str],
+    detail_fails: bool,
+) -> None:
+    first = configured_search(max_pages=1, max_results=25)
+    second = first.model_copy(update={"slug": "second-search", "keywords": "different intern"})
+    search_urls = {build_search_url(search, start=0) for search in (first, second)}
+    detail_calls = 0
+    searches = 0
+    failure = FetchError("synthetic", "synthetic detail failure")
+
+    async def run() -> None:
+        started, both_searches, release = asyncio.Event(), asyncio.Event(), asyncio.Event()
+
+        class OfflineFetcher:
+            async def get_text(self, url: str) -> str:
+                nonlocal detail_calls, searches
+                if url in search_urls:
+                    searches += 1
+                    if searches == 2:
+                        both_searches.set()
+                    return fixture_html("linkedin_search_page_1.html")
+                assert url == LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111")
+                detail_calls += 1
+                started.set()
+                await release.wait()
+                if detail_fails:
+                    raise failure
+                return fixture_html("linkedin_job_detail_1111111111.html")
+
+        scraper = LinkedInScraper(clock=lambda: datetime(2026, 7, 20, tzinfo=UTC))
+        fetcher = OfflineFetcher()
+        cancelled = asyncio.create_task(scraper.scrape(first, fetcher))
+        await started.wait()
+        surviving = asyncio.create_task(scraper.scrape(second, fetcher))
+        await both_searches.wait()
+        cancelled.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await cancelled
+        release.set()
+        if detail_fails:
+            with pytest.raises(FetchError) as error:
+                await surviving
+            assert error.value is failure
+        else:
+            result = await surviving
+            assert [job.source_job_id for job in result.positions] == ["1111111111"]
+
+    asyncio.run(asyncio.wait_for(run(), timeout=5))
+    assert detail_calls == 1

@@ -147,3 +147,40 @@ def test_settings_require_sqlite_and_safe_header_values() -> None:
         Settings(database_url="postgresql://user:password@example.com/opportunities")
     with pytest.raises(ValidationError, match="control characters"):
         Settings(user_agent="valid-user-agent-value\r\nInjected: true")
+
+
+@pytest.mark.parametrize("scheme", ["postgresql", "sqlite"])
+def test_configuration_errors_do_not_echo_invalid_values(scheme: str) -> None:
+    marker = "SYNTH"
+    with pytest.raises(ValidationError) as error:
+        Settings(database_url=f"{scheme}://user:{marker}@example.invalid/database")
+    assert marker not in str(error.value)
+    assert "SQLite" in str(error.value)
+
+
+def test_settings_precedence_is_defaults_dotenv_yaml_then_environment(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    dotenv = tmp_path / ".env"
+    dotenv.write_text(
+        "OPPORTUNITIES_RATE_LIMIT_SECONDS=4\nOPPORTUNITIES_SEARCH_MAX_PAGES=2\n",
+        encoding="utf-8",
+    )
+    yaml = tmp_path / "settings.yml"
+    yaml.write_text("rate_limit_seconds: 3\nmax_retries: 1\n", encoding="utf-8")
+    monkeypatch.setenv("OPPORTUNITIES_RATE_LIMIT_SECONDS", "1")
+
+    configured = load_settings(yaml)
+
+    assert configured.rate_limit_seconds == 1  # Environment wins over YAML and dotenv.
+    assert configured.search_max_pages == 2  # Dotenv survives when YAML omits a field.
+    assert configured.max_retries == 1  # YAML wins over the default.
+    assert configured.linkedin_crawl_authorized is False  # No layer granted access.
+
+
+@pytest.mark.parametrize("value", ["false", "0", "no", "off"])
+def test_false_authorization_values_never_enable_source_access(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, value: str
+) -> None:
+    monkeypatch.setenv("OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED", value)
+    assert load_settings(dotenv_path=tmp_path / "missing.env").linkedin_crawl_authorized is False
