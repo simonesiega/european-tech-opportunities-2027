@@ -49,3 +49,22 @@ For a reproducible programmatic query, use the [API](../data/api.md); its recenc
 ## Take the listings with you
 
 **Download CSV** and **Download JSON** give you the complete public dataset, not just your current filtered or saved view. See the [download guide](../data/data.md) for fields, date limitations, and integrity checks.
+
+## Subscribe to new opportunities
+
+Subscribe with any RSS or Atom reader—no account, email address, or notification signup is needed:
+
+- RSS 2.0: [https://techopportunities.eu/feed.xml](https://techopportunities.eu/feed.xml)
+- Atom 1.0: [https://techopportunities.eu/atom.xml](https://techopportunities.eu/atom.xml)
+
+Each feed contains up to 50 of the most recently first-seen **currently open** opportunities. The date uses the project's immutable **First seen** value, which may be an approximate source posting date rather than the exact discovery time. Closed listings and listings that fall outside the latest 50 are no longer included.
+
+Add any of these exact filters to either feed URL; filters combine:
+
+| Parameter | Values |
+|---|---|
+| `type` | `internship` or `new-grad` |
+| `country` | Exact country name from the listing location |
+| `category` | Exact technology-category slug |
+
+For example, [software internships in Ireland](https://techopportunities.eu/feed.xml?type=internship&country=Ireland&category=software-engineering) uses `/feed.xml?type=internship&country=Ireland&category=software-engineering`. Unknown/repeated parameters or invalid values are rejected; a valid filter with no matches produces an empty feed. These feeds use public opportunity data only: browser-saved, applied, and hidden lists are not included.

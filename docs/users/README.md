@@ -16,6 +16,7 @@ Find early-career technology roles across Europe, keep a private shortlist, and 
 | Task | Guide |
 |---|---|
 | Search, filter, sort, or share results | [Find a role](browsing/directory.md) |
+| Subscribe to recent opportunities with RSS or Atom | [Subscribe to new opportunities](browsing/directory.md#subscribe-to-new-opportunities) |
 | Save, mark applied, hide, restore, or see new roles | [Manage your local lists](browsing/lists.md) |
 | Resolve a problem or understand the data | [Questions and troubleshooting](browsing/help.md) |
 

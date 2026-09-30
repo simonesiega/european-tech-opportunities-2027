@@ -2,7 +2,7 @@
 
 [← Maintainer handbook](../README.md) · [Classification](classification.md) · [Database lifecycle](../operations/database.md) · [Security policy](../../../SECURITY.md)
 
-One permission-gated LinkedIn guest-HTML adapter feeds a deterministic classifier and one canonical SQLite lifecycle store. The website, API, downloads, and bounded README are read-only projections.
+One permission-gated LinkedIn guest-HTML adapter feeds a deterministic classifier and one canonical SQLite lifecycle store. The website, API, feeds, downloads, and bounded README are read-only projections.
 
 [Open the annotated repository maps](../../assets/diagram/README.md) for five subsystem views and links to implementation. The overview below connects configuration, lifecycle state, public projections, and supporting tools.
 
@@ -62,6 +62,7 @@ The search start is a conservative observation lower bound: a detail page fetche
 |---|---|
 | Website | Short-lived read-only SQLite connections; all open rows and latest successful collection time; [website engineering](website.md) |
 | API | Same query and release selection, bounded inputs and explicit field allowlist; [v1 contract](../../users/data/api.md) |
+| RSS / Atom feeds | Same read-only open rows, latest 50 entries, exact type/country/category filters, and escaped XML; [subscriber guide](../../users/browsing/directory.md#subscribe-to-new-opportunities) |
 | CSV / JSON / metadata | Python renderer selects approved fields, neutralizes CSV formulas, validates schema/bytes/counts/hashes, and atomically replaces files; [download contract](../../users/data/data.md) |
 | README | Renderer owns exactly one count region and one preview region; maximum five newest rows per employment type |
 | Registry documentation | Renderer owns the search-directory count block, not the surrounding guide |
