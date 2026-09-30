@@ -199,5 +199,15 @@ jobs:
           done
 
           if [ "$UPDATE_AUTO_MERGE" = "true" ]; then
+            # Validation can take an hour. Recheck mutable PR metadata after waiting,
+            # not only before dispatch; the merge API separately pins the head SHA.
+            safe_scope=$(gh pr view "$pr_number" \
+              --json baseRefName,headRefName,headRefOid,title,files,isCrossRepository | \
+              jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" --arg sha "$head_sha" \
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
+            if [ "$safe_scope" != "true" ]; then
+              echo "README pull request scope changed during validation; refusing auto-merge."
+              exit 1
+            fi
             gh pr merge "$pr_number" --auto --squash --match-head-commit "$head_sha"
           fi
