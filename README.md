@@ -1,10 +1,10 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
 <p align="center">
-  <a href="#latest-internships">Internships</a> ·
-  <a href="#latest-new-grad-opportunities">New Grad</a> ·
-  <a href="https://docs.techopportunities.eu/">Site documentation</a> ·
-  <a href="https://techopportunities.eu/api/v1/opportunities">Public API</a>
+  <a href="https://techopportunities.eu/"><strong>Explore the directory →</strong></a> ·
+  <a href="https://docs.techopportunities.eu/">Documentation</a> ·
+  <a href="https://techopportunities.eu/api/v1/opportunities">Public API</a> ·
+  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml">Suggest a listing</a>
 </p>
 
 <p align="center">
@@ -35,48 +35,38 @@
 <!-- Public directory state v1 sha256: 290a7075c28d50b12892a77aa14d08c45eb023b60fe9fb41f003814baf2a48dd -->
 <!-- END OPPORTUNITY COUNTS -->
 
-<p align="center">
-  <a href="https://techopportunities.eu/open-opportunities.csv"><strong>Download CSV</strong></a> ·
-  <a href="https://techopportunities.eu/open-opportunities.json"><strong>Download JSON</strong></a> ·
-  <a href="https://techopportunities.eu/"><strong>Explore the live directory →</strong></a>
-</p>
+## Why this?
 
-## Live directory
+Finding the right early-career tech role in Europe shouldn't mean digging through hundreds of scattered, outdated, or irrelevant listings.
+
+**European Tech Opportunities 2027** brings validated technology internships and New Grad roles into one searchable directory. Filter by company, country, category, employment type, or recency, sort the results, and share any search with a link.
+
+No account is required. **Save opportunities, mark them as applied, hide roles, and see what's new since your last visit directly in your browser**. Your lists stay local to your device.
+
+Need the data outside the website? Download the complete open directory as **CSV or JSON**, or query it through the free, read-only **public API**.
+
+**[Explore the live directory →](https://techopportunities.eu/)**
+
+### Growing across Europe
 
 <p align="center">
   <img
     src="docs/assets/sites/White_theme.webp#gh-light-mode-only"
-    alt="Searchable European Tech Opportunities 2027 directory in light mode"
+    alt="European Tech Opportunities directory in light mode"
     width="100%"
   />
   <img
     src="docs/assets/sites/Dark_theme.webp#gh-dark-mode-only"
-    alt="Searchable European Tech Opportunities 2027 directory in dark mode"
+    alt="European Tech Opportunities directory in dark mode"
     width="100%"
   />
 </p>
 
-Search the open opportunities by company, country, category, employment type, and first-seen recency. Sort and paginate results, share a filtered view, open the original listing, or download the sanitized [CSV](https://techopportunities.eu/open-opportunities.csv) and [JSON](https://techopportunities.eu/open-opportunities.json) datasets. For programmatic access, use the read-only [public API](docs/guides/user-guide/public-dataset.md#api-response) at [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities). Applications and eligibility checks remain on the original listing.
+What started as a small open-source project has grown into a directory used by people across Europe and beyond.
 
-`https://techopportunities.eu/` is the sole canonical public origin. The former `https://opportunities2027.simonesiega.com` host is retained only for permanent redirects to the same path and query on the canonical site, not as an alternative canonical URL. See [deployment instructions](docs/guides/operations/docker.md#dokploy-deployment).
-
-## Why this exists
-
-Finding early-career tech roles across Europe is noisy: listings are fragmented across companies and platforms and often mix hiring cycles, senior positions, unrelated roles, stale jobs, and unsupported locations.
-
-European Tech Opportunities 2027 turns that stream into a focused, continuously maintained dataset of validated internships and new-grad roles. An automated pipeline discovers, normalizes, classifies, tracks, and publishes only opportunities that satisfy explicit acceptance rules, while preserving one canonical lifecycle state behind every public interface.
-
-The project intentionally favors **precision over coverage**. Ambiguous listings are excluded rather than guessed into the dataset, and every public surface is designed to make the same reviewed data useful both to people browsing opportunities and to developers consuming it programmatically.
-
-### Access options
-
-- **Searchable website:** browse all currently open opportunities at [techopportunities.eu](https://techopportunities.eu/) with search, filters, sorting, pagination, shareable views, and direct links to the original listings.
-- **CSV and JSON exports:** download the complete sanitized open-opportunity dataset as [CSV](https://techopportunities.eu/open-opportunities.csv) or [JSON](https://techopportunities.eu/open-opportunities.json) for analysis, spreadsheets, scripts, or other offline workflows.
-- **Public API:** query the same canonical data through the versioned, read-only [`/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities) endpoint with validated filters, bounded pagination, deterministic responses, and HTTP caching. See the [API documentation](docs/guides/user-guide/public-dataset.md#api-response) for the full contract.
+The official site has generated **12K+ page views**, with **2.2K+ users and 8.2K+ visits from more than 60 countries**. People have discovered the project through **15+ different sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook.
 
 ## Latest opportunities
-
-The README shows up to five opportunities for each employment type as a lightweight preview; use the live directory for the complete searchable collection.
 
 <!-- BEGIN OPPORTUNITIES -->
 **Open opportunities:** 732 (Internships: 321 · New Grad: 411)<br>
@@ -109,122 +99,107 @@ Showing the 5 most recently discovered of 321 open internships:
 | Sanofi | internship 6 months data science | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4471448722>) |
 <!-- END OPPORTUNITIES -->
 
-Listings can change or expire. Verify the role, eligibility requirements, location, deadline, compensation, and visa or work-authorization requirements on the original listing before applying.
+Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
 
-Missing a relevant opportunity? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml).
+## Use the data
 
-## Engineering highlights
+The public data is available without an account.
 
-- **Python data pipeline:** bounded asynchronous collection, normalization, deterministic classification, and lifecycle processing.
-- **TypeScript web application:** server-rendered Next.js directory with search, filters, sorting, pagination, and shareable URLs.
-- **Canonical lifecycle state:** SQLite tracks provenance, first/last-seen timestamps, isolated search outcomes, conservative closure evidence, and daily availability checks.
-- **Production-grade validation:** strict typing, unit and integration tests, Playwright end-to-end tests, branch coverage gates, CodeQL security analysis, and parsing/classification benchmarks.
-- **Automated operations:** Alembic migrations, scheduled collection, availability checks, sanitized public CSV/JSON exports, restore-verified backups, CI, and locked deployment with a checksum-verified, versioned release-pointer cutover (after a coordinated site rollout).
+| Access | Best for | What you get |
+|---|---|---|
+| [Live directory](https://techopportunities.eu/) | Browsing and sharing | Search, filters, sorting, pagination, local lists, and original-listing links |
+| [CSV](https://techopportunities.eu/open-opportunities.csv) | Spreadsheets | Complete open dataset with spreadsheet-safe text |
+| [JSON](https://techopportunities.eu/open-opportunities.json) | Scripts and analysis | Complete open dataset as one array |
+| [Public API](https://techopportunities.eu/api/v1/opportunities) | Applications and integrations | Filtered, paginated v1 JSON with deterministic sorting and cache validators |
+
+The downloads expose only approved public listing fields. The API is read-only, requires no API key, and supports filters for search text, country, company, category, employment type, first-seen window, sorting, and pagination.
+
+For more details, see the [dataset documentation](docs/users/data/data.md) or explore the [public API documentation](docs/users/data/api.md).
+
+## Precision over coverage
+
+The project is intentionally conservative. A discovered listing is not published automatically: it must pass deterministic acceptance checks designed to keep the directory focused on relevant early-career technology roles.
+
+| Check | Publication boundary |
+|---|---|
+| **Employment type** | The title explicitly identifies an Internship or New Grad role |
+| **Seniority** | Senior and management terminology is excluded |
+| **Technology** | The role matches a configured technology category |
+| **Cycle / posting date** | It has valid 2027 cycle evidence, or no conflicting cycle plus eligible posting-date evidence from May 1, 2026 onward |
+| **European location** | The normalized listing contains explicit European location evidence |
+
+Ambiguous evidence is excluded rather than guessed. Search-result disappearance alone never closes a listing, and a failed search does not mutate that search's lifecycle state.
+
+Read the exact rules in [Classification and collection evidence](docs/maintainers/engineering/classification.md).
 
 ## How it works
 
 <div align="center">
 <pre>
-search definitions + validation rules
-↓
-bounded LinkedIn guest HTML collection
+bounded discovery
 ↓
 normalization + deterministic classification
 ↓
-transactional SQLite lifecycle state
+canonical SQLite lifecycle state
 ↓
-┌──────────────────────┬──────────────────────┬──────────────────────┬──────────────────────┐
-│  searchable website  │    README preview    │  public CSV + JSON   │      public API      │
-│  all open listings   │  5/type latest rows  │ approved fields only │   v1 filtered JSON   │
-└──────────────────────┴──────────────────────┴──────────────────────┴──────────────────────┘
+website · public API · CSV/JSON · bounded README preview
 </pre>
 </div>
 
-SQLite is the canonical store. The website, README, sanitized downloads, and public API are read-only projections; none can mutate lifecycle state.
+SQLite is the canonical lifecycle store. The website, API, public downloads, and README are read-only projections; they do not classify listings or mutate lifecycle state.
 
-See the [architecture guide](docs/guides/development/architecture.md) for the complete data flow, component boundaries, and extension policy.
+The collection side is permission-gated, bounded, unauthenticated, and designed to fail safely. It does not use LinkedIn credentials, logged-in browser collection, CAPTCHA bypasses, proxy rotation, or private APIs.
 
-## Publication rules
+For implementation details, see the [architecture and invariants documentation](docs/maintainers/engineering/architecture.md), and review the [security policy](SECURITY.md) for the project's security boundaries.
 
-A listing is published only when all five checks pass:
+## Engineering
 
-| Check | Required evidence |
+This is both a public directory and a production-oriented software project.
+
+| Area | Implementation |
 |---|---|
-| Employment type | The title explicitly identifies either an internship (including placement or co-op) or a New Grad role. Internship terminology takes precedence if both appear. |
-| Cycle evidence | Explicit `2027` opportunity-cycle evidence is accepted, and any explicit conflicting cycle year is rejected. Without explicit cycle evidence, posting-date evidence must resolve to May 1, 2026 or later. Graduation-year eligibility alone is ignored for internships. |
-| Seniority | The title contains no configured senior-level or management terminology. |
-| Technology role | The title, or a narrowly allowed description fallback, matches a configured technology category. |
-| European location | The parsed location explicitly resolves to Europe or a supported European country. |
+| **Collection & classification** | Python 3.12+, bounded asynchronous collection, normalization, deterministic acceptance/rejection |
+| **Persistence** | SQLite canonical lifecycle state, SQLAlchemy repository layer, Alembic migrations |
+| **Web application** | Next.js, React, strict TypeScript, Tailwind, read-only `node:sqlite` access |
+| **Public data** | Versioned API, deterministic CSV/JSON exports, JSON Schema, SHA-256 dataset metadata |
+| **Testing** | Pytest unit/integration suites, Playwright browser journeys, axe accessibility checks, property tests, Lighthouse, parser/classifier benchmarks |
+| **Security & CI** | GitHub Actions, CodeQL, Gitleaks, Dependency Review, OpenSSF Scorecard, container and documentation validation |
 
-Ambiguous evidence is excluded rather than guessed. Search-page absence never closes a listing; only explicit unavailability evidence can change lifecycle state. See [Architecture](docs/guides/development/architecture.md) and [Database lifecycle](docs/guides/operations/database.md) for the exact acceptance and closure rules.
+Tests focus on contracts that can affect users or canonical state: classification boundaries, lifecycle safety, migrations, public/private data separation, browser persistence, accessibility, recovery, deployment assumptions, and documentation boundaries.
 
-## Quality & testing
+For the full approach, see the [testing strategy and quality gates](docs/maintainers/engineering/testing.md).
 
-Critical Python classification and lifecycle paths are protected by branch-aware coverage gates. The TypeScript application is independently validated through formatting, linting, strict type checking, production builds, unit tests, and Playwright end-to-end tests.
+## Privacy by design
 
-### Python quality baseline
+The website has no accounts, application forms, résumé uploads, or server-side saved profiles. Saved, applied, hidden, and previous-visit state is stored locally in the visitor's browser and is not included in the public API or downloads.
 
-The offline suite measures critical classification and lifecycle paths and enforces the configured combined coverage threshold.
+The production site uses privacy-focused aggregate analytics; local opportunity-list IDs and visit timestamps are not part of analytics payloads.
 
-<!-- BEGIN PYTHON COVERAGE -->
-| Metric | Current | Required |
-|---|---:|---:|
-| Combined statement and branch coverage | 91.7% | ≥ 85.0% |
-| Branch coverage | 85.9% | Reported |
-| Classifier branch coverage | 97.5% | Reported |
-<!-- END PYTHON COVERAGE -->
-
-The table is generated from the same coverage report used by the quality gate. Run `make coverage` after changing Python behavior or tests.
-
-[Python CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml) verifies that committed metrics are current and publishes the complete statement, branch, and per-module coverage reports alongside parsing and classification benchmarks. Compare benchmark timings only across equivalent environments.
-
-[Site CI](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml) separately enforces formatting, linting, TypeScript type checking, a production build, unit tests, and Playwright end-to-end tests. [CodeQL](https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/codeql.yml) scans the Python and TypeScript code on pushes, pull requests, and a weekly schedule.
-
-## Run locally
-
-Requirements: Python 3.12+, [`uv`](https://docs.astral.sh/uv/), and Git. Node.js and Bun are required only for local website development.
-
-```bash
-git clone https://github.com/simonesiega/european-tech-opportunities-2027.git
-cd european-tech-opportunities-2027
-uv sync --frozen --dev
-cp .env.example .env
-uv run opportunities db-upgrade
-uv run opportunities stats
-```
-
-A fresh local database intentionally contains no listings. Use the hosted directory for current data.
-
-Continue with the [installation guide](docs/guides/getting-started/installation.md) for the local website, Windows commands, Docker, and verification. Runtime settings are documented in [configuration](docs/guides/getting-started/configuration.md), and CLI commands in the [CLI reference](docs/guides/user-guide/cli.md).
+For more details about data handling and visitor privacy, see the [privacy notice](PRIVACY.md).
 
 ## Documentation
 
-Browse the [searchable documentation](https://docs.techopportunities.eu/) or read the [documentation hub](docs/README.md) in this repository. The guides in `docs/` and the linked root policy files are the source documents.
+Use the guides below to find the right documentation for your task.
 
-| Area | Canonical guides |
+| I want to… | Start here |
 |---|---|
-| Setup | [Installation](docs/guides/getting-started/installation.md) · [Configuration](docs/guides/getting-started/configuration.md) |
-| Using the project | [Website](docs/guides/user-guide/website.md) · [Public dataset and API](docs/guides/user-guide/public-dataset.md) · [CLI](docs/guides/user-guide/cli.md) · [Search registry](docs/guides/user-guide/search-registry.md) |
-| Production operation | [Automation](docs/guides/operations/automation.md) · [Database](docs/guides/operations/database.md) · [Docker](docs/guides/operations/docker.md) · [Troubleshooting](docs/guides/operations/troubleshooting.md) |
-| Development | [Architecture](docs/guides/development/architecture.md) · [Development](docs/guides/development/development.md) · [Contributing](CONTRIBUTING.md) |
-| Policies | [Security](SECURITY.md) · [Privacy](PRIVACY.md) · [Code of Conduct](CODE_OF_CONDUCT.md) |
-
-## Responsible operation
-
-> [!IMPORTANT]
-> LinkedIn collection is disabled by default. Public accessibility is not authorization to automate access.
-
-The project uses no credentials, authenticated sessions, browser automation, private endpoints, proxies, CAPTCHA bypasses, or anti-bot evasion. It is not affiliated with or endorsed by LinkedIn or any listed employer. See [`SECURITY.md`](SECURITY.md) for the complete source-access and operational policy and [`PRIVACY.md`](PRIVACY.md) for website analytics and visitor-data handling.
+| Browse, filter, share, or troubleshoot the directory | [User guides](docs/users/README.md) |
+| Download or query the dataset | [Data guides](docs/users/data/data.md) |
+| Understand architecture, classification, testing, or the website | [Maintainer handbook](docs/maintainers/README.md) |
+| Explore the full documentation map | [Documentation home](docs/README.md) |
+| Search the rendered docs | [docs.techopportunities.eu](https://docs.techopportunities.eu/) |
 
 ## Contributing
 
-Focused improvements to strict classification, sanitized parser fixtures, search coverage, lifecycle safety, tests, website usability, and documentation are welcome.
+Focused improvements to discovery coverage, strict classification, lifecycle safety, public data contracts, tests, accessibility, website usability, and documentation are welcome.
 
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before opening a pull request. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+Start with [`CONTRIBUTING.md`](CONTRIBUTING.md). Source access requires express authorization; participation in the project or access to public pages does not grant permission to automate collection.
+
+For vulnerabilities, use the private channels in [`SECURITY.md`](SECURITY.md), not a public issue. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-Project code and documentation are available under the [MIT License](LICENSE). Third-party assets remain subject to their respective licenses and terms.
+Project code and documentation are available under the [MIT License](LICENSE). Third-party assets and external listings remain subject to their respective licenses and terms.
 
 ## Contributors
 
