@@ -112,4 +112,4 @@ scp "${scp_options[@]}" data/exports/dataset-metadata.json \
 # Only fixed paths, validated numeric IDs and locally computed digests enter this command.
 ssh "${ssh_options[@]}" "$ssh_target" \
   "RELEASE_DATA_DIR='$root' RELEASE_ID='$release_id' DATABASE_SHA='$database_sha' CSV_SHA='$csv_sha' JSON_SHA='$json_sha' METADATA_SHA='$metadata_sha' bash -s" \
-  <scripts/activate_canonical_release.sh
+  <scripts/deployment/activate_canonical_release.sh

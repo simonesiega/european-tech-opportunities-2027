@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sqlite3
+import tempfile
 from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -147,7 +148,7 @@ class SnapshotManifest:
         if retention_policy != RETENTION_POLICY:
             raise SnapshotError(f"unsupported retention policy: {retention_policy}")
         retain_until = _timestamp(retention_data["retain_until"], "retention.retain_until")
-        expected_retain_until = created_at + timedelta(days=retention_days)
+        expected_retain_until = _retention_deadline(created_at, retention_days)
         if retain_until != expected_retain_until:
             raise SnapshotError("retention.retain_until does not match created_at plus days")
 
@@ -222,31 +223,32 @@ def create_snapshot(
     """Create a consistent SQLite backup and its timestamped storage manifest."""
     if not database_path.is_file():
         raise SnapshotError(f"database does not exist: {database_path}")
-    if not 1 <= retention_days <= 3650:
+    retention_days = _integer(retention_days, "retention_days", minimum=1)
+    if retention_days > 3650:
         raise SnapshotError("retention_days must be between 1 and 3650")
-    if run_attempt < 1:
-        raise SnapshotError("run_attempt must be positive")
+    run_attempt = _integer(run_attempt, "run_attempt", minimum=1)
     _run_identifier(run_id, "run_id")
     _repository_identifier(repository, "repository")
-    resolved_paths = {
-        database_path.resolve(),
-        snapshot_path.resolve(),
-        manifest_path.resolve(),
-    }
-    if len(resolved_paths) != 3:
+    source_path = database_path.resolve()
+    resolved_outputs = {snapshot_path.resolve(), manifest_path.resolve()}
+    if len({source_path, *resolved_outputs}) != 3:
         raise SnapshotError("database, snapshot, and manifest paths must be distinct")
-    if snapshot_path.exists() or manifest_path.exists():
+    source_sidecars = {Path(f"{source_path}{suffix}") for suffix in ("-wal", "-shm", "-journal")}
+    if resolved_outputs & source_sidecars:
+        raise SnapshotError("snapshot outputs must not be SQLite sidecars of the source database")
+    if any(path.exists() or path.is_symlink() for path in (snapshot_path, manifest_path)):
         raise SnapshotError("snapshot outputs must not already exist")
 
     normalized_prefix = _key_prefix(key_prefix)
     created = _utc(created_at or datetime.now(UTC), "created_at")
+    retain_until = _retention_deadline(created, retention_days)
     timestamp_slug = created.strftime("%Y%m%dT%H%M%S.%fZ")
     object_stem = (
         f"{normalized_prefix}/snapshots/{created:%Y/%m/%d}/"
         f"{timestamp_slug}-run-{run_id}-attempt-{run_attempt}"
     )
-    database_key = f"{object_stem}.db"
-    manifest_key = f"{object_stem}.manifest.json"
+    database_key = _object_key(f"{object_stem}.db", "database.key")
+    manifest_key = _object_key(f"{object_stem}.manifest.json", "manifest_key")
 
     previous: PreviousSnapshot | None = None
     if previous_manifest_path is not None:
@@ -264,13 +266,18 @@ def create_snapshot(
 
     snapshot_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_snapshot = snapshot_path.with_name(f".{snapshot_path.name}.tmp")
-    temporary_manifest = manifest_path.with_name(f".{manifest_path.name}.tmp")
-    for temporary in (temporary_snapshot, temporary_manifest):
-        temporary.unlink(missing_ok=True)
-
-    source_uri = database_path.resolve().as_uri() + "?mode=ro"
+    temporary_paths: list[Path] = []
+    published_paths: list[Path] = []
+    source_uri = source_path.as_uri() + "?mode=ro"
     try:
+        # Exclusive unique files cannot collide with the source database or an
+        # existing operation's staging files, even when their names end in .tmp.
+        for output in (snapshot_path, manifest_path):
+            with tempfile.NamedTemporaryFile(
+                dir=output.parent, prefix=f".{output.name}.", suffix=".tmp", delete=False
+            ) as temporary:
+                temporary_paths.append(Path(temporary.name))
+        temporary_snapshot, temporary_manifest = temporary_paths
         with (
             closing(sqlite3.connect(source_uri, uri=True)) as source,
             closing(sqlite3.connect(temporary_snapshot)) as destination,
@@ -300,7 +307,7 @@ def create_snapshot(
             retention=Retention(
                 policy=RETENTION_POLICY,
                 days=retention_days,
-                retain_until=created + timedelta(days=retention_days),
+                retain_until=retain_until,
             ),
             source=SnapshotSource(
                 repository=repository,
@@ -313,16 +320,18 @@ def create_snapshot(
         )
         temporary_manifest.write_text(serialized, encoding="utf-8", newline="\n")
         os.replace(temporary_snapshot, snapshot_path)
+        published_paths.append(snapshot_path)
         os.replace(temporary_manifest, manifest_path)
+        published_paths.append(manifest_path)
         return manifest
     except BaseException:
-        temporary_snapshot.unlink(missing_ok=True)
-        temporary_manifest.unlink(missing_ok=True)
-        # Outputs are required not to pre-exist, so removing a partially promoted pair
-        # cannot destroy an older snapshot.
-        snapshot_path.unlink(missing_ok=True)
-        manifest_path.unlink(missing_ok=True)
+        # A failure before promotion must not remove files created by someone else.
+        for published in published_paths:
+            published.unlink(missing_ok=True)
         raise
+    finally:
+        for temporary_path in temporary_paths:
+            temporary_path.unlink(missing_ok=True)
 
 
 @dataclass(frozen=True)
@@ -426,12 +435,24 @@ def verify_snapshot(
 def load_manifest(path: Path) -> SnapshotManifest:
     """Read and validate one bounded snapshot manifest."""
     try:
-        if path.stat().st_size > MAX_MANIFEST_BYTES:
+        with path.open("rb") as source:
+            content = source.read(MAX_MANIFEST_BYTES + 1)
+        if len(content) > MAX_MANIFEST_BYTES:
             raise SnapshotError("snapshot manifest exceeds the size limit")
-        value = json.loads(path.read_text(encoding="utf-8"))
+        value = json.loads(content.decode("utf-8"), object_pairs_hook=_unique_manifest_object)
     except (OSError, UnicodeError, json.JSONDecodeError, RecursionError) as exc:
         raise SnapshotError(f"cannot read snapshot manifest: {exc}") from exc
     return SnapshotManifest.from_dict(value)
+
+
+def _unique_manifest_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    """Reject ambiguous duplicate fields at every level of recovery metadata."""
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise SnapshotError("snapshot manifest contains a duplicate field")
+        result[key] = value
+    return result
 
 
 def sha256_file(path: Path) -> str:
@@ -494,7 +515,7 @@ def _timestamp(
         # SQLAlchemy's SQLite adapter stores UTC values without an offset. This is the
         # only legacy boundary where a naive timestamp has defined UTC semantics.
         parsed = parsed.replace(tzinfo=UTC)
-    return parsed.astimezone(UTC)
+    return _utc(parsed, label)
 
 
 def _optional_timestamp(value: object, label: str) -> datetime | None:
@@ -508,9 +529,20 @@ def _format_timestamp(value: datetime | None) -> str | None:
 
 
 def _utc(value: datetime, label: str) -> datetime:
-    if value.tzinfo is None:
+    if value.tzinfo is None or value.utcoffset() is None:
         raise SnapshotError(f"{label} must include a timezone")
-    return value.astimezone(UTC)
+    try:
+        return value.astimezone(UTC)
+    except (OverflowError, ValueError) as exc:
+        raise SnapshotError(f"{label} must be a representable UTC timestamp") from exc
+
+
+def _retention_deadline(created_at: datetime, days: int) -> datetime:
+    """Require a representable retention deadline before creating any output."""
+    try:
+        return created_at + timedelta(days=days)
+    except OverflowError as exc:
+        raise SnapshotError("retention deadline is outside the supported timestamp range") from exc
 
 
 def _object_key(value: object, label: str) -> str:

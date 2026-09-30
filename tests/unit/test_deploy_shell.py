@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from opportunities.utils.paths import find_project_root
+from tests.shell_helpers import offline_shell_environment
 
 ROOT = find_project_root(Path(__file__))
 pytestmark = pytest.mark.skipif(
-    os.name != "posix", reason="the VPS deployment client runs on Linux"
+    sys.platform != "linux", reason="the VPS deployment client runs on Linux"
 )
 
 
@@ -26,7 +28,7 @@ def run_deploy(
     home: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
     env = {
-        **os.environ,
+        **offline_shell_environment(tmp_path),
         "VPS_SSH_PRIVATE_KEY": "placeholder",
         "VPS_SSH_KNOWN_HOSTS": "placeholder",
         "VPS_HOST": "test.invalid",
@@ -47,7 +49,7 @@ def run_deploy(
             f"#!/bin/sh\n{sidecar}exit {1 if fail_validation else 0}\n", encoding="utf-8"
         )
         (binaries / "uv").chmod(0o755)
-        env["PATH"] = f"{binaries}:{os.environ['PATH']}"
+        env["PATH"] = f"{binaries}{os.pathsep}{env['PATH']}"
     if fake_transport:
         (binaries / "ssh").write_text(
             '#!/bin/sh\nprintf "%s\\n" ssh >> "$DEPLOY_CALLS"\nexit 0\n', encoding="utf-8"
@@ -58,14 +60,17 @@ def run_deploy(
         for command in ("ssh", "scp"):
             (binaries / command).chmod(0o755)
         env["DEPLOY_CALLS"] = str(tmp_path / "calls")
-    return subprocess.run(
-        ["bash", str(ROOT / "scripts/deploy_canonical_state.sh")],
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/deployment/deploy_canonical_state.sh")],
         cwd=tmp_path,
         env=env,
         capture_output=True,
         text=True,
         check=False,
+        timeout=30,
     )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+    return result
 
 
 def prepare(tmp_path: Path) -> None:

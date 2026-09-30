@@ -35,6 +35,7 @@ fi
 if [[ ! "$CANONICAL_STATE_PREFIX" =~ ^[A-Za-z0-9._/-]+$ ]] \
   || [[ "$CANONICAL_STATE_PREFIX" == /* ]] \
   || [[ "$CANONICAL_STATE_PREFIX" == */ ]] \
+  || [[ "$CANONICAL_STATE_PREFIX" == *"//"* ]] \
   || [[ "$CANONICAL_STATE_PREFIX" == *".."* ]]; then
   echo "CANONICAL_STATE_PREFIX is invalid." >&2
   exit 2
@@ -79,7 +80,7 @@ sftp_command=(
 )
 
 snapshot_tool() {
-  uv run python scripts/canonical_snapshot.py "$@"
+  uv run python scripts/database/canonical_snapshot.py "$@"
 }
 
 reject_sidecars() {
@@ -110,16 +111,36 @@ set_output() {
 fetch_latest_manifest() {
   local listing_file="$work_dir/remote-listing.txt"
   rm -f "$latest_manifest" "$listing_file"
-  {
-    printf 'ls "%s"\n' "$VPS_BACKUP_REMOTE_ROOT"
-    printf '%s\n' "-get \"$remote_latest\" \"$latest_manifest\""
-    printf '%s\n' "-ls -1 \"$remote_base/snapshots\""
-  } | run_sftp >"$listing_file"
-
-  if [[ -s "$latest_manifest" ]]; then
+  # Prove absence through successful directory listings, not an ignored `get`:
+  # permission/transfer failures must never authorize live-database bootstrap.
+  # Check each prefix segment so a genuinely new nested store remains supported.
+  local directory="$VPS_BACKUP_REMOTE_ROOT"
+  local part
+  local -a parts
+  IFS='/' read -r -a parts <<<"$CANONICAL_STATE_PREFIX"
+  for part in "${parts[@]}"; do
+    printf 'cd "%s"\nls -1 "%s"\n' "$directory" "$directory" \
+      | run_sftp >"$listing_file" || return 2
+    if ! grep -Fxq "$directory/$part" "$listing_file" \
+      && ! grep -Fxq "$part" "$listing_file"; then
+      return 1
+    fi
+    directory="$directory/$part"
+  done
+  printf 'cd "%s"\nls -1 "%s"\n' "$remote_base" "$remote_base" \
+    | run_sftp >"$listing_file" || return 2
+  if grep -Fxq "$remote_latest" "$listing_file" \
+    || grep -Fxq 'latest.json' "$listing_file"; then
+    printf 'get "%s" "%s"\n' "$remote_latest" "$latest_manifest" \
+      | run_sftp || return 2
+    if [[ ! -s "$latest_manifest" ]]; then
+      echo "VPS snapshot manifest is empty; preserve state and investigate." >&2
+      return 2
+    fi
     return 0
   fi
-  if grep -Eq '(^|/)(19|20)[0-9]{2}([[:space:]]|/|$)' "$listing_file"; then
+  if grep -Fxq "$remote_base/snapshots" "$listing_file" \
+    || grep -Fxq 'snapshots' "$listing_file"; then
     echo "VPS snapshot history exists but latest.json is absent; recover the pointer instead of seeding new state." >&2
     return 2
   fi

@@ -7,17 +7,19 @@ import os
 import shutil
 import sqlite3
 import subprocess
+import sys
 from contextlib import closing
 from pathlib import Path
 
 import pytest
 
 from opportunities.utils.paths import find_project_root
+from tests.shell_helpers import offline_shell_environment
 
 ROOT = find_project_root(Path(__file__))
-SCRIPT = ROOT / "scripts/activate_canonical_release.sh"
+SCRIPT = ROOT / "scripts/deployment/activate_canonical_release.sh"
 pytestmark = pytest.mark.skipif(
-    os.name != "posix" or shutil.which("flock") is None,
+    sys.platform != "linux" or shutil.which("flock") is None,
     reason="the VPS release activation requires Linux flock",
 )
 
@@ -43,7 +45,7 @@ def stage(root: Path, release_id: str, company: str) -> dict[str, str]:
     return {
         "RELEASE_DATA_DIR": str(root),
         "RELEASE_ID": release_id,
-        "RELEASE_GROUP": subprocess.check_output(["id", "-gn"], text=True).strip(),
+        "RELEASE_GROUP": subprocess.check_output(["id", "-gn"], text=True, timeout=10).strip(),
         "DATABASE_SHA": hashes[0],
         "CSV_SHA": hashes[1],
         "JSON_SHA": hashes[2],
@@ -51,14 +53,23 @@ def stage(root: Path, release_id: str, company: str) -> dict[str, str]:
     }
 
 
-def activate(env: dict[str, str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+def activate(
+    env: dict[str, str], *, binary_directory: Path | None = None
+) -> subprocess.CompletedProcess[str]:
+    root = Path(env["RELEASE_DATA_DIR"])
+    environment = {**offline_shell_environment(root), **env}
+    if binary_directory is not None:
+        environment["PATH"] = f"{binary_directory}{os.pathsep}{environment['PATH']}"
+    result = subprocess.run(
         ["bash", str(SCRIPT)],
-        env={**os.environ, **env},
+        env=environment,
         text=True,
         capture_output=True,
         check=False,
+        timeout=30,
     )
+    assert not (root / "blocked-network.log").exists(), result.stderr
+    return result
 
 
 def test_single_cutover_retains_active_reader_and_legacy_paths(tmp_path: Path) -> None:
@@ -80,6 +91,7 @@ def test_single_cutover_retains_active_reader_and_legacy_paths(tmp_path: Path) -
         cwd=tmp_path / "releases/1-1",
         capture_output=True,
         check=True,
+        timeout=10,
     )
     assert legacy.read_bytes() == b"unchanged legacy state"
     assert (tmp_path / "releases/2-1/opportunities.db").stat().st_mode & 0o777 == 0o440
@@ -116,13 +128,31 @@ def test_lock_contention_and_interrupted_pointer_promotion(tmp_path: Path) -> No
     assert activate(stage(tmp_path, "1-1", "old")).returncode == 0
     second = stage(tmp_path, "2-1", "new")
     with subprocess.Popen(
-        ["flock", "-x", str(tmp_path / ".release-deploy.lock"), "sleep", "3"]
+        [
+            "flock",
+            "-w",
+            "5",
+            "-x",
+            str(tmp_path / ".release-deploy.lock"),
+            "sh",
+            "-c",
+            "printf 'locked\\n'; read -r release",
+        ],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        text=True,
     ) as holder:
-        import time
-
-        time.sleep(0.2)
-        assert holder.poll() is None
-        assert activate(second).returncode != 0
+        try:
+            assert holder.stdout is not None
+            assert holder.stdout.readline().strip() == "locked"
+            assert activate(second).returncode != 0
+        finally:
+            try:
+                holder.communicate(input="release\n", timeout=10)
+            except subprocess.TimeoutExpired:
+                holder.kill()
+                holder.communicate(timeout=5)
+                raise
     assert (tmp_path / "current").readlink() == Path("releases/1-1")
 
     fake_bin = tmp_path / "bin"
@@ -133,7 +163,7 @@ def test_lock_contention_and_interrupted_pointer_promotion(tmp_path: Path) -> No
         encoding="utf-8",
     )
     fake_mv.chmod(0o755)
-    result = activate({**second, "PATH": f"{fake_bin}:{os.environ['PATH']}"})
+    result = activate(second, binary_directory=fake_bin)
     assert result.returncode != 0
     assert (tmp_path / "current").readlink() == Path("releases/1-1")
     assert (tmp_path / "releases/2-1/opportunities.db").exists()

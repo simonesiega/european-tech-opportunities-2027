@@ -4,14 +4,16 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from opportunities.utils.paths import find_project_root
+from tests.shell_helpers import offline_shell_environment
 
 ROOT = find_project_root(Path(__file__))
-pytestmark = pytest.mark.skipif(os.name != "posix", reason="VPS restore runs on Linux Bash")
+pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="VPS restore runs on Linux Bash")
 
 
 def run_restore(
@@ -25,8 +27,8 @@ def run_restore(
     use_ssh_override: bool = True,
     home: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    scripts = tmp_path / "scripts"
-    scripts.mkdir()
+    scripts = tmp_path / "scripts" / "database"
+    scripts.mkdir(parents=True)
     (scripts / "canonical_state_store.sh").write_text(
         '#!/bin/bash\nset -e\nif [ "$FAKE_SNAPSHOT" = yes ]; then '
         'mkdir -p "$CANONICAL_STATE_WORK_DIR"; '
@@ -46,9 +48,10 @@ def run_restore(
         database.symlink_to("missing-canonical-state.db")
     if bootstrap is not None:
         (tmp_path / "state/opportunities.db.bootstrap-123").write_bytes(bootstrap)
+    base_environment = offline_shell_environment(tmp_path)
     env = {
-        **os.environ,
-        "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+        **base_environment,
+        "PATH": f"{fake_bin}{os.pathsep}{base_environment['PATH']}",
         "VPS_BACKUP_SSH_PRIVATE_KEY": "test-placeholder",
         "VPS_SSH_KNOWN_HOSTS": "test-placeholder",
         "VPS_BACKUP_HOST": "test.invalid",
@@ -67,14 +70,17 @@ def run_restore(
         env["CANONICAL_STATE_SSH_DIR"] = str(tmp_path / "ssh-credentials")
     if home is not None:
         env["HOME"] = str(home)
-    return subprocess.run(
-        ["bash", str(ROOT / "scripts/restore_canonical_state.sh")],
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/database/restore_canonical_state.sh")],
         cwd=tmp_path,
         env=env,
         capture_output=True,
         text=True,
         check=False,
+        timeout=30,
     )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+    return result
 
 
 def test_unreferenced_local_state_is_preserved_without_snapshot(tmp_path: Path) -> None:
@@ -156,7 +162,11 @@ def test_snapshot_store_preserves_a_mismatched_local_database(tmp_path: Path) ->
         "sftp": (
             "#!/bin/bash\nwhile IFS= read -r line; do\n"
             '  printf "%s\\n" "$line" >> "$FAKE_SFTP_LOG"\n'
-            '  if [[ "$line" == *latest.json* ]]; then\n'
+            '  if [[ "$line" == \'ls -1 "/state"\' ]]; then\n'
+            '    printf "/state/canonical-state\\n"\n'
+            '  elif [[ "$line" == \'ls -1 "/state/canonical-state"\' ]]; then\n'
+            '    printf "/state/canonical-state/latest.json\\n"\n'
+            '  elif [[ "$line" == get*latest.json* ]]; then\n'
             '    printf "snapshot manifest\\n" > "$CANONICAL_STATE_WORK_DIR/latest.json"\n'
             "  fi\ndone\n"
         ),
@@ -170,12 +180,13 @@ def test_snapshot_store_preserves_a_mismatched_local_database(tmp_path: Path) ->
         executable.write_text(content, encoding="utf-8")
         executable.chmod(0o755)
     log = tmp_path / "sftp.log"
+    base_environment = offline_shell_environment(tmp_path)
     result = subprocess.run(
-        ["bash", str(ROOT / "scripts/canonical_state_store.sh"), "restore"],
-        cwd=ROOT,
+        ["bash", str(ROOT / "scripts/database/canonical_state_store.sh"), "restore"],
+        cwd=tmp_path,
         env={
-            **os.environ,
-            "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+            **base_environment,
+            "PATH": f"{fake_bin}{os.pathsep}{base_environment['PATH']}",
             "VPS_BACKUP_HOST": "test.invalid",
             "VPS_BACKUP_SSH_KEY": str(key),
             "VPS_BACKUP_KNOWN_HOSTS": str(hosts),
@@ -186,7 +197,9 @@ def test_snapshot_store_preserves_a_mismatched_local_database(tmp_path: Path) ->
         capture_output=True,
         text=True,
         check=False,
+        timeout=30,
     )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
     assert result.returncode != 0
     assert "preserve" in result.stderr.lower()
     assert database.read_bytes() == b"unsnapshotted canonical state"
@@ -209,12 +222,13 @@ def test_snapshot_store_rejects_sidecars_before_transfer(tmp_path: Path, operati
     sftp.write_text('#!/bin/sh\nprintf called > "$FAKE_SFTP_LOG"\nexit 9\n', encoding="utf-8")
     sftp.chmod(0o755)
     sftp_log = tmp_path / "sftp-called"
+    base_environment = offline_shell_environment(tmp_path)
     result = subprocess.run(
-        ["bash", str(ROOT / "scripts/canonical_state_store.sh"), operation],
-        cwd=ROOT,
+        ["bash", str(ROOT / "scripts/database/canonical_state_store.sh"), operation],
+        cwd=tmp_path,
         env={
-            **os.environ,
-            "PATH": f"{fake_bin}{os.pathsep}{os.environ['PATH']}",
+            **base_environment,
+            "PATH": f"{fake_bin}{os.pathsep}{base_environment['PATH']}",
             "FAKE_SFTP_LOG": str(sftp_log),
             "VPS_BACKUP_HOST": "test.invalid",
             "VPS_BACKUP_SSH_KEY": str(key),
@@ -224,7 +238,9 @@ def test_snapshot_store_rejects_sidecars_before_transfer(tmp_path: Path, operati
         capture_output=True,
         text=True,
         check=False,
+        timeout=30,
     )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
     assert result.returncode != 0
     assert "sidecar exists" in result.stderr
     assert database.read_bytes() == b"untouched"

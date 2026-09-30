@@ -57,7 +57,7 @@ PY
 
 VPS_BACKUP_SSH_KEY="$backup_key" \
 VPS_BACKUP_KNOWN_HOSTS="$known_hosts" \
-  bash scripts/canonical_state_store.sh restore
+  bash scripts/database/canonical_state_store.sh restore
 
 if [[ -e "$CANONICAL_STATE_DATABASE" || -L "$CANONICAL_STATE_DATABASE" ]]; then
   if [[ ! -s "${CANONICAL_STATE_WORK_DIR:-${RUNNER_TEMP:-/tmp}/canonical-state}/latest.json" ]]; then
@@ -124,7 +124,7 @@ ssh \
   -o ServerAliveCountMax=2 \
   "${VPS_USER}@${VPS_HOST}" \
   python3 - /srv/european-tech-opportunities-2027/data/opportunities.db \
-  < scripts/bootstrap_sqlite.py >"$bootstrap_download"
+  < scripts/database/bootstrap_sqlite.py >"$bootstrap_download"
 
 verify_database "$bootstrap_download"
 mv -f "$bootstrap_download" "$CANONICAL_STATE_DATABASE"
