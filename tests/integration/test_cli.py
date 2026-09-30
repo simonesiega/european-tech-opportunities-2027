@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import logging
 import socket
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import Mock
@@ -25,6 +27,22 @@ runner = CliRunner()
 ROOT = find_project_root(Path(__file__))
 
 
+@pytest.fixture(autouse=True)
+def fixed_cli_clock_and_logging(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Keep date validation and CLI logging independent of the host and test order."""
+    monkeypatch.setattr(cli_app_module, "utc_now", lambda: datetime(2026, 7, 20, tzinfo=UTC))
+    root = logging.getLogger()
+    handlers, level = root.handlers[:], root.level
+    try:
+        yield
+    finally:
+        for handler in root.handlers:
+            if handler not in handlers:
+                handler.close()
+        root.handlers[:] = handlers
+        root.setLevel(level)
+
+
 def cli_env(tmp_path: Path) -> dict[str, str]:
     return {
         "OPPORTUNITIES_DATABASE_URL": f"sqlite:///{(tmp_path / 'opportunities.db').as_posix()}",
@@ -44,7 +62,7 @@ def initialize_projection_files(tmp_path: Path) -> None:
         "<!-- END OPPORTUNITIES -->\n",
         encoding="utf-8",
     )
-    docs_path = tmp_path / "docs" / "guides" / "user-guide" / "search-registry.md"
+    docs_path = tmp_path / "docs/maintainers/engineering/search-registry.md"
     docs_path.parent.mkdir(parents=True)
     docs_path.write_text(
         "# Search registry\n\n```text\nconfigs/searches/\n"
@@ -64,7 +82,7 @@ def repository_for(environment: dict[str, str]) -> tuple[Repository, Engine]:
 def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     environment = cli_env(tmp_path)
     initialize_projection_files(tmp_path)
-    docs_path = tmp_path / "docs" / "guides" / "user-guide" / "search-registry.md"
+    docs_path = tmp_path / "docs/maintainers/engineering/search-registry.md"
     before = runner.invoke(app, ["stats"], env=environment)
     assert before.exit_code == 3
 
@@ -88,6 +106,20 @@ def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
     assert "Total positions" in statistics.output
     validated = runner.invoke(app, ["validate"], env=environment)
     assert validated.exit_code == 0, validated.output
+
+    registry_content = docs_path.read_text(encoding="utf-8")
+    docs_path.write_text(
+        registry_content.replace("# 23 technology paths", "# 0 technology paths"),
+        encoding="utf-8",
+    )
+    invalid_registry = runner.invoke(app, ["validate"], env=environment)
+    assert invalid_registry.exit_code == 1
+    assert "Search registry layout counts do not match" in invalid_registry.output
+    assert "# 0 technology paths" in docs_path.read_text(encoding="utf-8")
+    assert runner.invoke(app, ["render"], env=environment).exit_code == 0
+    assert docs_path.read_text(encoding="utf-8") == registry_content
+    assert not (tmp_path / "docs/maintainers/search-registry.md").exists()
+
     metadata_path = tmp_path / "exports" / "dataset-metadata.json"
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     metadata["total"] = 1
@@ -278,12 +310,36 @@ def test_disposal_failure_does_not_replace_command_error(
     engine.dispose.assert_called_once_with()
 
 
-def test_scrape_requires_permission_even_when_dotenv_enables_it(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "command", [("scrape",), ("check-availability",), ("search-test", "test-search")]
+)
+def test_collection_commands_require_permission_even_when_dotenv_enables_it(
+    tmp_path: Path, command: tuple[str, ...]
+) -> None:
+    # The dotenv fixture is explicit; this must never rely on an operator's real .env.
+    (tmp_path / ".env").write_text(
+        "OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED=true\n", encoding="utf-8"
+    )
     environment = cli_env(tmp_path)
     environment["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] = "false"
-    result = runner.invoke(app, ["scrape"], env=environment)
+    result = runner.invoke(app, list(command), env=environment)
     assert result.exit_code == 2
     assert "LinkedIn collection is disabled" in result.output
+    assert not (tmp_path / "opportunities.db").exists()
+
+
+@pytest.mark.parametrize("scheme", ["sqlite", "postgresql"])
+def test_configuration_errors_are_sanitized_before_database_access(
+    tmp_path: Path, scheme: str
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_DATABASE_URL"] = f"{scheme}://user:SYNTH@example.invalid/database"
+    result = runner.invoke(app, ["stats"], env=environment)
+    assert result.exit_code == 2
+    assert "Configuration error" in result.output
+    assert "SYNTH" not in result.output
+    assert "Traceback" not in result.output
+    assert not (tmp_path / "opportunities.db").exists()
 
 
 def test_unknown_search_is_rejected_without_network(tmp_path: Path) -> None:

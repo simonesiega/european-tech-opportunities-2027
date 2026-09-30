@@ -1,5 +1,7 @@
 # AGENTS.md
 
+[← Documentation home](docs/README.md) · [Maintainer handbook](docs/maintainers/README.md) · [Security policy](SECURITY.md)
+
 ## Purpose
 
 This project (`european-tech-opportunities-2027`) is an open-source pipeline and searchable website for validated 2027 technology internships and New Grad opportunities across Europe.
@@ -18,7 +20,7 @@ The project favors **precision, determinism, lifecycle safety, and responsible s
 
 If a tradeoff is required, choose correctness, safety, reproducibility, and explicit evidence over convenience or additional coverage.
 
-## Agent Context and Skills
+## Agent context and skills
 
 This repository may contain task-specific context under `.context/` and reusable procedures under `.agents/skills/`. Treat both as **lazy-loaded context**, not mandatory startup reading. Both directories are intentionally ignored by Git except for their `.gitkeep` files; never force-add personal context or skills.
 
@@ -40,7 +42,7 @@ This repository may contain task-specific context under `.context/` and reusable
 
 Before editing a nested area, check whether it contains another `AGENTS.md`. If present, follow it in addition to this root file.
 
-## High-Level Architecture
+## High-level architecture
 
 ```text
 configs/                         → Classification categories and search definitions
@@ -80,7 +82,7 @@ search YAML + classification rules
 - Failed searches must not mutate that search's lifecycle state.
 - The website, README, and public exports never classify jobs or mutate lifecycle state.
 
-## Tech Stack
+## Tech stack
 
 - Python 3.12+, `uv`, Pydantic, HTTPX, Beautiful Soup, SQLAlchemy, Alembic, Typer, Rich.
 - pytest, pytest-cov, pytest-benchmark, Ruff, strict mypy.
@@ -88,25 +90,35 @@ search YAML + classification rules
 - ESLint, Prettier, Playwright.
 - SQLite is canonical; Alembic owns schema evolution.
 
-## Canonical Documentation
+## Canonical documentation
 
 Read the relevant guide before broad, architectural, operational, schema, source-access, or release-relevant changes.
 ```text
-README.md                                       → Product overview and public behavior
-CONTRIBUTING.md                                 → Contribution workflow and project boundaries
-SECURITY.md                                     → Source-access rules, trust boundaries, secrets
-docs/README.md                                  → Documentation router
-docs/guides/development/architecture.md         → Data flow, invariants, ownership
-docs/guides/development/development.md          → Toolchain, tests, validation
-docs/guides/user-guide/search-registry.md       → Search YAML schema and query rules
-docs/guides/user-guide/website.md               → Website behavior and read-only contract
-docs/guides/operations/database.md              → Schema, lifecycle, migrations, backup/restore
-docs/guides/operations/automation.md            → CI, collection, snapshots, deployment
-docs/guides/operations/docker.md                → Images, Compose, volumes, deployment
+README.md                                           → Product showcase and generated preview
+CONTRIBUTING.md                                     → Contribution workflow and project boundaries
+SECURITY.md                                         → Source-access rules, trust boundaries, secrets
+docs/README.md                                      → Documentation router
+docs/users/README.md                                → Browsing and public data router
+docs/maintainers/README.md                          → Getting started, engineering, and operations router
+docs/assets/diagram/README.md                       → Annotated repository maps and code links
+docs/assets/diagram/source.md                       → Editable diagrams and rendering profile
+docs/maintainers/getting-started/setup.md           → Offline local setup
+docs/maintainers/getting-started/configuration.md   → Settings, paths, limits, authorization
+docs/maintainers/engineering/architecture.md        → Data flow, invariants, ownership
+docs/maintainers/engineering/classification.md      → Acceptance evidence and collection boundaries
+docs/maintainers/engineering/testing.md             → Test strategy, toolchain, validation
+docs/maintainers/engineering/documentation.md       → Documentation and media ownership
+docs/maintainers/engineering/search-registry.md     → Search YAML schema and query rules
+docs/maintainers/engineering/website.md             → Read-only queries and browser-state contract
+docs/maintainers/operations/cli.md                  → Commands, inputs, side effects, exit codes
+docs/maintainers/operations/database.md             → Schema, lifecycle, migrations, backup/restore
+docs/maintainers/operations/automation.md           → CI, collection, snapshots, deployment
+docs/maintainers/operations/deployment.md           → Images, Compose, volumes, deployment
+docs/maintainers/operations/troubleshooting.md      → Operational diagnosis and recovery
 ```
 Keep deep details canonical in those guides. Summarize and link instead of duplicating them elsewhere.
 
-## Repository Rules
+## Repository rules
 
 - Use **uv** for Python dependency management and commands; prefer `uv sync --frozen --dev`.
 - Use **Bun** inside `site/`; do not mix npm, pnpm, or Yarn into normal development.
@@ -121,7 +133,7 @@ Keep deep details canonical in those guides. Summarize and link instead of dupli
 - Do not add broad lint, type, test, or coverage suppressions to avoid fixing a real issue.
 - Read files in full before wide-ranging changes; do not rely only on search snippets.
 
-## Architectural Invariants
+## Architectural invariants
 
 1. **Canonical state:** SQLite is the lifecycle source of truth.
 2. **Canonical identity:** numeric LinkedIn job IDs identify listings.
@@ -136,7 +148,7 @@ Keep deep details canonical in those guides. Summarize and link instead of dupli
 
 Do not intentionally alter these contracts without explicit user direction and review of `architecture.md` plus `SECURITY.md`.
 
-## Source Access and Security
+## Source access and security
 
 LinkedIn collection is disabled by default and requires an authorization interlock. The interlock records an operator decision; it does not itself grant permission.
 Unless the task explicitly requires authorized live access:
@@ -149,7 +161,7 @@ Never add or use LinkedIn credentials, session cookies, authenticated browser au
 An upstream block, challenge, or access denial is a stop condition, not a problem to bypass. Never weaken, bypass, delete, or silently default an authorization gate to true.
 Never commit or expose `.env` contents, tokens, cookies, authenticated HTML, production databases, SQLite sidecars, SSH keys, private host configuration, or raw environment dumps. Use placeholders and minimal sanitized fixtures.
 
-## Data and Persistence
+## Data and persistence
 
 - Persist lifecycle changes through `Repository` methods.
 - Keep transactions focused and short.
@@ -161,7 +173,7 @@ Never commit or expose `.env` contents, tokens, cookies, authenticated HTML, pro
 - Test migrations on a fresh database and representative prior state when existing data changes.
 - Do not recommend deleting canonical state as the normal upgrade strategy.
 
-## Search and Classification
+## Search and classification
 
 Search configuration controls where the project looks. Classification controls what it may publish.
 For `configs/searches/` changes:
@@ -189,9 +201,9 @@ Precision is an intentional product decision.
 - Preserve strict TypeScript, empty-state behavior, search, filters, sorting, pagination, and shareable URLs unless intentionally changing them.
 - Preserve semantic HTML, keyboard accessibility, responsive behavior, and safe HTTPS external links.
 - Prefer Tailwind utilities for component styling; keep global CSS minimal.
-- Do not add write APIs, authentication, administrative mutation, saved applications, or user-provided content without explicit architecture and security review.
+- Preserve existing browser-only saved/applied/hidden lists; they never enter SQLite, URLs, the API, or analytics. Do not add write APIs, authentication, administrative mutation, server-stored applications, or user-provided content without explicit architecture and security review.
 
-## README and Generated Content
+## README and generated content
 
 The root README contains generated opportunity regions owned by `src/opportunities/readme.py`. Sanitized CSV/JSON downloads are owned by `src/opportunities/public_exports.py` and may contain only the approved public field allowlist.
 
@@ -202,7 +214,7 @@ The root README contains generated opportunity regions owned by `src/opportuniti
 - Keep runtime CSV/JSON exports ignored by Git; publish them through the controlled artifact and deployment paths.
 - Run validation after rendering.
 
-## Code Standards
+## Code standards
 
 Long-term maintainability is a core priority. Before adding logic, identify the layer that owns the behavior. Duplicate classification, normalization, lifecycle, validation, or presentation logic across layers is a code smell.
 Keep changes focused. Avoid combining unrelated parser, schema, search, website, deployment, formatting, and documentation work.
@@ -227,7 +239,7 @@ Keep changes focused. Avoid combining unrelated parser, schema, search, website,
 - Do not introduce new state-management or UI libraries for trivial needs.
 - Run Prettier rather than hand-formatting against project style.
 
-## Testing and Validation
+## Testing and validation
 
 Run the smallest focused test first, then every validation path affected by the change.
 Python/docs:
@@ -243,8 +255,8 @@ uv run ruff format --check .
 uv run ruff check .
 uv run mypy src tests scripts
 uv run pytest -m "not live and not performance" --cov
-uv run python scripts/check_migrations.py
-uv run python scripts/check_docs.py
+uv run python scripts/database/check_migrations.py
+uv run python scripts/docs/check_docs.py
 git diff --check
 ```
 
@@ -268,10 +280,12 @@ uv run opportunities db-upgrade
 Run `uv build` for packaging/dependency/entry-point changes. Run `docker compose config` and relevant image checks for container or deployment changes.
 Live tests are opt-in and authorization-gated. Do not run them unless the task explicitly requires authorized live access.
 
-## Documentation and Final Review
+## Documentation and final review
 
 - Update docs when behavior, configuration, commands, architecture, or operational expectations change.
-- Put task-oriented guides under `docs/guides/` and visual assets under `docs/assets/`.
+- Follow the shared writing style in `docs/maintainers/engineering/documentation.md`; update the documentation router, audience index, and MkDocs navigation for new public guides.
+- Put product tasks under `docs/users/`, engineering and operations under `docs/maintainers/`, and public visuals under `docs/assets/`.
+- Keep the README a product showcase; coverage metrics belong to the generated region in `docs/maintainers/engineering/testing.md`.
 - Generated files must be updated through their owning command.
 - Never stage `.env`, local settings, database files, SQLite sidecars, caches, build output, quality reports, or authenticated fixtures.
 Before handing off a code change:
@@ -284,7 +298,7 @@ git diff
 
 Confirm that affected tests pass, lifecycle/security invariants remain intact, generated files were updated correctly, documentation matches behavior, lockfile changes are intentional, and no secrets or runtime artifacts are included.
 
-## User Override
+## User override
 
 If user instructions conflict with repository conventions, clarify the intended override when it materially changes behavior, compatibility, architecture, or safety.
 Do not override safety rules silently. If the request would expose secrets, weaken the source-access boundary, mutate read-only projections, or bypass lifecycle protections, explain the conflict and use the safest compatible approach.

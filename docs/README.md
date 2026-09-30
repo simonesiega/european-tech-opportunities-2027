@@ -1,68 +1,87 @@
-# European Tech Opportunities 2027 Documentation
+# Documentation
 
-[← Project README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Security policy](../SECURITY.md) · [Privacy notice](../PRIVACY.md) · [Open the opportunity directory](https://techopportunities.eu/)
+**[Open European Tech Opportunities →](https://techopportunities.eu/)** · [Project showcase](../README.md) · [Searchable docs](https://docs.techopportunities.eu/)
 
-Read this hub on [GitHub](https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/docs) or browse the [searchable documentation](https://docs.techopportunities.eu/). The live website is the primary interface for browsing opportunities. This documentation is the canonical reference for setup, CLI usage, search configuration, production operation, architecture, development, and project policies.
+Find validated 2027 technology internships and New Grad roles across Europe. You do not need an account, an installation, or technical knowledge to use the directory.
 
-## Start here
+## Using the product
 
-- **Looking for a role?** Open the [live opportunity directory](https://techopportunities.eu/) or read the [website guide](guides/user-guide/website.md). Check eligibility, availability, and application details on the original listing before applying.
-- **Found a missing listing?** [Suggest an opportunity](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml); suggestions are reviewed against the publication rules.
-- **Running locally?** Start with [installation](guides/getting-started/installation.md) and [configuration](guides/getting-started/configuration.md).
-- **Using the CLI or changing searches?** Read the [CLI reference](guides/user-guide/cli.md) and [search registry guide](guides/user-guide/search-registry.md).
-- **Operating production?** Use [automation](guides/operations/automation.md), [database and lifecycle](guides/operations/database.md), [Docker and deployment](guides/operations/docker.md), and [troubleshooting](guides/operations/troubleshooting.md).
-- **Contributing?** Read [`CONTRIBUTING.md`](../CONTRIBUTING.md), then use the [development](guides/development/development.md) and [architecture](guides/development/architecture.md) guides.
+Guides for job seekers and anyone using the public data.
 
-## Setup
+### Browsing
 
-| Guide | Use it when |
+| Task | Guide |
 |---|---|
-| [Installation](guides/getting-started/installation.md) | Setting up Python, `uv`, Bun, SQLite, the local website, or optional Docker tooling. |
-| [Configuration](guides/getting-started/configuration.md) | Configuring paths, limits, HTTP controls, logging, website settings, and authorization interlocks. |
+| Find a role and share a search | [Browse, search, and filter](users/browsing/directory.md) |
+| Keep track of roles privately | [Saved, applied, hidden, and new](users/browsing/lists.md) |
+| Understand missing jobs, dates, or a problem | [Questions and troubleshooting](users/browsing/help.md) |
 
-## Using the project
+### Data
 
-| Guide | Covers |
+| Task | Guide |
 |---|---|
-| [Website](guides/user-guide/website.md) | Search, filters, sorting, pagination, themes, sanitized CSV/JSON downloads, and read-only behavior. |
-| [Public dataset and API](guides/user-guide/public-dataset.md) | Examples and the shared v1 contract for JSON, CSV, API responses, metadata, query parameters, and caching. |
-| [CLI reference](guides/user-guide/cli.md) | Commands, options, side effects, network behavior, and exit codes. |
-| [Search registry](guides/user-guide/search-registry.md) | Search groups, YAML schema, validation, limit tiers, and query changes. |
+| Download listings for a spreadsheet or script | [Get the dataset](users/data/data.md) |
+| Query listings from another application | [Use the public API](users/data/api.md) |
 
-## Operating production
+[Start the user guide →](users/README.md) · [Privacy notice](../PRIVACY.md)
 
-| Guide | Covers |
+## Maintaining the project
+
+Technical documentation for contributors, maintainers, operators, and coding agents. Browsing the product does **not** require these procedures.
+
+### Getting started
+
+| Task | Guide |
 |---|---|
-| [Automation](guides/operations/automation.md) | Validation CI, scheduled collection, durable snapshots, artifacts, and VPS deployment. |
-| [Database and lifecycle](guides/operations/database.md) | Schema, persistence, provenance, lifecycle state, migrations, backup, and restore. |
-| [Docker and deployment](guides/operations/docker.md) | Images, Compose, volumes, permissions, containers, and Dokploy. |
-| [Troubleshooting](guides/operations/troubleshooting.md) | Exit codes, common failures, diagnosis, and safe recovery. |
+| Set up an offline development environment | [Local setup](maintainers/getting-started/setup.md) |
+| Choose settings, paths, and request limits | [Configuration reference](maintainers/getting-started/configuration.md) |
 
-## Developing
+### Engineering
 
-| Guide | Covers |
+| Task | Guide |
 |---|---|
-| [Architecture](guides/development/architecture.md) | Complete data flow, component boundaries, classification, persistence, failure isolation, and projections. |
-| [Development](guides/development/development.md) | Repository workflow, implementation details, tests, fixtures, quality gates, and validation paths. |
+| Understand ownership and safety contracts | [Architecture and invariants](maintainers/engineering/architecture.md) |
+| Change acceptance rules or discovery | [Classification](maintainers/engineering/classification.md) · [Search registry](maintainers/engineering/search-registry.md) |
+| Change the website without changing canonical state | [Website engineering](maintainers/engineering/website.md) |
+| Test a change | [Testing strategy and gates](maintainers/engineering/testing.md) |
+| Update docs or reproduce public visuals | [Documentation maintenance](maintainers/engineering/documentation.md) · [Visual assets](assets/README.md) |
 
-## Project policies
+### Operations
 
-| Document | Covers |
+| Task | Guide |
 |---|---|
-| [Contributing](../CONTRIBUTING.md) | Contributor workflow, coding expectations, validation, documentation rules, and pull-request requirements. |
-| [Security policy](../SECURITY.md) | Vulnerability reporting, source-access boundaries, trust boundaries, secrets, and safe operation. |
-| [Privacy notice](../PRIVACY.md) | Directory and documentation hosting, analytics, browser storage, external services, and visitor choices. |
-| [Code of Conduct](../CODE_OF_CONDUCT.md) | Community standards, conduct reporting, and enforcement. |
+| Inspect commands and their side effects | [CLI reference](maintainers/operations/cli.md) |
+| Configure workflows and protected environments | [Automation and operations](maintainers/operations/automation.md) |
+| Preserve, migrate, or recover canonical state | [Database and lifecycle](maintainers/operations/database.md) |
+| Build containers and release the application | [Containers and deployment](maintainers/operations/deployment.md) |
+| Diagnose an operational failure | [Operator troubleshooting](maintainers/operations/troubleshooting.md) |
 
-## Visual assets
+[Open the maintainer handbook →](maintainers/README.md)
 
-Screenshots, sanitized listing examples, and project identity assets live under [`docs/assets/`](assets/README.md):
+## Repository maps
 
-```text
-assets/
-├── listings/     # sanitized public listing examples
-├── logo/         # project identity
-└── sites/        # website previews
-```
+[Read the annotated maps](assets/diagram/README.md) for explanations, a legend, and clickable implementation links. [Editable Mermaid source](assets/diagram/source.md) owns all five SVGs; its [rendering profile](assets/diagram/source.md#rendering-profile) explains regeneration.
 
-Documentation contributions should follow the [documentation guidelines](../CONTRIBUTING.md#documentation-changes).
+| View | Full-size diagram |
+|---|---|
+| How the whole repository fits together | [Repository overview](assets/diagram/svg/repository.svg) |
+| How evidence becomes accepted lifecycle state | [Collection and lifecycle](assets/diagram/svg/collection.svg) |
+| How public data reaches users and browser-local lists stay private | [Website and publication](assets/diagram/svg/website.svg) |
+| How protected updates, review, and deployment connect | [Automation and deployment](assets/diagram/svg/automation.svg) |
+| How tests, documentation, and tooling support the system | [Repository foundations](assets/diagram/svg/foundations.svg) |
+
+## Repository references
+
+These implementation inventories stay beside their source files and open on GitHub. The linked maintainer guides own the detailed procedures.
+
+| Task | Reference |
+|---|---|
+| Identify a workflow, trigger, or shared action | [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md) |
+| Choose a repository script and understand its effects | [Repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md) |
+| Find coding-agent instructions and safety boundaries | [Agent guidelines](../AGENTS.md) |
+
+## Policies and community
+
+The root policy files remain authoritative: [Contributing](../CONTRIBUTING.md), [Security](../SECURITY.md), [Privacy](../PRIVACY.md), [Code of Conduct](../CODE_OF_CONDUCT.md), and [MIT License](../LICENSE).
+
+[Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml) · [Report a product problem](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=bug-report.yml). Report security issues **privately**, using the security policy.

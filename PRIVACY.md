@@ -1,6 +1,6 @@
-# Privacy Notice
+# Privacy notice
 
-[← Project README](README.md) · [Documentation hub](docs/README.md) · [Website guide](docs/guides/user-guide/website.md) · [Security policy](SECURITY.md)
+[← Project README](README.md) · [Documentation home](docs/README.md) · [Website guide](docs/users/browsing/directory.md) · [Security policy](SECURITY.md)
 
 Effective: September 26, 2026
 
@@ -38,7 +38,7 @@ The production site uses Cloudflare in front of the application. As with ordinar
 
 See [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/) for its processing and retention terms.
 
-Documentation is served as static files by GitHub Pages, not the directory's VPS. GitHub may process request information to deliver and protect Pages; see [GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Documentation search uses a published search index in the browser; the project does not send search terms to the directory or configure Umami analytics on the documentation site. The documentation site uses system fonts rather than requesting Google Fonts. Its theme switch stores a local browser preference. The project README, available on GitHub and the documentation site, also embeds status and license badges from GitHub and Shields.io and a contributor image from contrib.rocks; opening that page requests those resources from their providers.
+Documentation is served as static files by GitHub Pages, not the directory's VPS. GitHub may process request information to deliver and protect Pages; see [GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement). Documentation search uses a published search index in the browser; the project does not send search terms to the directory or configure Umami analytics on the documentation site. The documentation site uses system fonts rather than requesting Google Fonts. Its theme switch stores a local browser preference, and its repository widget may request public repository statistics from GitHub's API. The project README, available on GitHub and the documentation site, also embeds status and license badges from GitHub, Shields.io, and OpenSSF Best Practices; opening that page requests those resources from their providers. The [public visuals](docs/assets/README.md) include logos, repository diagrams, historical website captures, and a sanitized public listing example. New product-tour recordings use synthetic demonstration data.
 
 ### Privacy-focused analytics
 

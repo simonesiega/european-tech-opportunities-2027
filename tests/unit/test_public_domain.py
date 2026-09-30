@@ -10,9 +10,7 @@ CANONICAL_ORIGIN = "https://techopportunities.eu"
 # may refer to the retired hostname. All other public links must use the new origin.
 LEGACY_REFERENCES = {
     ".github/workflows/docker-ci.yml",
-    "README.md",
-    "docs/guides/operations/docker.md",
-    "docs/guides/user-guide/website.md",
+    "docs/maintainers/operations/deployment.md",
     "site/next.config.ts",
     "site/src/lib/site-url-value.ts",
     "site/tests/unit/site-url-value.test.ts",
@@ -21,7 +19,13 @@ LEGACY_REFERENCES = {
 
 
 def test_legacy_hostname_only_in_redirect_and_migration_material() -> None:
-    tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
+    tracked = (
+        subprocess.check_output(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT
+        )
+        .decode()
+        .split("\0")
+    )
     references = {
         name
         for name in tracked

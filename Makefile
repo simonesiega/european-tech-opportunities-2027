@@ -41,7 +41,7 @@ test:
 coverage:
 	mkdir -p quality-reports
 	uv run pytest -m "not live and not performance" --cov --cov-report=term-missing --cov-report=xml:quality-reports/coverage.xml --cov-report=json:quality-reports/coverage.json --cov-report=html:quality-reports/coverage-html
-	uv run python scripts/coverage_docs.py
+	uv run python scripts/docs/coverage_docs.py
 
 benchmark:
 	mkdir -p quality-reports
@@ -51,16 +51,16 @@ test-live:
 	uv run pytest -m "live"
 
 migrations:
-	uv run python scripts/check_migrations.py
+	uv run python scripts/database/check_migrations.py
 
 docs:
-	uv run python scripts/check_docs.py
+	uv run python scripts/docs/check_docs.py
 
 docs-lint:
-	uv run --frozen python scripts/lint_docs.py
+	uv run --frozen python scripts/docs/lint_docs.py
 
 docs-site: docs docs-lint
-	uv run --frozen --group docs python scripts/build_docs.py
-	uv run --frozen --group docs python scripts/check_built_docs.py
+	uv run --frozen --group docs python scripts/docs/build_docs.py
+	uv run --frozen --group docs python scripts/docs/check_built_docs.py
 
 check: lock lint typecheck coverage migrations docs-site

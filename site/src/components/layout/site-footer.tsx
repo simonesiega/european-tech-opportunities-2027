@@ -43,6 +43,20 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
           <span aria-hidden="true">·</span>
           <a
             className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
+            href="https://docs.techopportunities.eu/docs/users/index.html"
+          >
+            Help
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
+            href="https://docs.techopportunities.eu/PRIVACY.html"
+          >
+            Privacy
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
             href={newIssueUrl}
             target="_blank"
             rel="noreferrer"
