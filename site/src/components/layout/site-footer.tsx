@@ -34,6 +34,20 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
           <span aria-hidden="true">·</span>
           <a
             className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
+            href="/feed.xml"
+          >
+            RSS feed
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
+            href="/atom.xml"
+          >
+            Atom feed
+          </a>
+          <span aria-hidden="true">·</span>
+          <a
+            className="text-[var(--text-soft)] transition-colors duration-180 hover:text-[var(--text)]"
             href={repositoryUrl}
             target="_blank"
             rel="noreferrer"

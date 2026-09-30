@@ -39,7 +39,13 @@ export async function generateMetadata({
   const indexable = validPage && !hasAlternateView && page <= defaultPageCount;
 
   return {
-    alternates: {canonical: indexable && page > 1 ? `/?page=${page}` : "/"},
+    alternates: {
+      canonical: indexable && page > 1 ? `/?page=${page}` : "/",
+      types: {
+        "application/rss+xml": "/feed.xml",
+        "application/atom+xml": "/atom.xml",
+      },
+    },
     robots: {index: indexable, follow: true},
   };
 }
