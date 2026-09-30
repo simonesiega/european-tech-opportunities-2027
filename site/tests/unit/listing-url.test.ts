@@ -13,6 +13,15 @@ test("accepts only the canonical HTTPS LinkedIn listing matching the job ID", ()
     `https://user@www.linkedin.com/jobs/view/${jobId}`,
     `https://www.linkedin.com/jobs/view/${jobId}?tracking=1`,
     `https://www.linkedin.com/jobs/view/${jobId}#details`,
+    `https://www.linkedin.com/jobs/view/${jobId}?`,
+    `https://www.linkedin.com/jobs/view/${jobId}#`,
+    `https://www.linkedin.com:443/jobs/view/${jobId}`,
+    `HTTPS://WWW.LINKEDIN.COM/jobs/view/${jobId}`,
+    ` https://www.linkedin.com/jobs/view/${jobId}`,
+    `https://www.linkedin.com/jobs/view/${jobId}\n`,
+    `https://www.linke\tdin.com/jobs/view/${jobId}`,
+    `https://www.linkedin.com/jobs/extra/../view/${jobId}`,
+    `https://www.linkedin.com\\jobs\\view\\${jobId}`,
     "javascript:alert(1)",
     "not-a-url",
   ];
@@ -21,7 +30,9 @@ test("accepts only the canonical HTTPS LinkedIn listing matching the job ID", ()
     expect(isCanonicalListingUrl(url, jobId)).toBe(false);
   }
 
-  expect(isCanonicalListingUrl(`https://www.linkedin.com/jobs/view/${jobId}`, "not-numeric")).toBe(
-    false
-  );
+  for (const invalidId of ["", "not-numeric", "1".repeat(31), `${jobId}\n`, "١٢٣"]) {
+    expect(
+      isCanonicalListingUrl(`https://www.linkedin.com/jobs/view/${invalidId}`, invalidId)
+    ).toBe(false);
+  }
 });

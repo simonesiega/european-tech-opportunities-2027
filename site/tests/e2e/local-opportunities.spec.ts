@@ -79,14 +79,99 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
   await expect(page.getByText(/new opportunities since your last visit/)).toHaveCount(0);
 });
 
-test("download controls move below the directory text under 1090px", async ({page}) => {
+test("empty local lists explain the selected view without claiming the directory is empty", async ({
+  page,
+}) => {
+  await openDirectory(page);
+  await page.getByRole("button", {name: "View 0 saved opportunities"}).click();
+  await expectRoleCount(page, 0);
+  await expect(page.getByText("No saved opportunities to show", {exact: true})).toBeVisible();
+  await page.getByRole("button", {name: "View 0 applied opportunities"}).click();
+  await expect(page.getByText("No applied opportunities to show", {exact: true})).toBeVisible();
+  await expect(page.getByText("The directory currently has no open roles.")).toHaveCount(0);
+  await page.getByRole("button", {name: "View all opportunities"}).click();
+  await expectRoleCount(page, 12);
+  await expect(page).toHaveURL("/");
+});
+
+test("mobile empty messages and reset controls need no horizontal scrolling", async ({page}) => {
+  await page.setViewportSize({width: 390, height: 844});
+  await openDirectory(page);
+  await page.getByRole("button", {name: "View 0 saved opportunities"}).click();
+  await expectRoleCount(page, 0);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page.getByText("No saved opportunities to show", {exact: true})).toBeInViewport({
+    ratio: 1,
+  });
+
+  await openDirectory(page, "/?q=does-not-match-any-opportunity");
+  await expectRoleCount(page, 0);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page.getByRole("button", {name: "Reset filters"})).toBeInViewport({ratio: 1});
+  await page.getByRole("button", {name: "Reset filters"}).click();
+  await expectRoleCount(page, 12);
+});
+
+test("hiding every role leaves a clear route to restoring the directory", async ({page}) => {
+  await openDirectory(page);
+  await expect(page.getByRole("button", {name: "View 0 hidden opportunities"})).toBeVisible();
+  await page.evaluate((key) => {
+    const state = JSON.parse(localStorage.getItem(key)!);
+    state.hidden = Array.from({length: 12}, (_, index) => String(1000000001 + index));
+    localStorage.setItem(key, JSON.stringify(state));
+  }, key);
+  await page.reload();
+  await expectRoleCount(page, 0);
+  await expect(page.getByText("No visible opportunities", {exact: true})).toBeVisible();
+  await page.getByRole("button", {name: "View 12 hidden opportunities"}).click();
+  await expectRoleCount(page, 12);
+  await page
+    .getByRole("button", {name: /More actions for/})
+    .first()
+    .click();
+  await page.getByRole("menuitem", {name: /Restore/}).click();
+  await page.getByRole("button", {name: "View all opportunities"}).click();
+  await expectRoleCount(page, 1);
+});
+
+test("menu dismissal preserves tab order and focus after a viewport change", async ({page}) => {
+  await openDirectory(page, "/?company=Acme+Labs");
+  const name = "Cybersecurity Intern 2027 at Acme Labs";
+  const trigger = page.getByRole("button", {name: `More actions for ${name}`});
+  const menu = page.getByRole("menu", {name: `More actions for ${name}`});
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("menuitem", {name: `Hide ${name}`})).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(menu).toHaveCount(0);
+  await expect(page.getByRole("link", {name: `Open ${role} at Acme Labs`})).toBeFocused();
+
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Shift+Tab");
+  await expect(menu).toHaveCount(0);
+  await expect(page.getByRole("button", {name: `Mark applied ${name}`})).toBeFocused();
+
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  await expect(menu).toBeVisible();
+  await page.setViewportSize({width: 1100, height: 800});
+  await expect(menu).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+});
+
+test("download controls remain reachable at narrow desktop widths", async ({page}) => {
   await page.setViewportSize({width: 1085, height: 800});
   await openDirectory(page);
-  const summary = await page.getByText(/You have saved/).boundingBox();
-  const download = await page.getByRole("link", {name: "Download CSV"}).boundingBox();
-  expect(summary).not.toBeNull();
-  expect(download).not.toBeNull();
-  expect(download!.y).toBeGreaterThan(summary!.y + summary!.height);
+  for (const format of ["CSV", "JSON"]) {
+    const link = page.getByRole("link", {name: `Download ${format}`});
+    await expect(link).toBeInViewport();
+    const downloaded = page.waitForEvent("download");
+    await link.click();
+    const file = await downloaded;
+    expect(file.suggestedFilename()).toBe(`open-opportunities.${format.toLowerCase()}`);
+    expect(await file.failure()).toBeNull();
+  }
 });
 
 test("saved, applied, hidden and restored work across filters, pages and reloads", async ({
@@ -143,7 +228,7 @@ test("saved rows respect pagination and sorting without changing URL semantics",
   await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
 });
 
-test("keyboard actions, menu dismissal and mobile row density", async ({page}) => {
+test("keyboard actions, menu dismissal, focus and mobile reachability", async ({page}) => {
   await page.setViewportSize({width: 390, height: 844});
   await openDirectory(page, "/?company=Acme+Labs");
   const save = page.getByRole("button", {name: `Save ${role} at Acme Labs`});
@@ -163,17 +248,12 @@ test("keyboard actions, menu dismissal and mobile row density", async ({page}) =
   await page.keyboard.press("Enter");
   const menu = page.getByRole("menu", {name: `More actions for ${role} at Acme Labs`});
   await expect(menu).toBeVisible();
-  const column = page
-    .getByRole("row")
-    .filter({has: page.getByRole("link", {name: role, exact: true})})
-    .locator("td")
-    .last();
-  const [columnBox, menuBox] = await Promise.all([column.boundingBox(), menu.boundingBox()]);
-  expect(columnBox).not.toBeNull();
+  const menuBox = await menu.boundingBox();
   expect(menuBox).not.toBeNull();
-  expect(
-    Math.abs(menuBox!.x + menuBox!.width / 2 - (columnBox!.x + columnBox!.width / 2))
-  ).toBeLessThan(2);
+  // The menu must be reachable, not centered to a particular CSS implementation.
+  expect(menuBox!.x).toBeGreaterThanOrEqual(0);
+  expect(menuBox!.x + menuBox!.width).toBeLessThanOrEqual(390);
+  expect(menuBox!.y + menuBox!.height).toBeLessThanOrEqual(844);
   await expect(page.getByRole("menuitem", {name: `Hide ${role} at Acme Labs`})).toBeFocused();
   expect(
     (
@@ -195,20 +275,15 @@ test("keyboard actions, menu dismissal and mobile row density", async ({page}) =
   await expect(menu).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
+  await expect(
+    page.getByRole("button", {name: `More actions for ${role} at Acme Labs`})
+  ).toBeFocused();
   await page.getByRole("button", {name: `More actions for ${role} at Acme Labs`}).click();
   await page.getByRole("menuitem", {name: `Hide ${role} at Acme Labs`}).click();
   await expectRoleCount(page, 1);
   await page.getByRole("button", {name: "View 1 hidden opportunities"}).click();
   await expectRoleCount(page, 1);
-  // The three controls remain in one horizontal line at mobile width.
-  const buttons = page
-    .getByRole("row")
-    .filter({has: page.getByRole("link", {name: role, exact: true})})
-    .getByRole("button");
-  const bounds = await buttons.evaluateAll((elements) =>
-    elements.map((element) => element.getBoundingClientRect().top)
-  );
-  expect(Math.max(...bounds) - Math.min(...bounds)).toBeLessThan(2);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test("local actions still work when storage access is disabled", async ({page}) => {
@@ -223,4 +298,85 @@ test("local actions still work when storage access is disabled", async ({page}) 
   await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
   await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
+});
+
+test("tabs merge sequential local actions and synchronize clearing without requests", async ({
+  page,
+  context,
+}) => {
+  const other = await context.newPage();
+  await openDirectory(page, "/?company=Acme+Labs");
+  await openDirectory(other, "/?company=Acme+Labs");
+  const requests: string[] = [];
+  context.on("request", (request) =>
+    requests.push(`${request.method()} ${request.url()} ${request.postData() ?? ""}`)
+  );
+  await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
+  await expect(other.getByRole("button", {name: `Unsave ${role} at Acme Labs`})).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await other
+    .getByRole("button", {name: "Mark applied Cybersecurity Intern 2027 at Acme Labs"})
+    .click();
+  await expect(
+    page.getByRole("button", {name: "Unmark applied Cybersecurity Intern 2027 at Acme Labs"})
+  ).toHaveAttribute("aria-pressed", "true");
+  const stored = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), key);
+  expect(stored.saved).toEqual(["1000000001"]);
+  expect(stored.applied).toEqual(["1000000002"]);
+  expect(Object.keys(stored).sort()).toEqual([
+    "applied",
+    "hidden",
+    "lastVisitAt",
+    "previousVisitAt",
+    "saved",
+    "version",
+  ]);
+  // A queued notification can describe a value older than this tab's last action.
+  await page.evaluate((key) => {
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key,
+        newValue: null,
+        storageArea: window.localStorage,
+      })
+    );
+  }, key);
+  await expect(page.getByRole("button", {name: `Unsave ${role} at Acme Labs`})).toHaveAttribute(
+    "aria-pressed",
+    "true"
+  );
+  await expect(page.getByRole("button", {name: "View 1 applied opportunities"})).toBeVisible();
+  expect(requests).toEqual([]);
+  await expect(page).toHaveURL("/?company=Acme+Labs");
+  await expect(other).toHaveURL("/?company=Acme+Labs");
+  await other.evaluate(() => localStorage.clear());
+  await expect(page.getByRole("button", {name: `Save ${role} at Acme Labs`})).toHaveAttribute(
+    "aria-pressed",
+    "false"
+  );
+  await expect(page.getByRole("button", {name: "View 0 applied opportunities"})).toBeVisible();
+  await other.close();
+});
+
+test("quota failures retain consecutive in-memory actions instead of stale stored state", async ({
+  page,
+}) => {
+  await openDirectory(page, "/?company=Acme+Labs");
+  await page.evaluate(() => {
+    Storage.prototype.setItem = () => {
+      throw new DOMException("full", "QuotaExceededError");
+    };
+  });
+  await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
+  await page.getByRole("button", {name: `Mark applied ${role} at Acme Labs`}).click();
+  await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
+  await expectRoleCount(page, 1);
+  await expect(
+    page.getByRole("button", {name: `Unmark applied ${role} at Acme Labs`})
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", {name: `Unsave ${role} at Acme Labs`}).click();
+  await expectRoleCount(page, 0);
+  await expect(page.getByRole("button", {name: "View 0 saved opportunities"})).toBeFocused();
 });

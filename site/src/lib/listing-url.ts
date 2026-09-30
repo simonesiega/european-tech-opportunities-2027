@@ -1,22 +1,10 @@
 const LINKEDIN_LISTING_HOST = "www.linkedin.com";
 
 export function isCanonicalListingUrl(value: string, linkedinJobId: string): boolean {
-  if (!/^[0-9]{1,30}$/.test(linkedinJobId)) {
-    return false;
-  }
-  try {
-    const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      url.hostname === LINKEDIN_LISTING_HOST &&
-      url.port === "" &&
-      url.username === "" &&
-      url.password === "" &&
-      url.pathname === `/jobs/view/${linkedinJobId}` &&
-      url.search === "" &&
-      url.hash === ""
-    );
-  } catch {
-    return false;
-  }
+  // These values are published verbatim. URL parsing would silently accept
+  // whitespace, default ports, dot segments, and other noncanonical spellings.
+  return (
+    /^[0-9]{1,30}$/.test(linkedinJobId) &&
+    value === `https://${LINKEDIN_LISTING_HOST}/jobs/view/${linkedinJobId}`
+  );
 }

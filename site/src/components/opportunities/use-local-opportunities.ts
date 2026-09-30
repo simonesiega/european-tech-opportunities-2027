@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {
   LOCAL_STATE_KEY,
   parseLocalState,
@@ -11,49 +11,74 @@ import {
 import type {Opportunity} from "@/types/opportunity";
 
 export function useLocalOpportunities(opportunities: Opportunity[]) {
-  const initialized = useRef(false);
+  const ids = useMemo(
+    () => new Set(opportunities.map((item) => item.linkedinJobId)),
+    [opportunities]
+  );
   const currentState = useRef<LocalOpportunityState | null>(null);
+  const storageAvailable = useRef(true);
   const [state, setState] = useState<LocalOpportunityState | null>(null);
-  const [previousVisit, setPreviousVisit] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-    const now = new Date().toISOString();
-    const ids = new Set(opportunities.map((item) => item.linkedinJobId));
-    let raw: string | null = null;
-    try {
-      raw = window.localStorage.getItem(LOCAL_STATE_KEY);
-    } catch {
-      // Storage may be blocked; the directory still works in memory for this tab.
-    }
-    const stored = parseLocalState(raw, ids, now);
-    const current = resumeLocalVisit(stored, now);
-    setPreviousVisit(current.previousVisitAt ?? null);
-    currentState.current = current;
-    setState(current);
-    try {
-      window.localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(current));
-    } catch {
-      // Private browsing or quota errors must not break the page.
-    }
-  }, [opportunities]);
-
-  function toggle(field: "saved" | "hidden" | "applied", id: string) {
-    if (!opportunities.some((item) => item.linkedinJobId === id)) return;
-    if (!currentState.current) return;
-    const next = {
-      ...toggleLocalId(currentState.current, field, id),
-      lastVisitAt: new Date().toISOString(),
-    };
+  function publish(next: LocalOpportunityState) {
     currentState.current = next;
     setState(next);
     try {
       window.localStorage.setItem(LOCAL_STATE_KEY, JSON.stringify(next));
     } catch {
-      // Keep the action usable in memory even without persistent storage.
+      // Preserve subsequent in-memory actions instead of rereading an older stored value.
+      storageAvailable.current = false;
     }
   }
 
-  return {state, previousVisit, toggle};
+  useEffect(() => {
+    const now = new Date().toISOString();
+    let raw = currentState.current ? JSON.stringify(currentState.current) : null;
+    if (storageAvailable.current) {
+      try {
+        raw = window.localStorage.getItem(LOCAL_STATE_KEY);
+      } catch {
+        storageAvailable.current = false;
+      }
+    }
+    const stored = parseLocalState(raw, ids, now);
+    publish(currentState.current ? stored : resumeLocalVisit(stored, now));
+
+    function synchronize(event: StorageEvent) {
+      if (!storageAvailable.current || (event.key !== LOCAL_STATE_KEY && event.key !== null))
+        return;
+      try {
+        if (event.storageArea !== window.localStorage) return;
+        // Read current storage: an older queued event must not undo a newer local action.
+        const next = parseLocalState(
+          window.localStorage.getItem(LOCAL_STATE_KEY),
+          ids,
+          new Date().toISOString()
+        );
+        // No write on receipt: synchronization is not visitor activity or a feedback loop.
+        currentState.current = next;
+        setState(next);
+      } catch {
+        storageAvailable.current = false;
+      }
+    }
+    window.addEventListener("storage", synchronize);
+    return () => window.removeEventListener("storage", synchronize);
+  }, [ids]);
+
+  function toggle(field: "saved" | "hidden" | "applied", id: string) {
+    if (!ids.has(id) || !currentState.current) return;
+    const now = new Date().toISOString();
+    let latest = currentState.current;
+    if (storageAvailable.current) {
+      try {
+        // Another tab may have written before its storage event reached this tab.
+        latest = parseLocalState(window.localStorage.getItem(LOCAL_STATE_KEY), ids, now);
+      } catch {
+        storageAvailable.current = false;
+      }
+    }
+    publish({...toggleLocalId(latest, field, id), lastVisitAt: now});
+  }
+
+  return {state, previousVisit: state?.previousVisitAt ?? null, toggle};
 }

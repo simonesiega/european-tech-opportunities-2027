@@ -84,6 +84,28 @@ describe("public API contract", () => {
     ]);
   });
 
+  test("orders distinct microseconds chronologically before applying numeric ID ties", () => {
+    const items = [
+      row("9", {firstSeenAt: "2026-07-17T12:00:00.123456Z"}),
+      row("10", {firstSeenAt: "2026-07-17 12:00:00.123456"}),
+      row("11", {firstSeenAt: "2026-07-17T14:00:00.123457+02:00"}),
+      row("12", {firstSeenAt: "2026-07-17T12:00:00.123455+00:00"}),
+    ];
+    expect(payload("", items).data.map((item) => item.linkedinJobId)).toEqual([
+      "11",
+      "10",
+      "9",
+      "12",
+    ]);
+    expect(payload("?sort=first-seen-asc", items).data.map((item) => item.linkedinJobId)).toEqual([
+      "12",
+      "10",
+      "9",
+      "11",
+    ]);
+    expect(items.map((item) => item.linkedinJobId)).toEqual(["9", "10", "11", "12"]);
+  });
+
   test("publishes UTC RFC 3339 first-seen timestamps without losing microseconds", () => {
     const examples = [
       ["2026-07-17 12:00:00.123456", "2026-07-17T12:00:00.123456+00:00"],
@@ -115,6 +137,16 @@ describe("public API contract", () => {
         "Invalid first-seen timestamp"
       );
     }
+  });
+
+  test("invalid snapshot timestamps cannot turn recency results into a successful empty list", () => {
+    const query = "?sort=company-asc&first-seen=7-days";
+    expect(() => payload(query, [row("1", {firstSeenAt: "2026-02-30 12:00:00"})])).toThrow(
+      "Invalid first-seen timestamp"
+    );
+    expect(() => apiPayload(rows, "invalid", parseApiQuery(query))).toThrow(
+      "Invalid collection timestamp"
+    );
   });
 
   test("stable explicit public field allowlist", () => {
