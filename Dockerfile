@@ -62,7 +62,7 @@ COPY site/package.json site/bun.lock ./
 RUN bun install --frozen-lockfile
 
 
-FROM node:26-alpine@sha256:ef24c5053d50fdc3e4e56eb4e7ddb7861874ab0fdc797046ba897581deb8e868 AS site-builder
+FROM node:26-alpine@sha256:0b36e8c136b94cd4fcf02188228e76c31ad5872eef3fec8cbd2eee500cfd9e80 AS site-builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG SITE_URL=https://techopportunities.eu
@@ -73,7 +73,7 @@ COPY site ./
 RUN bun run build
 
 
-FROM node:26-trixie-slim@sha256:14bf3eac4bf209d906d3c41256597d3ab1f926b2e93a79e9bdfe1efd32454239 AS site
+FROM node:26-trixie-slim@sha256:ec7758ee051e457b468b32bde57b0879010b325bb9862718e9615225ce4aaae1 AS site
 WORKDIR /app
 
 ENV NODE_ENV=production \
