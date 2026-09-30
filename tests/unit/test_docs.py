@@ -10,21 +10,24 @@ from pathlib import Path
 import pytest
 
 
-def test_local_workflow_action_references_are_repository_relative_and_exist() -> None:
+def test_local_workflow_references_use_self_repository_syntax_and_exist() -> None:
     root = Path(__file__).parents[2]
+    checked_references = 0
     for workflow in (root / ".github" / "workflows").glob("*.yml"):
         for line in workflow.read_text(encoding="utf-8").splitlines():
             match = re.match(r"^\s*uses:\s*(\S+)", line)
             if match is None:
                 continue
             reference = match.group(1)
-            assert not reference.startswith("$/"), (
-                f"{workflow.relative_to(root)} has an invalid local action reference: {reference}"
+            assert not reference.startswith("./.github/"), (
+                f"{workflow.relative_to(root)} must use GitHub self-repository syntax: {reference}"
             )
-            if reference.startswith("./"):
+            if reference.startswith("$/.github/"):
+                checked_references += 1
                 assert (root / reference[2:]).exists(), (
                     f"{workflow.relative_to(root)} references a missing local action: {reference}"
                 )
+    assert checked_references > 0
 
 
 def test_source_checker_validates_script_inventory_and_local_workflow_overview(

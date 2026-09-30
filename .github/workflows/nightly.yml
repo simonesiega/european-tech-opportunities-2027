@@ -14,7 +14,7 @@ jobs:
   # One shared writer performs availability first, then collection, under the global lock.
   process-state:
     name: Audit, collect, and preserve state
-    uses: ./.github/workflows/reusable-process-state.yml
+    uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read
     secrets:
@@ -37,7 +37,7 @@ jobs:
   update-readme:
     name: Propose reviewed README projection
     needs: process-state
-    uses: ./.github/workflows/reusable-readme-pr.yml
+    uses: $/.github/workflows/reusable-readme-pr.yml
     permissions:
       actions: write
       contents: write
