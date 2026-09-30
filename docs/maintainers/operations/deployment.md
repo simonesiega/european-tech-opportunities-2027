@@ -10,6 +10,7 @@ Docker does not change the authorization, lifecycle, or one-writer contracts.
 
 - [Image targets](#image-targets)
 - [Build images](#build-images)
+- [SBOM and build provenance](#sbom-and-build-provenance)
 - [Compose topology](#compose-topology)
 - [Start the website locally](#start-the-website-locally)
 - [Run pipeline commands](#run-pipeline-commands)
@@ -80,6 +81,24 @@ docker compose config
 ```
 
 The complete image and Compose checks are listed in the [testing guide](../engineering/testing.md#containers-and-security).
+
+## SBOM and build provenance
+
+Docker CI generates an SPDX JSON software bill of materials for each final production target (`opportunities` and `site`) from the exact local image built by that workflow. It runs a digest-pinned Syft image and records each image ID, any available repository digest, and platform alongside the Docker Engine, Compose, Buildx, and Syft versions. `build-provenance.json` includes each SBOM's SHA-256; `SHA256SUMS` covers both SBOMs and the evidence manifest.
+
+The workflow uploads these public build-evidence files as `production-container-evidence-<run-id>-<attempt>` for 30 days. On successful pushes and manual runs on `main`, a separate least-privilege job creates GitHub-signed SLSA provenance attestations for every evidence file. Pull-request builds still produce the SBOM artifact, but do not receive OIDC or attestation permissions. After downloading an artifact into `build-artifacts/`, verify the checksums and signed build provenance with:
+
+```bash
+(cd build-artifacts && sha256sum --check SHA256SUMS)
+gh attestation verify build-artifacts/opportunities-cli.spdx.json \
+  -R simonesiega/european-tech-opportunities-2027
+gh attestation verify build-artifacts/site.spdx.json \
+  -R simonesiega/european-tech-opportunities-2027
+gh attestation verify build-artifacts/build-provenance.json \
+  -R simonesiega/european-tech-opportunities-2027
+```
+
+These attestations authenticate the SBOM and evidence files produced by Docker CI; they do not sign an image in a registry. CI does not publish container images to GHCR, and Dokploy currently builds its deployment image separately. Therefore this evidence identifies the validated CI build, not a byte-for-byte claim about the deployed Dokploy image. If image distribution moves to GHCR, publish from the validated workflow and attach provenance and the SBOM to the immutable registry image digest before deployment.
 
 ## Compose topology
 
@@ -387,7 +406,7 @@ docker compose run --rm opportunities --help
 docker compose config
 ```
 
-Docker CI additionally runs Actionlint, Hadolint, and digest-pinned Trivy image scans. It rejects fixable high or critical image vulnerabilities and smoke-tests the migrated website, sanitized CSV/JSON downloads, production Content Security Policy, and HTTP Strict Transport Security headers.
+Docker CI additionally runs Actionlint, Hadolint, and digest-pinned Trivy image scans. It generates SPDX SBOMs and build evidence for both final image targets, uploads them for 30 days, and attests the evidence files from `main` with GitHub Actions. It rejects fixable high or critical image vulnerabilities and smoke-tests the migrated website, sanitized CSV/JSON downloads, production Content Security Policy, and HTTP Strict Transport Security headers.
 
 Preserve:
 
