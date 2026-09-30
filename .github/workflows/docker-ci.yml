@@ -18,6 +18,9 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      SYFT_IMAGE: anchore/syft:v1.52.0@sha256:500e2d872ac019436926e8322b4fc1f39441d94d21f6f4046c6ff29b30e8cb02
+      SYFT_VERSION: v1.52.0
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -54,6 +57,113 @@ jobs:
 
       - name: Build production images
         run: docker compose build
+
+      - name: Prepare SBOM output directory
+        run: mkdir -p build-artifacts
+
+      - name: Pull digest-pinned Syft image
+        run: docker pull "$SYFT_IMAGE"
+
+      - name: Generate CLI production image SBOM
+        shell: bash
+        run: |
+          docker run --rm --pull=never \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume "$PWD/build-artifacts:/out" \
+            "$SYFT_IMAGE" \
+            european-tech-opportunities-2027-cli:local \
+            --output spdx-json=/out/opportunities-cli.spdx.json
+
+      - name: Generate website production image SBOM
+        shell: bash
+        run: |
+          docker run --rm --pull=never \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume "$PWD/build-artifacts:/out" \
+            "$SYFT_IMAGE" \
+            european-tech-opportunities-2027-site:local \
+            --output spdx-json=/out/site.spdx.json
+
+      - name: Record production image build provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          cli_reference=european-tech-opportunities-2027-cli:local
+          site_reference=european-tech-opportunities-2027-site:local
+          cli_image_id=$(docker image inspect --format '{{.Id}}' "$cli_reference")
+          site_image_id=$(docker image inspect --format '{{.Id}}' "$site_reference")
+          cli_repo_digests=$(docker image inspect --format '{{json .RepoDigests}}' "$cli_reference")
+          site_repo_digests=$(docker image inspect --format '{{json .RepoDigests}}' "$site_reference")
+          cli_platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$cli_reference")
+          site_platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$site_reference")
+          docker_engine_version=$(docker version --format '{{.Server.Version}}')
+          docker_compose_version=$(docker compose version --short)
+          buildx_version=$(docker buildx version)
+          cli_sbom_sha256=$(sha256sum build-artifacts/opportunities-cli.spdx.json | cut -d' ' -f1)
+          site_sbom_sha256=$(sha256sum build-artifacts/site.spdx.json | cut -d' ' -f1)
+
+          jq -n \
+            --arg repository "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --arg commit "$GITHUB_SHA" \
+            --arg workflow_ref "$GITHUB_WORKFLOW_REF" \
+            --arg run_id "$GITHUB_RUN_ID" \
+            --arg run_attempt "$GITHUB_RUN_ATTEMPT" \
+            --arg event "$GITHUB_EVENT_NAME" \
+            --arg runner "$RUNNER_OS/$RUNNER_ARCH" \
+            --arg docker_engine_version "$docker_engine_version" \
+            --arg docker_compose_version "$docker_compose_version" \
+            --arg buildx_version "$buildx_version" \
+            --arg syft_version "$SYFT_VERSION" \
+            --arg syft_image "$SYFT_IMAGE" \
+            --arg cli_reference "$cli_reference" \
+            --arg cli_image_id "$cli_image_id" \
+            --argjson cli_repo_digests "$cli_repo_digests" \
+            --arg cli_platform "$cli_platform" \
+            --arg cli_sbom_sha256 "$cli_sbom_sha256" \
+            --arg site_reference "$site_reference" \
+            --arg site_image_id "$site_image_id" \
+            --argjson site_repo_digests "$site_repo_digests" \
+            --arg site_platform "$site_platform" \
+            --arg site_sbom_sha256 "$site_sbom_sha256" \
+            '{
+              schemaVersion: "1.0",
+              source: {repository: $repository, commit: $commit},
+              workflow: {ref: $workflow_ref, runId: $run_id, runAttempt: $run_attempt, event: $event},
+              builder: {
+                runner: $runner,
+                dockerEngine: $docker_engine_version,
+                dockerCompose: $docker_compose_version,
+                buildx: $buildx_version,
+                sbomGenerator: {name: "Syft", version: $syft_version, image: $syft_image}
+              },
+              images: [
+                {
+                  target: "opportunities",
+                  reference: $cli_reference,
+                  imageId: $cli_image_id,
+                  repositoryDigests: $cli_repo_digests,
+                  platform: $cli_platform,
+                  sbom: {file: "opportunities-cli.spdx.json", sha256: $cli_sbom_sha256}
+                },
+                {
+                  target: "site",
+                  reference: $site_reference,
+                  imageId: $site_image_id,
+                  repositoryDigests: $site_repo_digests,
+                  platform: $site_platform,
+                  sbom: {file: "site.spdx.json", sha256: $site_sbom_sha256}
+                }
+              ]
+            }' > build-artifacts/build-provenance.json
+
+          for sbom in build-artifacts/*.spdx.json; do
+            jq -e '.spdxVersion == "SPDX-2.3" and (.packages | type == "array")' "$sbom" >/dev/null
+          done
+          (
+            cd build-artifacts
+            sha256sum opportunities-cli.spdx.json site.spdx.json build-provenance.json > SHA256SUMS
+            sha256sum --check SHA256SUMS
+          )
 
       # Fail on actionable findings; unfixed distribution CVEs have no build-time remedy.
       - name: Scan images for fixable high and critical vulnerabilities
@@ -249,3 +359,34 @@ jobs:
             docker compose logs site opportunities
             exit 1
           fi
+
+      - name: Upload production SBOMs and build evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: production-container-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build-artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  attest:
+    # PR code must never receive the OIDC and attestation permissions used here.
+    if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    needs: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      attestations: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Download production SBOMs and build evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: production-container-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: build-artifacts
+
+      - name: Attest production SBOMs and build evidence
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: build-artifacts/*
