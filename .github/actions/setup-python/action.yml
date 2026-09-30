@@ -17,8 +17,10 @@ runs:
     - name: Install frozen runtime dependencies
       if: inputs.dev-dependencies != 'true'
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: uv sync --frozen --no-dev
     - name: Install frozen development dependencies
       if: inputs.dev-dependencies == 'true'
       shell: bash
+      working-directory: ${{ github.workspace }}
       run: uv sync --frozen --dev
