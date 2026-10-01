@@ -39,7 +39,7 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 | [Scrape jobs or deploy reviewed state](workflows/scrape.yml) | Manual | Normally collects listings and opens a README PR for manual review, without running a full availability check. Selecting `deploy_to_vps=true` instead publishes already-reviewed data to the website without contacting LinkedIn. |
 | [Check job availability](workflows/check-availability.yml) | Manual | Checks stored listings without discovering new jobs. Removes confirmed unavailable listings and keeps those whose availability is uncertain. Saves a snapshot and opens a README PR for manual review. |
 | [Add manually reviewed jobs](workflows/add-job.yml) | Manual, with `jobs_json` | Validates and adds a batch of 1–10 listings independently reviewed by a maintainer. Saves a snapshot and opens a dated README PR for manual review. Does not contact LinkedIn or deploy the website. |
-| [Verify canonical state recovery](workflows/canonical-state-drill.yml) | Manual | Restores a database snapshot, checks it, and verifies that a newly published snapshot can be restored. Does not contact LinkedIn, but **does publish a snapshot**: it is not a dry run. Its optional `adopt_public_review_seal` mode proposes the initial README state-verification marker without publishing a snapshot or deploying. |
+| [Verify canonical state recovery](workflows/canonical-state-drill.yml) | Manual | Restores a database snapshot, checks it, and verifies that a newly published snapshot can be restored. Does not contact LinkedIn, but **does publish a snapshot**: it is not a dry run. Its optional `adopt_public_review_seal` mode proposes the initial README state-verification marker; `recover_readme_proposal` instead recreates a missing or closed state proposal for manual review. These mutually exclusive modes do not publish snapshots or deploy. |
 
 ### How updates reach the website
 
@@ -47,7 +47,7 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 2. The README PR goes through validation and review. Nightly updates can merge automatically if all configured requirements are met; other listing updates require a manual merge.
 3. After the matching PR is merged, a maintainer runs **Scrape jobs or deploy reviewed state** from `main` with `deploy_to_vps=true` to publish that data.
 
-Merging a listing-update PR does not deploy the website automatically. If the saved data does not match the reviewed README, further updates and deployment stop until the difference is resolved.
+Merging a listing-update PR does not deploy the website automatically. If the saved data does not match the reviewed README, further updates and deployment stop until the difference is resolved. For a missing or closed proposal, follow [README proposal recovery](../docs/maintainers/operations/automation.md#recover-a-missing-readme-state-proposal) rather than rerunning collection.
 
 The downloadable files attached to dataset runs contain only the public README, CSV/JSON listings, and dataset metadata. They are available for 30 days and are **not database backups**. The live database is not uploaded to GitHub artifacts.
 
