@@ -20,7 +20,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
         gzip=1.13-1+deb13u1 \
-        libpcre2-8-0=10.46-1~deb13u2 \
+        libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
         openssl=3.5.7-1~deb13u3 \
@@ -93,7 +93,7 @@ ENV NODE_ENV=production \
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
         gzip=1.13-1+deb13u1 \
-        libpcre2-8-0=10.46-1~deb13u2 \
+        libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
         openssl-provider-legacy=3.5.7-1~deb13u3 \
