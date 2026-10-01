@@ -70,7 +70,7 @@ All parameters are optional and may appear only once.
 
 | Parameter | Values | Default |
 |---|---|---|
-| `q` | Case-insensitive substring across company, title, category, industries, type, location | All |
+| `q` | Case-insensitive substring across company, title, category, industries, type, and location | All |
 | `country` | Exact country token; multi-location roles may match several countries | All |
 | `company` | Exact company name | All |
 | `category` | Exact category slug | All |
@@ -80,7 +80,7 @@ All parameters are optional and may appear only once.
 | `page` | Integer 1–10000 | `1` |
 | `page-size` | Integer 1–100 | `10` |
 
-Use a complete sort value such as `company-asc`, not the abbreviated `asc/desc` notation above. Filters combine with AND. Exact filters and parameter names are case-sensitive. A valid but unmatched filter returns an empty result, not an error. Sort ties use descending numeric LinkedIn ID.
+Use a complete sort value such as `company-asc`, not the abbreviated `asc/desc` notation above. A role must match every supplied filter. Exact filters and parameter names are case-sensitive. A valid but unmatched filter returns an empty result, not an error. Sort ties use descending numeric LinkedIn ID.
 
 Text values are limited to 200 characters. Exact filters must be nonempty and have no surrounding whitespace; `q` ignores surrounding whitespace. URL-encode values. Unknown/repeated keys, invalid values or encoding, control characters, and query strings longer than 2048 characters return `400`.
 

@@ -50,7 +50,7 @@ Never paste a complete environment file, production database, authenticated HTML
 | Code | Meaning | First action |
 |---:|---|---|
 | `0` | Success | No recovery action required |
-| `1` | Complete collection failure or validation mismatch | Preserve state and inspect per-search or projection output |
+| `1` | Complete collection failure, validation mismatch, or a blocked or failed quality gate | Preserve state and inspect search output, projections, or the quality report |
 | `2` | Partial collection or availability audit, or rejected configuration/command input | Preserve successful work and inspect the command-specific error |
 | `3` | Database missing tables or not at migration head | Run `db-upgrade` against the same database URL |
 
@@ -188,6 +188,7 @@ The generated regions contain:
 - open-job metadata;
 - latest successful collection time;
 - the public website link;
+- a hidden review seal covering all website-visible open rows and the exact latest successful collection time;
 - at most five internships and five New Grad opportunities.
 
 Do not edit generated counts, timestamps, or rows manually; fix the database state or renderer instead.
@@ -286,14 +287,25 @@ Exit code `1` usually indicates a shared problem involving:
 
 Existing state remains valid. Preserve it while diagnosing the shared cause.
 
+### Quality gate blocked publication
+
+A scrape can exit with code `1` even when some or all searches succeeded. When `--quality-report` is requested, blocking drift or a failure in quality analysis, report writing, or baseline persistence prevents projection rendering.
+
+1. Preserve the working database and the report, if one was written. Successful search transactions have already committed; the gate does not roll them back.
+2. Inspect the report's scope, baseline readiness, sample sizes, and blocking findings against the [quality-report reference](cli.md#quality-report).
+3. Reproduce suspected parser or classification changes with offline fixtures. Treat source blocks as stop conditions, not a reason to increase limits.
+4. Resolve the cause before publication. Do not run `render` separately merely to bypass the blocked gate.
+
+Protected automation also stops durable snapshot publication and the README handoff, leaving production on its previously reviewed release. If report generation failed, inspect the first sanitized error rather than treating a missing report as a pass.
+
 ### Timeout or HTTP `5xx`
 
 Retries are finite.
 
-- stop repeated manual runs;
-- keep pacing conservative;
-- retry one search later when the upstream failure is temporary;
-- determine whether the problem is isolated or shared.
+- Stop repeated manual runs.
+- Keep pacing conservative.
+- Retry one search later when the upstream failure is temporary.
+- Determine whether the problem is isolated or shared.
 
 A temporary timeout increase may be appropriate:
 
@@ -361,10 +373,10 @@ Industries → Software Development
 
 When industries parsing still fails:
 
-1. reproduce only with express authorization;
-2. reduce the markup to a minimal sanitized fixture;
-3. add a failing parser regression test;
-4. update the parser without broad description-keyword fallbacks.
+1. Reproduce with offline fixtures; live reproduction requires express authorization.
+2. Reduce the markup to a minimal sanitized fixture.
+3. Add a failing parser regression test.
+4. Update the parser without broad description-keyword fallbacks.
 
 The website should continue showing `Not specified` for industries when structured evidence is absent. A missing or unsupported employment type excludes the listing instead of publishing an unspecified value.
 

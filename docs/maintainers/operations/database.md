@@ -165,16 +165,16 @@ Search-card absence is never closure evidence.
 
 For each successful search:
 
-1. select active jobs associated with that search;
-2. choose a deterministic bounded subset missing from current eligible cards;
-3. fetch their detail pages;
-4. increment confirmation only for HTTP `404` or `410`;
-5. reset confirmations when a valid accepted detail page is observed;
-6. ignore malformed or newly excluded details as closure evidence;
-7. apply no lifecycle mutation after unrelated network failures;
-8. deactivate the association when `closure_confirmation_runs` is reached;
-9. close the job only when no active search association remains;
-10. reopen the job after a later valid rediscovery.
+1. Select active jobs associated with that search.
+2. Choose a deterministic bounded subset missing from current eligible cards.
+3. Fetch their detail pages.
+4. Increment confirmation only for HTTP `404` or `410`.
+5. Reset confirmations when a valid accepted detail page is observed.
+6. Ignore malformed or newly excluded details as closure evidence.
+7. Apply no lifecycle mutation after unrelated network failures.
+8. Deactivate the association when `closure_confirmation_runs` is reached.
+9. Close the job only when no active search association remains.
+10. Reopen the job after a later valid rediscovery.
 
 With a threshold of two:
 
@@ -258,15 +258,15 @@ uv run python scripts/database/check_migrations.py
 
 For a schema change:
 
-1. update `src/opportunities/database/models.py`;
-2. create a new revision under `migrations/versions/`;
-3. point `down_revision` to the current head;
-4. preserve existing data in `upgrade()`;
-5. provide a practical `downgrade()`;
-6. add migration and repository tests;
-7. test a fresh database;
-8. test a representative backup when existing state changes;
-9. run migration consistency checks.
+1. Update `src/opportunities/database/models.py`.
+2. Create a new revision under `migrations/versions/`.
+3. Point `down_revision` to the current head.
+4. Preserve existing data in `upgrade()`.
+5. Provide a practical `downgrade()`.
+6. Add migration and repository tests.
+7. Test a fresh database.
+8. Test a representative backup when existing state changes.
+9. Run migration consistency checks.
 
 Never rewrite an applied migration to hide schema drift.
 
@@ -286,10 +286,10 @@ Store backups outside normal repository cleanup paths and treat verified durable
 
 For a cold filesystem copy:
 
-1. stop every writer;
-2. close active SQLite connections where practical;
-3. checkpoint write-ahead logging;
-4. copy the database and any required sidecars together.
+1. Stop every writer.
+2. Close active SQLite connections where practical.
+3. Checkpoint write-ahead logging.
+4. Copy the database and any required sidecars together.
 
 GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and configured retention metadata. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. A pre-existing local database that does not match the latest snapshot stops restoration instead of being silently replaced; preserve and investigate it before retrying. Canonical SQLite is never placed in GitHub Actions cache or artifacts; 30-day artifacts contain only sanitized public projections and the separate aggregate quality report.
 

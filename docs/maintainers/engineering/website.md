@@ -6,7 +6,7 @@ The Next.js site is a read-only presentation layer. `site/src/lib/` owns server 
 
 ## Read-only database contract
 
-`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true`, selects open rows ordered by first-seen time and descending ID, and reads the latest **successful** collection timestamp. A later failed run cannot imply fresher data. React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
+`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true`, selects open rows ordered by descending first-seen time and ID text, and reads the latest **successful** collection timestamp. A later failed run cannot imply fresher data. React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
 
 In versioned mode, `OPPORTUNITIES_RELEASE_ROOT/current` resolves **once per server operation** to a release under `releases/`. Invalid/missing pointers fail closed rather than using legacy paths. The selected release must remain available until readers drain. Separate requests can span a cutover; a page followed by a download is not a pinned transaction.
 
@@ -36,13 +36,13 @@ Browser lists are explicitly supported; **server-stored** applications, authenti
 | `page-size` | 10, 20, 30, 50, 100 |
 | `page` | Positive one-based page, constrained to displayed results |
 
-Defaults are omitted. Search typing replaces history; other controls push history. Filter/sort/page-size changes reset to page one. Reset clears public filters and page, preserving sort, page size and unrelated parameters. Local-list changes constrain the displayed page without rewriting the public URL.
+Defaults are omitted. Search typing replaces history; other controls push history. Filter/sort/page-size changes reset to page one. Reset clears public filters and page, preserving sort, page size, and unrelated parameters. Local-list changes constrain the displayed page without rewriting the public URL.
 
 Pagination links have real `href`s. Without JavaScript, crawlers can follow the unfiltered default view through its pages. Unknown browser parameters are ignored/constrained; the API instead [rejects invalid input](../../users/data/api.md#query-parameters). Shared filtering helpers must not erase this intentional distinction or the API's snapshot-relative recency contract.
 
 ## Accessibility
 
-Maintain labeled search/filter controls, semantic table headers, `aria-sort`, pressed states, meaningful external link text, status announcements and visible focus. Keyboard activation must preserve focus after local actions; when a row disappears, move focus to the relevant list control. Escape dismisses More actions and restores its trigger; outside focus/pointer or scrolling dismisses the floating menu. Mobile users must be able to reach actions through table scrolling without document-level overflow.
+Maintain labeled search/filter controls, semantic table headers, `aria-sort`, pressed states, meaningful external link text, status announcements, and visible focus. Keyboard activation must preserve focus after local actions; when a row disappears, move focus to the relevant list control. Escape dismisses More actions and restores its trigger; outside focus/pointer or scrolling dismisses the floating menu. Mobile users must be able to reach actions through table scrolling without document-level overflow.
 
 Automated axe scans cover normal, filtered, empty, dark, and open-menu states. They do not replace keyboard or assistive-technology review. [Testing](testing.md) owns commands and thresholds, not the user guide.
 
@@ -56,8 +56,8 @@ JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, 
 
 ## Browser integrations and security headers
 
-Production sends CSP and HSTS in addition to content-type, referrer, framing, cross-origin and permissions headers. `next.config.ts` is executable policy; Docker smoke tests cover production headers.
+Production sends CSP and HSTS in addition to content-type, referrer, framing, cross-origin, and permissions headers. `next.config.ts` is executable policy; Docker smoke tests cover production headers.
 
 Umami loads only in production with canonical `SITE_URL`: script origin `https://cloud.umami.is`, event origin `https://gateway.umami.is`. Local tests/demo use loopback and block external browser requests. Local-list IDs and visit timestamps must not enter analytics payloads. Theme storage uses the separate `opportunities-theme` key.
 
-Before adding analytics, advertising, error tracking, authentication, forms or another browser integration, document visitor data flow, retention, consent/disclosure, and client-visible variables; review [Security](../../../SECURITY.md) and update [Privacy](../../../PRIVACY.md). Never put secrets in `NEXT_PUBLIC_*` values.
+Before adding analytics, advertising, error tracking, authentication, forms, or another browser integration, document visitor data flow, retention, consent/disclosure, and client-visible variables; review [Security](../../../SECURITY.md) and update [Privacy](../../../PRIVACY.md). Never put secrets in `NEXT_PUBLIC_*` values.

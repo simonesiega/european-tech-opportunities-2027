@@ -6,17 +6,17 @@ Keep track of interesting roles without creating an account. Your choices are st
 
 ## Save a role
 
-Select the **bookmark** in a row's **Your list** column. Select it again to unsave. Choose the saved count below the directory description to view your shortlist.
+Select the bookmark icon in a row's **Your list** column. Select it again to unsave. Choose the saved count below the directory description to view your shortlist.
 
 ## Mark a role applied
 
-Select the **check** beside the bookmark after you have applied on the original website. Select it again to unmark it. Choose the applied count to view these roles.
+Select the check icon beside the bookmark after you have applied on the original website. Select it again to unmark it. Choose the applied count to view these roles.
 
 This is a reminder for you, not an application submission, confirmation from an employer, or application tracker with notes or documents. A role can be both saved and applied.
 
 ## Hide and restore a role
 
-Choose **More actions → Hide**. Hidden roles disappear from All, Saved, Applied, and New views, but keep any saved/applied marks.
+Choose **More actions → Hide**. Hidden roles disappear from the main directory and your saved, applied, and new lists, but keep any saved or applied marks.
 
 To undo this, choose the hidden count, then **More actions → Restore** on the role. Choose **View all opportunities** to return to normal browsing.
 
@@ -24,10 +24,10 @@ Search and filters still apply inside each list. A nonzero saved count with no v
 
 ## See what is new
 
-On a return visit, a message appears when open, non-hidden roles have a **First seen** time later than your previous visit. Choose **View new opportunities** to see them. The **New** column marks those rows.
+On a return visit, a message highlights open roles whose **First seen** time is later than your previous visit. Hidden roles do not count. Choose **View new opportunities** to see them. The **New** column marks those rows.
 
-- Your first visit has no previous baseline, so no new-role count is shown.
-- Reloading or opening another tab keeps the same visit baseline.
+- On your first visit, there is no earlier visit to compare with, so no new-role count is shown.
+- Reloading or opening another tab keeps the same previous-visit time for comparison.
 - After 30 minutes without a directory load or local action, the next load starts a new visit.
 - The new-role count covers all open, non-hidden roles; filters can reduce the rows you see.
 - First-seen dates can be approximate. A newly discovered older posting may not count as new to you.
@@ -50,4 +50,4 @@ Lists are a convenience, not a durable record of applications. Keep any importan
 
 Use your browser's site-data controls for `techopportunities.eu` to clear storage. This also clears your theme choice. For a selective reset in browser developer tools, remove `opportunities-directory-state` from Local Storage; the theme uses the separate key `opportunities-theme`.
 
-This cannot remove public job listings or change another visitor's browser. Infrastructure and analytics data are handled separately; see the canonical [privacy notice](../../../PRIVACY.md).
+This cannot remove public job listings or change another visitor's browser. Hosting and analytics data are handled separately; see the [privacy notice](../../../PRIVACY.md).

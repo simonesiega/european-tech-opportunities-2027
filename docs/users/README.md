@@ -9,7 +9,7 @@ Find early-career technology roles across Europe, keep a private shortlist, and 
 1. [Open the directory](https://techopportunities.eu/).
 2. Choose **Internship** or **New Grad** under **Employment type**, then a location or search term.
 3. Open a role to check its requirements and apply at the source.
-4. Use the bookmark to save it, the check to mark it applied, or **More actions → Hide** to set it aside.
+4. In **Your list**, use the bookmark icon to save a role, the check icon to mark it applied, or **More actions → Hide** to set it aside.
 
 ## Browsing
 

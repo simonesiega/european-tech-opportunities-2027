@@ -24,15 +24,15 @@ Choose **Reset** and **View all opportunities**. Check your hidden list if a spe
 
 ## My saved or applied list disappeared
 
-Lists belong to one browser profile and site origin. A different device, private window, cleared site data, blocked storage, or a closed/removed listing can explain missing entries. There is no server copy to restore. See [what persists](lists.md#what-persists).
+Lists belong to the browser profile and website address where you saved them. A different device, private window, cleared site data, blocked storage, or a closed/removed listing can explain missing entries. There is no server copy to restore. See [what persists](lists.md#what-persists).
 
 ## I cannot find the row actions on my phone
 
-Scroll the table horizontally to the **Your list** column. Keyboard users can Tab to the bookmark, applied check, and More actions button. Enter or Space activates a button; Escape closes the menu.
+Scroll the table horizontally to the **Your list** column. Keyboard users can Tab to the bookmark icon, applied check icon, and **More actions** button. Enter or Space activates a button; Escape closes the menu.
 
 ## The new-role count differs from the filtered results
 
-The count covers all open, non-hidden roles since your previous visit. The current filters may match fewer. Reloads within a visit deliberately preserve the baseline; see [what is new](lists.md#see-what-is-new).
+The count covers all open roles you have not hidden with a **First seen** date after your previous visit. The current filters may match fewer. Reloading during the same visit keeps the same previous-visit time for comparison; see [what is new](lists.md#see-what-is-new).
 
 ## A download or API request failed
 
@@ -44,7 +44,7 @@ The count covers all open, non-hidden roles since your previous visit. The curre
 
 ## Does the project track my applications?
 
-No. Applied is a browser-local mark, not an uploaded application record. The site uses production-domain aggregate analytics and ordinary hosting/security infrastructure. The [privacy notice](../../../PRIVACY.md) explains providers, storage, retention, and your choices. Blocking analytics does not prevent normal use.
+No. Marking a role applied saves a reminder in your browser, not an application record on the server. The public site uses aggregate usage analytics and ordinary hosting and security services. The [privacy notice](../../../PRIVACY.md) explains providers, storage, retention, and your choices. Blocking analytics does not prevent normal use.
 
 ## Report a problem
 
