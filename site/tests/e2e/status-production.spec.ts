@@ -29,12 +29,13 @@ let jsonPath: string;
 let server: ChildProcess;
 let client: APIRequestContext;
 
-// Production avoids dev-server file watching while faults are injected into isolated state.
-test.describe.configure({mode: "serial"});
+// Share one server without skipping independent cases after a failure.
+test.describe.configure({mode: "default"});
 test.beforeAll(async ({playwright}) => {
   if (!existsSync(path.resolve(".next/standalone/server.js"))) {
     throw new Error("Run bun run build before the production status tests");
   }
+  // Keep fault injection outside the dev server's watched/shared fixture directory.
   root = mkdtempSync(path.join(tmpdir(), "opportunities-status-"));
   const directory = versioned ? path.join(root, "releases", "1-1") : root;
   const exports = path.join(directory, "exports");
@@ -179,6 +180,30 @@ for (const failure of [
   });
 }
 
+test("production status preserves SQLite and metadata microseconds independently", async () => {
+  await withRestoredFixture(async () => {
+    const database = new DatabaseSync(databasePath);
+    try {
+      database.exec(`
+        UPDATE search_runs SET finished_at = '2026-07-17 12:00:00.123456' WHERE status = 'success'
+      `);
+    } finally {
+      database.close();
+    }
+    const metadata = JSON.parse(readFileSync(metadataPath, "utf8"));
+    writeFileSync(
+      metadataPath,
+      JSON.stringify({...metadata, generated_at: "2026-07-17T12:05:00.654321+00:00"})
+    );
+    const response = await client.get(endpoint);
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toMatchObject({
+      last_successful_collection: "2026-07-17T12:00:00.123456+00:00",
+      dataset_generated_at: "2026-07-17T12:05:00.654321+00:00",
+    });
+  });
+});
+
 test("production status counts only open rows and represents a never-collected empty dataset", async () => {
   await withRestoredFixture(async () => {
     const database = new DatabaseSync(databasePath);
@@ -235,15 +260,24 @@ test("production status follows release cutovers and rejects a missing pointer w
   writeFileSync(path.join(next, "exports", "dataset-metadata.json"), JSON.stringify(metadata));
   symlinkSync("releases/2-1", path.join(root, "next"), "dir");
   renameSync(path.join(root, "next"), path.join(root, "current"));
-  const response = await client.get(endpoint);
-  expect(response.status()).toBe(200);
-  expect(await response.json()).toEqual({
-    release: "2-1",
-    opportunities: 0,
-    last_successful_collection: "2026-08-01T12:00:00.000000+00:00",
-    dataset_generated_at: "2026-08-01T12:00:00.000000+00:00",
-    dataset_sha256: metadata.json_sha256,
-  });
-  unlinkSync(path.join(root, "current"));
-  expect((await client.get(endpoint)).status()).toBe(503);
+  try {
+    const response = await client.get(endpoint);
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({
+      release: "2-1",
+      opportunities: 0,
+      last_successful_collection: "2026-08-01T12:00:00.000000+00:00",
+      dataset_generated_at: "2026-08-01T12:00:00.000000+00:00",
+      dataset_sha256: metadata.json_sha256,
+    });
+    unlinkSync(path.join(root, "current"));
+    expect((await client.get(endpoint)).status()).toBe(503);
+  } finally {
+    symlinkSync("releases/1-1", path.join(root, "restore-current"), "dir");
+    renameSync(path.join(root, "restore-current"), path.join(root, "current"));
+    rmSync(next, {recursive: true});
+  }
+  const restored = await client.get(endpoint);
+  expect(restored.status()).toBe(200);
+  expect(await restored.json()).toMatchObject({release: "1-1", opportunities: 12});
 });

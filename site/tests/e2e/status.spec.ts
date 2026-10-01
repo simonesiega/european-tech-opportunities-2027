@@ -30,11 +30,13 @@ test("status reports the served dataset, not a newer failed collection or a runt
   expect(validate(body), JSON.stringify(validate.errors)).toBe(true);
   expect(body).toEqual({
     last_successful_collection: "2026-07-17T12:00:00.000000+00:00",
-    dataset_generated_at: metadata.generated_at.replace(/(?:\.\d+)?\+00:00$/, ".000000+00:00"),
+    dataset_generated_at: expect.any(String),
     opportunities: 12,
     dataset_sha256: sha256(download),
     release: null,
   });
+  // Compare the export clock, not collection time; the production test covers microseconds.
+  expect(Date.parse(body.dataset_generated_at)).toBe(Date.parse(metadata.generated_at));
   expect(body.opportunities).toBe(directory.pagination.total);
   expect(body.opportunities).toBe(metadata.total);
   expect(body.dataset_sha256).toBe(metadata.json_sha256);
