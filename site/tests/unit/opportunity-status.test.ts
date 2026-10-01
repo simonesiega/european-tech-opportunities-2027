@@ -46,27 +46,37 @@ describe("production status contract", () => {
     expect(() => statusPayload(summary, null, metadata.json_sha256, null)).toThrow();
   });
 
-  test.each(
-    [
-      null,
-      [],
-      {},
-      {...metadata, schema_version: "v2"},
-      {...metadata, total: 3},
-      {...metadata, total: "2"},
-      {...metadata, total: -1},
-      {...metadata, internship_count: 0},
-      {...metadata, internship_count: 1.5},
-      {...metadata, new_grad_count: -1},
-      {...metadata, generated_at: null},
-      {...metadata, generated_at: "2026-07-17T12:05:00"},
-      {...metadata, generated_at: "2026-07-17T14:05:00+02:00"},
-      {...metadata, generated_at: "2026-02-30T12:05:00Z"},
-      {...metadata, json_sha256: "A".repeat(64)},
-      {...metadata, json_sha256: "invalid"},
-      {...metadata, csv_sha256: null},
-    ].map((value) => [value])
-  )("rejects missing, malformed, or inconsistent metadata %#", (value) => {
+  test.each(["2026-07-17T12:05:00.654321Z", "2026-07-17T12:05:00.654321+00:00"])(
+    "preserves generation microseconds from %s independently of collection time",
+    (generatedAt) => {
+      expect(
+        statusPayload(summary, {...metadata, generated_at: generatedAt}, metadata.json_sha256, null)
+      ).toMatchObject({
+        last_successful_collection: "2026-07-17T12:00:00.123456+00:00",
+        dataset_generated_at: "2026-07-17T12:05:00.654321+00:00",
+      });
+    }
+  );
+
+  test.each<[string, unknown]>([
+    ["null", null],
+    ["array", []],
+    ["missing fields", {}],
+    ["unsupported version", {...metadata, schema_version: "v2"}],
+    ["total differs from SQLite", {...metadata, total: 3}],
+    ["string total", {...metadata, total: "2"}],
+    ["negative total", {...metadata, total: -1}],
+    ["employment counts do not sum to total", {...metadata, internship_count: 0}],
+    ["fractional employment count", {...metadata, internship_count: 1.5}],
+    ["negative employment count", {...metadata, new_grad_count: -1}],
+    ["missing generation time", {...metadata, generated_at: null}],
+    ["generation time without a zone", {...metadata, generated_at: "2026-07-17T12:05:00"}],
+    ["non-UTC generation time", {...metadata, generated_at: "2026-07-17T14:05:00+02:00"}],
+    ["impossible generation date", {...metadata, generated_at: "2026-02-30T12:05:00Z"}],
+    ["uppercase JSON hash", {...metadata, json_sha256: "A".repeat(64)}],
+    ["malformed JSON hash", {...metadata, json_sha256: "invalid"}],
+    ["missing CSV hash", {...metadata, csv_sha256: null}],
+  ])("rejects metadata: %s", (_reason, value) => {
     expect(() => statusPayload(summary, value, metadata.json_sha256, "123-1")).toThrow();
   });
 
@@ -80,7 +90,15 @@ describe("production status contract", () => {
     expect(() =>
       statusPayload({...summary, lastUpdatedAt: "invalid"}, metadata, metadata.json_sha256, null)
     ).toThrow();
-    for (const release of ["", "../123-1", "/srv/releases/123-1", "private-name", "123-1\n"]) {
+    for (const release of [
+      "",
+      "../123-1",
+      "/srv/releases/123-1",
+      "private-name",
+      "123-1\n",
+      " 123-1",
+      "123-1 ",
+    ]) {
       expect(() => statusPayload(summary, metadata, metadata.json_sha256, release)).toThrow();
     }
   });
@@ -101,6 +119,14 @@ describe("production status contract", () => {
       {...payload(), last_successful_collection: "2026-07-17 12:00:00"},
     ])
       expect(validate(value)).toBe(false);
+    for (const field of [
+      "last_successful_collection",
+      "dataset_generated_at",
+      "dataset_sha256",
+      "release",
+    ] as const) {
+      expect(validate({...payload(), [field]: `${payload()[field]}\n`})).toBe(false);
+    }
   });
 });
 
