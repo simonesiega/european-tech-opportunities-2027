@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Protocol
 
@@ -55,6 +55,8 @@ class SearchOutcome:
     result: LinkedInScrapeResult | None
     error_code: str | None = None
     error_message: str | None = None
+    accepted_count: int = 0
+    excluded_count: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -123,6 +125,7 @@ class CollectionPipeline:
 
         successful = failed = found = accepted = excluded = warnings = 0
         summary = PersistSummary()
+        classified_outcomes: dict[str, SearchOutcome] = {}
         # Searches finish concurrently. Apply their observations in time order so
         # older 404 confirmations cannot follow and undo a newer valid rediscovery.
         # The concurrent mapper returns configured search order; Python's stable
@@ -143,6 +146,9 @@ class CollectionPipeline:
                 )
                 continue
             jobs, search_excluded = self._classify(outcome.result)
+            classified_outcomes[outcome.run_id] = replace(
+                outcome, accepted_count=len(jobs), excluded_count=search_excluded
+            )
             result = outcome.result
             summary += self.repository.persist_success(
                 run_id=outcome.run_id,
@@ -177,7 +183,9 @@ class CollectionPipeline:
             excluded=excluded,
             warnings=warnings,
             summary=summary,
-            outcomes=tuple(outcomes),
+            outcomes=tuple(
+                classified_outcomes.get(outcome.run_id, outcome) for outcome in outcomes
+            ),
         )
 
     async def test_search(

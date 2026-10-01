@@ -111,8 +111,10 @@ ignore_missing_imports = true
 branch = true
 source = [
   "opportunities.database.repository",
+  "opportunities.models.data_quality",
   "opportunities.pipeline.availability",
   "opportunities.pipeline.classification",
+  "opportunities.pipeline.data_quality",
   "opportunities.pipeline.runner",
 ]
 

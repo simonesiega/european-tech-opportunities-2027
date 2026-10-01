@@ -182,3 +182,20 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
             with pytest.raises(sqlite3.IntegrityError, match=constraint_name):
                 connection.execute(statement)
             connection.rollback()
+
+    # The additive quality revision must also round-trip without touching lifecycle rows.
+    command.downgrade(config, "a9c4e72b5d18")
+    with closing(sqlite3.connect(database)) as connection:
+        before = {
+            table: connection.execute(f"SELECT * FROM {table}").fetchall()
+            for table in ("jobs", "searches", "search_runs", "job_searches")
+        }
+        assert not connection.execute(
+            "SELECT name FROM sqlite_master WHERE name = 'data_quality_snapshots'"
+        ).fetchall()
+    command.upgrade(config, "head")
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT COUNT(*) FROM data_quality_snapshots").fetchone() == (0,)
+        for table, rows in before.items():
+            assert connection.execute(f"SELECT * FROM {table}").fetchall() == rows
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []

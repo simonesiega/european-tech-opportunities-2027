@@ -20,7 +20,10 @@ from opportunities.database.repository import PersistSummary, Repository
 from opportunities.database.session import create_database_engine, create_session_factory
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
+from opportunities.models.raw import KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.scrapers.http import FetchError
+from opportunities.scrapers.linkedin import LinkedInScraper, LinkedInScrapeResult, TextFetcher
 from opportunities.utils.paths import find_project_root
 
 runner = CliRunner()
@@ -77,6 +80,148 @@ def repository_for(environment: dict[str, str]) -> tuple[Repository, Engine]:
     settings = Settings(database_url=environment["OPPORTUNITIES_DATABASE_URL"])
     engine = create_database_engine(settings.database_url)
     return Repository(create_session_factory(engine), settings), engine
+
+
+def install_quality_scraper(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    found: int = 20,
+    accepted: int = 20,
+    failed_slugs: tuple[str, ...] = (),
+) -> None:
+    """Exercise the real pipeline, repository, and quality gate without source access."""
+
+    async def scrape(
+        self: LinkedInScraper,
+        search: LinkedInSearchConfig,
+        fetcher: TextFetcher,
+        *,
+        known_jobs: tuple[KnownJob, ...] = (),
+    ) -> LinkedInScrapeResult:
+        del self, fetcher, known_jobs
+        if search.slug in failed_slugs:
+            raise FetchError("timeout", "private-diagnostic-must-not-leak")
+        return LinkedInScrapeResult(
+            positions=[
+                RawJob(
+                    source_job_id=str(1111111111 + index),
+                    company="private-company-must-not-leak",
+                    title="Software Intern 2027" if index < accepted else "Senior Engineer 2027",
+                    locations=["Berlin, Germany"],
+                    application_url=f"https://www.linkedin.com/jobs/view/{1111111111 + index}",
+                    description="private-description-must-not-leak",
+                    industries="Software Development",
+                    start_date="Summer 2027",
+                    posted_at=datetime(2026, 7, 1, tzinfo=UTC),
+                )
+                for index in range(found)
+            ],
+            warnings=(),
+            pages_fetched=1,
+            search_result_count=found,
+        )
+
+    monkeypatch.setattr(LinkedInScraper, "scrape", scrape)
+
+
+@pytest.mark.parametrize(
+    ("mode", "exit_code", "status", "baseline_count"),
+    [
+        ("success", 0, "passed", 4),
+        ("warning", 0, "warning", 4),
+        ("blocking", 1, "failed", 3),
+        ("partial", 2, "warning", 3),
+        ("failed", 1, "failed", 3),
+        ("selected", 0, "passed", 3),
+    ],
+)
+def test_scrape_quality_gate_end_to_end(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    search: LinkedInSearchConfig,
+    mode: str,
+    exit_code: int,
+    status: str,
+    baseline_count: int,
+) -> None:
+    environment = cli_env(tmp_path)
+    initialize_projection_files(tmp_path)
+    other = search.model_copy(update={"slug": "other-search"})
+    monkeypatch.setattr(cli_app_module, "_configured_searches", lambda _settings: [search, other])
+    install_quality_scraper(monkeypatch)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    report_path = tmp_path / "quality-reports/data-quality-report.json"
+    args = ["scrape", "--quality-report", str(report_path)]
+    for _ in range(3):
+        command = runner.invoke(app, [*args, "--no-render"], env=environment)
+        assert command.exit_code == 0, command.output
+    before_readme = (tmp_path / "README.md").read_bytes()
+    failures = (
+        (other.slug,)
+        if mode == "partial"
+        else (search.slug, other.slug)
+        if mode == "failed"
+        else ()
+    )
+    install_quality_scraper(
+        monkeypatch,
+        found=0 if mode == "blocking" else 20,
+        accepted=10 if mode == "warning" else 20,
+        failed_slugs=failures,
+    )
+    if mode == "selected":
+        args += ["--search", search.slug]
+    command = runner.invoke(app, args, env=environment)
+
+    assert command.exit_code == exit_code, command.output
+    report_text = report_path.read_text(encoding="utf-8")
+    report = json.loads(report_text)
+    assert report["status"] == status
+    assert "must-not-leak" not in report_text
+    assert "1111111111" not in report_text
+    if exit_code == 1:
+        assert (tmp_path / "README.md").read_bytes() == before_readme
+        assert not (tmp_path / "exports").exists()
+    else:
+        assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
+    repository, engine = repository_for(environment)
+    try:
+        assert len(repository.data_quality_baselines()) == baseline_count
+        assert len(repository.list_open_jobs()) == 20  # Drift never closes existing rows.
+        expected_successes = 0 if mode == "failed" else 1 if mode in {"partial", "selected"} else 2
+        assert repository.stats().successful_runs == 6 + expected_successes
+    finally:
+        engine.dispose()
+
+
+@pytest.mark.parametrize("failure", ["read", "analysis", "write", "persist"])
+def test_requested_quality_gate_fails_closed_on_local_errors(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    search: LinkedInSearchConfig,
+    failure: str,
+) -> None:
+    environment = cli_env(tmp_path)
+    monkeypatch.setattr(cli_app_module, "_configured_searches", lambda _settings: [search])
+    install_quality_scraper(monkeypatch)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    target, attribute = {
+        "read": (Repository, "data_quality_baselines"),
+        "analysis": (cli_app_module, "analyze_collection_quality"),
+        "write": (cli_app_module, "atomic_write_text"),
+        "persist": (Repository, "record_data_quality_snapshot"),
+    }[failure]
+    monkeypatch.setattr(target, attribute, Mock(side_effect=OSError("private-must-not-leak")))
+    report_path = tmp_path / "quality-reports/data-quality-report.json"
+    command = runner.invoke(app, ["scrape", "--quality-report", str(report_path)], env=environment)
+
+    assert command.exit_code == 1
+    assert "cannot continue" in command.output
+    assert "must-not-leak" not in command.output
+    assert not (tmp_path / "README.md").exists()
+    assert not (tmp_path / "exports").exists()
+    # Writing the report precedes baseline persistence, so persistence failure keeps evidence.
+    assert report_path.exists() == (failure == "persist")
 
 
 def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
@@ -311,7 +456,13 @@ def test_disposal_failure_does_not_replace_command_error(
 
 
 @pytest.mark.parametrize(
-    "command", [("scrape",), ("check-availability",), ("search-test", "test-search")]
+    "command",
+    [
+        ("scrape",),
+        ("scrape", "--quality-report", "quality.json"),
+        ("check-availability",),
+        ("search-test", "test-search"),
+    ],
 )
 def test_collection_commands_require_permission_even_when_dotenv_enables_it(
     tmp_path: Path, command: tuple[str, ...]

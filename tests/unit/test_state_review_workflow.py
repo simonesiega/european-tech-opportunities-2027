@@ -1,4 +1,4 @@
-"""Offline regression tests for the canonical-state README review boundary."""
+"""Offline regression tests for canonical-state publication and README recovery."""
 
 from __future__ import annotations
 
@@ -147,6 +147,66 @@ def test_render_failure_cannot_be_recovered(tmp_path: Path, adopt: bool, recover
     )
     assert result.returncode == 3
     assert (tmp_path / "README.md").read_text(encoding="utf-8") == "reviewed"
+
+
+@pytest.mark.parametrize("exit_code", [0, 1, 2, 3])
+def test_collection_quality_gate_propagates_blocking_failures(
+    tmp_path: Path, exit_code: int
+) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("Collection workflow tests require Bash")
+    script = process_step("Scrape and persist selected searches")["run"]
+    assert isinstance(script, str)
+    fake_scrape = """
+uv() {
+  local expected="run opportunities scrape --quality-report"
+  if [ "$*" != "$expected quality-reports/data-quality-report.json" ]; then return 98; fi
+  return "$SCRAPE_EXIT_CODE"
+}
+"""
+    result = subprocess.run(
+        [bash, "-c", fake_scrape + script],
+        cwd=tmp_path,
+        env={**offline_shell_environment(tmp_path), "SCRAPE_EXIT_CODE": str(exit_code)},
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == (0 if exit_code in (0, 2) else exit_code), result.stderr
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+
+
+def test_collection_retains_only_the_quality_report_even_on_blocking_failure() -> None:
+    steps = process_steps()
+    scrape = process_step("Scrape and persist selected searches")
+    upload = process_step("Upload aggregate data-quality report")
+    # README recovery and other source-free modes must not run the gate or upload a stale report.
+    assert scrape["id"] == "scrape"
+    assert scrape["if"] == "inputs.run_scrape"
+    assert "continue-on-error" not in scrape
+    assert upload["if"] == (
+        "always() && (steps.scrape.outcome == 'success' || steps.scrape.outcome == 'failure')"
+    )
+    assert upload["with"] == {
+        "name": "${{ inputs.projection_artifact_name }}-data-quality",
+        "retention-days": "30",
+        "if-no-files-found": "error",
+        "path": "quality-reports/data-quality-report.json",
+    }
+    assert steps.index(scrape) < steps.index(upload)
+    for name in (
+        "Validate database and generated projections",
+        "Publish and restore-verify VPS canonical snapshot",
+        "Upload retained public-projection bundle",
+        "Upload README handoff",
+    ):
+        step = process_step(name)
+        assert steps.index(upload) < steps.index(step)
+        assert "always()" not in str(step.get("if", ""))
+        assert "failure()" not in str(step.get("if", ""))
+        assert "continue-on-error" not in step
 
 
 def test_recovery_mode_guard_precedes_restore_and_forbids_side_effects() -> None:

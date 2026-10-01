@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import date
 from typing import Literal
 
@@ -69,3 +71,13 @@ class LinkedInSearchConfig(BaseModel):
         if self.max_results > self.max_pages * 25:
             raise ValueError("max_results cannot exceed max_pages * 25")
         return self
+
+
+def search_config_fingerprint(search: LinkedInSearchConfig) -> str:
+    """Identify effective collection settings without resetting drift for editorial changes."""
+    payload = json.dumps(
+        search.model_dump(mode="json", exclude={"name", "notes", "verified_at"}),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(payload.encode()).hexdigest()

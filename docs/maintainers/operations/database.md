@@ -44,6 +44,7 @@ searches 1 ──────── * search_runs
    │
    └──── 1 ─────── * job_searches * ─────── 1 jobs
 
+data_quality_snapshots stores bounded aggregate-only monitoring baselines
 alembic_version records the current schema revision
 ```
 
@@ -53,7 +54,10 @@ alembic_version records the current schema revision
 | `searches` | `slug` | Synchronized search identity, configuration, and enabled state |
 | `search_runs` | UUID `id` | Per-search outcome, counts, timing, warnings, and sanitized diagnostics |
 | `job_searches` | `(search_slug, linkedin_job_id)` | Search provenance and explicit unavailability evidence |
+| `data_quality_snapshots` | integer `id` | Aggregate-only drift baselines, pruned to the newest 90 observations |
 | `alembic_version` | revision | Current Alembic schema revision |
+
+The data-quality table contains observation times, counts, category/country distributions, and search-configuration fingerprints, never listing fields or source responses. Repository writes validate a strict versioned aggregate schema, reject payloads above 128 KiB, and prune to the newest 90 observations in the same transaction. Collection reads at most the five newest snapshots; invalid or future-dated payloads produce a warning and are ignored. Baselines older than 30 days expire. The [quality-report reference](cli.md#quality-report) owns comparison and warm-up rules.
 
 ## Canonical job state
 
@@ -287,7 +291,7 @@ For a cold filesystem copy:
 3. checkpoint write-ahead logging;
 4. copy the database and any required sidecars together.
 
-GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and configured retention metadata. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. A pre-existing local database that does not match the latest snapshot stops restoration instead of being silently replaced; preserve and investigate it before retrying. Canonical SQLite is never placed in GitHub Actions cache or artifacts; 30-day artifacts contain only sanitized public projections.
+GitHub Actions checkpoints WAL, then uses the SQLite backup API to create a timestamped snapshot through a restricted VPS SFTP account. Each snapshot has a strict manifest containing its SHA-256 checksum, schema revision, collection and creation timestamps, previous-snapshot reference, and configured retention metadata. The workflow round-trips and opens uploaded files before atomically advancing the latest pointer. A pre-existing local database that does not match the latest snapshot stops restoration instead of being silently replaced; preserve and investigate it before retrying. Canonical SQLite is never placed in GitHub Actions cache or artifacts; 30-day artifacts contain only sanitized public projections and the separate aggregate quality report.
 
 VPS deployment retains immutable previous releases under `data/releases/<run-id>-<attempt>` and atomically updates `data/current`; it never removes a release while readers may hold it. Existing `opportunities.db.previous` files from the legacy deployment path must not be mistaken for the current canonical state after rollout.
 

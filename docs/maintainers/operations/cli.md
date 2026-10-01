@@ -49,7 +49,7 @@ The global `--settings` option must appear before the command name. In this refe
 | `db-upgrade` | Create or upgrade the configured database schema |
 | `searches` | Inspect the effective search registry and available run health |
 | `search-test` | Run one authorized search without persistence |
-| `scrape` | Run authorized collection and persist independent search outcomes |
+| `scrape` | Run authorized collection, persist independent outcomes, and optionally check collection quality |
 | `add-job` | Add a known LinkedIn listing to canonical state without search provenance |
 | `add-jobs` | Validate and add a bounded batch of reviewed listings in one transaction |
 | `check-availability` | Audit every stored LinkedIn listing and delete explicitly unavailable rows |
@@ -142,6 +142,12 @@ Persist state without modifying the README:
 uv run opportunities scrape --no-render
 ```
 
+The canonical collection workflows also request a sanitized drift report:
+
+```bash
+uv run opportunities scrape --quality-report quality-reports/data-quality-report.json
+```
+
 The command:
 
 1. verifies authorization and migration preconditions;
@@ -150,9 +156,10 @@ The command:
 4. fetches, parses, normalizes, and classifies candidates;
 5. commits each search outcome independently;
 6. updates provenance and explicit lifecycle evidence;
-7. renders the owned README, search-registry documentation, and all public exports after at least one successful search, unless `--no-render` is set.
+7. when `--quality-report` is supplied, compares aggregate counts, field completeness, category/country mix, and scraper warnings with prior aggregate observations, labels full versus partial registry scope, writes a JSON report, and stores a bounded aggregate baseline only after every enabled search succeeds and no blocking finding occurs;
+8. renders the owned README, search-registry documentation, and all public exports after at least one successful search, unless `--no-render` is set.
 
-A partial run preserves successful search transactions.
+A partial run preserves successful search transactions. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
 
 A failed search:
 
@@ -164,6 +171,29 @@ A failed search:
 Use `--no-render` where canonical state should change without modifying generated files in the Git working tree, such as a website-only VPS.
 
 The collection lifecycle is documented in [Architecture](../engineering/architecture.md#failure-isolation) and [Database lifecycle](database.md#successful-search-transaction).
+
+### Quality report
+
+`--quality-report <path>` opts into the quality gate, including with `--no-render`. Without it, scrape behavior is unchanged. The versioned JSON report contains `status` (`passed`, `warning`, or `failed`), warning/blocking counts, stable finding codes, aggregate metrics, run scope, and baseline readiness. It never includes job IDs, listing text, raw warnings, source responses, or database paths. Failed-search metrics are unavailable, not fabricated zeros; collection totals cover successful searches only.
+
+Comparisons require at least three usable observations from the latest five stored full-registry snapshots, all within the preceding 30 days. New or changed collection settings warm up a new baseline; search names, notes, and verification dates do not reset it. `baseline.status: warming_up` means historical comparisons are not ready, even if the report has no findings. Invalid or future-dated snapshots generate a warning and are ignored; expired snapshots are ignored. Only successful full-registry runs without blocking findings advance history. Warning-only runs can advance it, so review warnings rather than treating them as permanent protection against sustained drift.
+
+| Check | Warning | Blocking |
+|---|---|---|
+| Candidate volume | ≥80% drop against the matching registry median, with baseline ≥10 candidates | Every enabled search returns zero against that baseline |
+| One search becomes empty | Zero candidates after a positive matching median | No |
+| Acceptance rate | Absolute change ≥40 percentage points | Absolute change ≥75 percentage points |
+| Scraper warnings | At least 3 warnings and ≥25% of the larger of candidate, parsed-detail, and warning counts | No; parser/transport failures retain their existing search-failure behavior |
+| Field missingness | Increase ≥40 percentage points, or newly reaching ≥99% missing | No |
+| Category disappearance | No open rows for a category with historical median ≥3 | No |
+| Country distribution | Total-variation distance ≥0.5, or fewer than 10 country observations remain against a sampled baseline | No |
+| Failed searches | Any selected search fails | No selected search succeeds |
+
+Acceptance uses parsed details, including bounded known-job rechecks, rather than search-card counts. Both the current sample and at least three matching historical samples must contain 10 classified records. Field comparisons require 10 open jobs for optional stored fields or 5 parsed details for parser fields in both the current and at least three historical samples. Country comparisons require at least 10 country observations per historical sample; multi-country listings count once per recognized country. Parser fields are description, industries, locations, posting time, and start date; stored optional fields are industries and start date. Missing optional metadata alone is not a cold-start error.
+
+Per-search comparisons require matching effective settings. Registry volume and parser comparisons also require every enabled search to succeed. Open-dataset profiles always cover all open rows, including on a selected-search run, but require a matching registry baseline. Counts summed across searches are observations, not deduplicated jobs. Profile changes may reflect legitimate availability updates or manually reviewed additions and are warnings only.
+
+A baseline-read, analysis, report-write, or baseline-persistence error fails closed with exit code `1`. The gate does not undo committed search transactions or prevent a separate explicit `render`; do not publish a blocked local collection. Inspect the retained report and compare its scope, sample sizes, and configuration before changing code. Reproduce suspected parsing changes with sanitized offline fixtures, then run the normal validation gates. Do not delete canonical state or disable source authorization to resolve an alert.
 
 ## `add-job`
 
@@ -330,7 +360,7 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | Code | Meaning |
 |---:|---|
 | `0` | Command completed successfully |
-| `1` | Every selected search failed, or validation found an inconsistency |
+| `1` | All selected searches failed, validation found an inconsistency, or the requested quality gate blocked or could not complete |
 | `2` | Partial scrape, availability audit with inconclusive checks, or rejected command/configuration input |
 | `3` | Required database tables are missing or the schema is not at migration head |
 
@@ -350,8 +380,8 @@ GitHub Actions handling of these codes is documented in [Automation](automation.
 | `db-upgrade` | No | Schema only | No |
 | `searches` | No | No | No |
 | `search-test` | Yes, after authorization gate | No | No |
-| `scrape` | Yes, after authorization gate | Yes | README + registry docs + public exports after at least one successful search |
-| `scrape --no-render` | Yes, after authorization gate | Yes | No |
+| `scrape` | Yes, after authorization gate | Yes; optional bounded quality baseline | README + registry docs + public exports after a successful search and no requested quality block |
+| `scrape --no-render` | Yes, after authorization gate | Yes; optional bounded quality baseline | No |
 | `add-job` | No | Yes | README + registry docs + public exports |
 | `add-job --no-render` | No | Yes | No |
 | `add-jobs` | No | Yes, one transaction | README + registry docs + public exports |

@@ -14,6 +14,7 @@ from pydantic import ValidationError
 from rich.console import Console
 from rich.table import Table
 from sqlalchemy import Engine
+from sqlalchemy.exc import SQLAlchemyError
 
 from opportunities.config.rules import load_classification_rules
 from opportunities.config.search_registry import (
@@ -37,6 +38,7 @@ from opportunities.models.search import LinkedInSearchConfig
 from opportunities.normalization.location import normalize_locations
 from opportunities.pipeline.availability import audit_job_availability
 from opportunities.pipeline.classification import Classifier
+from opportunities.pipeline.data_quality import analyze_collection_quality
 from opportunities.pipeline.runner import CollectionPipeline, PipelineResult
 from opportunities.public_exports import render_public_exports, validate_public_exports
 from opportunities.readme import ReadmeMetadata, render_readme, validate_readme
@@ -44,6 +46,7 @@ from opportunities.search_registry_docs import (
     render_search_registry_docs,
     validate_search_registry_docs,
 )
+from opportunities.utils.files import atomic_write_text
 from opportunities.utils.logging import configure_logging
 from opportunities.utils.paths import find_project_root
 from opportunities.utils.time import ensure_utc, utc_now
@@ -104,6 +107,10 @@ def db_upgrade(ctx: typer.Context) -> None:
 def scrape(
     ctx: typer.Context,
     search: Annotated[str | None, typer.Option("--search", help="Run one search slug.")] = None,
+    quality_report: Annotated[
+        Path | None,
+        typer.Option("--quality-report", help="Write an aggregate data-quality JSON report."),
+    ] = None,
     no_render: Annotated[
         bool, typer.Option("--no-render", help="Do not update generated projections.")
     ] = False,
@@ -112,6 +119,7 @@ def scrape(
     settings = _settings(ctx)
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
+    quality_blocking = False
     try:
         _require_migrations(engine)
         try:
@@ -125,8 +133,42 @@ def scrape(
                     rules=rules,
                 ).run(selected, configured_searches=configured)
             )
+            if quality_report is not None:
+                try:
+                    quality = analyze_collection_quality(
+                        result,
+                        open_jobs=repository.list_open_jobs(),
+                        previous_snapshots=repository.data_quality_baselines(),
+                        configured_searches=configured,
+                        generated_at=utc_now(),
+                    )
+                    quality_report.parent.mkdir(parents=True, exist_ok=True)
+                    atomic_write_text(
+                        quality_report,
+                        json.dumps(quality.report, indent=2, sort_keys=True) + "\n",
+                    )
+                    if quality.snapshot_json is not None:
+                        repository.record_data_quality_snapshot(quality.snapshot_json)
+                except (OSError, SQLAlchemyError, TypeError, ValueError) as exc:
+                    error_console.print(
+                        "[red]Data-quality analysis or report persistence failed.[/red] "
+                        "Collection cannot continue without the requested quality gate."
+                    )
+                    raise typer.Exit(1) from exc
+                quality_blocking = quality.blocking
+                summary = cast(dict[str, int], quality.report["summary"])
+                console.print(
+                    f"Data quality: {quality.report['status']} "
+                    f"({summary['blocking_failures']} blocking, {summary['warnings']} warnings); "
+                    f"report: {quality_report}"
+                )
+                if quality.blocking:
+                    error_console.print(
+                        "[red]Blocking data-quality failure detected.[/red] "
+                        "Review the generated report before publishing this collection."
+                    )
             _print_result(result)
-            if not no_render and result.successful_searches:
+            if not no_render and result.successful_searches and not quality_blocking:
                 _render_projections(settings, repository)
                 console.print(
                     f"Generated projections updated: {settings.readme_path}; "
@@ -137,7 +179,7 @@ def scrape(
             raise typer.Exit(2) from exc
     finally:
         _dispose_engine(engine)
-    raise typer.Exit(result.exit_code)
+    raise typer.Exit(1 if quality_blocking else result.exit_code)
 
 
 @app.command("check-availability")
