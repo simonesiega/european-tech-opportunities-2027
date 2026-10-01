@@ -27,6 +27,7 @@ export async function getPublicExport(format: PublicExportFormat): Promise<Respo
     const exportDirectory = process.env.OPPORTUNITIES_RELEASE_ROOT
       ? path.join(currentReleaseDirectory(process.env.OPPORTUNITIES_RELEASE_ROOT), "exports")
       : (process.env.OPPORTUNITIES_PUBLIC_EXPORT_DIR ?? "../data/exports");
+    // Deployment supplies these files at runtime; do not trace them into the build output.
     const exportPath = path.join(/* turbopackIgnore: true */ exportDirectory, filename);
     const content = await readFile(/* turbopackIgnore: true */ exportPath);
     return new Response(content, {

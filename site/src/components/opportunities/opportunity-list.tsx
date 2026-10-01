@@ -106,6 +106,7 @@ export function OpportunityList({
   const paginationLinkClassName =
     "inline-flex size-[34px] items-center justify-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] shadow-[0_1px_2px_rgb(0_0_0/3%)] transition-colors duration-150 hover:bg-[var(--surface-hover)] [&_svg]:size-[15px]";
 
+  // Preserve native new-tab gestures; plain clicks update the client-side directory.
   function followPageLink(event: MouseEvent<HTMLAnchorElement>, page: number) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;

@@ -43,6 +43,7 @@ export function parseLocalState(
     return {
       version: 1,
       lastVisitAt: record.lastVisitAt,
+      // Preserve null (no earlier visit) separately from a missing legacy baseline.
       ...(record.previousVisitAt === null ||
       (typeof record.previousVisitAt === "string" &&
         Number.isFinite(Date.parse(record.previousVisitAt)) &&
