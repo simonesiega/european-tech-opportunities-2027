@@ -255,9 +255,6 @@ def test_linkedin_scraper_paginates_and_deduplicates_job_ids(
         LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111"): fixture_html(
             "linkedin_job_detail_1111111111.html"
         ),
-        LINKEDIN_DETAIL_ENDPOINT.format(job_id="2222222222"): fixture_html(
-            "linkedin_job_detail_2222222222.html"
-        ),
         LINKEDIN_DETAIL_ENDPOINT.format(job_id="3333333333"): fixture_html(
             "linkedin_job_detail_3333333333.html"
         ),

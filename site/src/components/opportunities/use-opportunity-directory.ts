@@ -204,11 +204,7 @@ function validOption(requested: string | null, options: readonly string[]): stri
 }
 
 function validSort(requested: string | null): DirectorySort {
-  return isDirectorySort(requested) ? requested : DEFAULT_SORT;
-}
-
-function isDirectorySort(value: string | null): value is DirectorySort {
-  return value !== null && DIRECTORY_SORTS.some((sort) => sort === value);
+  return DIRECTORY_SORTS.find((sort) => sort === requested) ?? DEFAULT_SORT;
 }
 
 function validPageSize(requested: string | null): DirectoryPageSize {

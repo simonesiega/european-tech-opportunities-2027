@@ -1,6 +1,6 @@
 import "server-only";
 
-import {createHash} from "node:crypto";
+import {contentEtag, matchesIfNoneMatch, REVALIDATE_CACHE_CONTROL} from "@/lib/http-cache";
 import {getDirectoryData} from "@/lib/opportunities";
 import {
   InvalidFeedQuery,
@@ -14,7 +14,6 @@ const FEED_CONTENT_TYPES: Record<FeedFormat, string> = {
   rss: "application/rss+xml; charset=utf-8",
   atom: "application/atom+xml; charset=utf-8",
 };
-const CACHE_CONTROL = "public, max-age=0, must-revalidate";
 
 export function getFeedResponse(request: Request, format: FeedFormat): Response {
   let filters: ReturnType<typeof parseFeedQuery>;
@@ -33,9 +32,9 @@ export function getFeedResponse(request: Request, format: FeedFormat): Response 
   try {
     const {opportunities, lastUpdatedAt} = getDirectoryData();
     const body = renderOpportunityFeed(format, opportunities, lastUpdatedAt, filters, siteUrl);
-    const etag = `"${createHash("sha256").update(body).digest("hex")}"`;
+    const etag = contentEtag(body);
     const headers = {
-      "Cache-Control": CACHE_CONTROL,
+      "Cache-Control": REVALIDATE_CACHE_CONTROL,
       "Content-Type": FEED_CONTENT_TYPES[format],
       ETag: etag,
     };
@@ -64,13 +63,5 @@ export function feedMethodNotAllowed(): Response {
   return new Response(null, {
     status: 405,
     headers: {Allow: "GET, HEAD", "Cache-Control": "no-store"},
-  });
-}
-
-function matchesIfNoneMatch(header: string | null, etag: string): boolean {
-  if (!header) return false;
-  return header.split(",").some((value) => {
-    const tag = value.trim();
-    return tag === "*" || tag === etag || tag === `W/${etag}`;
   });
 }

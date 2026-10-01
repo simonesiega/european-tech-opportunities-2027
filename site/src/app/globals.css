@@ -11,7 +11,6 @@
   --text-soft: #62625e;
   --text-faint: #6f6f6a;
   --border: #dfdfda;
-  --border-strong: #c9c9c3;
   --accent: #315ee7;
   --header-overlay: rgb(247 247 245 / 100%);
 }
@@ -25,7 +24,6 @@
   --text-soft: #a3a39d;
   --text-faint: #7e7e79;
   --border: #2c2d2b;
-  --border-strong: #41423f;
   --accent: #86a5ff;
   --header-overlay: rgb(16 17 16 / 100%);
 }

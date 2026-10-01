@@ -203,5 +203,5 @@ def _environment_values(source: Mapping[str, str | None]) -> dict[str, str]:
     for environment_name, field_name in _ENV_FIELDS.items():
         value = source.get(f"OPPORTUNITIES_{environment_name}")
         if value is not None:
-            values[field_name] = str(value).strip()
+            values[field_name] = value.strip()
     return values

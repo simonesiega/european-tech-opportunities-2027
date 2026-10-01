@@ -1,4 +1,3 @@
-import {createHash} from "node:crypto";
 import {filterOpportunities} from "@/lib/opportunity-filter";
 import {
   normalizeOpportunityTimestamp,
@@ -9,7 +8,6 @@ import {DIRECTORY_SORTS, FIRST_SEEN_OPTIONS} from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
 
 export const API_VERSION = "v1";
-export const API_CACHE_CONTROL = "public, max-age=0, must-revalidate";
 const PARAMETERS = [
   "country",
   "company",
@@ -24,11 +22,7 @@ const PARAMETERS = [
 const MAX_PAGE_SIZE = 100;
 const MAX_PAGE = 10000;
 
-export class InvalidApiQuery extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export class InvalidApiQuery extends Error {}
 
 export function parseApiQuery(rawSearch: string) {
   if (rawSearch.length > 2048 || /%(?![0-9a-fA-F]{2})/.test(rawSearch)) {
@@ -131,16 +125,4 @@ export function apiPayload(
       firstSeenAt: normalizeOpportunityTimestamp(item.firstSeenAt),
     })),
   };
-}
-
-export function apiEtag(body: string): string {
-  return `"${createHash("sha256").update(body).digest("hex")}"`;
-}
-
-export function matchesIfNoneMatch(header: string | null, etag: string): boolean {
-  if (!header) return false;
-  return header.split(",").some((value) => {
-    const tag = value.trim();
-    return tag === "*" || tag === etag || tag === `W/${etag}`;
-  });
 }

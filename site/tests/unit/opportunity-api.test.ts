@@ -1,6 +1,7 @@
 import {describe, expect, test} from "bun:test";
 import fc from "fast-check";
-import {apiEtag, apiPayload, matchesIfNoneMatch, parseApiQuery} from "@/lib/opportunity-api";
+import {contentEtag} from "@/lib/http-cache";
+import {apiPayload, parseApiQuery} from "@/lib/opportunity-api";
 import type {Opportunity} from "@/types/opportunity";
 
 const row = (id: string, fields: Partial<Opportunity> = {}): Opportunity => ({
@@ -43,7 +44,7 @@ describe("public API contract", () => {
       "?sort=first-seen-desc&page-size=10&page=1",
     ];
     const representations = queries.map((query) => JSON.stringify(payload(query)));
-    const etags = representations.map(apiEtag);
+    const etags = representations.map(contentEtag);
 
     expect(representations[1]).toBe(representations[0]);
     expect(representations[2]).toBe(representations[0]);
@@ -58,7 +59,7 @@ describe("public API contract", () => {
       JSON.stringify(payload(query))
     );
     expect(reorderedRepresentations[1]).toBe(reorderedRepresentations[0]);
-    expect(apiEtag(reorderedRepresentations[1])).toBe(apiEtag(reorderedRepresentations[0]));
+    expect(contentEtag(reorderedRepresentations[1])).toBe(contentEtag(reorderedRepresentations[0]));
   });
 
   test("stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages", () => {
@@ -232,15 +233,5 @@ describe("public API contract", () => {
     ])
       expect(() => parseApiQuery(search)).toThrow();
     expect(parseApiQuery("?page=10000&page-size=100").pageSize).toBe(100);
-  });
-
-  test("body-derived ETags and weak/list conditional matching", () => {
-    const tag = apiEtag(JSON.stringify(payload()));
-    expect(tag).toBe(apiEtag(JSON.stringify(payload())));
-    expect(tag).not.toBe(apiEtag(JSON.stringify(payload("?page=2"))));
-    expect(matchesIfNoneMatch(`"other", W/${tag}`, tag)).toBe(true);
-    expect(matchesIfNoneMatch("*", tag)).toBe(true);
-    expect(matchesIfNoneMatch('"different"', tag)).toBe(false);
-    expect(matchesIfNoneMatch(null, tag)).toBe(false);
   });
 });

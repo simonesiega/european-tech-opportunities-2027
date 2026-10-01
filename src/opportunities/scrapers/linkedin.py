@@ -164,8 +164,6 @@ def parse_search_page(html: str) -> SearchPageResult:
     if len(nodes) > LINKEDIN_PAGE_SIZE:
         raise LinkedInPayloadError("LinkedIn search page exceeds the 25-card page limit")
     for node in nodes:
-        if not isinstance(node, Tag):
-            continue
         try:
             entity_urn = str(node.get("data-entity-urn", ""))
             match = _JOB_ID_RE.search(entity_urn)
@@ -221,7 +219,7 @@ def parse_job_detail(
     description_node = soup.select_one(".show-more-less-html__markup")
     description = (
         clean_text(description_node.get_text(" ", strip=True))
-        if isinstance(description_node, Tag)
+        if description_node is not None
         else None
     )
     if description is not None and len(description) > MAX_DESCRIPTION_CHARS:
@@ -261,8 +259,6 @@ def has_closed_application_notice(html: str) -> bool:
     for alert in soup.select(
         '[aria-live="assertive"], [role="alert"], .closed-job__flavor--closed'
     ):
-        if not isinstance(alert, Tag):
-            continue
         text = normalized_key(alert.get_text(" ", strip=True))
         if any(marker in text for marker in _CLOSED_APPLICATION_MARKERS):
             return True
@@ -294,8 +290,6 @@ def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime |
 def _extract_criterion(soup: BeautifulSoup, expected_heading: str) -> str | None:
     """Extract one exact value from LinkedIn's structured job criteria."""
     for heading in soup.select(".description__job-criteria-subheader, dt, h3"):
-        if not isinstance(heading, Tag):
-            continue
         if normalized_key(heading.get_text(" ", strip=True)) != expected_heading:
             continue
 
@@ -502,7 +496,7 @@ def _required_text(node: Tag, selector: str) -> str:
 def _optional_text(node: BeautifulSoup | Tag, selector: str) -> str:
     """Extract optional text from a parsed element."""
     selected = node.select_one(selector)
-    return clean_text(selected.get_text(" ", strip=True)) if isinstance(selected, Tag) else ""
+    return clean_text(selected.get_text(" ", strip=True)) if selected is not None else ""
 
 
 def _title_allowed(title: str, terms: tuple[str, ...]) -> bool:
