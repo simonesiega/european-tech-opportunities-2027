@@ -74,7 +74,7 @@ Fetch [dataset-metadata.json](https://techopportunities.eu/dataset-metadata.json
 
 Compute SHA-256 before editing or resaving the download. A mismatch can mean a publication occurred between requests: fetch the metadata and downloads again. Hashes detect mismatched bytes; they are not signatures and do not validate API responses. Missing files return `503` rather than stale fallback content.
 
-To identify the dataset currently served by production, use the [status endpoint](api.md#check-production-freshness). It exposes the successful collection time, generation time, open count, verified JSON hash, and dataset release identifier without returning internal paths.
+Use the [status endpoint](api.md#check-production-freshness) to identify the dataset currently served by the website and check its collection time.
 
 ## Schema, examples, and reuse
 

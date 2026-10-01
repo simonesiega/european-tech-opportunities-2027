@@ -134,21 +134,23 @@ Synthetic example:
 
 | Field | Meaning |
 |---|---|
-| `last_successful_collection` | Latest successful collection in the served SQLite dataset; later failed runs do not advance it; `null` when no successful collection exists |
+| `last_successful_collection` | Latest successful search completion in the served dataset; `null` when none exists |
 | `dataset_generated_at` | Generation time from the served dataset metadata, not a new collection or deployment timestamp |
-| `opportunities` | Number of currently open SQLite rows, checked against the metadata total |
+| `opportunities` | Number of open listings, checked against the metadata total |
 | `dataset_sha256` | SHA-256 of exact `open-opportunities.json` bytes, including the final newline, verified against metadata |
 | `release` | Opaque deployed **dataset** identifier; not an application commit or filesystem path; `null` in local/legacy fixed-path mode |
 
-Both timestamps are UTC RFC 3339 with exactly six fractional digits and `+00:00`. In versioned mode, all reads use one pinned release even during a publication switch. Fixed-path mode has no atomic release guarantee.
+Both timestamps are UTC RFC 3339 with exactly six fractional digits and `+00:00`. Failed searches do not advance `last_successful_collection`, but a partially successful collection can advance it when an individual search succeeds. It does not prove that every search succeeded.
+
+When `release` is not `null`, the response reads one dataset release even if a new one is published during the request. Separate requests may observe different releases. Local or legacy fixed-path mode cannot provide that atomic read.
 
 Responses use **`Cache-Control: no-store`**, with no ETag or `304` response. `HEAD` performs the same checks without returning a body. CORS, preflight, mutation-method rejection, and error envelopes follow the rules above. Any query parameters return `400`.
 
-Missing or unreadable required files, invalid required metadata fields or collection timestamps, and count/hash mismatches return `503` with code `unavailable` and message `Status unavailable`, never a fabricated empty dataset or internal diagnostic. Metadata reads are limited to 4 KiB and JSON hashing to 64 MiB; exceeding either limit also returns `503`. Poll conservatively: every successful request reads and hashes the JSON download.
+Missing or unreadable required files, invalid required metadata fields or collection timestamps, and count/hash mismatches return `503` with code `unavailable` and message `Status unavailable`. A failure is not an empty dataset, and errors expose no internal diagnostics. Metadata reads are limited to 4 KiB and JSON hashing to 64 MiB; exceeding either limit also returns `503`. Poll conservatively: each successful `GET` or `HEAD` reads and hashes the JSON download.
 
-To compare production with a reviewed update, compare `dataset_sha256` and `opportunities` with `json_sha256` and `total` in that update's sanitized `dataset-metadata.json` artifact. Export regeneration can change `dataset_generated_at` without changing listings. The dataset hash is **not** the README review seal, a database checksum, or an application Git SHA; it also excludes first-seen timestamps, which are not in the download.
+Export regeneration can change `dataset_generated_at` without changing listings. `dataset_sha256` identifies only the public JSON bytes, which omit first-seen and collection timestamps; it is not the README review seal, a database checksum, or an application Git SHA.
 
-A successful response describes the served state, not proof that the latest repository state has been deployed or that collection is recent. The endpoint does not contact GitHub or LinkedIn, audit CSV contents, or reconcile state automatically.
+A successful response describes the served data, not proof that it is recent or matches the latest repository state. The endpoint does not contact GitHub or LinkedIn, audit CSV contents, or reconcile state. Maintainers should follow [deployment verification](../../maintainers/operations/automation.md#verify-the-deployed-dataset) to compare production with a reviewed update.
 
 ## Compatibility
 

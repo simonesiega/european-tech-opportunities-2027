@@ -14,11 +14,11 @@ The website never collects, classifies, migrates, generates exports, or writes S
 
 ## Production status
 
-`GET /api/v1/status` combines a read-only SQLite aggregate with the selected release's dataset metadata and a bounded streaming hash of `open-opportunities.json`. `publicationPaths` is shared with directory and download readers; status resolves it only once before reading any files. One SQLite statement obtains the open count and latest successful collection time, so failed runs cannot advance freshness. No GitHub request, source request, canonical write, or export generation occurs.
+`opportunity-status-data.ts` owns the reads for `/api/v1/status`. It selects `publicationPaths` once, runs `readDirectorySummary` in one SQLite statement, and closes the read-only connection before awaiting export I/O. Both aggregates share a database snapshot; immutable release paths keep metadata and JSON reads on that same publication. Failed searches cannot advance the timestamp, but successful searches within a partial batch can.
 
-The explicit response allowlist contains only the five fields in the [public status contract](../../users/data/api.md#check-production-freshness). Release IDs contain only digits and a hyphen; fixed-path mode returns `null`, and invalid versioned pointers never fall back to legacy files. Counts must agree with metadata and the JSON hash must match the exact served bytes. Metadata is limited to 4 KiB and JSON hashing to 64 MiB. Failures return a sanitized, uncached `503`, not an empty success. GET and HEAD always recheck state and return `Cache-Control: no-store`; no ETag, freshness threshold, or background cache is used.
+The reader bounds metadata bytes, decodes UTF-8 strictly, and streams the JSON hash rather than trusting the manifest alone. `opportunity-status.ts` validates the count/hash agreement and timestamps, then projects an explicit field allowlist. Release identifiers contain only digits and a hyphen; invalid versioned paths never fall back to legacy state. Preserve the runtime-file tracing directives so builds do not bundle operator data.
 
-This is an observation of deployed data, not a repository comparison or application-version endpoint. It does not replace publication validation, prove that every SQLite field matches the download, or audit CSV content. Production tests exercise the built standalone server against isolated temporary state; POSIX cutover tests run on Linux.
+The [public status contract](../../users/data/api.md#check-production-freshness) owns fields, byte limits, HTTP methods, cache policy, and error responses. Status does not verify every SQLite field or CSV contents, contact GitHub or LinkedIn, or replace publication validation. [Testing](testing.md#website-validation) owns fixture isolation and standalone-server checks; [Automation](../operations/automation.md#verify-the-deployed-dataset) owns comparison with reviewed state.
 
 ## Local state contract
 
