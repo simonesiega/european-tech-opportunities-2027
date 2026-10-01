@@ -360,9 +360,12 @@ Before releasing an application revision:
 
 Release through the configured Dokploy project without changing the persistent host-state path or making the site mount writable. The application release must not initialize, replace, or downgrade canonical SQLite as a side effect.
 
+The freshness endpoint is application code: an older image needs a normal application rebuild/release to gain `/api/v1/status`. Running deployment-only updates the dataset, not the application routes.
+
 After deployment, verify over HTTPS:
 
 - the directory returns `200`, displays the expected count and last successful collection time, and supports filtering and pagination;
+- [`/api/v1/status`](../../users/data/api.md#check-production-freshness) returns the expected collection time, open count, public JSON hash, and dataset release identifier with `Cache-Control: no-store`; compare the count and hash with the reviewed projection artifact, not the unrelated README seal;
 - `/robots.txt`, `/sitemap.xml`, `/open-opportunities.csv`, and `/open-opportunities.json` return the expected content and attachment headers on the canonical origin; metadata, JSON-LD, downloads, robots, and sitemap contain only the canonical origin;
 - requests to the former hostname redirect with 308 to the equivalent canonical URL, including filtered query URLs and downloads;
 - Content Security Policy, HSTS, content-type, framing, referrer, cross-origin, and permissions headers remain present;

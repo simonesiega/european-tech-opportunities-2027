@@ -69,7 +69,7 @@ bunx playwright install chromium
 bun run ci
 ```
 
-This runs Prettier, ESLint, strict TypeScript, the production Next.js build, Bun unit tests and Playwright/axe against disposable synthetic state in `site/tests/e2e/.tmp/`. Browser tests use a separate development build directory; production behavior has separate checks below.
+This runs Prettier, ESLint, strict TypeScript, the production Next.js build, Bun unit tests and Playwright/axe against disposable synthetic state in `site/tests/e2e/.tmp/`. Browser tests use a separate development build directory. Status fault-injection tests additionally start the built standalone server on loopback port `3101` with an isolated temporary copy of the migrated fixture; they never mutate the browser suite's shared data. Run `bun run build` before invoking `test:e2e` directly when selecting those production tests. Linux also exercises versioned release cutover and missing-pointer rejection. Other production checks are listed below.
 
 Focused examples:
 

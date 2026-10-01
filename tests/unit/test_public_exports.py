@@ -193,7 +193,7 @@ def test_export_schema_and_metadata_validation_rejects_tampering(tmp_path: Path)
     assert json.loads(metadata_path.read_text(encoding="utf-8"))["total"] == 0
 
 
-def test_documented_examples_match_all_three_v1_contracts() -> None:
+def test_documented_examples_match_all_public_v1_contracts() -> None:
     root = _schema_path().parents[1]
     schema = json.loads(_schema_path().read_text(encoding="utf-8"))
     assert schema["$id"] == "https://techopportunities.eu/schemas/opportunities-v1.schema.json"
@@ -226,8 +226,12 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     api_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/apiResponse"}
     assert Draft202012Validator(api_contract).is_valid(api)
     api_guide = (root / "docs/users/data/api.md").read_text(encoding="utf-8")
+    documented_api_contract = {
+        "$defs": schema["$defs"],
+        "anyOf": [{"$ref": "#/$defs/apiResponse"}, {"$ref": "#/$defs/statusResponse"}],
+    }
     for example in shown_examples(api_guide, "json"):
-        Draft202012Validator(api_contract).validate(json.loads(example))
+        Draft202012Validator(documented_api_contract).validate(json.loads(example))
     assert api["pagination"]["total"] == len(json_rows) == len(api["data"])
     assert [
         {
@@ -262,4 +266,13 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     assert (
         metadata["csv_sha256"]
         == hashlib.sha256((examples / "open-opportunities-v1.csv").read_bytes()).hexdigest()
+    )
+
+    status = json.loads((examples / "api-status-v1.json").read_text(encoding="utf-8"))
+    status_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/statusResponse"}
+    Draft202012Validator(status_contract).validate(status)
+    assert status["opportunities"] == metadata["total"]
+    assert status["dataset_sha256"] == metadata["json_sha256"]
+    assert datetime.fromisoformat(status["dataset_generated_at"]) == datetime.fromisoformat(
+        metadata["generated_at"]
     )

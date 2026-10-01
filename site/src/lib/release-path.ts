@@ -1,6 +1,28 @@
 import {realpathSync, readlinkSync} from "node:fs";
 import path from "node:path";
 
+export function publicationPaths(
+  environment: Readonly<Record<string, string | undefined>> = process.env
+) {
+  if (environment.OPPORTUNITIES_RELEASE_ROOT) {
+    const directory = currentReleaseDirectory(environment.OPPORTUNITIES_RELEASE_ROOT);
+    const release = path.basename(directory);
+    if (release !== release.trim() || !/^[0-9]+-[0-9]+$/.test(release)) {
+      throw new Error("Invalid publication identifier");
+    }
+    return {
+      databasePath: path.join(directory, "opportunities.db"),
+      exportDirectory: path.join(directory, "exports"),
+      release,
+    };
+  }
+  return {
+    databasePath: environment.OPPORTUNITIES_DATABASE_PATH ?? "../data/opportunities.db",
+    exportDirectory: environment.OPPORTUNITIES_PUBLIC_EXPORT_DIR ?? "../data/exports",
+    release: null,
+  };
+}
+
 // A release is pinned once per server operation. Never reopen `current` after
 // selecting it: it may change between the database query and the next file read.
 export function currentReleaseDirectory(root: string): string {

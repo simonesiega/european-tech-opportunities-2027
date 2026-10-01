@@ -74,9 +74,11 @@ Fetch [dataset-metadata.json](https://techopportunities.eu/dataset-metadata.json
 
 Compute SHA-256 before editing or resaving the download. A mismatch can mean a publication occurred between requests: fetch the metadata and downloads again. Hashes detect mismatched bytes; they are not signatures and do not validate API responses. Missing files return `503` rather than stale fallback content.
 
+To identify the dataset currently served by production, use the [status endpoint](api.md#check-production-freshness). It exposes the successful collection time, generation time, open count, verified JSON hash, and dataset release identifier without returning internal paths.
+
 ## Schema, examples, and reuse
 
-The [v1 JSON Schema](https://techopportunities.eu/schemas/opportunities-v1.schema.json) is the machine-readable contract. Its root validates the JSON download; `#/$defs/csvDataset` validates decoded `{ "header": [...], "rows": [[...]] }`, `#/$defs/apiResponse` validates API bodies, and `#/$defs/metadata` validates the manifest.
+The [v1 JSON Schema](https://techopportunities.eu/schemas/opportunities-v1.schema.json) is the machine-readable contract. Its root validates the JSON download; `#/$defs/csvDataset` validates decoded `{ "header": [...], "rows": [[...]] }`, `#/$defs/apiResponse` validates listing API bodies, `#/$defs/statusResponse` validates production status, and `#/$defs/metadata` validates the manifest.
 
 [Complete synthetic examples](https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/schemas/examples) are tested against that same schema. Breaking download changes require a new schema version; existing v1 consumers should not need to infer field changes.
 

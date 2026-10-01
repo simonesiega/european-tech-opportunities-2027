@@ -2,7 +2,7 @@ import "server-only";
 
 import {readFile} from "node:fs/promises";
 import path from "node:path";
-import {currentReleaseDirectory} from "@/lib/release-path";
+import {publicationPaths} from "@/lib/release-path";
 
 type PublicExportFormat = "csv" | "json" | "metadata";
 
@@ -24,9 +24,7 @@ const exportMetadata: Record<PublicExportFormat, {filename: string; contentType:
 export async function getPublicExport(format: PublicExportFormat): Promise<Response> {
   const {filename, contentType} = exportMetadata[format];
   try {
-    const exportDirectory = process.env.OPPORTUNITIES_RELEASE_ROOT
-      ? path.join(currentReleaseDirectory(process.env.OPPORTUNITIES_RELEASE_ROOT), "exports")
-      : (process.env.OPPORTUNITIES_PUBLIC_EXPORT_DIR ?? "../data/exports");
+    const {exportDirectory} = publicationPaths();
     // Deployment supplies these files at runtime; do not trace them into the build output.
     const exportPath = path.join(/* turbopackIgnore: true */ exportDirectory, filename);
     const content = await readFile(/* turbopackIgnore: true */ exportPath);

@@ -1,17 +1,26 @@
 import "server-only";
 
 import {DatabaseSync} from "node:sqlite";
-import path from "node:path";
 import {cache} from "react";
-import {currentReleaseDirectory} from "@/lib/release-path";
+import {publicationPaths} from "@/lib/release-path";
 import {isCanonicalListingUrl} from "@/lib/listing-url";
 import type {Opportunity} from "@/types/opportunity";
 
-const LAST_UPDATED_QUERY = `
-  SELECT MAX(finished_at) AS lastUpdatedAt
-  FROM search_runs
-  WHERE status = 'success'
-`;
+export function readDirectorySummary(database: DatabaseSync): {
+  lastUpdatedAt: string | null;
+  opportunities: number;
+} {
+  // One statement gives both aggregates the same SQLite read snapshot.
+  return database
+    .prepare(
+      `
+    SELECT
+      (SELECT MAX(finished_at) FROM search_runs WHERE status = 'success') AS lastUpdatedAt,
+      (SELECT COUNT(*) FROM jobs WHERE status = 'open') AS opportunities
+  `
+    )
+    .get() as {lastUpdatedAt: string | null; opportunities: number};
+}
 
 const OPEN_OPPORTUNITIES_QUERY = `
   SELECT
@@ -37,15 +46,11 @@ type DirectoryData = {
 
 // Metadata and the page share one read of the selected release per request.
 export const getDirectoryData = cache(function getDirectoryData(): DirectoryData {
-  const databasePath = process.env.OPPORTUNITIES_RELEASE_ROOT
-    ? path.join(currentReleaseDirectory(process.env.OPPORTUNITIES_RELEASE_ROOT), "opportunities.db")
-    : (process.env.OPPORTUNITIES_DATABASE_PATH ?? "../data/opportunities.db");
+  const {databasePath} = publicationPaths();
   const database = new DatabaseSync(databasePath, {readOnly: true});
 
   try {
-    const {lastUpdatedAt} = database.prepare(LAST_UPDATED_QUERY).get() as {
-      lastUpdatedAt: string | null;
-    };
+    const {lastUpdatedAt} = readDirectorySummary(database);
     const rows = database.prepare(OPEN_OPPORTUNITIES_QUERY).all() as Opportunity[];
 
     // node:sqlite rows have a null prototype and cannot cross the Server Component boundary.
