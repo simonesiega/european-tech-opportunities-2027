@@ -58,6 +58,7 @@ export function renderOpportunityFeed(
   filters: FeedFilters,
   siteOrigin: URL
 ): string {
+  // The shared database query supplies newest-first rows; filtering preserves that order.
   const matches = filterOpportunities(
     opportunities,
     {
@@ -82,6 +83,7 @@ export function renderOpportunityFeed(
 }
 
 export function xmlEscape(value: string): string {
+  // Escaping markup cannot make forbidden XML 1.0 code points valid; remove them first.
   const xmlSafe = Array.from(value)
     .filter((character) => {
       const codePoint = character.codePointAt(0)!;

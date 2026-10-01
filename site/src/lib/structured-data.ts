@@ -69,6 +69,7 @@ export function buildStructuredData(siteUrl: URL, lastUpdatedAt: string | null) 
   };
 }
 
+// JSON is embedded in a script element; escape '<' so data cannot terminate that element.
 export function serializeStructuredData(value: unknown): string {
   return JSON.stringify(value).replaceAll("<", "\\u003c");
 }

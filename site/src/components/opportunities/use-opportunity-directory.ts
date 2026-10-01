@@ -103,6 +103,7 @@ export function useOpportunityDirectory(
   const pageSize = validPageSize(searchParams.get(VIEW_PARAMETERS.pageSize));
   const requestedPage = validPage(searchParams.get(VIEW_PARAMETERS.page));
   const pageCount = Math.max(Math.ceil(filteredOpportunities.length / pageSize), 1);
+  // Local lists can shrink the view without leaking that private choice into the URL.
   const page = Math.min(requestedPage, pageCount);
 
   function directoryUrl(updates: Partial<Record<DirectoryParameter, string | null>>) {
@@ -155,6 +156,7 @@ export function useOpportunityDirectory(
   return {
     filters: {query, company, location, category, employmentType, firstSeen},
     filterSetters: {
+      // Typing replaces one history entry; discrete selections remain navigable with Back.
       setQuery: (value: string) => setFilter("query", value, "replace"),
       setCompany: (value: string) => setFilter("company", value, "push"),
       setLocation: (value: string) => setFilter("location", value, "push"),

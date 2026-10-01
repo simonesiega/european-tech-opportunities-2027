@@ -29,8 +29,8 @@ def test_production_search_registry_is_bounded_and_scope_specific() -> None:
     assert role_names <= category_names
     assert all(search.enabled for search in searches)
     for search in searches:
-        # Discovery covers the complete cycle window. Explicit years are resolved
-        # from detail pages, where conflicting 2025/2026 roles are rejected.
+        # Request the cycle window without excluding yearless titles; detail evidence,
+        # not discovery keywords, determines the accepted cycle.
         assert "2027" not in search.keywords
         assert search.date_posted == "cycle"
         assert "intern" in search.keywords.casefold()
@@ -175,7 +175,7 @@ def test_settings_precedence_is_defaults_dotenv_yaml_then_environment(
     assert configured.rate_limit_seconds == 1  # Environment wins over YAML and dotenv.
     assert configured.search_max_pages == 2  # Dotenv survives when YAML omits a field.
     assert configured.max_retries == 1  # YAML wins over the default.
-    assert configured.linkedin_crawl_authorized is False  # No layer granted access.
+    assert configured.linkedin_crawl_authorized is False  # No layer enabled source access.
 
 
 @pytest.mark.parametrize("value", ["false", "0", "no", "off"])

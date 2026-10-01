@@ -11,7 +11,7 @@ def utc_now() -> datetime:
 
 
 def ensure_utc(value: datetime) -> datetime:
-    """Convert a datetime to timezone-aware UTC."""
+    """Convert to aware UTC, treating naive persisted SQLite timestamps as UTC."""
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
     return value.astimezone(UTC)

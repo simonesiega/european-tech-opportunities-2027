@@ -74,6 +74,7 @@ def run_deploy(
 
 
 def prepare(tmp_path: Path) -> None:
+    """Create sentinel files; these tests stop before validation or stub its result."""
     exports = tmp_path / "data/exports"
     exports.mkdir(parents=True)
     (tmp_path / "data/opportunities.db").write_bytes(b"synthetic local db")

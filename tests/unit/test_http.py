@@ -195,13 +195,14 @@ def test_http_fetcher_stops_on_429_without_reading_response_body() -> None:
 def test_redirect_or_access_denial_stops_queued_and_later_requests(
     status_code: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Do not depend on the runner having been awake for more than the pacing interval.
+    # Start beyond the pacing interval so the first request sends without sleeping.
     monkeypatch.setattr(http_module, "time", SimpleNamespace(monotonic=lambda: 1000.0))
     started = asyncio.Event()
     queued = asyncio.Event()
     release_queued = asyncio.Event()
     requests = 0
 
+    # Hold the denial until another request is pacing, then resume that waiter after blocking.
     async def handler(request: httpx.Request) -> httpx.Response:
         nonlocal requests
         requests += 1
@@ -468,6 +469,7 @@ def test_injected_http_clients_must_remain_unauthenticated(authentication: str) 
 
 @pytest.mark.parametrize("encoding", ["gzip", "deflate", "x-unsupported", "identity"])
 def test_response_bounds_apply_before_decompression(encoding: str) -> None:
+    # Small fixtures suffice: compression must be rejected before any chunk is decoded.
     body = b"<html>synthetic fixture</html>"
     payloads = {"gzip": gzip.compress(body, mtime=0), "deflate": zlib.compress(body)}
     stream = ChunkedStream((payloads.get(encoding, body),))

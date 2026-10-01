@@ -57,6 +57,7 @@ def load_search_registry(
     duplicate_queries = _duplicates(identities)
     if duplicate_queries:
         raise SearchRegistryError("duplicate LinkedIn search queries are not allowed")
+    # Validate disabled entries too, so re-enabling a search cannot introduce a duplicate.
     selected = [search for search in searches if search.enabled] if enabled_only else searches
     return sorted(selected, key=lambda search: search.slug)
 

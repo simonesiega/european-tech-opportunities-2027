@@ -102,6 +102,7 @@ export function normalizeOpportunityTimestamp(value: string): string {
     throw new Error("Invalid first-seen timestamp");
   }
   const normalized = timestamp.toISOString();
+  // Date keeps only milliseconds; preserve the original microseconds for the public contract.
   const fraction = (fractionText ?? "").padEnd(6, "0");
   return `${normalized.slice(0, 19)}.${fraction}+00:00`;
 }

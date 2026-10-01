@@ -42,7 +42,7 @@ GID 10001
 
 The Compose services also drop all Linux capabilities and set `no-new-privileges`.
 
-The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets install exact reviewed security revisions for `gzip`, PCRE2, SQLite, and Perl until those revisions are incorporated into the pinned base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
+The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets install exact reviewed security revisions for `gzip`, PCRE2, SQLite, OpenSSL, and Perl until those revisions are incorporated into the pinned base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
 
 ## Build images
 
@@ -242,15 +242,15 @@ Deployments created before the Opportunities rename must stop every writer, move
 
 ### Dokploy configuration
 
-Configure Dokploy to:
+Configure the Dokploy project:
 
-1. deploy the Compose project;
-2. build the `site` image target;
-3. configure HTTPS for both hostnames and route the canonical domain to the `site` service; handle the legacy hostname using either redirect approach described above;
-4. route traffic to container port `3000`;
-5. avoid publishing a conflicting fixed host port;
-6. preserve `/srv/european-tech-opportunities-2027/data` as persistent host state;
-7. set the canonical website origin.
+1. Deploy the Compose project.
+2. Build the `site` image target.
+3. Configure HTTPS for both hostnames and route the canonical domain to the `site` service; handle the legacy hostname using either redirect approach described above.
+4. Route traffic to container port `3000`.
+5. Avoid publishing a conflicting fixed host port.
+6. Preserve `/srv/european-tech-opportunities-2027/data` as persistent host state.
+7. Set the canonical website origin.
 
 Production website environment **after** the coordinated first rollout:
 
@@ -351,12 +351,12 @@ An application release changes the container image or Compose configuration. It 
 
 Before releasing an application revision:
 
-1. start from a clean `main` checkout and record the commit SHA;
-2. confirm Python, website, CodeQL, and Docker CI succeeded for that exact SHA;
-3. confirm dependency and lockfile changes are intentional and reviewed;
-4. verify `docker compose config`, both image builds, the CLI image entry point, the migrated read-only website smoke test, public downloads, and production security headers;
-5. confirm the current database has a round-trip-verified durable snapshot and no canonical writer or deployment is active;
-6. retain the previously working image or deployment revision for application rollback.
+1. Start from a clean `main` checkout and record the commit SHA.
+2. Confirm Python, website, CodeQL, and Docker CI succeeded for that exact SHA.
+3. Confirm dependency and lockfile changes are intentional and reviewed.
+4. Verify `docker compose config`, both image builds, the CLI image entry point, the migrated read-only website smoke test, public downloads, and production security headers.
+5. Confirm the current database has a round-trip-verified durable snapshot and no canonical writer or deployment is active.
+6. Retain the previously working image or deployment revision for application rollback.
 
 Release through the configured Dokploy project without changing the persistent host-state path or making the site mount writable. The application release must not initialize, replace, or downgrade canonical SQLite as a side effect.
 

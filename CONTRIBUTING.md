@@ -79,6 +79,7 @@ See [Architecture](docs/maintainers/engineering/architecture.md) and the [Securi
 - Sanitize errors; never log response bodies, credentials, cookies, headers, or environment dumps.
 - Avoid broad lint, type, test, or coverage suppressions.
 - Keep changes focused and avoid unrelated cleanup.
+- Follow the [comment style](docs/maintainers/engineering/documentation.md#code-comments-and-docstrings): briefly explain non-obvious intent or constraints, not self-explanatory code.
 
 ## Data collection and classification
 

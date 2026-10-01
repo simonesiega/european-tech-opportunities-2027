@@ -17,6 +17,7 @@ from typing import Final
 FORMAT_VERSION: Final = 1
 RETENTION_POLICY: Final = "restricted-vps-sftp"
 MAX_MANIFEST_BYTES: Final = 64 * 1024
+# Recovery must accept older migrated snapshots before upgrading their working copy.
 EXPECTED_TABLES: Final = frozenset(
     {"alembic_version", "searches", "search_runs", "jobs", "job_searches"}
 )

@@ -28,6 +28,7 @@ excluded_role_keywords:
   - director
   - head of
   - vice president
+# Category order breaks ties within each title or description matching pass.
 categories:
   cybersecurity:
     - application security

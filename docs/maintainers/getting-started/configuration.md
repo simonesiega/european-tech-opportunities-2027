@@ -312,36 +312,36 @@ Workflow behavior is documented in [Automation](../operations/automation.md#coll
 
 ### Local development
 
-- use `.env`;
-- keep LinkedIn collection disabled;
-- use the default local SQLite path;
-- use fixture-based offline tests;
-- do not render the committed README from empty state.
+- Use `.env`.
+- Keep LinkedIn collection disabled.
+- Use the default local SQLite path.
+- Use fixture-based offline tests.
+- Do not render the committed README from empty state.
 
 ### Continuous integration
 
-- use explicit workflow environment values;
-- use frozen dependency installs;
-- keep validation workflows offline;
-- expose only the variables required by each job;
-- never enable collection in normal CI.
+- Use explicit workflow environment values.
+- Use frozen dependency installs.
+- Keep validation workflows offline.
+- Expose only the variables required by each job.
+- Never enable collection in normal CI.
 
 ### Production collection
 
-- keep the operator authorization attestation in the `LINKEDIN_CRAWL_AUTHORIZED` repository variable;
-- keep VPS credentials only in the main-only `canonical-state` and `production` GitHub environments, never at repository scope;
-- allow `canonical-state` to run unattended for the nightly schedule and require approval on `production` when practical;
-- keep request limits conservative;
-- preserve the one-writer model;
-- back up SQLite before recovery or rebuild operations;
-- configure the restricted SFTP-only VPS snapshot account, keep canonical SQLite out of Actions cache and artifacts, and review deployment and secret visibility.
+- Keep the operator authorization attestation in the `LINKEDIN_CRAWL_AUTHORIZED` repository variable.
+- Keep VPS credentials only in the main-only `canonical-state` and `production` GitHub environments, never at repository scope.
+- Allow `canonical-state` to run unattended for the nightly schedule and require approval on `production` when practical.
+- Keep request limits conservative.
+- Preserve the one-writer model.
+- Back up SQLite before recovery or rebuild operations.
+- Configure the restricted SFTP-only VPS snapshot account, keep canonical SQLite out of Actions cache and artifacts, and review deployment and secret visibility.
 
 ### Production website
 
-- mount SQLite read-only;
-- set `SITE_URL` to the canonical HTTPS origin;
-- do not expose collector authorization variables to the website;
-- never place secrets in client-visible `NEXT_PUBLIC_*` values.
+- Mount SQLite read-only.
+- Set `SITE_URL` to the canonical HTTPS origin.
+- Do not expose collector authorization variables to the website.
+- Never place secrets in client-visible `NEXT_PUBLIC_*` values.
 
 ## Validate configuration
 
@@ -358,6 +358,6 @@ Validate a specific settings YAML:
 uv run opportunities --settings configs/settings.local.yml stats
 ```
 
-A configuration error reports the invalid field or value and exits before network access.
+A configuration error reports a sanitized diagnostic and exits before network access.
 
 For symptom-based diagnosis and safe recovery, use the [troubleshooting guide](../operations/troubleshooting.md#configuration-failures).

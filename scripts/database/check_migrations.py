@@ -21,7 +21,6 @@ def main() -> None:
     repository_root = find_project_root(Path(__file__))
     expected_version = migration_head(repository_root=repository_root)
 
-    # Upgrade a temporary SQLite database, then compare its schema with ORM metadata.
     with tempfile.TemporaryDirectory() as directory:
         database = Path(directory) / "migration-check.db"
         url = f"sqlite:///{database.as_posix()}"
@@ -32,7 +31,6 @@ def main() -> None:
             differences = compare_metadata(MigrationContext.configure(connection), Base.metadata)
         engine.dispose()
 
-    # Require the expected revision and no schema differences.
     if version != expected_version:
         raise SystemExit(f"unexpected Alembic version: {version!r}; expected {expected_version!r}")
     if differences:

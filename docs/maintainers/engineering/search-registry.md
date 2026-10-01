@@ -225,14 +225,14 @@ Place employer searches under `configs/searches/companies/`. For example, the ex
 
 Requirements:
 
-- prefix the slug with `company-`;
-- use broad but explicit keywords that include both internship and New Grad terms;
-- omit `2027` so current yearless vacancies are discoverable, and use `date_posted: cycle` to request the May 1 publication window without implying complete search-result coverage;
-- use the verified Europe geography ID `91000000` for Europe-wide discovery;
-- list legitimate LinkedIn employer-name variants in `company_names`;
-- retain exact matching after normalization;
-- do not use substring matching;
-- start conservatively and increase limits only after repeated evidence.
+- Prefix the slug with `company-`.
+- Use broad but explicit keywords that include both internship and New Grad terms.
+- Omit `2027` so current yearless vacancies are discoverable, and use `date_posted: cycle` to request the May 1 publication window without implying complete search-result coverage.
+- Use the verified Europe geography ID `91000000` for Europe-wide discovery.
+- List legitimate LinkedIn employer-name variants in `company_names`.
+- Retain exact matching after normalization.
+- Do not use substring matching.
+- Start conservatively and increase limits only after repeated evidence.
 
 Example:
 
@@ -263,12 +263,12 @@ Place country searches under `configs/searches/countries/`. For example, the exi
 
 Requirements:
 
-- prefix the slug with `country-`;
-- use the explicit country name as `location`;
-- set `geo_id: null`; current production country partitions use explicit country text rather than geography IDs;
-- include both internship and New Grad terminology without a year restriction;
-- start unobserved or low-volume countries at the minimal tier;
-- avoid claiming complete national coverage.
+- Prefix the slug with `country-`.
+- Use the explicit country name as `location`.
+- Set `geo_id: null`; current production country partitions use explicit country text rather than geography IDs.
+- Include both internship and New Grad terminology without a year restriction.
+- Start unobserved or low-volume countries at the minimal tier.
+- Avoid claiming complete national coverage.
 
 Example:
 

@@ -2,18 +2,18 @@
 
 [← Documentation home](../docs/README.md) · [Maintainer handbook](../docs/maintainers/README.md) · [Testing](../docs/maintainers/engineering/testing.md) · [GitHub workflows](../.github/WORKFLOWS.md)
 
-Use these scripts to check documentation, test database changes, prepare sample listings, and manage backups and deployment. The sections below explain which script to use and what it changes.
+This inventory identifies the repository scripts, their inputs, and their side effects. Use the offline checks during development; run state-transfer and deployment scripts only within the protected operational procedures linked below.
 
 Run the example commands from the repository root. Python scripts use `uv`; see [local setup](../docs/maintainers/getting-started/setup.md) if you have not installed the development tools yet.
 
-## Folders
+## Directory map
 
 | Folder | Contents |
 |---|---|
-| [docs/](docs/) | Documentation checks, site builds, and coverage reports. |
-| [database/](database/) | Migration checks, database snapshots, and recovery. |
-| [deployment/](deployment/) | Uploading and activating reviewed website data. |
-| [testing/](testing/) | Synthetic listings for website tests and the product demo. |
+| [docs/](docs/) | Documentation checks, site builds, and coverage reports |
+| [database/](database/) | Migration checks, database snapshots, and recovery |
+| [deployment/](deployment/) | Upload and activation of reviewed website data |
+| [testing/](testing/) | Synthetic listings for website tests and the product demo |
 
 ## Documentation
 

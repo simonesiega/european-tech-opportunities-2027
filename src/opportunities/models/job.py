@@ -67,7 +67,7 @@ class DiscoveredJob(BaseModel):
 
 
 class StoredJob(DiscoveredJob):
-    """Database-backed job used by README rendering and statistics."""
+    """Canonical job fields and lifecycle state for audits and public projections."""
 
     first_seen_at: datetime
     last_seen_at: datetime

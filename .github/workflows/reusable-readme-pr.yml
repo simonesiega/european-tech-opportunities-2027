@@ -167,9 +167,8 @@ jobs:
             gh workflow run "$validation_workflow" --ref "$UPDATE_BRANCH"
           done
 
-          # Keep the automation branch alive until every explicitly dispatched run completes.
-          # Without this wait, an unprotected repository can merge and delete the branch before
-          # GitHub creates any jobs, leaving an immediate startup failure with no logs.
+          # Await dispatched runs before auto-merge can delete their branch, even without
+          # branch protection; otherwise GitHub may fail to create their jobs.
           validation_run_ids=()
           for validation_workflow in "${validation_workflows[@]}"; do
             run_id=""

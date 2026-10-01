@@ -2,9 +2,9 @@
 
 [← Documentation home](../docs/README.md) · [Maintainer handbook](../docs/maintainers/README.md) · [Automation](../docs/maintainers/operations/automation.md) · [Repository scripts](../scripts/SCRIPT.md)
 
-The project's GitHub workflows check contributions, update job listings, and publish the website and documentation. This inventory explains what each workflow does and when it runs. The [automation guide](../docs/maintainers/operations/automation.md) owns setup, permissions, recovery, and deployment procedures.
+This inventory identifies GitHub Actions entry points, triggers, validation gates, and canonical-state operations. Application builds and reviewed dataset deployment are separate operations. The [automation guide](../docs/maintainers/operations/automation.md) owns setup, permissions, recovery, and deployment procedures.
 
-You can follow runs and read their results in the repository's **Actions** tab. **PR** means pull request, and **manual** means someone with the necessary repository permissions starts a run using **Run workflow**. Scheduled times are in **UTC**, though runs may start later.
+Inspect runs in the repository's **Actions** tab. **PR** means pull request; **manual** means an authorized repository operator selects **Run workflow**. Scheduled times are UTC and may be delayed by GitHub.
 
 ## Checks for contributions
 
@@ -55,7 +55,7 @@ For setup, input examples, approvals, and recovery instructions, see the [automa
 
 ## Shared workflows
 
-The listing workflows use these two helpers. You do not need to start them separately; they run as part of the workflow you selected.
+The listing workflows call these two `workflow_call` helpers. They are implementation boundaries, not independently dispatchable operator entry points.
 
 | Workflow | What it does |
 |---|---|

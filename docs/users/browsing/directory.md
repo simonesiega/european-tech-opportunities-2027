@@ -9,7 +9,7 @@ The directory shows currently open, validated technology internships and New Gra
 - **Search** matches company, role, location, category, industries, and employment type. It ignores letter case. Press **Ctrl+K** or **⌘K** to focus the search box.
 - **Location** selects a country from the listed locations. A role with more than one location can match more than one country.
 - **Company** and **Category** narrow the results further.
-- **Employment type** selects Internship or New Grad.
+- **Employment type** selects **Internship** or **New Grad**.
 - **First seen** limits results to the last 24 hours, 7 days, or 30 days.
 
 Filters combine: a role must match all your selections. The open-role count reflects the current view. If nothing matches, remove one filter or choose **Reset**. This clears search and filters, but keeps your sorting and rows-per-page choice. If you are browsing a local list, choose **View all opportunities** to leave that list.
@@ -20,19 +20,19 @@ The default order is newest first, with 10 rows per page. Select **Company**, **
 
 Open the role title or the arrow at the start of a row to visit its original LinkedIn listing. Saving or marking a role applied does not submit an application. See [your local lists](lists.md).
 
-On a small screen, scroll the table sideways to reach all columns and row actions. Controls have keyboard labels and visible focus. The theme button switches between light and dark; your browser remembers the choice.
+On a small screen, scroll the table sideways to reach all columns and row actions. You can also move between controls with Tab; a visible outline shows which control is selected. The theme button switches between light and dark; your browser remembers the choice.
 
 ## Understand the fields
 
 | Field | What it means |
 |---|---|
-| Company / Role / Location | Normalized information from the listing; missing detail location can use its search-card location |
+| Company / Role / Location | Information from the original listing; a missing location may be taken from its search result |
 | New | Whether the role is newer than your previous visit; [how this works](lists.md#see-what-is-new) |
 | Category | The project's technology grouping, not a guarantee about every duty |
 | Industries | Structured source metadata; `Not specified` means it was not available |
 | Employment type | Internship or New Grad, based on explicit title evidence |
 | Start date | A stated month or season and year, when available; `—` means unknown |
-| First seen | An immutable date that may use approximate source posting age, a reviewed posting date, or the project's first observation |
+| First seen | A date set when the role is added and kept unchanged; it may use the source's approximate posting age, a reviewed posting date, or the project's first observation |
 
 **First seen is not an application deadline.** The site does not guarantee compensation, sponsorship, remote eligibility, or suitability for your background. The collection date in the footer describes the latest successful collection, not the last check of every individual listing.
 
@@ -44,7 +44,7 @@ Example: [internships in Germany](https://techopportunities.eu/?country=Germany&
 
 Your saved/applied/hidden lists and previous-visit time are **not** in the URL. Someone opening your link sees the public filters, not your private list. Changing filters or sort returns to page one. Unsupported URL values are ignored or safely constrained.
 
-For a reproducible programmatic query, use the [API](../data/api.md); its recency window is snapshot-relative, unlike the website's request-time window.
+Building an application? Use the [API](../data/api.md), which measures recency against the published dataset so the same data gives the same results. The website measures recency when you load the directory.
 
 ## Take the listings with you
 
@@ -57,7 +57,7 @@ Subscribe with any RSS or Atom reader—no account, email address, or notificati
 - RSS 2.0: [https://techopportunities.eu/feed.xml](https://techopportunities.eu/feed.xml)
 - Atom 1.0: [https://techopportunities.eu/atom.xml](https://techopportunities.eu/atom.xml)
 
-Each feed contains up to 50 of the most recently first-seen **currently open** opportunities. The date uses the project's immutable **First seen** value, which may be an approximate source posting date rather than the exact discovery time. Closed listings and listings that fall outside the latest 50 are no longer included.
+Each feed contains up to 50 **currently open** opportunities, newest **First seen** date first. That date stays unchanged after a role is added and may reflect an approximate source posting date rather than the exact discovery time. Closed listings and listings that fall outside the latest 50 are no longer included.
 
 Add any of these exact filters to either feed URL; filters combine:
 

@@ -89,6 +89,7 @@ test.each([...DIRECTORY_SORTS])("rendered rows follow the API's %s ordering", (s
       hasActiveFilters={false}
     />
   );
+  // Each row links through both its arrow and title; count each identity once, in order.
   const renderedIds = [
     ...new Set(
       [...html.matchAll(/href="https:\/\/www.linkedin.com\/jobs\/view\/(\d+)"/g)].map(

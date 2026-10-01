@@ -100,9 +100,8 @@ class HttpFetcher:
             header in self._client.headers for header in ("authorization", "proxy-authorization")
         ):
             raise ValueError("LinkedIn client must not have authentication configured")
-        # HTTPX otherwise retains Set-Cookie values and sends them on later guest
-        # requests. Reject cookies at the jar so concurrent responses cannot race a
-        # post-response clear; apply this to injected offline clients as well.
+        # Reject cookies at the jar: clearing after each response would race concurrent
+        # requests. Injected clients must obey the same unauthenticated-access boundary.
         self._client.cookies = CookieJar(policy=DefaultCookiePolicy(allowed_domains=[]))
         self._host_locks: dict[str, asyncio.Lock] = {}
         self._last_request_at: dict[str, float] = {}
@@ -238,9 +237,8 @@ class HttpFetcher:
                 status_code=response.status_code,
             )
 
-        # HTTPX decompresses each received chunk before aiter_bytes yields it. A
-        # compressed chunk can expand past our memory bound before we can count it.
-        # Request identity encoding and reject any other encoding without reading.
+        # HTTPX decompresses before yielding bytes, so counting decoded chunks is too late.
+        # Reject compression before reading to keep the response memory bound meaningful.
         content_encoding = response.headers.get("Content-Encoding", "").strip().casefold()
         if content_encoding not in {"", "identity"}:
             raise FetchError("content_encoding", "LinkedIn returned unsupported content encoding")
@@ -319,7 +317,7 @@ def _response_encoding(response: httpx.Response, body: bytes) -> str:
 
 
 def _retry_after_seconds(value: str | None) -> float | None:
-    """Parse a Retry-After header into a bounded delay."""
+    """Parse a nonnegative Retry-After delay; the retry loop applies the upper bound."""
     if not value:
         return None
     try:

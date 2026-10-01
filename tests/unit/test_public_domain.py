@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+# Split the hostname so this scanner does not count itself as a forbidden reference.
 LEGACY_HOST = "opportunities2027" + ".simonesiega.com"
 CANONICAL_ORIGIN = "https://techopportunities.eu"
 # Only redirect configuration, validation, migration documentation, and redirect tests

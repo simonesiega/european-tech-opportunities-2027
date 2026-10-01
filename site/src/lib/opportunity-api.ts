@@ -28,6 +28,8 @@ export function parseApiQuery(rawSearch: string) {
   if (rawSearch.length > 2048 || /%(?![0-9a-fA-F]{2})/.test(rawSearch)) {
     throw new InvalidApiQuery("Invalid query string");
   }
+  // URLSearchParams repairs malformed input; reject replacement characters below
+  // instead of silently accepting a different query from the one the caller sent.
   const params = new URLSearchParams(rawSearch);
   for (const [key, value] of params) {
     if (!PARAMETERS.includes(key) || params.getAll(key).length !== 1) {
@@ -112,6 +114,7 @@ export function apiPayload(
       total,
       totalPages,
     },
+    // Keep an explicit allowlist: future internal fields must not enter the v1 contract.
     data: sorted.slice(offset, offset + query.pageSize).map((item) => ({
       linkedinJobId: item.linkedinJobId,
       company: item.company,

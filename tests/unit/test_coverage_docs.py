@@ -12,6 +12,7 @@ SCRIPT = Path(__file__).parents[2] / "scripts" / "docs" / "coverage_docs.py"
 
 @pytest.fixture
 def generated_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
+    """Use a custom README target to test --document independently of the default guide."""
     coverage_path = tmp_path / "coverage.json"
     pyproject_path = tmp_path / "pyproject.toml"
     readme_path = tmp_path / "README.md"
@@ -25,6 +26,7 @@ def generated_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
                     "percent_branches_covered_display": "82.7",
                 },
                 "files": {
+                    # Windows-style report keys must resolve on POSIX too.
                     "src\\opportunities\\pipeline\\classification.py": {
                         "summary": {
                             "percent_branches_covered": 97.5,

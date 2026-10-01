@@ -86,6 +86,7 @@ describe("public API contract", () => {
   });
 
   test("orders distinct microseconds chronologically before applying numeric ID ties", () => {
+    // IDs 9/10 share an instant; 11/12 differ below Date's millisecond precision.
     const items = [
       row("9", {firstSeenAt: "2026-07-17T12:00:00.123456Z"}),
       row("10", {firstSeenAt: "2026-07-17 12:00:00.123456"}),
@@ -174,6 +175,7 @@ describe("public API contract", () => {
   });
 
   test("bounded property fuzzing preserves encoded queries and rejects duplicate keys", () => {
+    // Keep generated text valid; malformed encodings and controls have rejection cases below.
     const queryText = fc
       .array(fc.constantFrom("a", "Z", "0", " ", "&", "=", "%", "+", "-", "_"), {
         maxLength: 200,

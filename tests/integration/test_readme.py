@@ -114,6 +114,7 @@ def test_review_seal_detects_changes_beyond_preview_and_exact_timestamps(tmp_pat
     assert validate_readme(readme, jobs, metadata) == []
     assert tuple(directory_state_rows(jobs)[0]) == (*PUBLIC_EXPORT_FIELDS, "first_seen_at")
 
+    # Only the seal can detect this edit: the row is outside the five-row preview.
     changed_jobs = [jobs[0].model_copy(update={"company": "Corrected Company"}), *jobs[1:]]
     assert markdown_block(changed_jobs, metadata) == markdown_block(jobs, metadata)
     assert validate_readme(readme, changed_jobs, metadata) == [
@@ -131,6 +132,7 @@ def test_review_seal_detects_changes_beyond_preview_and_exact_timestamps(tmp_pat
     assert directory_state_digest(jobs, now + timedelta(microseconds=1)) != (
         directory_state_digest(jobs, now)
     )
+    # Internal lifecycle updates must not churn a seal of public state.
     lifecycle_only = [
         jobs[0].model_copy(
             update={

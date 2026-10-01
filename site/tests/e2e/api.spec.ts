@@ -103,6 +103,7 @@ test("read-only API serves canonical rows with stable schema, filtering and pagi
   ).toMatch(/T.*\+00:00$/);
   const exportRows = await (await request.get("/open-opportunities.json")).json();
   expect(validateDownload(exportRows), JSON.stringify(validateDownload.errors)).toBe(true);
+  // Compare shared public fields by identity; downloads omit the API-only timestamp.
   const byId = (left: {linkedin_job_id: string}, right: {linkedin_job_id: string}) =>
     left.linkedin_job_id.localeCompare(right.linkedin_job_id, "en", {numeric: true});
   expect(

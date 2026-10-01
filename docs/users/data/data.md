@@ -72,7 +72,7 @@ Fetch [dataset-metadata.json](https://techopportunities.eu/dataset-metadata.json
 | `internship_count`, `new_grad_count` | Counts that sum to `total` |
 | `json_sha256`, `csv_sha256` | Lowercase SHA-256 of exact UTF-8 file bytes, including final newline |
 
-Compute SHA-256 before modifying or opening/resaving the download. A mismatch can mean a publication occurred between requests: fetch the metadata and downloads again. Hashes detect mismatched bytes; they are not signatures and do not validate API responses. Missing files return `503` rather than stale fallback content.
+Compute SHA-256 before editing or resaving the download. A mismatch can mean a publication occurred between requests: fetch the metadata and downloads again. Hashes detect mismatched bytes; they are not signatures and do not validate API responses. Missing files return `503` rather than stale fallback content.
 
 ## Schema, examples, and reuse
 
@@ -80,6 +80,6 @@ The [v1 JSON Schema](https://techopportunities.eu/schemas/opportunities-v1.schem
 
 [Complete synthetic examples](https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/schemas/examples) are tested against that same schema. Breaking download changes require a new schema version; existing v1 consumers should not need to infer field changes.
 
-The project uses the [MIT License](../../../LICENSE); third-party listing content remains subject to its owners' rights and terms. Verify availability and eligibility at the original source. These sanitized files cannot recover the project's internal lifecycle history.
+The project uses the [MIT License](../../../LICENSE); third-party listing content remains subject to its owners' rights and terms. Verify availability and eligibility at the original source. These files contain only the public fields listed above, not the project's internal history of listing updates or availability checks.
 
 Maintaining exports? See [projection ownership](../../maintainers/engineering/architecture.md#public-projections) and [contract testing](../../maintainers/engineering/testing.md).

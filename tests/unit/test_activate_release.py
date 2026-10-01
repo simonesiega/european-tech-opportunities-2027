@@ -25,6 +25,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def stage(root: Path, release_id: str, company: str) -> dict[str, str]:
+    """Stage minimal cutover payloads; application-schema validation is tested separately."""
     directory = root / ".incoming" / release_id
     (directory / "exports").mkdir(parents=True)
     with closing(sqlite3.connect(directory / "opportunities.db")) as database, database:
@@ -144,6 +145,7 @@ def test_lock_contention_and_interrupted_pointer_promotion(tmp_path: Path) -> No
     ) as holder:
         try:
             assert holder.stdout is not None
+            # The handshake proves lock acquisition without a scheduler-dependent sleep.
             assert holder.stdout.readline().strip() == "locked"
             assert activate(second).returncode != 0
         finally:
@@ -158,6 +160,7 @@ def test_lock_contention_and_interrupted_pointer_promotion(tmp_path: Path) -> No
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()
     fake_mv = fake_bin / "mv"
+    # Allow release-directory publication, but fail the final symlink replacement.
     fake_mv.write_text(
         '#!/bin/sh\nif [ "$1" = \'-Tf\' ]; then exit 9; fi\nexec /usr/bin/mv "$@"\n',
         encoding="utf-8",

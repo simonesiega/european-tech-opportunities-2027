@@ -209,6 +209,7 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
 
     class DelayedNotFound:
         async def get_text(self, _url: str) -> str:
+            # Insert the newer discovery during the old audit's fetch, without a timing race.
             persist(2, newer)
             raise FetchError("http_status", "not found", status_code=404)
 

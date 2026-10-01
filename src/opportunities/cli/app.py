@@ -129,6 +129,8 @@ def scrape(
                     rules=rules,
                 ).run(selected, configured_searches=configured)
             )
+            # Search transactions are already committed; this gate withholds projections,
+            # not lifecycle writes, when collection quality cannot be trusted.
             if quality_report is not None:
                 try:
                     quality = analyze_collection_quality(

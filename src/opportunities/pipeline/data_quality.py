@@ -89,6 +89,7 @@ def analyze_collection_quality(
     )
     successful = [outcome for outcome in outcomes if outcome.result is not None]
     full_success = complete_registry_run and len(successful) == len(outcomes)
+    # Registry-wide comparisons need the same search population, not just matching slugs.
     matching = [snapshot for snapshot in snapshots if snapshot.search_fingerprints == fingerprints]
     findings: list[DataQualityFinding] = []
     if invalid_count:
@@ -269,6 +270,7 @@ def analyze_collection_quality(
         "checks": [finding.to_payload() for finding in findings],
     }
     snapshot_json = None
+    # A failed or blocked run must not become the baseline that normalizes its own drift.
     if full_success and not blocking_count:
         snapshot = DataQualitySnapshot(
             schema_version=1,

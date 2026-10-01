@@ -108,12 +108,11 @@ set_output() {
   fi
 }
 
+# Return 1 for proven absence and 2 for failures; callers must distinguish them.
 fetch_latest_manifest() {
   local listing_file="$work_dir/remote-listing.txt"
   rm -f "$latest_manifest" "$listing_file"
-  # Prove absence through successful directory listings, not an ignored `get`:
-  # permission/transfer failures must never authorize live-database bootstrap.
-  # Check each prefix segment so a genuinely new nested store remains supported.
+  # List each prefix segment; a failed download cannot prove a new store is absent.
   local directory="$VPS_BACKUP_REMOTE_ROOT"
   local part
   local -a parts

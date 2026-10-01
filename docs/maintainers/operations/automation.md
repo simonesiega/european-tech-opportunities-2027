@@ -161,14 +161,14 @@ The environment branch rules are part of the security boundary, not optional doc
 
 Complete this once before relying on the scheduled run:
 
-1. merge the release commit into the default `main` branch before the scheduled time; schedules always use the default-branch workflow revision;
-2. create and restrict the `canonical-state` and `production` environments exactly as described above, then remove broader copies of their secrets;
-3. configure the repository variables and verify that `LINKEDIN_CRAWL_AUTHORIZED=true` reflects current express authorization rather than convenience;
-4. enable Actions pull-request creation, auto-merge, branch protection, and all eight required check contexts;
-5. complete the [one-time public-state seal review](#first-public-state-review-seal) from `main`, then run **Verify canonical state recovery** with its default input; require successful migration, projection validation, round-trip snapshot verification, and the retained sanitized projection artifact;
-6. only after that verified durable snapshot exists, delete every legacy `opportunities-db-*` Actions cache and legacy `opportunities-state-*` or `opportunities-nightly-state-*` artifact; these older state bundles are neither approved backups nor safe public artifacts;
-7. confirm no local or VPS collector can write the same database and no stale operational workflow is still running or queued;
-8. confirm **Nightly full update** is enabled and the repository is active enough for GitHub scheduled workflows.
+1. Merge the release commit into the default `main` branch before the scheduled time; schedules always use the default-branch workflow revision.
+2. Create and restrict the `canonical-state` and `production` environments exactly as described above, then remove broader copies of their secrets.
+3. Configure the repository variables and verify that `LINKEDIN_CRAWL_AUTHORIZED=true` reflects current express authorization rather than convenience.
+4. Enable Actions pull-request creation, auto-merge, branch protection, and all eight required check contexts.
+5. Complete the [one-time public-state seal review](#first-public-state-review-seal) from `main`, then run **Verify canonical state recovery** with its default input; require successful migration, projection validation, round-trip snapshot verification, and the retained sanitized projection artifact.
+6. Only after that verified durable snapshot exists, delete every legacy `opportunities-db-*` Actions cache and legacy `opportunities-state-*` or `opportunities-nightly-state-*` artifact; these older state bundles are neither approved backups nor safe public artifacts.
+7. Confirm no local or VPS collector can write the same database and no stale operational workflow is still running or queued.
+8. Confirm **Nightly full update** is enabled and the repository is active enough for GitHub scheduled workflows.
 
 Before switching an existing production website to versioned releases, complete the [coordinated first rollout](#coordinated-first-rollout-and-rollback); a successful recovery drill does not switch website readers or populate `data/current`. Do not use a live scrape as the first test of SSH, environment, snapshot, or branch-protection configuration. The recovery drill exercises those paths without LinkedIn access.
 

@@ -98,6 +98,7 @@ def test_manual_upsert_preserves_lifecycle_metadata_and_adds_no_provenance(
         assert session.scalar(select(func.count()).select_from(JobSearchRow)) == 0
         assert session.scalar(select(func.count()).select_from(SearchRunRow)) == 0
 
+    # Seed closure directly in the disposable database to isolate the manual-write guard.
     with session_factory.begin() as session:
         row = session.get(JobRow, job.linkedin_job_id)
         assert row is not None
@@ -210,6 +211,7 @@ def test_manual_batch_rolls_back_when_later_job_is_closed(
         assert row is not None
         row.status = JobStatus.CLOSED.value
 
+    # Rejecting the second row must also undo the valid first row's insertion.
     with pytest.raises(ValueError, match="availability audit"):
         repository.upsert_manual_jobs([first, second], observed_at=observed_at + timedelta(hours=1))
 

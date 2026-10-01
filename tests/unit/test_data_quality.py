@@ -77,6 +77,7 @@ def _collection(
     warnings: tuple[str, ...] = (),
     failed: bool = False,
 ) -> PipelineResult:
+    """Separate discovery and detail counts: rechecks need not produce new search cards."""
     search = search or _search()
     if failed:
         found = accepted = parsed = 0
@@ -150,6 +151,7 @@ def _stable_baselines(
         )
         assert analysis.snapshot_json is not None
         snapshots.append(analysis.snapshot_json)
+    # Match the repository's newest-first baseline order.
     return tuple(reversed(snapshots))
 
 
@@ -340,6 +342,8 @@ def test_malformed_snapshots_are_ignored_and_reported() -> None:
     assert "baseline_snapshot_invalid" in _codes(analysis)
 
 
+# With 20 classified records, differences of 8 and 15 reach the warning and blocking
+# thresholds (40 and 75 percentage points); adjacent values test the boundaries.
 @pytest.mark.parametrize(
     ("accepted", "baseline_accepted", "severity"),
     [

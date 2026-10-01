@@ -16,6 +16,7 @@ type OpportunityDirectoryProps = {
   referenceTime: string;
 };
 
+// Keep SSR and initial hydration identical before exposing browser-only interaction state.
 const subscribeToHydration = () => () => undefined;
 const getClientHydrationState = () => true;
 const getServerHydrationState = () => false;
@@ -209,6 +210,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
         onReset={clearFilters}
         localState={state}
         onToggle={(field, id) => {
+          // Move focus before a local action can remove its own row from the current list.
           if (field === "hidden") {
             (localView === "hidden" ? allViewRef : hiddenViewRef).current?.focus();
           }

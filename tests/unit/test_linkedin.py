@@ -271,6 +271,7 @@ def test_linkedin_scraper_paginates_and_deduplicates_job_ids(
     assert fetcher.calls.count(duplicate_detail_url) == 1
     assert all("2222222222" not in call for call in fetcher.calls)
     assert result.confirmed_unavailable_ids == ()
+    # The third detail has Workplace type, not Industries; the labels are not interchangeable.
     job_without_industries = next(
         job for job in result.positions if job.source_job_id == "3333333333"
     )
@@ -604,7 +605,9 @@ def test_cancelled_search_does_not_leave_unhandled_detail_failures(
                 await waiter
             release.set()
             await completed.wait()
-            await asyncio.sleep(0)  # Allow completion callbacks, not a wall-clock race.
+            # Drain callbacks and collect abandoned tasks so unhandled exceptions reach
+            # the loop's error handler before the assertion, without a wall-clock delay.
+            await asyncio.sleep(0)
             gc.collect()
             await asyncio.sleep(0)
             assert errors == []
@@ -651,6 +654,7 @@ def test_cancelling_one_search_preserves_the_other_shared_detail_waiter(
         await started.wait()
         surviving = asyncio.create_task(scraper.scrape(second, fetcher))
         await both_searches.wait()
+        # Cancel one waiter while the shared detail is still in flight for the other.
         cancelled.cancel()
         with pytest.raises(asyncio.CancelledError):
             await cancelled

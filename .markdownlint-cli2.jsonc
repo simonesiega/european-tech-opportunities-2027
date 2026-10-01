@@ -2,13 +2,11 @@
   // Curated inputs are passed by scripts/docs/lint_docs.py; no generated site or dependencies.
   "config": {
     "default": true,
-    // Paragraphs are deliberately unwrapped. Even a 400-character limit with
-    // code, headings, and tables exempt still reports over 70 prose lines.
+    // Prose paragraphs are deliberately unwrapped; renderers handle line wrapping.
     "MD013": false,
     // Allow existing public image markup; prefer Markdown in authored guides.
     "MD033": { "allowed_elements": ["div", "pre", "p", "img"] },
-    // Existing tables mix compact delimiter rows and variable-width columns;
-    // MD060 reports 258 formatting-only issues, including renderer-owned tables.
+    // Compact delimiter rows are shared by authored and renderer-owned tables.
     "MD060": false
   },
   "overrides": [

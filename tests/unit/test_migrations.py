@@ -1,3 +1,5 @@
+"""Seed historical schemas with raw SQL, independently of the current ORM models."""
+
 import sqlite3
 from contextlib import closing
 from datetime import UTC, datetime

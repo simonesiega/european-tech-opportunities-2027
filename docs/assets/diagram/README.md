@@ -77,7 +77,7 @@ A separate job receives only the README, opens a narrowly scoped pull request, a
 **Merging the matching README does not deploy:** publication is a separate protected manual run.
 Deployment verifies payloads under a lock and switches the release pointer atomically, retaining old releases for readers.
 Canonical databases and snapshot manifests never enter public GitHub caches or artifacts.
-Recovery modes differ: the normal drill publishes a verified snapshot; seal adoption proposes only the README baseline.
+Recovery modes differ: the normal drill publishes a verified snapshot; seal adoption and README recovery propose only README changes for review.
 
 ## Testing, documentation, and tooling
 

@@ -183,9 +183,8 @@ class Repository:
                     incoming=job,
                     observed_at=started_at,
                 )
-            # Details and 404s may arrive early in a long-running search. The
-            # search start is a conservative lower bound for both kinds of
-            # evidence, so a late finish cannot overrule newer observations.
+            # Use the search start for both accepted jobs and 404s: a late finish
+            # must not make early detail evidence overrule a newer observation.
             summary += self._confirm_unavailable(
                 session,
                 search_slug=search.slug,
@@ -259,7 +258,7 @@ class Repository:
         return summary
 
     def list_open_jobs(self) -> list[StoredJob]:
-        """Return all open jobs in publication order."""
+        """Return open jobs ordered by company, title, and location; renderers order previews."""
         with self.factory() as session:
             rows = session.scalars(
                 select(JobRow)
@@ -403,6 +402,7 @@ class Repository:
                 )
             )
             session.flush()
+            # Retain 90 observations for diagnostics; comparisons read a smaller recent window.
             newest_ids = (
                 select(DataQualitySnapshotRow.id)
                 .order_by(

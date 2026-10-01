@@ -27,6 +27,7 @@ def run_restore(
     use_ssh_override: bool = True,
     home: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
+    """Stub remote handoffs while exercising the real wrapper and local validation."""
     scripts = tmp_path / "scripts" / "database"
     scripts.mkdir(parents=True)
     (scripts / "canonical_state_store.sh").write_text(

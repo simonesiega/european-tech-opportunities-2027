@@ -354,7 +354,7 @@ flowchart TB
     class RELEASE,SITE teal
 ```
 
-The diagram traces dataset updates and deployment. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode instead proposes a README-only PR without snapshot publication or deployment. Verified snapshots are also the normal input to the next update's restore step; that feedback arrow is omitted for readability.
+The diagram traces dataset updates and deployment. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode and its separate README-recovery mode instead propose README-only PRs without snapshot publication or deployment. Verified snapshots are also the normal input to the next update's restore step; that feedback arrow is omitted for readability.
 
 ## Testing, documentation, and tooling
 
