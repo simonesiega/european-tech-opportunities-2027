@@ -17,11 +17,7 @@ from sqlalchemy import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
 from opportunities.config.rules import load_classification_rules
-from opportunities.config.search_registry import (
-    SearchRegistryError,
-    load_search_registry,
-    select_searches,
-)
+from opportunities.config.search_registry import load_search_registry, select_searches
 from opportunities.config.settings import Settings, apply_search_overrides, load_settings
 from opportunities.database.migrations import migration_head, upgrade_database
 from opportunities.database.repository import PersistSummary, Repository, SearchHealth
@@ -88,7 +84,7 @@ def main(
     """Load settings and initialize the CLI context."""
     try:
         settings = load_settings(settings_file)
-    except (OSError, ValueError, ValidationError) as exc:
+    except (OSError, ValueError) as exc:
         error_console.print(f"[red]Configuration error:[/red] {exc}")
         raise typer.Exit(2) from exc
     configure_logging(settings.log_level)
@@ -174,7 +170,7 @@ def scrape(
                     f"Generated projections updated: {settings.readme_path}; "
                     f"public exports: {settings.public_export_dir}"
                 )
-        except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
+        except (OSError, ValueError) as exc:
             error_console.print(f"[red]Scrape failed:[/red] {exc}")
             raise typer.Exit(2) from exc
     finally:
@@ -334,7 +330,7 @@ def search_test(ctx: typer.Context, search_slug: str) -> None:
             f"Found {result.search_result_count}, accepted {len(jobs)}, excluded {excluded}, "
             f"warnings {len(result.warnings)}."
         )
-    except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
+    except (OSError, ValueError) as exc:
         error_console.print(f"[red]Search test failed:[/red] {exc}")
         raise typer.Exit(2) from exc
     finally:
@@ -377,10 +373,8 @@ def searches(ctx: typer.Context) -> None:
     """Display configured searches and their latest health."""
     settings = _settings(ctx)
     try:
-        configured = apply_search_overrides(
-            load_search_registry(settings.search_config_dir), settings
-        )
-    except (SearchRegistryError, OSError, ValueError, ValidationError) as exc:
+        configured = _configured_searches(settings)
+    except (OSError, ValueError) as exc:
         error_console.print(f"[red]Search configuration error:[/red] {exc}")
         raise typer.Exit(2) from exc
     health: dict[str, SearchHealth] = {}
@@ -552,7 +546,7 @@ def _load_manual_batch(
         raise ValueError("input file exceeds 64 KiB")
     try:
         parsed: object = json.loads(content.decode("utf-8"), object_pairs_hook=_unique_json_object)
-    except (UnicodeDecodeError, json.JSONDecodeError, ValueError, RecursionError) as exc:
+    except (ValueError, RecursionError) as exc:
         raise ValueError(
             "input file must contain valid UTF-8 JSON without duplicate fields"
         ) from exc

@@ -22,27 +22,32 @@ export function filterOpportunities(
   const cutoff = period ? referenceTimestamp - period.durationMs : null;
 
   return opportunities.filter((opportunity) => {
-    const searchableText = [
-      opportunity.company,
-      opportunity.title,
-      opportunity.category,
-      opportunity.industries,
-      opportunity.employmentType,
-      opportunity.location,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase();
+    if (
+      (filters.company && opportunity.company !== filters.company) ||
+      (filters.category && opportunity.category !== filters.category) ||
+      (filters.type && opportunity.employmentType !== filters.type) ||
+      (filters.country && !getCountries(opportunity.location).includes(filters.country))
+    ) {
+      return false;
+    }
 
-    return (
-      (!query || searchableText.includes(query)) &&
-      (!filters.company || opportunity.company === filters.company) &&
-      (!filters.country || getCountries(opportunity.location).includes(filters.country)) &&
-      (!filters.category || opportunity.category === filters.category) &&
-      (!filters.type || opportunity.employmentType === filters.type) &&
-      (cutoff === null ||
-        (parseOpportunityTimestamp(opportunity.firstSeenAt) >= cutoff &&
-          parseOpportunityTimestamp(opportunity.firstSeenAt) <= referenceTimestamp))
-    );
+    if (query) {
+      const searchableText = [
+        opportunity.company,
+        opportunity.title,
+        opportunity.category,
+        opportunity.industries,
+        opportunity.employmentType,
+        opportunity.location,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!searchableText.includes(query)) return false;
+    }
+
+    if (cutoff === null) return true;
+    const firstSeen = parseOpportunityTimestamp(opportunity.firstSeenAt);
+    return firstSeen >= cutoff && firstSeen <= referenceTimestamp;
   });
 }

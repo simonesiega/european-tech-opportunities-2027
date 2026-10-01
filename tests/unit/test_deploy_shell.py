@@ -82,20 +82,21 @@ def prepare(tmp_path: Path) -> None:
     (exports / "dataset-metadata.json").write_text('{"total": 0}\n', encoding="utf-8")
 
 
-def test_missing_local_file_fails_before_network(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "missing_file",
+    [
+        "data/opportunities.db",
+        "data/exports/open-opportunities.csv",
+        "data/exports/open-opportunities.json",
+        "data/exports/dataset-metadata.json",
+    ],
+)
+def test_missing_local_file_fails_before_network(tmp_path: Path, missing_file: str) -> None:
     prepare(tmp_path)
-    (tmp_path / "data/exports/open-opportunities.json").unlink()
+    (tmp_path / missing_file).unlink()
     result = run_deploy(tmp_path)
     assert result.returncode != 0
     assert "missing or empty" in result.stderr
-    assert not (tmp_path / "ssh").exists()
-
-
-def test_missing_metadata_fails_before_network(tmp_path: Path) -> None:
-    prepare(tmp_path)
-    (tmp_path / "data/exports/dataset-metadata.json").unlink()
-    result = run_deploy(tmp_path)
-    assert result.returncode != 0
     assert not (tmp_path / "ssh").exists()
 
 

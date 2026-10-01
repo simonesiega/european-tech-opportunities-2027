@@ -4,7 +4,7 @@ import {siteConfig} from "@/lib/site-config";
 import type {Opportunity} from "@/types/opportunity";
 
 export const FEED_ITEM_LIMIT = 50;
-const FEED_PARAMETERS = ["type", "country", "category"] as const;
+const FEED_PARAMETERS = ["type", "country", "category"];
 const FEED_TEXT_LIMIT = 120;
 
 export type FeedFormat = "rss" | "atom";
@@ -27,7 +27,7 @@ export function parseFeedQuery(rawSearch: string): FeedFilters {
 
   const params = new URLSearchParams(rawSearch);
   for (const [key, value] of params) {
-    if (!FEED_PARAMETERS.includes(key as (typeof FEED_PARAMETERS)[number])) {
+    if (!FEED_PARAMETERS.includes(key)) {
       throw new InvalidFeedQuery();
     }
     if (
@@ -42,10 +42,10 @@ export function parseFeedQuery(rawSearch: string): FeedFilters {
   }
 
   const type = params.get("type") ?? "";
-  if (type && type !== "internship" && type !== "new-grad") throw new InvalidFeedQuery();
+  if (type !== "" && type !== "internship" && type !== "new-grad") throw new InvalidFeedQuery();
 
   return {
-    type: type === "internship" ? "internship" : type === "new-grad" ? "new-grad" : "",
+    type,
     country: params.get("country") ?? "",
     category: params.get("category") ?? "",
   };

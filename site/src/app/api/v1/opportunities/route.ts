@@ -1,13 +1,6 @@
+import {contentEtag, matchesIfNoneMatch, REVALIDATE_CACHE_CONTROL} from "@/lib/http-cache";
 import {getDirectoryData} from "@/lib/opportunities";
-import {
-  API_CACHE_CONTROL,
-  API_VERSION,
-  InvalidApiQuery,
-  apiEtag,
-  apiPayload,
-  matchesIfNoneMatch,
-  parseApiQuery,
-} from "@/lib/opportunity-api";
+import {API_VERSION, InvalidApiQuery, apiPayload, parseApiQuery} from "@/lib/opportunity-api";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +31,8 @@ export function GET(request: Request): Response {
   try {
     const {opportunities, lastUpdatedAt} = getDirectoryData();
     const body = JSON.stringify(apiPayload(opportunities, lastUpdatedAt, query));
-    const etag = apiEtag(body);
-    const headers = {...jsonHeaders, "Cache-Control": API_CACHE_CONTROL, ETag: etag};
+    const etag = contentEtag(body);
+    const headers = {...jsonHeaders, "Cache-Control": REVALIDATE_CACHE_CONTROL, ETag: etag};
     if (matchesIfNoneMatch(request.headers.get("if-none-match"), etag)) {
       return new Response(null, {status: 304, headers});
     }

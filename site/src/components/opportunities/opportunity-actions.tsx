@@ -46,15 +46,7 @@ export function OpportunityActions({
   useEffect(() => {
     if (!position) return;
     menuRef.current?.querySelector("button")?.focus({preventScroll: true});
-    function dismiss(event: PointerEvent) {
-      if (
-        event.target instanceof Node &&
-        !triggerRef.current?.contains(event.target) &&
-        !menuRef.current?.contains(event.target)
-      )
-        setPosition(null);
-    }
-    function dismissOnFocus(event: FocusEvent) {
+    function dismiss(event: PointerEvent | FocusEvent) {
       if (
         event.target instanceof Node &&
         !triggerRef.current?.contains(event.target) &&
@@ -79,22 +71,21 @@ export function OpportunityActions({
         restoreFocusAndDismiss();
       }
     }
-    const dismissOnScroll = restoreFocusAndDismiss;
     // Opening the menu may finish scrolling the trigger into view. Ignore that
     // initial browser scroll; subsequent page/table scrolling dismisses it.
     const scrollTimer = window.setTimeout(() => {
-      window.addEventListener("scroll", dismissOnScroll, true);
+      window.addEventListener("scroll", restoreFocusAndDismiss, true);
     }, 150);
     document.addEventListener("pointerdown", dismiss);
     document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("focusin", dismissOnFocus);
+    document.addEventListener("focusin", dismiss);
     window.addEventListener("resize", restoreFocusAndDismiss);
     return () => {
       document.removeEventListener("pointerdown", dismiss);
       window.clearTimeout(scrollTimer);
-      window.removeEventListener("scroll", dismissOnScroll, true);
+      window.removeEventListener("scroll", restoreFocusAndDismiss, true);
       document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("focusin", dismissOnFocus);
+      document.removeEventListener("focusin", dismiss);
       window.removeEventListener("resize", restoreFocusAndDismiss);
     };
   }, [position]);
