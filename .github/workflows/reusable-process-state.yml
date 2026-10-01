@@ -23,6 +23,11 @@ on:
         required: false
         default: false
         type: boolean
+      recover_readme_proposal:
+        description: Propose the restored public state for manual review without mutating durable state.
+        required: false
+        default: false
+        type: boolean
       add_manual_jobs:
         description: Add an operator-supplied batch before regenerating projections.
         required: false
@@ -128,11 +133,15 @@ jobs:
           echo "Set the repository variable LINKEDIN_CRAWL_AUTHORIZED=true before source access."
           exit 1
 
-      - name: Keep review-seal adoption read-only
-        if: inputs.adopt_public_review_seal && (inputs.run_availability || inputs.run_scrape || inputs.add_manual_jobs || inputs.deploy_to_vps || inputs.readme_artifact_name == '')
+      - name: Keep README recovery modes read-only
+        if: >-
+          (inputs.adopt_public_review_seal && inputs.recover_readme_proposal) ||
+          ((inputs.adopt_public_review_seal || inputs.recover_readme_proposal) &&
+          (inputs.run_availability || inputs.run_scrape || inputs.add_manual_jobs ||
+          inputs.deploy_to_vps || inputs.readme_artifact_name == ''))
         shell: bash
         run: |
-          echo "Review-seal adoption requires a README handoff and cannot collect, add, audit, or deploy."
+          echo "Select only one README recovery mode, with a README handoff and no collection, addition, audit, or deployment."
           exit 1
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -161,6 +170,7 @@ jobs:
       - name: Require restored state to match reviewed main
         env:
           ADOPT_PUBLIC_REVIEW_SEAL: ${{ inputs.adopt_public_review_seal }}
+          RECOVER_README_PROPOSAL: ${{ inputs.recover_readme_proposal }}
         shell: bash
         run: |
           set -euo pipefail
@@ -185,8 +195,16 @@ jobs:
               fi
             fi
           fi
-          echo "Restored canonical state is ahead of the reviewed README on main."
+          if [ "$RECOVER_README_PROPOSAL" = "true" ]; then
+            # Explicit recovery only: the mode guard forbids mutation and deployment,
+            # and snapshot publication is skipped. Validation still precedes the handoff.
+            echo "Proposing the restored public state for manual review; durable state remains unchanged."
+            exit 0
+          fi
+          echo "Restored canonical state does not match the reviewed README on main."
           echo "Merge or otherwise resolve the matching README state proposal before running another canonical-state workflow."
+          echo "If the proposal is missing or closed, run Verify canonical state recovery from main with recover_readme_proposal=true."
+          echo "Review and merge that README-only recovery PR, then start a fresh workflow from updated main."
           exit 1
 
       - name: Check every stored public job page for closure alerts
@@ -247,7 +265,7 @@ jobs:
           db.execute('PRAGMA wal_checkpoint(TRUNCATE)'); db.close()"
 
       - name: Configure restricted VPS snapshot access
-        if: inputs.adopt_public_review_seal != true
+        if: inputs.adopt_public_review_seal != true && inputs.recover_readme_proposal != true
         env:
           VPS_BACKUP_SSH_PRIVATE_KEY: ${{ secrets.VPS_BACKUP_SSH_PRIVATE_KEY }}
           VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
@@ -263,7 +281,7 @@ jobs:
           chmod 600 "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/known_hosts"
 
       - name: Publish and restore-verify VPS canonical snapshot
-        if: inputs.adopt_public_review_seal != true
+        if: inputs.adopt_public_review_seal != true && inputs.recover_readme_proposal != true
         id: canonical-snapshot
         env:
           VPS_BACKUP_HOST: ${{ secrets.VPS_HOST }}
@@ -274,7 +292,7 @@ jobs:
         run: bash scripts/database/canonical_state_store.sh publish
 
       - name: Remove SSH credentials
-        if: always() && inputs.adopt_public_review_seal != true
+        if: always() && inputs.adopt_public_review_seal != true && inputs.recover_readme_proposal != true
         shell: bash
         run: rm -f "$HOME/.ssh/id_backup_ed25519" "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
 

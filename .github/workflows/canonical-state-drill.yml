@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      recover_readme_proposal:
+        description: Recreate a missing or closed README proposal from verified state without collecting or publishing state
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: opportunity-collection
@@ -31,10 +36,11 @@ jobs:
     with:
       generate_exports: true
       adopt_public_review_seal: ${{ inputs.adopt_public_review_seal }}
+      recover_readme_proposal: ${{ inputs.recover_readme_proposal }}
       require_crawl_authorization: false
       timeout_minutes: 30
       projection_artifact_name: opportunities-recovery-projections-${{ github.run_id }}
-      readme_artifact_name: ${{ inputs.adopt_public_review_seal && format('opportunities-review-seal-readme-{0}', github.run_id) || '' }}
+      readme_artifact_name: ${{ (inputs.adopt_public_review_seal || inputs.recover_readme_proposal) && format('opportunities-recovery-readme-{0}', github.run_id) || '' }}
       backup_user: ${{ vars.VPS_BACKUP_USER || 'opportunities-backup' }}
       ssh_port: ${{ vars.VPS_SSH_PORT || '22' }}
       retention_days: ${{ vars.CANONICAL_STATE_RETENTION_DAYS || '365' }}
@@ -45,14 +51,35 @@ jobs:
     needs: verify-recovery
     uses: $/.github/workflows/reusable-readme-pr.yml
     permissions:
-      actions: write
-      contents: write
-      pull-requests: write
+      actions: write # Dispatch and await validation on the generated README commit.
+      contents: write # Update the scoped README automation branch.
+      pull-requests: write # Open or update the README-only review proposal.
     with:
-      artifact_name: opportunities-review-seal-readme-${{ github.run_id }}
+      artifact_name: opportunities-recovery-readme-${{ github.run_id }}
       branch: automated/public-review-seal
       title: "data: establish public directory review seal"
       commit_message: "data: establish public directory review seal"
       body: >-
         Initial reviewed public-directory seal generated from verified canonical state.
         Review the sanitized public projections in this workflow's artifact before merging.
+
+  propose-readme-recovery:
+    name: Recover missing README state proposal
+    if: inputs.recover_readme_proposal
+    needs: verify-recovery
+    uses: $/.github/workflows/reusable-readme-pr.yml
+    permissions:
+      actions: write # Dispatch and await validation on the generated README commit.
+      contents: write # Update the scoped README automation branch.
+      pull-requests: write # Open or update the README-only review proposal.
+    with:
+      artifact_name: opportunities-recovery-readme-${{ github.run_id }}
+      branch: automated/readme-recovery
+      title: "data: recover canonical README projection"
+      commit_message: "data: recover canonical README projection"
+      body: >-
+        Recover the README proposal from verified canonical state. No collection,
+        availability audit, manual addition, snapshot publication, or deployment ran.
+        Review the sanitized public projections in this workflow's artifact and reconcile
+        any older state proposals before merging. Merge remains manual.
+      auto_merge: false

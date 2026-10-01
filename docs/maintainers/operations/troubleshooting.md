@@ -433,6 +433,14 @@ The workflow retries the immutable digest-pinned Trivy image pull three times wi
 
 Do not remove digest pins, disable Trivy, broaden vulnerability exclusions, or change the scan exit code to turn an infrastructure or security failure into success.
 
+### Restored canonical state does not match reviewed main
+
+The message “Restored canonical state is ahead of the reviewed README on main” (or “does not match”) means the verified snapshot's generated projection differs from the workflow's checked-out README. Snapshot publication may have succeeded in an earlier run even if its README proposal failed or was closed without merging. This is a review barrier, not permission to discard SQLite or bypass validation.
+
+Merge the matching proposal after its checks and review pass. If it is missing or closed, run **Verify canonical state recovery** from current `main` with `recover_readme_proposal=true`, leaving seal adoption disabled. This explicit mode validates the restored projections and opens a manual-review README-only PR without source access, snapshot publication, or deployment. Follow the [recovery procedure](automation.md#recover-a-missing-readme-state-proposal), reconcile older proposals, and merge only correct state.
+
+After merging, start a fresh workflow from updated `main` or wait for the next schedule. Rerunning the old failed run reuses its original commit and may still fail against the old README. Do not use the initial seal-adoption option for an existing seal or a changed dataset.
+
 ### Canonical snapshot is missing
 
 Canonical SQLite is never stored in GitHub Actions cache or artifacts. When restricted VPS snapshot storage is healthy, the workflow downloads `latest.json`, verifies its timestamped SQLite file, and uses that exact state.

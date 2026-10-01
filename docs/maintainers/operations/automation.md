@@ -15,6 +15,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 - [Protected environments and repository settings](#protected-environments-and-repository-settings)
 - [First production activation](#first-production-activation)
 - [First public-state review seal](#first-public-state-review-seal)
+- [Recover a missing README state proposal](#recover-a-missing-readme-state-proposal)
 - [Collection authorization](#collection-authorization)
 - [Schedule and concurrency](#schedule-and-concurrency)
 - [Manual collection inputs](#manual-collection-inputs)
@@ -44,7 +45,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `scorecard.yml` | Saturday 06:17 UTC, manual from `main` | Assess repository supply-chain practices, publish the Scorecard result, and upload supported SARIF findings to code scanning |
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `documentation.yml` | Push to `main`, pull request, manual | Digest-pinned Markdown and prose lint, strict MkDocs Material build, and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
-| `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; its explicit adoption mode proposes the first public-state review seal without publishing a snapshot |
+| `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; explicit read-only modes propose the first public-state review seal or recover a missing README proposal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
@@ -102,9 +103,9 @@ The operator-facing workflows remain small mode selectors:
 - collection mode in `scrape.yml` selects scrape only;
 - deployment mode in `scrape.yml` selects projection regeneration followed by deployment;
 - `add-job.yml` selects one atomic manual batch upsert followed by full projection regeneration;
-- `canonical-state-drill.yml` normally selects restore, export, validation, and round-trip publication without source access; its seal-adoption mode reads a verified snapshot and proposes a README-only baseline without durable publication.
+- `canonical-state-drill.yml` normally selects restore, export, validation, and round-trip publication without source access; its mutually exclusive seal-adoption and README-recovery modes read verified state and propose a README-only review without durable publication.
 
-All canonical-state modes call `reusable-process-state.yml`. This keeps restore/bootstrap, migration, CLI exit-code handling, validation, checkpoint, durable publication, and sanitized-artifact ordering identical, except that seal adoption deliberately skips durable publication. Deployment mode selects the `production` environment and runs the final locked deployment in that same protected job, so canonical SQLite never crosses jobs through a GitHub cache or artifact. `scripts/database/restore_canonical_state.sh` encapsulates restricted-snapshot reconciliation and the verified live-database fallback. `scripts/database/canonical_state_store.sh` owns immutable SFTP snapshot restore/publication. `scripts/deployment/deploy_canonical_state.sh` and `scripts/deployment/activate_canonical_release.sh` own locked, checksum-verified versioned deployment with a single atomic release-pointer cutover.
+All canonical-state modes call `reusable-process-state.yml`. This keeps restore/bootstrap, migration, CLI exit-code handling, validation, checkpoint, durable publication, and sanitized-artifact ordering identical, except that the two README review modes deliberately skip durable publication. Deployment mode selects the `production` environment and runs the final locked deployment in that same protected job, so canonical SQLite never crosses jobs through a GitHub cache or artifact. `scripts/database/restore_canonical_state.sh` encapsulates restricted-snapshot reconciliation and the verified live-database fallback. `scripts/database/canonical_state_store.sh` owns immutable SFTP snapshot restore/publication. `scripts/deployment/deploy_canonical_state.sh` and `scripts/deployment/activate_canonical_release.sh` own locked, checksum-verified versioned deployment with a single atomic release-pointer cutover.
 
 The wrappers, rather than the reusable processor, decide which source phase runs, which protected environment applies, and whether README mutation or deployment is needed. Canonical processing never pushes Git branches, and the README mutation workflow never receives VPS credentials or canonical SQLite state.
 
@@ -176,6 +177,19 @@ Before switching an existing production website to versioned releases, complete 
 The generated README now includes a hidden SHA-256 seal of every website-visible open row and the exact last successful collection time. The visible tables remain limited to five jobs per type. A below-preview title, location, category, or first-seen change therefore changes the README proposal and must be reviewed before deployment.
 
 For a legacy installation whose reviewed README predates the seal, run **Verify canonical state recovery** with `adopt_public_review_seal=true`. This mode restores a verified canonical snapshot, or validates a consistent live-database backup under the first-bootstrap rules, migrates its temporary working copy, checks that the old generated README matches apart from the new seal, and uploads sanitized projections. It performs no LinkedIn request and publishes no new durable snapshot or production release. It opens a manual-review, README-only `automated/public-review-seal` pull request. Inspect its sanitized CSV/JSON artifact and generated seal, then merge it. A README that already contains a reviewed seal needs no adoption. If the old README differs for any other reason, the run fails and the prior state proposal must be reconciled first. Until this baseline PR merges, normal mutation and deployment modes fail closed at the reviewed-state barrier. Subsequent recovery drills use the default input and continue round-trip snapshot verification.
+
+## Recover a missing README state proposal
+
+A snapshot can be newer than the reviewed README when snapshot publication succeeds but the proposal job fails, or when its pull request is closed without merging. The reviewed-state barrier then correctly blocks further mutation and deployment. Repeating collection cannot repair this mismatch.
+
+1. Check for the matching open README proposal first. If it exists, resolve its checks and review it rather than creating a competing proposal.
+2. If the proposal is missing or closed, run **Verify canonical state recovery** from current `main` with `recover_readme_proposal=true` and `adopt_public_review_seal=false`.
+3. Review the retained sanitized projection artifact and the `automated/readme-recovery` pull request. Reconcile any older state proposals so they cannot later merge stale projections. Wait for all dispatched validation checks and merge the recovery PR manually only if the restored public state is correct.
+4. Start a **fresh** workflow from updated `main`, or wait for the next nightly schedule. GitHub's rerun action uses the original commit and can still compare against the stale README. Deployment remains a separate reviewed-state operation.
+
+Recovery restores and verifies canonical state, migrates only its temporary working copy, renders projections, and validates them before the sanitized handoff. It performs no LinkedIn request, manual job addition, durable snapshot publication, or deployment. The reusable processor rejects recovery combined with any mutation/deployment input, a missing README handoff, or seal adoption. The recovery PR never requests auto-merge; ordinary workflows still require exact agreement with reviewed `main`.
+
+If a prior proposal was rejected because its data was wrong, do not approve the same state merely to unblock automation. Preserve the snapshot and follow [canonical-state recovery](#recovery-and-migration-failures) instead. Neither README recovery nor a sanitized artifact rebuilds or rolls back SQLite.
 
 ## Collection authorization
 
@@ -274,7 +288,7 @@ The nightly workflow runs availability first and collection second, then validat
 
 The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-jobs --no-render` batch operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the reviewed batch instead of rebuilding state from the VPS database.
 
-Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. The generated seal covers the full website-visible state, including rows outside the bounded preview and exact first-seen and collection timestamps. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose public-state proposal has not yet been merged. The explicit one-time adoption mode accepts only the seal addition to an otherwise matching legacy README, creates a review PR, and cannot collect or deploy. If a proposal is rejected or closed without merging, subsequent canonical-state workflows fail closed until the reviewed state and durable snapshot are reconciled.
+Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. The generated seal covers the full website-visible state, including rows outside the bounded preview and exact first-seen and collection timestamps. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose public-state proposal has not yet been merged. The explicit one-time adoption mode accepts only the seal addition to an otherwise matching legacy README. The separate [README recovery mode](#recover-a-missing-readme-state-proposal) can propose a differing restored projection for manual review when its original proposal is missing or closed. Both modes validate the projections and create a review PR without collecting, publishing a snapshot, or deploying. If a proposal is rejected or closed without merging, ordinary canonical-state workflows still fail closed until the reviewed state and durable snapshot are reconciled.
 
 The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
@@ -367,6 +381,7 @@ automated/availability-update  # manually requested availability only
 automated/scrape-update        # manually requested scrape only
 automated/manual-jobs-YYYY-MM-DD # manually reviewed job batch
 automated/public-review-seal   # one-time baseline from verified state
+automated/readme-recovery      # manual recovery of a missing state proposal
 ```
 
 Only `README.md` is committed. SQLite state is never committed. Canonical processing uploads a one-day README-only handoff, then a separate job with `actions: write`, `contents: write`, and `pull-requests: write` downloads that file and performs the GitHub mutation and validation dispatch. Processing retains only `contents: read`; the mutation job receives no VPS credentials or state bundle.
