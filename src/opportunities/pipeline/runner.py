@@ -126,10 +126,8 @@ class CollectionPipeline:
         successful = failed = found = accepted = excluded = warnings = 0
         summary = PersistSummary()
         classified_outcomes: dict[str, SearchOutcome] = {}
-        # Searches finish concurrently. Apply their observations in time order so
-        # older 404 confirmations cannot follow and undo a newer valid rediscovery.
-        # The concurrent mapper returns configured search order; Python's stable
-        # sort keeps that order when finish timestamps are equal.
+        # Persist earlier finishes first; repository guards also reject stale evidence.
+        # Stable sorting preserves configured search order when finish times tie.
         for outcome in sorted(outcomes, key=lambda item: item.finished_at):
             if outcome.result is None:
                 # Persist each failure independently; one broken search must not roll
@@ -202,8 +200,7 @@ class CollectionPipeline:
 
     def _classify(self, result: LinkedInScrapeResult) -> tuple[list[DiscoveredJob], int]:
         """Classify scraped jobs and collect accepted records."""
-        # Multiple searches or duplicate cards may expose the same LinkedIn ID;
-        # publication and persistence use one canonical record per source ID.
+        # Duplicate cards or rechecks must not produce multiple records for one job ID.
         jobs: dict[str, DiscoveredJob] = {}
         excluded = 0
         for raw in result.positions:

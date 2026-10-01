@@ -118,6 +118,7 @@ def directory_state_digest(
         if last_successful_collection is not None
         else None
     )
+    # Seal all public rows, not just the preview, so off-preview changes require review.
     payload = {
         "version": 1,
         "last_successful_collection": timestamp,

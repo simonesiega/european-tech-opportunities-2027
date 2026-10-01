@@ -217,14 +217,10 @@ def normalize_locations(values: list[str]) -> LocationResult:
             for city, country_code in _CITY_COUNTRIES.items():
                 if contains_normalized_phrase(key, city):
                     codes.add(country_code)
-            # Uppercase tokens alone are not country evidence when this location
-            # has a non-European qualifier: DE/US means Delaware, NL/Canada can
-            # mean Newfoundland, and RS/Brazil can mean Rio Grande do Sul.
-            # Named European countries above still support explicit mixed locations.
+            # Non-European qualifiers make codes ambiguous (DE/US may mean Delaware).
+            # Named European countries still support explicit mixed locations above.
             codes.update(uppercase_codes & EUROPEAN_COUNTRY_CODES)
-        # EMEA includes the Middle East and Africa, so it does not by itself
-        # establish a European posting location. A named country or city above
-        # can still supply explicit European evidence for a mixed label.
+        # EMEA alone is too broad; require Europe wording or country/city evidence.
         if any(contains_normalized_phrase(key, marker) for marker in ("europe", "european")):
             europe_signal = True
         if has_non_european_marker:

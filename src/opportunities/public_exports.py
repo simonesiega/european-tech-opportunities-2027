@@ -36,7 +36,7 @@ PUBLIC_EXPORT_FIELDS = (
 
 
 def render_public_exports(directory: Path, jobs: list[StoredJob]) -> None:
-    """Atomically replace sanitized public exports derived from open SQLite rows."""
+    """Replace each sanitized export atomically; the three files are not one transaction."""
     directory.mkdir(parents=True, exist_ok=True)
     rows = _public_rows(jobs)
     csv_content = _csv_content(rows)
@@ -110,6 +110,8 @@ def validate_public_exports(directory: Path, jobs: list[StoredJob]) -> list[str]
             generated = datetime.fromisoformat(metadata["generated_at"])
             if generated.tzinfo is None or generated.utcoffset() != timedelta(0):
                 raise ValueError("generated_at must be UTC")
+            # Reuse the recorded generation time, but recompute counts and hashes from
+            # current rows and exact file bytes; validation must not invent a new timestamp.
             expected_metadata = _metadata(
                 rows,
                 actual.get(CSV_FILENAME, b""),

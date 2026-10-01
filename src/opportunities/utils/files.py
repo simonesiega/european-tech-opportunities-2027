@@ -11,6 +11,7 @@ from pathlib import Path
 def atomic_write_text(path: Path, content: str) -> None:
     """Atomically replace a text file while preserving its permission bits."""
     mode = stat.S_IMODE(path.stat().st_mode) if path.exists() else None
+    # A sibling temporary file keeps replacement on the same filesystem.
     descriptor, temporary_name = tempfile.mkstemp(
         dir=path.parent,
         prefix=f".{path.name}.",

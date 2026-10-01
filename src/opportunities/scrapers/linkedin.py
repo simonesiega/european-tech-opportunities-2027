@@ -375,9 +375,8 @@ class LinkedInScraper:
             new_search_ids = {
                 card.job_id for card in parsed.cards if card.job_id not in seen_search_ids
             }
-            # LinkedIn can repeat a full page at later offsets. Stop only on an empty
-            # or fully repeated raw page; a page with no eligible titles may still be
-            # followed by a useful page.
+            # Stop on empty or repeated raw pages, not merely filtered-out titles:
+            # a later page may still contain eligible candidates.
             if not parsed.cards or not new_search_ids:
                 break
             seen_search_ids.update(card.job_id for card in parsed.cards)
@@ -400,9 +399,8 @@ class LinkedInScraper:
             try:
                 html = await self._detail(card.job_id, fetcher)
                 job = parse_job_detail(html, card, observed_at=observed_at)
-                # The classifier decides whether cycle evidence or a posting date is
-                # sufficient. Filtering here would discard explicit-cycle listings
-                # when LinkedIn omits the relative posting age.
+                # Missing posting age is not a parser rejection: explicit cycle evidence
+                # may still satisfy the classifier.
                 positions.append(job)
             except FetchError as exc:
                 if exc.status_code not in {404, 410}:
@@ -463,10 +461,8 @@ class LinkedInScraper:
 
     async def _detail(self, job_id: str, fetcher: TextFetcher) -> str:
         """Fetch one detail page while deduplicating only concurrent requests."""
-        # Protect task creation rather than the network wait: concurrent searches share
-        # one request for the same job without serializing requests for different jobs.
-        # Completed tasks are evicted immediately so their potentially large HTML bodies
-        # are not retained for the lifetime of a pipeline instance.
+        # Lock task creation, not network I/O, so different job IDs can fetch concurrently.
+        # Evict completed tasks rather than retaining HTML for the pipeline's lifetime.
         async with self._detail_lock:
             task = self._detail_tasks.get(job_id)
             if task is None:
@@ -478,9 +474,8 @@ class LinkedInScraper:
                 def discard(completed: asyncio.Task[str]) -> None:
                     if self._detail_tasks.get(job_id) is completed:
                         self._detail_tasks.pop(job_id, None)
-                    # Shielded requests can outlive every cancelled waiter. Retrieve
-                    # their errors so asyncio does not emit an unhandled-task log;
-                    # remaining waiters still receive the same exception on await.
+                    # Shared requests can outlive all cancelled waiters. Consume errors
+                    # to prevent unhandled-task logs; remaining waiters still receive them.
                     if not completed.cancelled():
                         completed.exception()
 
