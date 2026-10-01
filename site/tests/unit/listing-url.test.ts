@@ -6,6 +6,7 @@ const jobId = "1000000001";
 test("accepts only the canonical HTTPS LinkedIn listing matching the job ID", () => {
   expect(isCanonicalListingUrl(`https://www.linkedin.com/jobs/view/${jobId}`, jobId)).toBe(true);
 
+  // Reject safe but noncanonical spellings too: consumers do not repair stored URLs.
   const rejectedUrls = [
     "https://www.linkedin.com/jobs/view/1000000002",
     `http://www.linkedin.com/jobs/view/${jobId}`,

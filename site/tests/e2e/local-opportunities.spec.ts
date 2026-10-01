@@ -221,6 +221,7 @@ test("saved rows respect pagination and sorting without changing URL semantics",
   await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
   await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
+  // Clamp the private list's page without rewriting the public pagination parameter.
   await expect(page).toHaveURL(/page=2/);
   await expect(page.getByText("Page 1 of 1")).toBeVisible();
   await page.getByRole("button", {name: "Company"}).click();
@@ -262,7 +263,8 @@ test("keyboard actions, menu dismissal, focus and mobile reachability", async ({
         .analyze()
     ).violations
   ).toEqual([]);
-  await page.waitForTimeout(200); // Allow the menu's opening scroll to settle.
+  // Wait past OpportunityActions' 150 ms opening-scroll grace period before testing dismissal.
+  await page.waitForTimeout(200);
   await page
     .locator("table")
     .locator("..")
@@ -307,6 +309,7 @@ test("tabs merge sequential local actions and synchronize clearing without reque
   const other = await context.newPage();
   await openDirectory(page, "/?company=Acme+Labs");
   await openDirectory(other, "/?company=Acme+Labs");
+  // Observe only local actions, not the requests needed to load the two pages.
   const requests: string[] = [];
   context.on("request", (request) =>
     requests.push(`${request.method()} ${request.url()} ${request.postData() ?? ""}`)
@@ -333,7 +336,7 @@ test("tabs merge sequential local actions and synchronize clearing without reque
     "saved",
     "version",
   ]);
-  // A queued notification can describe a value older than this tab's last action.
+  // Simulate a stale clear notification without clearing the newer value in storage.
   await page.evaluate((key) => {
     window.dispatchEvent(
       new StorageEvent("storage", {
@@ -364,6 +367,7 @@ test("quota failures retain consecutive in-memory actions instead of stale store
   page,
 }) => {
   await openDirectory(page, "/?company=Acme+Labs");
+  // Keep reads working with the old stored state; only subsequent writes fail.
   await page.evaluate(() => {
     Storage.prototype.setItem = () => {
       throw new DOMException("full", "QuotaExceededError");

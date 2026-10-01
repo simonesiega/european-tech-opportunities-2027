@@ -107,6 +107,7 @@ describe("public opportunity feeds", () => {
 
   test("removes XML-invalid code points and caps results at the newest 50", () => {
     expect(xmlEscape("a\u0000b\ud800c & d")).toBe("abc &amp; d");
+    // Mirror the database's newest-first order; the renderer preserves input order.
     const rows = Array.from({length: FEED_ITEM_LIMIT + 1}, (_, index) =>
       row(String(index + 1), {
         firstSeenAt: new Date(Date.UTC(2026, 6, 31 - index, 12)).toISOString(),

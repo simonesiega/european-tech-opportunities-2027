@@ -346,6 +346,7 @@ def test_posting_floor_uses_the_utc_instant(
 def test_explicit_separate_european_location_survives_a_mixed_country_list(
     rules: ClassificationRules,
 ) -> None:
+    # Separate entries are independent locations; US does not qualify the DE entry.
     assert classify(rules, title="Software Intern 2027", locations=["DE", "US"]).include
 
 

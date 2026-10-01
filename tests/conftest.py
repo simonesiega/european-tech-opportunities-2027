@@ -103,6 +103,7 @@ def search() -> LinkedInSearchConfig:
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
+    # Exercise authorized paths with mocks; the autouse fixture still blocks real HTTPX calls.
     return Settings(
         database_url=f"sqlite:///{(tmp_path / 'opportunities.db').as_posix()}",
         search_config_dir=ROOT / "configs" / "searches",

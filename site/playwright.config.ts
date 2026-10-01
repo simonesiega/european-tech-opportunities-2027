@@ -25,6 +25,7 @@ export default defineConfig({
   webServer: {
     command: "bun run dev --webpack --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100",
+    // A reused dev server may read non-fixture state; always start the isolated test server.
     reuseExistingServer: false,
     timeout: 120_000,
     env: {

@@ -124,6 +124,7 @@ def test_public_csv_neutralizes_formulas_and_validation_detects_stale_files(
 ) -> None:
     now = datetime(2026, 7, 15, tzinfo=UTC)
     text = f"{prefix}SYNTHETIC()"
+    # Inject the exact prefix after model validation so normalization cannot hide it.
     job = stored_job(1, now).model_copy(update={field: text})
 
     render_public_exports(tmp_path, [job])

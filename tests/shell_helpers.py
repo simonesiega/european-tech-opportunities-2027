@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def offline_shell_environment(tmp_path: Path) -> dict[str, str]:
-    """Never inherit host settings or fall through to real SSH/SFTP/SCP binaries."""
+    """Allow runtime essentials while blocking real SSH/SFTP/SCP behind test fakes."""
     blockers = tmp_path / "blocked-network-bin"
     blockers.mkdir(exist_ok=True)
     for command in ("ssh", "scp", "sftp"):
@@ -27,6 +27,7 @@ def offline_shell_environment(tmp_path: Path) -> dict[str, str]:
             for name in ("SYSTEMROOT", "WINDIR", "PATHEXT")
             if name in os.environ
         },
+        # Callers prepend fakes; blockers must still precede every host transport binary.
         "PATH": f"{blockers}{os.pathsep}{os.environ['PATH']}",
         "HOME": str(home),
         "TMPDIR": str(tmp_path),

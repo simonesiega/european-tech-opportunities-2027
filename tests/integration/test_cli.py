@@ -152,6 +152,7 @@ def test_scrape_quality_gate_end_to_end(
     assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
     report_path = tmp_path / "quality-reports/data-quality-report.json"
     args = ["scrape", "--quality-report", str(report_path)]
+    # Establish complete observations so the next run tests drift rather than warm-up.
     for _ in range(3):
         command = runner.invoke(app, [*args, "--no-render"], env=environment)
         assert command.exit_code == 0, command.output

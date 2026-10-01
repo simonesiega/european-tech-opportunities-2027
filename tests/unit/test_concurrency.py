@@ -42,6 +42,7 @@ def test_concurrent_map_cleans_up_running_workers_after_failure_or_cancellation(
     finished: set[int] = set()
 
     async def run() -> None:
+        # Hold both workers until failure or cancellation; queued items must never start.
         ready, pending = asyncio.Event(), asyncio.Event()
 
         async def work(value: int) -> int:

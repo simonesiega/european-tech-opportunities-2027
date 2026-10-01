@@ -2,6 +2,7 @@ import {expect, type Page} from "@playwright/test";
 
 export async function openDirectory(page: Page, url = "/") {
   await page.goto(url);
+  // Server HTML appears before hydration; wait for the directory's interactive state.
   await expect(page.getByRole("region", {name: "Opportunity directory"})).toHaveAttribute(
     "aria-busy",
     "false"

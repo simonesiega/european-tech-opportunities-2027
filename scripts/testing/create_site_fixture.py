@@ -138,6 +138,7 @@ def create_fixture(*, now: datetime, demo: bool = False) -> Path:
             finished_at=COLLECTION_TIME,
             duration_ms=0,
         )
+        # A newer failed run must not advance the website's last-successful collection date.
         failed_at = COLLECTION_TIME + timedelta(days=2)
         repository.persist_failure(
             run_id="fixture-failure",

@@ -99,6 +99,7 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
         category=OpportunityCategory.SOFTWARE_ENGINEERING,
         employment_type=EmploymentType.INTERNSHIP,
     )
+    # Leave the failing search one 404 short of closure to expose leaked failure evidence.
     for index in (0, 1):
         repository.persist_success(
             run_id=f"seed-{index}",
@@ -521,8 +522,7 @@ def test_overlapping_search_404_cannot_override_a_newer_valid_observation(
     earlier_check = first_seen + timedelta(minutes=1)
     valid_check = first_seen + timedelta(minutes=2)
     late_finish = first_seen + timedelta(minutes=3)
-    # The first search checked an old/stale detail before the second search found
-    # a valid job, but spent longer processing other jobs and finished last.
+    # Persist in finish order: the later-finishing search carries the older 404.
     persist(2, second, valid_check, valid_check, found=True)
     persist(3, search, earlier_check, late_finish, found=False)
 
@@ -577,8 +577,8 @@ def test_slow_search_early_valid_detail_cannot_reopen_after_later_404(
     persist(1, search, initial, initial, found=True)
     persist(2, search, initial + timedelta(minutes=1), initial + timedelta(minutes=1), found=False)
 
-    # The slow search obtained a valid detail just after minute 2, but finished
-    # after another search's later 404 reached the closure threshold.
+    # The earlier-started search finishes after a later 404 closes the job;
+    # its start timestamp, not its finish, must govern evidence freshness.
     slow_started = initial + timedelta(minutes=2)
     persist(3, search, initial + timedelta(minutes=3), initial + timedelta(minutes=4), found=False)
     persist(4, slow, slow_started, initial + timedelta(minutes=5), found=True)
@@ -757,6 +757,7 @@ def test_normalized_oversize_location_is_excluded_without_losing_valid_jobs(
             known_jobs: tuple[KnownJob, ...] = (),
         ) -> LinkedInScrapeResult:
             result = await super().scrape(search, fetcher, known_jobs=known_jobs)
+            # Each location fits alone; joining them exceeds the canonical field limit.
             invalid = RawJob(
                 source_job_id="3333333333",
                 company="Synthetic Technology",

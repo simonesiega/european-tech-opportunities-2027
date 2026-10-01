@@ -135,6 +135,7 @@ def test_snapshot_from_live_wal_is_cold_and_sidecar_free(tmp_path: Path) -> None
         )
         writer.commit()
         assert (tmp_path / "source.db-wal").stat().st_size > 0
+        # Keep the writer open so closing it cannot checkpoint away the WAL test case.
         snapshot, manifest = _create_bundle(tmp_path)
 
     verify_snapshot(snapshot, manifest)
@@ -255,6 +256,7 @@ def test_failed_snapshot_preserves_outputs_it_did_not_publish(
     foreign = workspace / output_name
 
     def fail_inspection(_path: Path) -> snapshots.DatabaseMetadata:
+        # Create this after preflight to model another operation claiming the output path.
         foreign.write_bytes(b"foreign output")
         raise SnapshotError("synthetic inspection failure")
 
@@ -358,6 +360,7 @@ def test_manifest_rejects_duplicate_root_and_nested_fields(workspace: Path, dupl
         '"format_version": 999, ' if duplicate == "format_version" else '"run_id": "other", '
     )
     target = f'"{duplicate}":'
+    # Edit raw JSON: a dictionary round-trip would discard the duplicate under test.
     manifest.write_text(content.replace(target, insertion + target, 1), encoding="utf-8")
     with pytest.raises(SnapshotError, match="duplicate"):
         load_manifest(manifest)
