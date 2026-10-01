@@ -193,7 +193,29 @@ def test_export_schema_and_metadata_validation_rejects_tampering(tmp_path: Path)
     assert json.loads(metadata_path.read_text(encoding="utf-8"))["total"] == 0
 
 
-def test_documented_examples_match_all_three_v1_contracts() -> None:
+@pytest.mark.parametrize(
+    ("definition", "field"),
+    [
+        ("apiRow", "firstSeenAt"),
+        ("statusSuccess", "last_successful_collection"),
+        ("statusSuccess", "dataset_generated_at"),
+    ],
+)
+@pytest.mark.parametrize("suffix", ["\n", "\r", "\r\n", "\u2028", "\u2029", " "])
+def test_api_timestamp_contract_rejects_trailing_whitespace(
+    definition: str, field: str, suffix: str
+) -> None:
+    schema = json.loads(_schema_path().read_text(encoding="utf-8"))
+    validator = Draft202012Validator(
+        {"$defs": schema["$defs"], "$ref": f"#/$defs/{definition}/properties/{field}"}
+    )
+    timestamp = "2026-07-17T12:00:00.123456+00:00"
+    assert validator.is_valid(timestamp)
+    # Python's regex end anchor also matches before a final newline; JavaScript's does not.
+    assert not validator.is_valid(timestamp + suffix)
+
+
+def test_documented_examples_match_all_public_v1_contracts() -> None:
     root = _schema_path().parents[1]
     schema = json.loads(_schema_path().read_text(encoding="utf-8"))
     assert schema["$id"] == "https://techopportunities.eu/schemas/opportunities-v1.schema.json"
@@ -226,7 +248,8 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     api_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/apiResponse"}
     assert Draft202012Validator(api_contract).is_valid(api)
     api_guide = (root / "docs/users/data/api.md").read_text(encoding="utf-8")
-    for example in shown_examples(api_guide, "json"):
+    listing_guide, status_guide = api_guide.split("## Check production freshness", maxsplit=1)
+    for example in shown_examples(listing_guide, "json"):
         Draft202012Validator(api_contract).validate(json.loads(example))
     assert api["pagination"]["total"] == len(json_rows) == len(api["data"])
     assert [
@@ -262,4 +285,15 @@ def test_documented_examples_match_all_three_v1_contracts() -> None:
     assert (
         metadata["csv_sha256"]
         == hashlib.sha256((examples / "open-opportunities-v1.csv").read_bytes()).hexdigest()
+    )
+
+    status = json.loads((examples / "api-status-v1.json").read_text(encoding="utf-8"))
+    status_contract = {"$defs": schema["$defs"], "$ref": "#/$defs/statusResponse"}
+    Draft202012Validator(status_contract).validate(status)
+    shown_status = [json.loads(example) for example in shown_examples(status_guide, "json")]
+    assert shown_status == [status]
+    assert status["opportunities"] == metadata["total"]
+    assert status["dataset_sha256"] == metadata["json_sha256"]
+    assert datetime.fromisoformat(status["dataset_generated_at"]) == datetime.fromisoformat(
+        metadata["generated_at"]
     )

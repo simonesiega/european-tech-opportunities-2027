@@ -408,10 +408,21 @@ Use this sequence after each scheduled collection. Do not deploy merely because 
 6. From the Actions tab, run **Scrape jobs or deploy reviewed state** on `main` with `deploy_to_vps=true`.
 7. Approve the `production` environment deployment if required. Confirm **Validate, preserve, and deploy reviewed state** restores and validates the matching state before its final deployment step. A README/database mismatch is a safety stop, usually meaning the matching projection was not merged or a newer snapshot exists.
 8. Confirm staging, checksum verification, lock acquisition, immutable release publication, and the single pointer switch completed in the deployment log. Never print secrets or database rows while reviewing logs.
-9. Verify the live directory and both fixed downloads over HTTPS. Check that the visible counts and last successful collection time match `main`, filtering and pagination still work, and CSV/JSON downloads return the expected attachment filenames.
+9. Verify the live directory and both fixed downloads over HTTPS. Check that the visible counts and last successful collection time match `main`, filtering and pagination still work, and CSV/JSON downloads return the expected attachment filenames. Then [verify the deployed dataset](#verify-the-deployed-dataset) against the reviewed artifact.
 10. Keep the nightly and deployment run IDs for the operational record. If authorization will not remain valid for the next scheduled run, immediately set `LINKEDIN_CRAWL_AUTHORIZED=false` or remove the variable.
 
 If any step before deployment fails, leave production unchanged and diagnose the failed stage. If deployment fails, do not collect again as a repair strategy; inspect the lock, staged uploads, release directory, and `current` symlink. Before pointer promotion the previous release stays live; afterward select a verified prior release under the lock if rollback is required. Canonical snapshot recovery remains separate.
+
+### Verify the deployed dataset
+
+After a dataset deployment or application release, request [`/api/v1/status`](../../users/data/api.md#check-production-freshness) over HTTPS. The endpoint reads served state only; it does not compare GitHub state or initiate collection.
+
+1. Require `200` and `Cache-Control: no-store`. Treat `503` as unavailable data, not an empty dataset.
+2. Compare `opportunities` and `dataset_sha256` with `total` and `json_sha256` in the reviewed update's sanitized `dataset-metadata.json` artifact. Comparing only with production's metadata cannot detect a consistently stale release.
+3. Check `last_successful_collection` against the reviewed state. The README displays minute precision; the endpoint preserves microseconds. A partial batch can advance this timestamp without every search succeeding.
+4. Confirm `release` matches the identifier in the deployment log. `null` means fixed-path mode; it does not confirm that versioned production readers switched successfully.
+
+Export regeneration can change `dataset_generated_at` without changing listings. The JSON download omits first-seen and collection timestamps, so its hash cannot replace the README review seal or complete publication validation. A mismatch is a failed verification: inspect the selected release and the deployment result rather than collecting again to repair it.
 
 ## VPS deployment
 

@@ -62,7 +62,7 @@ The search start is a conservative observation lower bound: a detail page fetche
 | Projection | Owner and contract |
 |---|---|
 | Website | Short-lived read-only SQLite connections; all open rows and latest successful collection time; [website engineering](website.md) |
-| API | Same query and release selection, bounded inputs and explicit field allowlist; [v1 contract](../../users/data/api.md) |
+| API | Shared release selection, bounded inputs, and explicit field allowlists; listing queries and read-only dataset status; [v1 contract](../../users/data/api.md) |
 | RSS / Atom feeds | Same read-only open rows, latest 50 entries, exact type/country/category filters, and escaped XML; [subscriber guide](../../users/browsing/directory.md#subscribe-to-new-opportunities) |
 | CSV / JSON / metadata | Python renderer selects approved fields, neutralizes CSV formulas, validates schema/bytes/counts/hashes, and atomically replaces files; [download contract](../../users/data/data.md) |
 | README | Renderer owns exactly one count region and one preview region; maximum five newest rows per employment type |

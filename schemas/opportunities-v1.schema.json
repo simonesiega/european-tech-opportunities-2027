@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://techopportunities.eu/schemas/opportunities-v1.schema.json",
   "title": "Public opportunities contracts v1",
-  "description": "The root validates the JSON download. $defs/csvDataset validates decoded CSV cells; $defs/apiResponse validates JSON API success and error bodies. CSV byte encoding and HTTP semantics are specified in the public dataset guide.",
+  "description": "The root validates the JSON download. $defs/csvDataset validates decoded CSV cells; $defs/apiResponse validates listing API bodies; $defs/statusResponse validates public freshness status and errors. CSV byte encoding and HTTP semantics are specified in the public dataset guide.",
   "$ref": "#/$defs/jsonDataset",
   "$defs": {
     "jobId": {"type": "string", "pattern": "^[0-9]{1,30}$"},
@@ -14,6 +14,12 @@
     "industries": {"type": ["string", "null"], "maxLength": 500},
     "employmentType": {"enum": ["internship", "new-grad"]},
     "startDate": {"type": ["string", "null"], "maxLength": 100},
+    "utcTimestamp": {
+      "description": "UTC RFC 3339 timestamp with exactly six fractional digits and an explicit +00:00 offset.",
+      "$comment": "Fixed length also rejects final newlines in Python's regex engine.",
+      "type": "string", "minLength": 32, "maxLength": 32,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}\\+00:00$"
+    },
     "jsonRow": {
       "type": "object",
       "additionalProperties": false,
@@ -78,7 +84,7 @@
         "industries": {"$ref": "#/$defs/industries"},
         "employmentType": {"$ref": "#/$defs/employmentType"},
         "startDate": {"$ref": "#/$defs/startDate"},
-        "firstSeenAt": {"type": "string", "description": "UTC RFC 3339 timestamp with exactly six fractional digits and an explicit +00:00 offset.", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}\\+00:00$"}
+        "firstSeenAt": {"$ref": "#/$defs/utcTimestamp"}
       }
     },
     "apiSuccess": {
@@ -119,6 +125,29 @@
       }
     },
     "apiResponse": {"oneOf": [{"$ref": "#/$defs/apiSuccess"}, {"$ref": "#/$defs/apiError"}]},
+    "statusSuccess": {
+      "description": "Read-only status of the served dataset, not the newest repository state or application build.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["last_successful_collection", "dataset_generated_at", "opportunities", "dataset_sha256", "release"],
+      "properties": {
+        "last_successful_collection": {
+          "description": "Latest successful search completion in the served dataset, not necessarily a fully successful batch; null when none exists.",
+          "anyOf": [{"$ref": "#/$defs/utcTimestamp"}, {"type": "null"}]
+        },
+        "dataset_generated_at": {"$ref": "#/$defs/utcTimestamp"},
+        "opportunities": {"type": "integer", "minimum": 0},
+        "dataset_sha256": {
+          "description": "SHA-256 of exact UTF-8 open-opportunities.json bytes, including the final newline.",
+          "type": "string", "pattern": "^[0-9a-f]{64}$", "minLength": 64, "maxLength": 64
+        },
+        "release": {
+          "description": "Opaque dataset release identifier; null in legacy fixed-path mode. Never a filesystem path or application commit.",
+          "type": ["string", "null"], "pattern": "^[0-9]+-[0-9]+$", "not": {"type": "string", "pattern": "\\s"}
+        }
+      }
+    },
+    "statusResponse": {"oneOf": [{"$ref": "#/$defs/statusSuccess"}, {"$ref": "#/$defs/apiError"}]},
     "metadata": {
       "type": "object",
       "additionalProperties": false,

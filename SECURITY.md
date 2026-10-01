@@ -74,7 +74,9 @@ Never weaken or default-enable an authorization gate. An upstream block or chall
 
 `data/opportunities.db` contains public listing metadata and sensitive operational history. It must never contain credentials, sessions, or authenticated HTML.
 
-Public CSV and JSON exports may contain only LinkedIn job ID, company, title, location, canonical listing URL, category, industries, employment type, and start date. They must exclude status, timestamps, provenance, run history, closure evidence, diagnostics, database paths, and environment values. The separate public dataset metadata may contain only its schema version, UTC generation time, total and employment-type counts, and SHA-256 hashes of the two sanitized downloads. The read-only public API separately includes the website-visible first-seen timestamp with those listing fields, and excludes all other lifecycle and operational fields.
+Public CSV and JSON exports may contain only LinkedIn job ID, company, title, location, canonical listing URL, category, industries, employment type, and start date. They must exclude status, timestamps, provenance, run history, closure evidence, diagnostics, database paths, and environment values. The separate public dataset metadata may contain only its schema version, UTC generation time, total and employment-type counts, and SHA-256 hashes of the two sanitized downloads. The read-only listing API separately includes the website-visible first-seen timestamp with those listing fields, and excludes all other lifecycle and operational fields.
+
+The read-only `/api/v1/status` endpoint has a separate five-field allowlist: latest successful collection time, dataset generation time, open-listing count, public JSON download SHA-256, and a validated opaque dataset release identifier (or `null` in fixed-path mode). It exposes no database checksum, filesystem path, environment value, private run history, or application build configuration. It performs no source requests or canonical writes.
 
 The website must not:
 

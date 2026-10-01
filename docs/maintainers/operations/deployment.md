@@ -360,9 +360,12 @@ Before releasing an application revision:
 
 Release through the configured Dokploy project without changing the persistent host-state path or making the site mount writable. The application release must not initialize, replace, or downgrade canonical SQLite as a side effect.
 
+An older image needs an application rebuild and release to serve `/api/v1/status`; dataset-only deployment does not install new routes.
+
 After deployment, verify over HTTPS:
 
 - the directory returns `200`, displays the expected count and last successful collection time, and supports filtering and pagination;
+- `/api/v1/status` passes the [deployed-dataset verification](automation.md#verify-the-deployed-dataset) against the reviewed artifact;
 - `/robots.txt`, `/sitemap.xml`, `/open-opportunities.csv`, and `/open-opportunities.json` return the expected content and attachment headers on the canonical origin; metadata, JSON-LD, downloads, robots, and sitemap contain only the canonical origin;
 - requests to the former hostname redirect with 308 to the equivalent canonical URL, including filtered query URLs and downloads;
 - Content Security Policy, HSTS, content-type, framing, referrer, cross-origin, and permissions headers remain present;
