@@ -36,8 +36,9 @@ These are contracts, not suggestions. Review [SECURITY.md](../../../SECURITY.md)
 | Normalization | `src/opportunities/normalization/` | Stable title and conservative location signals |
 | Classification | `src/opportunities/pipeline/classification.py` | Pure acceptance/rejection decisions |
 | Collection orchestration | `src/opportunities/pipeline/runner.py` | Bounded concurrent discovery, isolated outcomes, serialized persistence |
+| Collection quality | `src/opportunities/pipeline/data_quality.py` | Pure aggregate drift analysis and publication-gate findings |
 | Availability | `src/opportunities/pipeline/availability.py` | Full-state explicit evidence audit |
-| Persistence | `src/opportunities/database/`, `migrations/` | Transactions, provenance, lifecycle, snapshots and schema evolution |
+| Persistence | `src/opportunities/database/`, `migrations/` | Transactions, provenance, lifecycle, bounded aggregate quality baselines and schema evolution |
 | Projections | `src/opportunities/readme.py`, `public_exports.py`, `search_registry_docs.py` | Generated regions, public serialization and validation |
 | Website | `site/src/lib/`, `site/src/components/` | Server-only read-only queries; client-only interaction |
 | Operations | `scripts/`, `.github/workflows/` | Verified recovery, validation, review handoff and release-pointer deployment |
@@ -66,6 +67,8 @@ The search start is a conservative observation lower bound: a detail page fetche
 | CSV / JSON / metadata | Python renderer selects approved fields, neutralizes CSV formulas, validates schema/bytes/counts/hashes, and atomically replaces files; [download contract](../../users/data/data.md) |
 | README | Renderer owns exactly one count region and one preview region; maximum five newest rows per employment type |
 | Registry documentation | Renderer owns the search-directory count block, not the surrounding guide |
+
+Optional collection-time data-quality monitoring compares aggregate observations with recent matching runs and stores bounded counts through `Repository`. Its gate runs after search commits and can withhold publication, but never changes classification or rolls back lifecycle state. Reports contain no listing text or raw source responses; website and export projections do not read monitoring baselines. The [CLI quality-report reference](../operations/cli.md#quality-report) owns thresholds and scope.
 
 The README includes a hidden SHA-256 seal covering **every** website-visible open row and the exact last-successful-collection timestamp, including rows outside its preview. Validation reconstructs both regions from SQLite and requires equality. [Automation's reviewed-state barrier](../operations/automation.md#first-public-state-review-seal) prevents deploying unreviewed public state. A hash alone does not explain a change: review the sanitized artifact and protected evidence when necessary.
 

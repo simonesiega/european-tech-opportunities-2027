@@ -9,7 +9,9 @@ from sqlalchemy import Engine, create_engine, event, inspect, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
-EXPECTED_TABLES = frozenset({"alembic_version", "searches", "search_runs", "jobs", "job_searches"})
+EXPECTED_TABLES = frozenset(
+    {"alembic_version", "searches", "search_runs", "jobs", "job_searches", "data_quality_snapshots"}
+)
 
 
 def create_database_engine(database_url: str, *, echo: bool = False) -> Engine:

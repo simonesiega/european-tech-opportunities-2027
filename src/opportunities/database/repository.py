@@ -2,20 +2,25 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
-from opportunities.database.models import JobRow, JobSearchRow, SearchRow, SearchRunRow
+from opportunities.database.models import (
+    DataQualitySnapshotRow,
+    JobRow,
+    JobSearchRow,
+    SearchRow,
+    SearchRunRow,
+)
+from opportunities.models.data_quality import MAX_BASELINE_SNAPSHOTS, DataQualitySnapshot
 from opportunities.models.enums import JobStatus
 from opportunities.models.job import DiscoveredJob, StoredJob
 from opportunities.models.raw import KnownJob
-from opportunities.models.search import LinkedInSearchConfig
+from opportunities.models.search import LinkedInSearchConfig, search_config_fingerprint
 from opportunities.utils.time import ensure_utc
 
 
@@ -85,7 +90,7 @@ class Repository:
         with self.factory.begin() as session:
             for search in searches:
                 row = session.get(SearchRow, search.slug)
-                digest = _config_hash(search)
+                digest = search_config_fingerprint(search)
                 if row is None:
                     session.add(
                         SearchRow(
@@ -375,6 +380,40 @@ class Repository:
                 last_success_at=ensure_utc(last_success) if last_success else None,
             )
 
+    def data_quality_baselines(self) -> tuple[str, ...]:
+        """Return the newest bounded aggregate-only drift baselines."""
+        with self.factory() as session:
+            rows = session.scalars(
+                select(DataQualitySnapshotRow.payload)
+                .order_by(
+                    DataQualitySnapshotRow.captured_at.desc(), DataQualitySnapshotRow.id.desc()
+                )
+                .limit(MAX_BASELINE_SNAPSHOTS)
+            ).all()
+            return tuple(rows)
+
+    def record_data_quality_snapshot(self, payload: str) -> None:
+        """Persist one bounded aggregate quality snapshot and prune old observations."""
+        snapshot = DataQualitySnapshot.from_json(payload)
+        with self.factory.begin() as session:
+            session.add(
+                DataQualitySnapshotRow(
+                    captured_at=ensure_utc(snapshot.captured_at),
+                    payload=payload,
+                )
+            )
+            session.flush()
+            newest_ids = (
+                select(DataQualitySnapshotRow.id)
+                .order_by(
+                    DataQualitySnapshotRow.captured_at.desc(), DataQualitySnapshotRow.id.desc()
+                )
+                .limit(90)
+            )
+            session.execute(
+                delete(DataQualitySnapshotRow).where(DataQualitySnapshotRow.id.not_in(newest_ids))
+            )
+
     def search_health(self) -> dict[str, SearchHealth]:
         """Return latest run health keyed by search slug."""
         with self.factory() as session:
@@ -603,9 +642,3 @@ def _stored_job(row: JobRow) -> StoredJob:
         updated_at=ensure_utc(row.updated_at),
         status=row.status,
     )
-
-
-def _config_hash(search: LinkedInSearchConfig) -> str:
-    """Return a stable hash of a search configuration."""
-    payload = json.dumps(search.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode()).hexdigest()

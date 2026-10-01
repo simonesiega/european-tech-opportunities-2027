@@ -46,7 +46,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `documentation.yml` | Push to `main`, pull request, manual | Digest-pinned Markdown and prose lint, strict MkDocs Material build, and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; explicit read-only modes propose the first public-state review seal or recover a missing README proposal without publishing a snapshot |
-| `nightly.yml` | 04:23 UTC daily | Availability audit followed by scrape, with one narrowly scoped auto-merge pull request |
+| `nightly.yml` | 04:23 UTC daily | Availability audit, scrape-time drift checks and aggregate report artifact, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
 | `add-job.yml` | Manual | Add 1–10 maintainer-reviewed listings to durable canonical state without source access, then open one README-only review pull request |
@@ -122,7 +122,7 @@ The repository's default `GITHUB_TOKEN` permission is read-only. Workflow defaul
 | CodeQL analysis | `actions: read`, `contents: read`, `security-events: write` | Security-analysis upload only |
 | Scorecard analysis | `contents: read`, `id-token: write`, `security-events: write` | Default-branch assessment, OIDC-authenticated public Scorecard result publication, and SARIF upload only |
 
-GitHub cache entries on the default branch are readable by pull-request workflows, including forks, and public-repository artifacts are available to anyone with repository read access. Canonical SQLite therefore never enters Actions cache or artifacts. Thirty-day artifacts include the already-public README, sanitized CSV/JSON projections and metadata, plus Docker CI's production-image SBOMs and build-evidence manifest; the one-day cross-job artifact contains only `README.md`. Docker evidence records image IDs, any available repository digests, and SBOM checksums; main-only GitHub attestations bind the evidence files to their workflow run. Checkout never persists Git credentials.
+GitHub cache entries on the default branch are readable by pull-request workflows, including forks, and public-repository artifacts are available to anyone with repository read access. Canonical SQLite therefore never enters Actions cache or artifacts. Thirty-day artifacts include the already-public README, sanitized CSV/JSON projections and metadata, aggregate-only collection-quality reports, and Docker CI's production-image SBOMs and build-evidence manifest. Quality reports contain counts, rates, search slugs, and check outcomes, never listing content. The one-day cross-job artifact contains only `README.md`. Docker evidence records image IDs, any available repository digests, and SBOM checksums; main-only GitHub attestations bind the evidence files to their workflow run. Checkout never persists Git credentials.
 
 GitHub intentionally suppresses ordinary workflow recursion after a branch push made with `GITHUB_TOKEN`. After verifying that the automation pull request targets `main`, uses a same-repository fixed head branch and the expected title, and changes only `README.md`, the mutation workflow therefore dispatches `python-ci.yml`, `site-ci.yml`, `docker-ci.yml`, `codeql.yml`, `gitleaks.yml`, and `documentation.yml` explicitly on the generated head commit. It identifies those exact dispatch runs and waits for all six to succeed before requesting nightly auto-merge against that validated head SHA. This keeps the branch alive long enough for GitHub to create every job even when branch protection is missing or misconfigured; configured required checks and human review remain additional merge controls. Manual scrape and availability pull requests receive and await the same validation but still require human merge.
 
@@ -269,7 +269,9 @@ availability audit, when selected
 ↓
 bounded collection + classification, when selected
 ↓
-isolated transactional persistence
+isolated transactional persistence + aggregate drift checks
+↓
+quality warnings continue; blocking drift stops publication and still retains its report
 ↓
 README + sanitized CSV/JSON projection validation
 ↓
@@ -284,7 +286,9 @@ one-day README-only handoff artifact
 separate least-privilege README pull-request job
 ```
 
-The nightly workflow runs availability first and collection second, then validates the combined state and opens one narrowly scoped pull request. The availability-only workflow skips collection; the scrape-only workflow skips the availability phase. A partial collection preserves successful search transactions. Failed searches record diagnostics but do not apply absence, unavailability, or closure evidence.
+The nightly workflow runs availability first and collection second, then validates the combined state and opens one narrowly scoped pull request. Every workflow scrape requests an aggregate `data-quality-report.json`; [the CLI reference](cli.md#quality-report) defines its scope, thresholds, and baseline warm-up. Warnings continue. Blocking quality findings or report errors stop projection regeneration, durable snapshot publication, and the README handoff. The report upload runs even after a failed scrape; a missing requested report also fails the job. Earlier setup or authorization failures do not attempt that upload.
+
+Quality checks run after independent search transactions commit, not as a rollback mechanism. A partial collection preserves successful transactions but does not advance the quality baseline. Failed searches record diagnostics without applying absence or closure evidence. The availability-only workflow skips collection and its quality checks; the scrape-only workflow skips availability. Production remains on its previously reviewed release when collection is blocked.
 
 The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-jobs --no-render` batch operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the reviewed batch instead of rebuilding state from the VPS database.
 
@@ -321,7 +325,7 @@ The deployment mode and README validation prevent newly collected state from bei
 | CLI exit code | Workflow behavior |
 |---:|---|
 | `0` | Continue after complete success |
-| `1` | Stop because every selected search failed |
+| `1` | Stop because every selected search failed or the quality gate blocked or could not complete |
 | `2` | Continue after a partial scrape or availability audit; confirmed changes remain valid and inconclusive rows are preserved |
 | `3` | Stop because schema or state preconditions failed |
 
@@ -346,7 +350,7 @@ Every strict JSON manifest records the database path, byte size, SHA-256, Alembi
 
 Publication uploads new paths, downloads both files into a clean directory, verifies SQLite and application readability, and only then atomically renames a temporary `latest.json`. The working and deployment copies are byte-identical to the verified download. A failed transfer or verification leaves the prior pointer in place. The restricted account has no shell, sudo, forwarding, application-database access, or membership in `opportunities-site`.
 
-Thirty-day GitHub artifacts contain only `README.md`, the sanitized CSV/JSON exports, and `dataset-metadata.json`; they are verification outputs, not recovery sources. No production database or manifest is uploaded to Actions cache or artifacts. Repositories upgrading from an older cache/artifact state handoff must purge legacy `opportunities-db-*`, `opportunities-state-*`, and `opportunities-nightly-state-*` objects after the first restricted snapshot has passed the recovery drill. By default, VPS manifests declare a 365-day retention window; automation does not delete older snapshots. Capacity must be monitored and expiry reviewed manually after `retain_until`. Because snapshot storage is on the same VPS as production, it protects against accidental database replacement but not complete VPS, disk, or provider loss. Replication of encrypted or access-controlled snapshots to an independent host remains the recommended next durability layer.
+Thirty-day projection artifacts contain only `README.md`, the sanitized CSV/JSON exports, and `dataset-metadata.json`; a separate artifact contains the aggregate quality report. These are verification outputs, not recovery sources. No production database or manifest is uploaded to Actions cache or artifacts. Repositories upgrading from an older cache/artifact state handoff must purge legacy `opportunities-db-*`, `opportunities-state-*`, and `opportunities-nightly-state-*` objects after the first restricted snapshot has passed the recovery drill. By default, VPS manifests declare a 365-day retention window; automation does not delete older snapshots. Capacity must be monitored and expiry reviewed manually after `retain_until`. Because snapshot storage is on the same VPS as production, it protects against accidental database replacement but not complete VPS, disk, or provider loss. Replication of encrypted or access-controlled snapshots to an independent host remains the recommended next durability layer.
 
 Canonical backup, sidecar, migration, and restoration rules belong to the [database lifecycle guide](database.md).
 
@@ -397,7 +401,7 @@ Scheduled runs do not deploy to the VPS. After the nightly pull request merges�
 Use this sequence after each scheduled collection. Do not deploy merely because the scheduled job started; deployment is permitted only after the matching README projection reaches `main`.
 
 1. Open the **Nightly full update** run and confirm **Audit, collect, and preserve state** succeeded. Read the command summaries for partial availability or partial collection. A reported partial result is intentionally preserved and may proceed only because final validation and snapshot verification passed.
-2. Confirm the run published the 30-day `opportunities-nightly-projections-<run-id>` sanitized projection artifact and completed round-trip snapshot verification. The artifact must not contain SQLite or a snapshot manifest.
+2. Confirm the run published both 30-day artifacts: `opportunities-nightly-projections-<run-id>` and `opportunities-nightly-projections-<run-id>-data-quality`. Review the aggregate quality report for warnings and confirm the run completed round-trip snapshot verification. Neither artifact may contain SQLite or a snapshot manifest. A blocking quality report means no README proposal or durable snapshot should have been published.
 3. Inspect the fixed `automated/nightly-full-update` pull request. It must target `main`, have the exact nightly title, and change only `README.md`.
 4. Confirm the README mutation job identified and awaited the explicitly dispatched Python, site, Docker, CodeQL, Gitleaks, and documentation runs on the pull-request head SHA. Do not bypass, re-label, or manually broaden the automation pull request to make auto-merge proceed.
 5. Confirm the pull request squash-merged and that `main` now contains its generated count, timestamp, and preview. If branch protection requires review, inspect the README-only diff and approve it first. If it remains open afterward, diagnose the failed or missing required check before deployment.

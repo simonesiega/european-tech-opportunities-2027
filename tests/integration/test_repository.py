@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
@@ -8,8 +9,20 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
-from opportunities.database.models import JobRow, JobSearchRow, SearchRow, SearchRunRow
+from opportunities.database.models import (
+    DataQualitySnapshotRow,
+    JobRow,
+    JobSearchRow,
+    SearchRow,
+    SearchRunRow,
+)
 from opportunities.database.repository import PersistSummary, Repository
+from opportunities.models.data_quality import (
+    JOB_FIELDS,
+    PARSER_FIELDS,
+    DataQualitySnapshot,
+    SearchQualityCounts,
+)
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
@@ -431,3 +444,60 @@ def test_manual_batch_bounds_fail_before_any_write(
     with pytest.raises(ValueError, match="1 to 10 jobs"):
         repository.upsert_manual_jobs(jobs, observed_at=datetime(2026, 7, 20, tzinfo=UTC))
     assert repository.list_all_jobs() == []
+
+
+@pytest.mark.parametrize("payload", ['{"schema_version":true}', '{"schema_version":1.0}'])
+def test_data_quality_baseline_rejects_non_integer_schema_versions(
+    payload: str, session_factory: sessionmaker[Session], settings: Settings
+) -> None:
+    repository = Repository(session_factory, settings)
+
+    with pytest.raises(ValueError, match="schema_version"):
+        repository.record_data_quality_snapshot(payload)
+
+
+def test_data_quality_baselines_are_aggregate_bounded_and_newest_first(
+    session_factory: sessionmaker[Session], settings: Settings
+) -> None:
+    repository = Repository(session_factory, settings)
+    captured_at = datetime(2026, 7, 1, tzinfo=UTC)
+
+    for index in range(95):
+        # Equal timestamps use insertion order; dates, not insertion order, govern retention.
+        observation = captured_at + timedelta(seconds=index // 2)
+        snapshot = DataQualitySnapshot(
+            schema_version=1,
+            captured_at=observation,
+            search_fingerprints={"test": "0" * 64},
+            searches={
+                "test": SearchQualityCounts(found_count=index, accepted_count=0, classified_count=0)
+            },
+            open_job_count=0,
+            category_counts={},
+            country_counts={},
+            field_missing_counts=dict.fromkeys(JOB_FIELDS, 0),
+            parser_candidate_count=0,
+            parser_missing_counts=dict.fromkeys(PARSER_FIELDS, 0),
+        )
+        repository.record_data_quality_snapshot(snapshot.model_dump_json())
+
+    # A late write of an old observation must not displace the newest baselines.
+    repository.record_data_quality_snapshot(
+        snapshot.model_copy(
+            update={"captured_at": captured_at - timedelta(days=1)}
+        ).model_dump_json()
+    )
+
+    baselines = repository.data_quality_baselines()
+    assert [json.loads(value)["searches"]["test"]["found_count"] for value in baselines] == [
+        94,
+        93,
+        92,
+        91,
+        90,
+    ]
+    with pytest.raises(ValueError, match="128 KiB"):
+        repository.record_data_quality_snapshot(" " * 131_073)
+    assert repository.data_quality_baselines() == baselines
+    with session_factory() as session:
+        assert session.scalar(select(func.count()).select_from(DataQualitySnapshotRow)) == 90

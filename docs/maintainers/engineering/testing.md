@@ -13,6 +13,7 @@ Test the contract that can hurt a user or canonical state, not incidental markup
 | Schema drift | Fresh/repeat upgrades, representative prior rows, preserved provenance, foreign keys and CHECK constraints | Migration integration and ORM comparison |
 | Public/private data mixed | Explicit allowlists; CSV formula neutralization; JSON/schema/metadata hashes; URL-ID agreement | Python serialization contracts + HTTP API/download integration |
 | Broken recovery | WAL-aware backup, manifest integrity, fail-closed restore, immutable release and atomic pointer | Snapshot integration + Linux shell tests |
+| Silent collection drift | Large volume/acceptance shifts, empty searches, disappearing categories, parser field gaps, and country-mix changes | Pure data-quality analysis tests + bounded SQLite-baseline integration |
 | Browser choices lost | Versioning, corruption, pruning, visit boundaries, storage denial, reloads and tab interaction | Pure state units + browser journeys |
 | Divergent URLs/data | Filters, recency boundaries, deterministic sort/pagination, history, equivalent-query ETags | Shared-helper units/properties + HTTP/browser contracts |
 | Inaccessible key actions | Keyboard save/apply/hide/restore, focus recovery, usable mobile scrolling, clear empty states | Playwright + axe |
@@ -24,7 +25,7 @@ Keep regressions near their owner. Assert resulting state and public responses r
 ## Suite map
 
 - `tests/unit/`: classifier, transport, parser, config, serialization, snapshots, tooling and migration contracts. Shell tests use fake SSH/SFTP against disposable files.
-- `tests/integration/`: CLI, repository, pipeline, availability and README lifecycle behavior.
+- `tests/integration/`: CLI, repository, pipeline, availability, data-quality baseline persistence and README lifecycle behavior.
 - `tests/benchmarks/`: offline parsing and full classifier decisions; compare only equivalent environments.
 - `site/tests/unit/`: pure URL/API/state/serialization helpers, including seeded bounded `fast-check` query-parser properties.
 - `site/tests/e2e/`: HTTP contracts and representative browser journeys against synthetic SQLite and exports, including axe scans.
@@ -123,19 +124,21 @@ Two hot-path benchmarks cover guest search parsing and classification. They are 
 
 ## Coverage baseline
 
-Branch-aware coverage measures classification, collection orchestration, availability, and repository lifecycle logic. The configured combined threshold remains **85%**. Reports live in ignored `quality-reports/`; Python CI retains them for 30 days and publishes a job summary. This table is generated from the same report, not hand-maintained.
+Branch-aware coverage measures classification, collection-level data-quality checks, collection orchestration, availability, and repository lifecycle logic. The configured combined threshold remains **85%**. Reports live in ignored `quality-reports/`; Python CI retains them for 30 days and publishes a job summary. This table is generated from the same report, not hand-maintained.
 
 <!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 98.6% | ≥ 85.0% |
-| Branch coverage | 96.9% | Reported |
+| Combined statement and branch coverage | 99.4% | ≥ 85.0% |
+| Branch coverage | 98.5% | Reported |
 | Classifier branch coverage | 97.5% | Reported |
 <!-- END PYTHON COVERAGE -->
 
 ## Fixtures and live tests
 
 Use fixed UTC clocks, numeric synthetic IDs, temporary paths, injected clients, and minimal sanitized HTML. Preserve malformed/missing-field and challenge cases. Do not capture authenticated HTML, cookies, headers, or private browser state.
+
+Collection workflows retain `data-quality-report.json` as a separate artifact. Its checks use synthetic offline tests; no normal validation job enables LinkedIn access. The report contains only aggregate counts, rates, search slugs, and check outcomes.
 
 For non-live Python tests, `tests/conftest.py` clears inherited application and deployment settings, provides a temporary working directory and home, and rejects real HTTPX transports. Injected mock transports still exercise authorization, response bounds and retries. Use explicit repository paths for checked-in fixtures; do not rely on the caller's working directory or `.env`. The HTTPX guard is not a general socket or subprocess sandbox.
 

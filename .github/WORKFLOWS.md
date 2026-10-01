@@ -35,8 +35,8 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 
 | Workflow | When it runs | What it does |
 |---|---|---|
-| [Nightly full update](workflows/nightly.yml) | Daily at 04:23 | Checks stored listings for availability, then collects new results. Saves a database snapshot and opens or updates one README-only PR. Requests automatic merging after validation, subject to required checks and reviews. Does not deploy the website. |
-| [Scrape jobs or deploy reviewed state](workflows/scrape.yml) | Manual | Normally collects listings and opens a README PR for manual review, without running a full availability check. Selecting `deploy_to_vps=true` instead publishes already-reviewed data to the website without contacting LinkedIn. |
+| [Nightly full update](workflows/nightly.yml) | Daily at 04:23 | Checks stored listings for availability, then collects new results. Saves a database snapshot and opens or updates one README-only PR. Requests automatic merging after validation, subject to required checks and reviews. Retains the aggregate collection-quality report separately. Does not deploy the website. |
+| [Scrape jobs or deploy reviewed state](workflows/scrape.yml) | Manual | Normally collects listings and opens a README PR for manual review, without running a full availability check; collection runs retain a separate aggregate quality report. Selecting `deploy_to_vps=true` instead publishes already-reviewed data to the website without contacting LinkedIn. |
 | [Check job availability](workflows/check-availability.yml) | Manual | Checks stored listings without discovering new jobs. Removes confirmed unavailable listings and keeps those whose availability is uncertain. Saves a snapshot and opens a README PR for manual review. |
 | [Add manually reviewed jobs](workflows/add-job.yml) | Manual, with `jobs_json` | Validates and adds a batch of 1–10 listings independently reviewed by a maintainer. Saves a snapshot and opens a dated README PR for manual review. Does not contact LinkedIn or deploy the website. |
 | [Verify canonical state recovery](workflows/canonical-state-drill.yml) | Manual | Restores a database snapshot, checks it, and verifies that a newly published snapshot can be restored. Does not contact LinkedIn, but **does publish a snapshot**: it is not a dry run. Its optional `adopt_public_review_seal` mode proposes the initial README state-verification marker; `recover_readme_proposal` instead recreates a missing or closed state proposal for manual review. These mutually exclusive modes do not publish snapshots or deploy. |
@@ -49,7 +49,7 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 
 Merging a listing-update PR does not deploy the website automatically. If the saved data does not match the reviewed README, further updates and deployment stop until the difference is resolved. For a missing or closed proposal, follow [README proposal recovery](../docs/maintainers/operations/automation.md#recover-a-missing-readme-state-proposal) rather than rerunning collection.
 
-The downloadable files attached to dataset runs contain only the public README, CSV/JSON listings, and dataset metadata. They are available for 30 days and are **not database backups**. The live database is not uploaded to GitHub artifacts.
+The downloadable files attached to dataset runs contain only the public README, CSV/JSON listings, and dataset metadata. They are available for 30 days and are **not database backups**. Collection workflows retain a separate aggregate-only quality report for 30 days; it contains no listing content. The live database is not uploaded to GitHub artifacts.
 
 For setup, input examples, approvals, and recovery instructions, see the [automation guide](../docs/maintainers/operations/automation.md). Source-access requirements are explained in the [security policy](../SECURITY.md).
 

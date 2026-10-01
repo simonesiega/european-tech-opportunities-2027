@@ -222,11 +222,12 @@ jobs:
           fi
 
       - name: Scrape and persist selected searches
+        id: scrape
         if: inputs.run_scrape
         shell: bash
         run: |
           set +e
-          uv run opportunities scrape
+          uv run opportunities scrape --quality-report quality-reports/data-quality-report.json
           code=$?
           set -e
           if [ "$code" -eq 2 ]; then
@@ -234,6 +235,15 @@ jobs:
           elif [ "$code" -ne 0 ]; then
             exit "$code"
           fi
+
+      - name: Upload aggregate data-quality report
+        if: always() && (steps.scrape.outcome == 'success' || steps.scrape.outcome == 'failure')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.projection_artifact_name }}-data-quality
+          retention-days: 30
+          if-no-files-found: error
+          path: quality-reports/data-quality-report.json
 
       - name: Add manually reviewed jobs
         if: inputs.add_manual_jobs

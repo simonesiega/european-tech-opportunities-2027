@@ -85,6 +85,18 @@ class JobRow(Base):
     )
 
 
+class DataQualitySnapshotRow(Base):
+    """Store bounded aggregate-only observations for drift baselines."""
+
+    __tablename__ = "data_quality_snapshots"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payload: Mapped[str] = mapped_column(Text, nullable=False)
+
+    __table_args__ = (Index("ix_data_quality_snapshots_captured_at", "captured_at"),)
+
+
 class JobSearchRow(Base):
     """Map job-to-search provenance to its database row."""
 

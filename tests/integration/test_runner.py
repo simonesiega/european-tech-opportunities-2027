@@ -127,6 +127,7 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
     assert result.found == 2
     assert result.accepted == 1
     assert result.excluded == 1
+    assert [(o.accepted_count, o.excluded_count) for o in result.outcomes] == [(1, 1), (0, 0)]
     assert result.summary.new == 1
     jobs = {job.linkedin_job_id: job for job in repository.list_open_jobs()}
     assert set(jobs) == {"1111111111", previous.linkedin_job_id}
