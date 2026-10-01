@@ -34,7 +34,7 @@ async function datasetHash(directory: string): Promise<string> {
   const filename = path.join(/* turbopackIgnore: true */ directory, "open-opportunities.json");
   const hash = createHash("sha256");
   let bytes = 0;
-  // Stream bounded bytes instead of loading the entire download for each status poll.
+  // Hash the download itself: metadata alone cannot prove that its bytes match.
   for await (const chunk of createReadStream(/* turbopackIgnore: true */ filename)) {
     bytes += chunk.length;
     if (bytes > MAX_DATASET_BYTES) throw new Error("Dataset exceeds status limit");
@@ -44,7 +44,7 @@ async function datasetHash(directory: string): Promise<string> {
 }
 
 export async function getOpportunityStatus(): Promise<OpportunityStatus> {
-  // Reuse this selection for every read, even if current switches while awaiting file I/O.
+  // Pin current once so a publication switch cannot mix database and export releases.
   const {databasePath, exportDirectory, release} = publicationPaths();
   const database = new DatabaseSync(databasePath, {readOnly: true});
   let summary: ReturnType<typeof readDirectorySummary>;

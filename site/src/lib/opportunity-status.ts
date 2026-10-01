@@ -41,7 +41,7 @@ export function statusPayload(
   ) {
     throw new Error("Inconsistent dataset status");
   }
-  // Project explicitly: neither a future metadata field nor a private path may escape.
+  // Keep an explicit allowlist: future metadata fields must not enter the status contract.
   return {
     last_successful_collection:
       summary.lastUpdatedAt === null ? null : normalizeOpportunityTimestamp(summary.lastUpdatedAt),
