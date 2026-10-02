@@ -1,7 +1,7 @@
 import {createHash} from "node:crypto";
 import {expect, test} from "@playwright/test";
 import {siteConfig} from "@/lib/site-config";
-import {expectRoleCount, openDirectory} from "./helpers";
+import {expectResultCount, openDirectory} from "./helpers";
 
 test("downloads sanitized public CSV and JSON exports", async ({page, request}) => {
   await openDirectory(page);
@@ -60,18 +60,18 @@ test("downloads sanitized public CSV and JSON exports", async ({page, request}) 
 test("filters opportunities and writes shareable URL parameters", async ({page}) => {
   await openDirectory(page);
 
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
   await page.getByLabel("Company").selectOption("Acme Labs");
 
   await expect(page).toHaveURL(/company=Acme\+Labs/);
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
   await expect(
     page.getByRole("link", {name: "Graduate Data Analyst 2027", exact: true})
   ).toHaveCount(0);
 
   await page.getByLabel("Category").selectOption("cybersecurity");
   await expect(page).toHaveURL(/category=cybersecurity/);
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(
     page.getByRole("link", {name: "Cybersecurity Intern 2027", exact: true})
   ).toBeVisible();
@@ -82,7 +82,7 @@ test("filters one employment type at a time", async ({page}) => {
 
   await page.getByLabel("Employment type").selectOption("new-grad");
   await expect(page).toHaveURL(/type=new-grad/);
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(
     page.getByRole("link", {name: "Graduate Data Analyst 2027", exact: true})
   ).toBeVisible();
@@ -90,7 +90,7 @@ test("filters one employment type at a time", async ({page}) => {
   await page.getByLabel("Employment type").selectOption("internship");
   await expect(page).toHaveURL(/type=internship/);
   await expect(page).not.toHaveURL(/new-grad/);
-  await expectRoleCount(page, 11);
+  await expectResultCount(page, 11);
 });
 
 test("filters opportunities by when they were first seen", async ({page}) => {
@@ -99,20 +99,20 @@ test("filters opportunities by when they were first seen", async ({page}) => {
   const firstSeen = page.getByLabel("First seen");
   await firstSeen.selectOption("24-hours");
   await expect(page).toHaveURL(/first-seen=24-hours/);
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
 
   await firstSeen.selectOption("7-days");
   await expect(page).toHaveURL(/first-seen=7-days/);
-  await expectRoleCount(page, 7);
+  await expectResultCount(page, 7);
 
   await firstSeen.selectOption("30-days");
   await expect(page).toHaveURL(/first-seen=30-days/);
-  await expectRoleCount(page, 11);
+  await expectResultCount(page, 11);
 
   await page.getByRole("button", {name: "Reset"}).click();
   await expect(firstSeen).toHaveValue("all");
   await expect(page).not.toHaveURL(/first-seen=/);
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
 });
 
 test("restores filters from a shared URL and browser history", async ({page}) => {
@@ -122,16 +122,16 @@ test("restores filters from a shared URL and browser history", async ({page}) =>
   await expect(page.getByLabel("Location")).toHaveValue("France");
   await expect(page.getByLabel("Employment type")).toHaveValue("new-grad");
   await expect(page.getByLabel("First seen")).toHaveValue("30-days");
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(
     page.getByRole("link", {name: "Graduate Data Analyst 2027", exact: true})
   ).toBeVisible();
 
   await page.getByLabel("Location").selectOption("Germany");
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await page.goBack();
   await expect(page.getByLabel("Location")).toHaveValue("France");
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
 });
 
 test("composes search, country, category, first-seen filtering, and company sorting", async ({
@@ -146,7 +146,7 @@ test("composes search, country, category, first-seen filtering, and company sort
   await expect(page.getByLabel("Location")).toHaveValue("Spain");
   await expect(page.getByLabel("Category")).toHaveValue("software-engineering");
   await expect(page.getByLabel("First seen")).toHaveValue("7-days");
-  await expectRoleCount(page, 7);
+  await expectResultCount(page, 7);
   await expect(page.getByRole("columnheader", {name: "Company"})).toHaveAttribute(
     "aria-sort",
     "ascending"
@@ -161,7 +161,7 @@ test("restores sorting, page, and page size from a shared URL", async ({page}) =
   await openDirectory(page, "/?q=intern&sort=company-asc&page=2&page-size=10");
 
   await expect(page.getByLabel("Search")).toHaveValue("intern");
-  await expectRoleCount(page, 11);
+  await expectResultCount(page, 11);
   await expect(page.getByRole("columnheader", {name: "Company"})).toHaveAttribute(
     "aria-sort",
     "ascending"
@@ -200,11 +200,11 @@ test("search, reset, keyboard focus, and sorting remain interactive", async ({pa
   await expect(page.getByLabel("Search")).toBeFocused();
   await page.getByLabel("Search").fill("acme");
   await expect(page).toHaveURL(/q=acme/);
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
 
   await page.getByRole("button", {name: "Reset"}).click();
   await expect(page).toHaveURL("/?source=e2e&sort=company-desc&page-size=20");
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
 
   const companyHeader = page.getByRole("columnheader", {name: "Company"});
   await companyHeader.getByRole("button").click();
@@ -290,7 +290,7 @@ test("keeps directory controls usable at a mobile viewport", async ({page}) => {
   ).toBe(true);
 
   await page.getByLabel("Search").fill("analyst");
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
 });
 
 test("publishes canonical SEO and crawler metadata", async ({page, request}) => {
@@ -400,6 +400,7 @@ test("crawler can follow unfiltered pages without JavaScript", async ({browser})
   try {
     const page = await context.newPage();
     await page.goto("/");
+    await expectResultCount(page, 12);
 
     const nextPage = page.getByRole("link", {name: "Next page"});
     await expect(nextPage).toHaveAttribute("href", "/?page=2");
