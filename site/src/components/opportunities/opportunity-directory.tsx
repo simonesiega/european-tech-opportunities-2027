@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState, useSyncExternalStore} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {Download} from "lucide-react";
 import {OpportunityFilters} from "@/components/opportunities/opportunity-filters";
 import {OpportunityList} from "@/components/opportunities/opportunity-list";
@@ -15,11 +15,6 @@ type OpportunityDirectoryProps = {
   opportunities: Opportunity[];
   referenceTime: string;
 };
-
-// Keep SSR and initial hydration identical before exposing browser-only interaction state.
-const subscribeToHydration = () => () => undefined;
-const getClientHydrationState = () => true;
-const getServerHydrationState = () => false;
 
 export function OpportunityDirectory({opportunities, referenceTime}: OpportunityDirectoryProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -46,11 +41,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
     [opportunities, state, localView, newIds]
   );
   const newCount = [...newIds].filter((id) => !state?.hidden.includes(id)).length;
-  const isInteractive = useSyncExternalStore(
-    subscribeToHydration,
-    getClientHydrationState,
-    getServerHydrationState
-  );
+  const isInteractive = state !== null;
   const {
     filters,
     filterSetters,
@@ -92,69 +83,86 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
           <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
             {siteConfig.description}
           </p>
-          {state ? (
-            <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:text-[13px] max-[600px]:leading-normal">
-              You have saved{" "}
-              <button
-                ref={savedViewRef}
-                type="button"
-                aria-pressed={localView === "saved"}
-                aria-label={`View ${state.saved.length} saved opportunities`}
-                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
-                onClick={() => setLocalView("saved")}
-              >
-                {state.saved.length}
-              </button>{" "}
-              {state.saved.length === 1 ? "opportunity" : "opportunities"}, marked{" "}
-              <button
-                ref={appliedViewRef}
-                type="button"
-                aria-pressed={localView === "applied"}
-                aria-label={`View ${state.applied.length} applied opportunities`}
-                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
-                onClick={() => setLocalView("applied")}
-              >
-                {state.applied.length}
-              </button>{" "}
-              {state.applied.length === 1 ? "opportunity" : "opportunities"} as applied, and hidden{" "}
-              <button
-                ref={hiddenViewRef}
-                type="button"
-                aria-pressed={localView === "hidden"}
-                aria-label={`View ${state.hidden.length} hidden opportunities`}
-                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
-                onClick={() => setLocalView("hidden")}
-              >
-                {state.hidden.length}
-              </button>
-              .{" "}
-              <button
-                ref={allViewRef}
-                type="button"
-                aria-pressed={localView === "all"}
-                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
-                onClick={() => setLocalView("all")}
-              >
-                View all opportunities
-              </button>
-              .
-            </p>
-          ) : null}
-          {state && newCount > 0 ? (
-            <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:text-[13px] max-[600px]:leading-normal">
-              We found <span className="text-[var(--text)]">{newCount}</span> new{" "}
-              {newCount === 1 ? "opportunity" : "opportunities"} since your last visit.{" "}
-              <button
-                type="button"
-                aria-pressed={localView === "new"}
-                className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
-                onClick={() => setLocalView("new")}
-              >
-                View new opportunities
-              </button>
-              .
-            </p>
-          ) : null}
+          <div className="mt-[7px] grid text-sm text-[var(--text-soft)] tabular-nums max-[600px]:text-[13px] max-[600px]:leading-normal">
+            {/* Reserve the longest possible summary, including a returning visitor's new roles. */}
+            <div aria-hidden="true" className="invisible col-start-1 row-start-1 space-y-[7px]">
+              <p>
+                You have saved {opportunities.length} opportunities, marked {opportunities.length}{" "}
+                opportunities as applied, and hidden {opportunities.length}.{" "}
+                <span className="inline-block">View all opportunities</span>.
+              </p>
+              <p>
+                We found {opportunities.length} new opportunities since your last visit.{" "}
+                <span className="inline-block">View new opportunities</span>.
+              </p>
+            </div>
+            <div className="col-start-1 row-start-1 space-y-[7px]">
+              {state ? (
+                <p>
+                  You have saved{" "}
+                  <button
+                    ref={savedViewRef}
+                    type="button"
+                    aria-pressed={localView === "saved"}
+                    aria-label={`View ${state.saved.length} saved opportunities`}
+                    className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                    onClick={() => setLocalView("saved")}
+                  >
+                    {state.saved.length}
+                  </button>{" "}
+                  {state.saved.length === 1 ? "opportunity" : "opportunities"}, marked{" "}
+                  <button
+                    ref={appliedViewRef}
+                    type="button"
+                    aria-pressed={localView === "applied"}
+                    aria-label={`View ${state.applied.length} applied opportunities`}
+                    className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                    onClick={() => setLocalView("applied")}
+                  >
+                    {state.applied.length}
+                  </button>{" "}
+                  {state.applied.length === 1 ? "opportunity" : "opportunities"} as applied, and
+                  hidden{" "}
+                  <button
+                    ref={hiddenViewRef}
+                    type="button"
+                    aria-pressed={localView === "hidden"}
+                    aria-label={`View ${state.hidden.length} hidden opportunities`}
+                    className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                    onClick={() => setLocalView("hidden")}
+                  >
+                    {state.hidden.length}
+                  </button>
+                  .{" "}
+                  <button
+                    ref={allViewRef}
+                    type="button"
+                    aria-pressed={localView === "all"}
+                    className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                    onClick={() => setLocalView("all")}
+                  >
+                    View all opportunities
+                  </button>
+                  .
+                </p>
+              ) : null}
+              {state && newCount > 0 ? (
+                <p>
+                  We found <span className="text-[var(--text)]">{newCount}</span> new{" "}
+                  {newCount === 1 ? "opportunity" : "opportunities"} since your last visit.{" "}
+                  <button
+                    type="button"
+                    aria-pressed={localView === "new"}
+                    className="cursor-pointer rounded-sm text-[var(--text)] underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--text)]"
+                    onClick={() => setLocalView("new")}
+                  >
+                    View new opportunities
+                  </button>
+                  .
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-2 max-[1090px]:w-full max-[480px]:flex-wrap max-[400px]:flex-nowrap">
           {(["csv", "json"] as const).map((format) => (
@@ -174,13 +182,14 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
             className="min-h-8 gap-1.5 rounded-md px-2.5 py-0 max-[1090px]:ml-auto"
             variant="outline"
             role="status"
+            aria-label="Open roles"
             aria-atomic="true"
           >
             <strong className="text-base font-bold tracking-[-0.03em] text-[var(--text)]">
-              {filteredOpportunities.length}
-            </strong>
+              {opportunities.length}
+            </strong>{" "}
             <span className="text-[11px] text-[var(--text-soft)]">
-              open {filteredOpportunities.length === 1 ? "role" : "roles"}
+              open {opportunities.length === 1 ? "role" : "roles"}
             </span>
           </Badge>
         </div>

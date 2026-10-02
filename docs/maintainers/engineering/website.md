@@ -24,7 +24,7 @@ The [public status contract](../../users/data/api.md#check-production-freshness)
 
 `local-opportunity-state.ts` owns pure parsing, pruning, toggling, and visit-baseline decisions. `use-local-opportunities.ts` owns browser storage and React synchronization. `opportunities-directory-state` version 1 contains `lastVisitAt`, optional nullable `previousVisitAt`, and `saved`, `hidden`, `applied` arrays of numeric job-ID strings. No listing metadata, notes, résumés, or application details are stored.
 
-- Hydration loads storage only in the browser; SSR cannot depend on visitor state.
+- Hydration loads storage only in the browser, in a layout effect before the next paint; SSR cannot depend on visitor state. The header reserves space for the saved/applied/hidden summary and optional new-opportunity message at every viewport width, without showing guessed counts while storage loads.
 - Parsing deduplicates and prunes IDs not present in current open data. Unsupported/corrupt records reset safely.
 - A visit resumes across reloads/tabs until 30 minutes without a load or local action. Older v1 records without `previousVisitAt` upgrade locally. First visits have no previous baseline.
 - New means immutable first-seen time strictly after that baseline. Hidden rows never appear in All, Saved, Applied, or New.
@@ -45,6 +45,8 @@ Browser lists are explicitly supported; **server-stored** applications, authenti
 | `page` | Positive one-based page, constrained to displayed results |
 
 Defaults are omitted. Search typing replaces history; other controls push history. Filter/sort/page-size changes reset to page one. Reset clears public filters and page, preserving sort, page size, and unrelated parameters. Local-list changes constrain the displayed page without rewriting the public URL.
+
+The header's **open roles** badge always counts the complete open dataset, independent of public filters, local lists, or hidden IDs. The result count beside pagination describes the current filtered/local view instead.
 
 Pagination links have real `href`s. Without JavaScript, crawlers can follow the unfiltered default view through its pages. Unknown browser parameters are ignored/constrained; the API instead [rejects invalid input](../../users/data/api.md#query-parameters). Shared filtering helpers must not erase this intentional distinction or the API's snapshot-relative recency contract.
 

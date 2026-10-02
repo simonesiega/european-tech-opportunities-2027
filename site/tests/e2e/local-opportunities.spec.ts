@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import {expect, test} from "@playwright/test";
-import {expectRoleCount, openDirectory} from "./helpers";
+import {expectResultCount, openDirectory} from "./helpers";
 
 const key = "opportunities-directory-state";
 const role = "Software Engineering Intern 2027";
@@ -21,7 +21,7 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
     "Your list",
   ]);
   await expect(page.getByRole("cell", {name: /Not new since your last visit/})).toHaveCount(10);
-  await expect(page.getByText(/new opportunities since your last visit/)).toHaveCount(0);
+  await expect(page.getByText(/new opportunities since your last visit/)).toBeHidden();
   await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), key)).not.toBeNull();
   await page.evaluate(
     (key) =>
@@ -42,7 +42,7 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
     page.getByText("We found 2 new opportunities since your last visit.", {exact: false})
   ).toBeVisible();
   await page.getByRole("button", {name: "View new opportunities"}).click();
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
   await expect(page.getByRole("cell", {name: /New since your last visit/})).toHaveCount(2);
   const markedBeforeReload = await page
     .getByRole("row")
@@ -53,7 +53,7 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
     page.getByText("We found 2 new opportunities since your last visit.", {exact: false})
   ).toBeVisible();
   await page.getByRole("button", {name: "View new opportunities"}).click();
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
   expect(
     await page
       .getByRole("row")
@@ -66,7 +66,7 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
     .first();
   await newest.getByRole("button", {name: /More actions for/}).click();
   await page.getByRole("menuitem", {name: /Hide/}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(
     page.getByText("We found 1 new opportunity since your last visit.", {exact: false})
   ).toBeVisible();
@@ -75,8 +75,8 @@ test("first and returning visits, corrupt state and stale IDs", async ({page}) =
   );
   await page.evaluate((key) => localStorage.setItem(key, "{bad"), key);
   await page.reload();
-  await expectRoleCount(page, 12);
-  await expect(page.getByText(/new opportunities since your last visit/)).toHaveCount(0);
+  await expectResultCount(page, 12);
+  await expect(page.getByText(/new opportunities since your last visit/)).toBeHidden();
 });
 
 test("empty local lists explain the selected view without claiming the directory is empty", async ({
@@ -84,13 +84,13 @@ test("empty local lists explain the selected view without claiming the directory
 }) => {
   await openDirectory(page);
   await page.getByRole("button", {name: "View 0 saved opportunities"}).click();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await expect(page.getByText("No saved opportunities to show", {exact: true})).toBeVisible();
   await page.getByRole("button", {name: "View 0 applied opportunities"}).click();
   await expect(page.getByText("No applied opportunities to show", {exact: true})).toBeVisible();
   await expect(page.getByText("The directory currently has no open roles.")).toHaveCount(0);
   await page.getByRole("button", {name: "View all opportunities"}).click();
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
   await expect(page).toHaveURL("/");
 });
 
@@ -98,18 +98,18 @@ test("mobile empty messages and reset controls need no horizontal scrolling", as
   await page.setViewportSize({width: 390, height: 844});
   await openDirectory(page);
   await page.getByRole("button", {name: "View 0 saved opportunities"}).click();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect(page.getByText("No saved opportunities to show", {exact: true})).toBeInViewport({
     ratio: 1,
   });
 
   await openDirectory(page, "/?q=does-not-match-any-opportunity");
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect(page.getByRole("button", {name: "Reset filters"})).toBeInViewport({ratio: 1});
   await page.getByRole("button", {name: "Reset filters"}).click();
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
 });
 
 test("hiding every role leaves a clear route to restoring the directory", async ({page}) => {
@@ -121,17 +121,17 @@ test("hiding every role leaves a clear route to restoring the directory", async 
     localStorage.setItem(key, JSON.stringify(state));
   }, key);
   await page.reload();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await expect(page.getByText("No visible opportunities", {exact: true})).toBeVisible();
   await page.getByRole("button", {name: "View 12 hidden opportunities"}).click();
-  await expectRoleCount(page, 12);
+  await expectResultCount(page, 12);
   await page
     .getByRole("button", {name: /More actions for/})
     .first()
     .click();
   await page.getByRole("menuitem", {name: /Restore/}).click();
   await page.getByRole("button", {name: "View all opportunities"}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
 });
 
 test("menu dismissal preserves tab order and focus after a viewport change", async ({page}) => {
@@ -185,13 +185,13 @@ test("saved, applied, hidden and restored work across filters, pages and reloads
     "false"
   );
   await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await page.reload();
   await page.getByRole("button", {name: "View 1 applied opportunities"}).click();
   await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
   await page.getByRole("button", {name: `More actions for ${role} at Acme Labs`}).click();
   await page.getByRole("menuitem", {name: `Hide ${role} at Acme Labs`}).click();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await page.getByRole("button", {name: "View 1 hidden opportunities"}).click();
   await page.getByRole("button", {name: `More actions for ${role} at Acme Labs`}).click();
   await expect(page.getByRole("menuitem", {name: `Restore ${role} at Acme Labs`})).toBeVisible();
@@ -200,13 +200,13 @@ test("saved, applied, hidden and restored work across filters, pages and reloads
   await page.getByRole("button", {name: `More actions for ${role} at Acme Labs`}).click();
   await page.getByRole("menuitem", {name: `Restore ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(page).toHaveURL(/company=Acme\+Labs&sort=company-asc&page-size=20/);
   await page.getByRole("button", {name: `Unmark applied ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: "View 0 applied opportunities"}).click();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await page.getByRole("button", {name: "View all opportunities"}).click();
-  await expectRoleCount(page, 2);
+  await expectResultCount(page, 2);
   await expect(
     new AxeBuilder({page})
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"])
@@ -282,9 +282,9 @@ test("keyboard actions, menu dismissal, focus and mobile reachability", async ({
   ).toBeFocused();
   await page.getByRole("button", {name: `More actions for ${role} at Acme Labs`}).click();
   await page.getByRole("menuitem", {name: `Hide ${role} at Acme Labs`}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await page.getByRole("button", {name: "View 1 hidden opportunities"}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
@@ -376,11 +376,11 @@ test("quota failures retain consecutive in-memory actions instead of stale store
   await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: `Mark applied ${role} at Acme Labs`}).click();
   await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
-  await expectRoleCount(page, 1);
+  await expectResultCount(page, 1);
   await expect(
     page.getByRole("button", {name: `Unmark applied ${role} at Acme Labs`})
   ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", {name: `Unsave ${role} at Acme Labs`}).click();
-  await expectRoleCount(page, 0);
+  await expectResultCount(page, 0);
   await expect(page.getByRole("button", {name: "View 0 saved opportunities"})).toBeFocused();
 });

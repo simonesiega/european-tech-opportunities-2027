@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useLayoutEffect, useMemo, useRef, useState} from "react";
 import {
   LOCAL_STATE_KEY,
   parseLocalState,
@@ -30,7 +30,8 @@ export function useLocalOpportunities(opportunities: Opportunity[]) {
     }
   }
 
-  useEffect(() => {
+  // Keep SSR deterministic, then restore private lists before hydration's next paint.
+  useLayoutEffect(() => {
     const now = new Date().toISOString();
     let raw = currentState.current ? JSON.stringify(currentState.current) : null;
     if (storageAvailable.current) {

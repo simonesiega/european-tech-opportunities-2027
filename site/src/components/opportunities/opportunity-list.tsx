@@ -250,6 +250,14 @@ export function OpportunityList({
           </span>
         </label>
         <div className="flex items-center gap-2">
+          <span
+            role="status"
+            aria-label="Matching opportunities"
+            aria-atomic="true"
+            className="mr-1.5"
+          >
+            {opportunities.length} {opportunities.length === 1 ? "result" : "results"}
+          </span>
           <span className="mr-1.5">
             Page {view.page} of {Math.max(table.getPageCount(), 1)}
           </span>

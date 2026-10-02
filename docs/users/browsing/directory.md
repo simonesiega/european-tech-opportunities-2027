@@ -12,7 +12,7 @@ The directory shows currently open, validated technology internships and New Gra
 - **Employment type** selects **Internship** or **New Grad**.
 - **First seen** limits results to the last 24 hours, 7 days, or 30 days.
 
-Filters combine: a role must match all your selections. The open-role count reflects the current view. If nothing matches, remove one filter or choose **Reset**. This clears search and filters, but keeps your sorting and rows-per-page choice. If you are browsing a local list, choose **View all opportunities** to leave that list.
+Filters combine: a role must match all your selections. The **open roles** badge always shows the directory's full total, including roles you have hidden. The result count beside pagination reflects your current filters and local list. If nothing matches, remove one filter or choose **Reset**. This clears search and filters, but keeps your sorting and rows-per-page choice. If you are browsing a local list, choose **View all opportunities** to leave that list.
 
 ## Browse the results
 

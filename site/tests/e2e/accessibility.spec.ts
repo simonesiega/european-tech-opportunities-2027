@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import {expect, test, type Page} from "@playwright/test";
-import {expectRoleCount, openDirectory} from "./helpers";
+import {expectResultCount, openDirectory} from "./helpers";
 
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"];
 
@@ -17,16 +17,16 @@ test.describe("automated accessibility", () => {
 
   test("filtered directory", async ({page}) => {
     await openDirectory(page, "/?company=Acme+Labs&category=cybersecurity");
-    await expectRoleCount(page, 1);
+    await expectResultCount(page, 1);
     await expectNoAccessibilityViolations(page);
   });
 
   test("empty results", async ({page}) => {
     await openDirectory(page, "/?q=does-not-match-any-opportunity");
-    await expectRoleCount(page, 0);
+    await expectResultCount(page, 0);
     await expectNoAccessibilityViolations(page);
     await page.getByRole("button", {name: "Reset filters"}).click();
-    await expectRoleCount(page, 12);
+    await expectResultCount(page, 12);
     await expect(page.getByLabel("Search")).toHaveValue("");
     await expect(page).not.toHaveURL(/q=/);
   });
