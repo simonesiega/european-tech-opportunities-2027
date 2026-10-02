@@ -131,8 +131,8 @@ Branch-aware coverage measures classification, collection-level data-quality che
 <!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 99.4% | ≥ 85.0% |
-| Branch coverage | 98.5% | Reported |
+| Combined statement and branch coverage | 99.5% | ≥ 85.0% |
+| Branch coverage | 99.0% | Reported |
 | Classifier branch coverage | 97.5% | Reported |
 <!-- END PYTHON COVERAGE -->
 

@@ -273,7 +273,7 @@ The command requires the LinkedIn authorization interlock and checks every job r
 - a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
-The command exits with code `2` when one or more checks are inconclusive. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. The nightly workflow runs this full audit once per day before scraping, opens or updates a tightly scoped README pull request, explicitly dispatches and awaits validation on that generated commit, and only then requests auto-merge. The availability-only workflow can run the same command manually and opens its own validated manual-review pull request.
+The command exits with code `2` when one or more checks are inconclusive without a source-access denial. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. A redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial. The nightly workflow runs this full audit once per day before scraping, opens or updates a tightly scoped README pull request, explicitly dispatches and awaits validation on that generated commit, and only then requests auto-merge. The availability-only workflow can run the same command manually and opens its own validated manual-review pull request.
 
 ## `render`
 
@@ -360,7 +360,7 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | Code | Meaning |
 |---:|---|
 | `0` | Command completed successfully |
-| `1` | All selected searches failed, validation found an inconsistency, or the requested quality gate blocked or could not complete |
+| `1` | All selected searches failed, the availability audit encountered a source-access denial, validation found an inconsistency, or the requested quality gate blocked or could not complete |
 | `2` | Partial scrape, availability audit with inconclusive checks, or rejected command/configuration input |
 | `3` | Required database tables are missing or the schema is not at migration head |
 
@@ -386,7 +386,7 @@ GitHub Actions handling of these codes is documented in [Automation](automation.
 | `add-job --no-render` | No | Yes | No |
 | `add-jobs` | No | Yes, one transaction | README + registry docs + public exports |
 | `add-jobs --no-render` | No | Yes, one transaction | No |
-| `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports |
+| `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports unless source access is blocked |
 | `check-availability --no-render` | Yes, after authorization gate | Yes | No |
 | `render` | No | No | README + registry docs + public exports |
 | `export-public` | No | No | Public exports only |

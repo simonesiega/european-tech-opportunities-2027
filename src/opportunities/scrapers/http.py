@@ -201,10 +201,15 @@ class HttpFetcher:
                     retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
                 else:
                     return await self._read_text(response)
-        except httpx.TimeoutException as exc:
-            raise FetchError("timeout", "LinkedIn request timed out", retryable=True) from exc
-        except httpx.TransportError as exc:
-            raise FetchError("transport", "LinkedIn request failed", retryable=True) from exc
+        except FetchError:
+            raise
+        except Exception as exc:
+            self._raise_if_blocked()
+            if isinstance(exc, httpx.TimeoutException):
+                raise FetchError("timeout", "LinkedIn request timed out", retryable=True) from exc
+            if isinstance(exc, httpx.TransportError):
+                raise FetchError("transport", "LinkedIn request failed", retryable=True) from exc
+            raise
 
         raise FetchError(
             "transient_http",

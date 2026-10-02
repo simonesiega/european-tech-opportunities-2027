@@ -178,6 +178,53 @@ uv() {
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
+@pytest.mark.parametrize("exit_code", [0, 1, 2, 3])
+def test_availability_denial_stops_workflow_before_follow_on_scrape(
+    tmp_path: Path, exit_code: int
+) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("Availability workflow tests require Bash")
+    step = process_step("Check every stored public job page for closure alerts")
+    script = step["run"]
+    assert isinstance(script, str)
+    fake_audit = """
+uv() {
+  if [ "$*" != "run opportunities check-availability" ]; then return 98; fi
+  return "$AUDIT_EXIT_CODE"
+}
+"""
+    result = subprocess.run(
+        [bash, "-c", fake_audit + script],
+        cwd=tmp_path,
+        env={**offline_shell_environment(tmp_path), "AUDIT_EXIT_CODE": str(exit_code)},
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == (0 if exit_code in (0, 2) else exit_code), result.stderr
+    assert "continue-on-error" not in step
+    scrape = process_step("Scrape and persist selected searches")
+    assert scrape["if"] == "inputs.run_scrape"  # Default success() must remain in force.
+    steps = process_steps()
+    assert steps.index(step) < steps.index(scrape)
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+
+
+@pytest.mark.parametrize("filename", ["nightly.yml", "check-availability.yml"])
+def test_availability_failure_prevents_readme_handoff_to_mutation_job(filename: str) -> None:
+    document = yaml.load((WORKFLOWS / filename).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+    process = document["jobs"]["process-state"]
+    proposal = document["jobs"]["update-readme"]
+    assert process["with"]["run_availability"] == "true"
+    assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
+    assert "continue-on-error" not in process
+    assert proposal["needs"] == "process-state"
+    assert "if" not in proposal  # Default success() must not be bypassed after audit failure.
+    assert "continue-on-error" not in proposal
+
+
 def test_collection_retains_only_the_quality_report_even_on_blocking_failure() -> None:
     steps = process_steps()
     scrape = process_step("Scrape and persist selected searches")
