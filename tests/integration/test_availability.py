@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import UTC, datetime, timedelta
 
+import httpx
 import pytest
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -17,6 +18,7 @@ from opportunities.scrapers.http import (
     LINKEDIN_DETAIL_ENDPOINT,
     LINKEDIN_PUBLIC_JOB_URL,
     FetchError,
+    HttpFetcher,
 )
 
 
@@ -257,6 +259,152 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
     )
     assert changes.reopened == 0
     assert repository.list_open_jobs() == []
+
+
+@pytest.mark.parametrize("endpoint", ["public", "detail"])
+@pytest.mark.parametrize("denial", [301, 401, 403, 429, "challenge"])
+def test_source_denial_stops_audit_without_turning_it_into_successful_partial_collection(
+    session_factory: sessionmaker[Session], settings: Settings, endpoint: str, denial: int | str
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    for job_id in ("1", "2", "3"):
+        repository.upsert_manual_job(
+            DiscoveredJob(
+                linkedin_job_id=job_id,
+                company="Synthetic Technology",
+                title="Software Intern 2027",
+                location="Berlin, Germany",
+                link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                employment_type=EmploymentType.INTERNSHIP,
+            ),
+            observed_at=now,
+        )
+    before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    requested: list[str] = []
+    blocked_url = (
+        LINKEDIN_PUBLIC_JOB_URL if endpoint == "public" else LINKEDIN_DETAIL_ENDPOINT
+    ).format(job_id="2")
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        if str(request.url) == blocked_url:
+            if denial == "challenge":
+                return httpx.Response(200, text="<html>Security verification challenge-page</html>")
+            assert isinstance(denial, int)
+            return httpx.Response(denial)
+        return httpx.Response(
+            200,
+            text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+            '<a class="topcard__org-name-link">Synthetic Technology</a>',
+        )
+
+    async def audit() -> None:
+        serial_settings = settings.model_copy(update={"max_concurrency": 1})
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(serial_settings, client=client) as fetcher,
+        ):
+            result = await audit_job_availability(
+                settings=serial_settings,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=now + timedelta(minutes=1),
+            )
+        assert result.checked == 3
+        assert result.available == 1
+        assert result.deleted == result.reopened == 0
+        assert result.inconclusive_ids == ("2", "3")
+        assert result.exit_code == 1  # Workflow must not start a new fetcher for scraping.
+        assert result.source_blocked
+
+    asyncio.run(audit())
+    assert requested[-1] == blocked_url
+    assert len(requested) == (3 if endpoint == "public" else 4)
+    after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    assert after["1"].last_seen_at == now + timedelta(minutes=1)
+    assert after["2"] == before["2"]
+    assert after["3"] == before["3"]
+
+
+@pytest.mark.parametrize("inflight_status", [200, 404])
+def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial(
+    session_factory: sessionmaker[Session], settings: Settings, inflight_status: int
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    repository.upsert_manual_jobs(
+        [
+            DiscoveredJob(
+                linkedin_job_id=job_id,
+                company="Synthetic Technology",
+                title="Software Intern 2027",
+                location="Berlin, Germany",
+                link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                employment_type=EmploymentType.INTERNSHIP,
+            )
+            for job_id in ("1", "2", "3")
+        ],
+        observed_at=now,
+    )
+    before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    requested: list[str] = []
+    detail_started = asyncio.Event()
+    denial_returned = asyncio.Event()
+    identity = (
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+        '<a class="topcard__org-name-link">Synthetic Technology</a>'
+    )
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        if request.url.path == "/jobs/view/1":
+            return httpx.Response(200, text=identity)
+        if request.url.path == "/jobs-guest/jobs/api/jobPosting/1":
+            detail_started.set()
+            await denial_returned.wait()
+            return httpx.Response(inflight_status, text=identity)
+        if request.url.path == "/jobs/view/2":
+            await detail_started.wait()
+            denial_returned.set()
+            return httpx.Response(403)
+        pytest.fail("unexpected request after source denial")
+
+    async def audit() -> None:
+        concurrent_settings = settings.model_copy(update={"max_concurrency": 2})
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(concurrent_settings, client=client) as fetcher,
+        ):
+            result = await audit_job_availability(
+                settings=concurrent_settings,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=now + timedelta(minutes=1),
+            )
+        assert result.source_blocked
+        assert result.exit_code == 1
+        assert result.checked == 3
+        assert result.available == int(inflight_status == 200)
+        assert result.deleted == int(inflight_status == 404)
+        assert result.reopened == 0
+        assert result.inconclusive_ids == ("2", "3")
+
+    asyncio.run(asyncio.wait_for(audit(), timeout=5))
+    assert requested == [
+        "/jobs/view/1",
+        "/jobs-guest/jobs/api/jobPosting/1",
+        "/jobs/view/2",
+    ]
+    after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    assert after["2"] == before["2"]
+    assert after["3"] == before["3"]
+    if inflight_status == 200:
+        assert after["1"].last_seen_at == now + timedelta(minutes=1)
+    else:
+        assert "1" not in after
 
 
 @pytest.mark.parametrize("endpoint", ["public", "detail"])

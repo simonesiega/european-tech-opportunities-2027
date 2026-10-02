@@ -37,10 +37,13 @@ class AvailabilityAuditResult:
     deleted: int
     reopened: int
     inconclusive_ids: tuple[str, ...]
+    source_blocked: bool = False
 
     @property
     def exit_code(self) -> int:
-        """Return partial success when any page could not be classified safely."""
+        """Stop follow-on source phases after a denial, not merely report partial success."""
+        if self.source_blocked:
+            return 1
         return 2 if self.inconclusive_ids else 0
 
 
@@ -105,6 +108,8 @@ async def _audit_jobs(
             )
             validate_job_detail_page(detail_html)
         except FetchError as exc:
+            if exc.code == "source_blocked":
+                return job.linkedin_job_id, "blocked"
             if exc.status_code in {404, 410}:
                 return job.linkedin_job_id, "unavailable"
             return job.linkedin_job_id, "inconclusive"
@@ -116,7 +121,9 @@ async def _audit_jobs(
     outcomes = await map_concurrently(jobs, check, limit=max_concurrency)
     available_ids = tuple(job_id for job_id, state in outcomes if state == "available")
     unavailable_ids = tuple(job_id for job_id, state in outcomes if state == "unavailable")
-    inconclusive_ids = tuple(job_id for job_id, state in outcomes if state == "inconclusive")
+    inconclusive_ids = tuple(
+        job_id for job_id, state in outcomes if state in {"inconclusive", "blocked"}
+    )
     changes = repository.apply_availability_audit(
         available_ids=available_ids,
         unavailable_ids=unavailable_ids,
@@ -128,4 +135,5 @@ async def _audit_jobs(
         deleted=changes.deleted,
         reopened=changes.reopened,
         inconclusive_ids=inconclusive_ids,
+        source_blocked=any(state == "blocked" for _, state in outcomes),
     )

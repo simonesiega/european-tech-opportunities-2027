@@ -192,6 +192,76 @@ def test_http_fetcher_stops_on_429_without_reading_response_body() -> None:
 
 
 @pytest.mark.parametrize("status_code", [302, 401, 403, 429])
+@pytest.mark.parametrize("max_retries", [0, 2])
+@pytest.mark.parametrize("failure", [httpx.ReadTimeout, httpx.ReadError, RuntimeError])
+def test_response_cleanup_cannot_hide_a_detected_source_denial(
+    status_code: int, max_retries: int, failure: type[Exception]
+) -> None:
+    class FailingCloseStream(ChunkedStream):
+        async def aclose(self) -> None:
+            await super().aclose()
+            raise failure("synthetic-private-cleanup-detail")
+
+    stream = FailingCloseStream((b"ignored denial body",))
+    attempts = 0
+    delays: list[float] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts <= max_retries:
+            return httpx.Response(503, request=request)
+        return httpx.Response(status_code, stream=stream, request=request)
+
+    async def sleep(delay: float) -> None:
+        delays.append(delay)
+
+    async def run() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            fetcher = HttpFetcher(
+                Settings(
+                    linkedin_crawl_authorized=True,
+                    rate_limit_seconds=0,
+                    retry_backoff_seconds=0,
+                    max_retries=max_retries,
+                ),
+                client=client,
+                sleep=sleep,
+            )
+            for _ in range(2):
+                with pytest.raises(FetchError) as error:
+                    await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+                assert error.value.code == "source_blocked"
+                assert error.value.status_code == status_code
+                assert not error.value.retryable
+                assert "synthetic-private-cleanup-detail" not in str(error.value)
+
+    asyncio.run(run())
+    assert attempts == max_retries + 1
+    assert delays == [0] * max_retries
+    assert stream.read_count == 0
+    assert stream.closed
+
+
+def test_unexpected_client_failure_without_a_denial_is_preserved() -> None:
+    failure = RuntimeError("synthetic unexpected client failure")
+
+    def handle(_request: httpx.Request) -> httpx.Response:
+        raise failure
+
+    async def run() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+            fetcher = HttpFetcher(
+                Settings(linkedin_crawl_authorized=True, rate_limit_seconds=0), client=client
+            )
+            with pytest.raises(RuntimeError) as error:
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            assert error.value is failure
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("status_code", [302, 401, 403, 429])
 def test_redirect_or_access_denial_stops_queued_and_later_requests(
     status_code: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:

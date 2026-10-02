@@ -194,13 +194,19 @@ def check_availability(
     try:
         _require_migrations(engine)
         result = asyncio.run(audit_job_availability(settings=settings, repository=repository))
-        if not no_render:
+        if not no_render and not result.source_blocked:
             _render_projections(settings, repository)
         console.print(
             f"Checked {result.checked} position(s): {result.available} available, "
             f"{result.deleted} deleted, {result.reopened} reopened, "
             f"{len(result.inconclusive_ids)} inconclusive."
         )
+        if result.source_blocked:
+            error_console.print(
+                "[red]LinkedIn access was blocked; source processing stopped.[/red] "
+                "Review authorization before another source request. "
+                "Projections were not refreshed."
+            )
     finally:
         _dispose_engine(engine)
     raise typer.Exit(result.exit_code)

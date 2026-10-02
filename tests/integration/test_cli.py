@@ -1,27 +1,32 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import socket
 from collections.abc import Iterator
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock
 
+import httpx
 import pytest
 import typer
 from sqlalchemy import Engine
 from typer.testing import CliRunner
 
 import opportunities.cli.app as cli_app_module
+import opportunities.pipeline.availability as availability_module
 from opportunities.cli.app import app
 from opportunities.config.settings import Settings
+from opportunities.database.models import JobSearchRow
 from opportunities.database.repository import PersistSummary, Repository
 from opportunities.database.session import create_database_engine, create_session_factory
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.raw import KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.pipeline.availability import AvailabilityAuditResult
 from opportunities.scrapers.http import FetchError
 from opportunities.scrapers.linkedin import LinkedInScraper, LinkedInScrapeResult, TextFetcher
 from opportunities.utils.paths import find_project_root
@@ -223,6 +228,156 @@ def test_requested_quality_gate_fails_closed_on_local_errors(
     assert not (tmp_path / "exports").exists()
     # Writing the report precedes baseline persistence, so persistence failure keeps evidence.
     assert report_path.exists() == (failure == "persist")
+
+
+@pytest.mark.parametrize("no_render", [False, True])
+@pytest.mark.parametrize("blocked", [False, True])
+def test_availability_source_block_fails_closed_without_rendering(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked: bool, no_render: bool
+) -> None:
+    environment = cli_env(tmp_path)
+    initialize_projection_files(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    before = {
+        path: path.read_bytes()
+        for path in (
+            tmp_path / "README.md",
+            tmp_path / "docs/maintainers/engineering/search-registry.md",
+        )
+    }
+
+    async def audit(*, settings: Settings, repository: Repository) -> AvailabilityAuditResult:
+        return AvailabilityAuditResult(1, 0, 0, 0, ("1111111111",), source_blocked=blocked)
+
+    monkeypatch.setattr(cli_app_module, "audit_job_availability", audit)
+    args = ["check-availability", *(["--no-render"] if no_render else [])]
+    result = runner.invoke(app, args, env=environment)
+
+    assert result.exit_code == (1 if blocked else 2), result.output
+    if blocked:
+        assert "source processing stopped" in result.output
+        assert "Projections were not refreshed" in result.output
+    else:
+        assert "source processing stopped" not in result.output
+    if blocked or no_render:
+        assert {path: path.read_bytes() for path in before} == before
+        assert not (tmp_path / "exports").exists()
+    else:
+        assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
+
+
+@pytest.mark.parametrize("cleanup_failure", [False, True])
+def test_availability_denial_preserves_confirmed_state_but_never_refreshes_existing_projections(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    search: LinkedInSearchConfig,
+    cleanup_failure: bool,
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_MAX_CONCURRENCY"] = "1"
+    environment["OPPORTUNITIES_MAX_RETRIES"] = "0"
+    initialize_projection_files(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    checked_at = now + timedelta(minutes=3)
+    monkeypatch.setattr(availability_module, "utc_now", lambda: checked_at)
+    requested: list[str] = []
+
+    class DeniedStream(httpx.ByteStream):
+        async def aclose(self) -> None:
+            if cleanup_failure:
+                raise httpx.ReadError("synthetic-private-cleanup-detail")
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        if request.url.path.endswith("/2"):
+            return httpx.Response(404)
+        if request.url.path.endswith("/3"):
+            return httpx.Response(403, stream=DeniedStream(b"synthetic-private-denial-body"))
+        return httpx.Response(
+            200,
+            text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+            '<a class="topcard__org-name-link">Synthetic Technology</a>',
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **_kwargs: client)
+    repository, engine = repository_for(environment)
+    try:
+        repository.sync_searches([search], now)
+        jobs = [
+            DiscoveredJob(
+                linkedin_job_id=job_id,
+                company="Synthetic Technology",
+                title="Software Intern 2027",
+                location="Berlin, Germany",
+                link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                employment_type=EmploymentType.INTERNSHIP,
+            )
+            for job_id in ("1", "2", "3")
+        ]
+        for run, unavailable in enumerate(((), ("1", "3"), ("1",))):
+            when = now + timedelta(minutes=run)
+            repository.persist_success(
+                run_id=f"audit-seed-{run}",
+                search=search,
+                jobs=jobs if run == 0 else [],
+                confirmed_unavailable_ids=unavailable,
+                found_count=3 if run == 0 else 0,
+                excluded_count=0,
+                warning_count=0,
+                started_at=when,
+                finished_at=when,
+                duration_ms=1,
+            )
+        before_jobs = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+        before_stats = repository.stats()
+        assert runner.invoke(app, ["render"], env=environment).exit_code == 0
+        before_files = {
+            path: path.read_bytes()
+            for path in (
+                tmp_path / "README.md",
+                tmp_path / "docs/maintainers/engineering/search-registry.md",
+                *sorted((tmp_path / "exports").iterdir()),
+            )
+        }
+
+        result = runner.invoke(app, ["check-availability"], env=environment)
+
+        assert result.exit_code == 1, result.output
+        assert "source processing stopped" in result.output
+        assert "1 available, 1 deleted, 1 reopened" in result.output
+        assert "1 inconclusive" in result.output
+        assert "synthetic-private" not in result.output
+        assert client.is_closed
+        assert requested == [
+            "/jobs/view/1",
+            "/jobs-guest/jobs/api/jobPosting/1",
+            "/jobs/view/2",
+            "/jobs/view/3",
+        ]
+        assert {path: path.read_bytes() for path in before_files} == before_files
+        current = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+        assert set(current) == {"1", "3"}
+        assert current["1"].last_seen_at == checked_at
+        assert current["1"].first_seen_at == before_jobs["1"].first_seen_at
+        assert current["3"] == before_jobs["3"]
+        assert repository.stats().successful_runs == before_stats.successful_runs
+        assert repository.stats().last_success_at == before_stats.last_success_at
+        with repository.factory() as session:
+            reopened = session.get(JobSearchRow, (search.slug, "1"))
+            preserved = session.get(JobSearchRow, (search.slug, "3"))
+            assert reopened is not None
+            assert reopened.active is True
+            assert reopened.unavailable_confirmations == 0
+            assert session.get(JobSearchRow, (search.slug, "2")) is None
+            assert preserved is not None
+            assert preserved.active is True
+            assert preserved.unavailable_confirmations == 1
+    finally:
+        asyncio.run(client.aclose())
+        engine.dispose()
 
 
 def test_database_render_stats_and_validate_commands(tmp_path: Path) -> None:
