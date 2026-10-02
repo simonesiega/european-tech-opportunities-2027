@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: September 29, 2026 at 11:28 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-753-2563eb?style=for-the-badge" alt="Total opportunities: 753" />
-  <img src="https://img.shields.io/badge/Internships-329-16a34a?style=for-the-badge" alt="Internships: 329" />
-  <img src="https://img.shields.io/badge/New%20Grad-424-9333ea?style=for-the-badge" alt="New Grad opportunities: 424" />
+  <strong>Last successful collection: October 2, 2026 at 11:17 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-790-2563eb?style=for-the-badge" alt="Total opportunities: 790" />
+  <img src="https://img.shields.io/badge/Internships-343-16a34a?style=for-the-badge" alt="Internships: 343" />
+  <img src="https://img.shields.io/badge/New%20Grad-447-9333ea?style=for-the-badge" alt="New Grad opportunities: 447" />
 </p>
-<!-- Public directory state v1 sha256: bf8c0ea6300b8348006ded5010811b4de58bdcc180176908db689afc6687ed54 -->
+<!-- Public directory state v1 sha256: 9df437daae347961e3b3ed43bf071e2ce98fb5cdd9be87bb13a52c157be5308e -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -69,34 +69,34 @@ The official site has generated **12K+ page views**, with **2.2K+ users and 8.2K
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 753 (Internships: 329 · New Grad: 424)<br>
-**Last successful collection:** September 29, 2026 at 11:28 UTC
+**Open opportunities:** 790 (Internships: 343 · New Grad: 447)<br>
+**Last successful collection:** October 2, 2026 at 11:17 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 424 open New Grad opportunities:
+Showing the 5 most recently discovered of 447 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Elwood | Graduate/Junior Software Engineer | London, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471701851>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4471586101>) |
-| CACI Digital Experience \(formerly Cyber-Duck\) | Graduate Software Engineer - September 2027 \(National Security\) | Bristol, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471566524>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4471518858>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4471536140>) |
+| DeepTree | Graduate Software Engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4474709418>) |
+| Arm | Graduate Software Engineer | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4472552295>) |
+| Ocho | Graduate Software Engineer | Belfast, Northern Ireland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4474146222>) |
+| Aurora Energy Research | Graduate Software Engineering Programme \(Oxford, 2027\) | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471994808>) |
+| Vhi | IT Graduate - Software Engineering | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4472640313>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 329 open internships:
+Showing the 5 most recently discovered of 343 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| BorgWarner | Professional Internship Information Technology - Client Support \(m/f/d\) | Viana do Castelo, Viana do Castelo, Portugal | [View](<https://www.linkedin.com/jobs/view/4471510701>) |
-| Accenture Poland | Cloud DevOps Engineer Intern | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4471509785>) |
-| Deloitte | Intern Fullstack Software Engineer \(.NET &amp; React\) 1 | Luxembourg, Luxembourg, Luxembourg | [View](<https://www.linkedin.com/jobs/view/4470876368>) |
-| Ericsson | Python Developer Intern | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4471353189>) |
-| Motorola Solutions | Intern Software Developer - Java | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4472070630>) |
+| Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472891402>) |
+| Luminor Group | IT &amp; Cybersecurity Intern | Tallinn, Harjumaa, Estonia | [View](<https://www.linkedin.com/jobs/view/4472852461>) |
+| Mirakl | Software Engineer Intern - Financial Services | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472910231>) |
+| Titan OS | Frontend Developer Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4473790799>) |
+| Mirakl | Software Engineer Intern - Ads | Bordeaux, Nouvelle-Aquitaine, France | [View](<https://www.linkedin.com/jobs/view/4472909167>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
