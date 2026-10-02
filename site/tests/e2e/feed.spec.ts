@@ -72,6 +72,39 @@ test("RSS and Atom accept only safe exact filters and return an empty feed for u
   }
 });
 
+test("Atom supplies a feed-level author inherited by entries, including empty feeds", async ({
+  request,
+  page,
+}) => {
+  for (const query of ["", "?type=new-grad", "?country=Unknown"]) {
+    const response = await request.get(`/atom.xml${query}`);
+    expect(response.status()).toBe(200);
+    const author = await page.evaluate(
+      (xml) => {
+        const document = new DOMParser().parseFromString(xml, "application/xml");
+        const namespace = "http://www.w3.org/2005/Atom";
+        const feed = document.documentElement;
+        const authors = Array.from(feed.children).filter(
+          (child) => child.localName === "author" && child.namespaceURI === namespace
+        );
+        return {
+          parseError: document.querySelector("parsererror") !== null,
+          count: authors.length,
+          name: authors[0]?.getElementsByTagNameNS(namespace, "name")[0]?.textContent,
+          uri: authors[0]?.getElementsByTagNameNS(namespace, "uri")[0]?.textContent,
+        };
+      },
+      await response.text()
+    );
+    expect(author).toEqual({
+      parseError: false,
+      count: 1,
+      name: "Simone Siega",
+      uri: "https://simonesiega.com/",
+    });
+  }
+});
+
 test("feed validators support HEAD and conditional GET without mutation methods", async ({
   request,
 }) => {
