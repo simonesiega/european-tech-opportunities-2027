@@ -212,6 +212,26 @@ uv() {
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
+def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
+    nightly = yaml.load(
+        (WORKFLOWS / "nightly.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
+    )
+    assert nightly["on"] == {
+        "workflow_dispatch": "",
+        "schedule": [{"cron": "23 4 * * *"}],
+    }
+    assert nightly["concurrency"] == {
+        "group": "opportunity-collection",
+        "cancel-in-progress": "false",
+    }
+    process = nightly["jobs"]["process-state"]
+    assert "if" not in process
+    assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
+    assert process["with"]["run_availability"] == "true"
+    assert process["with"]["run_scrape"] == "true"
+    assert process["with"]["crawl_authorized"] == "${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}"
+
+
 @pytest.mark.parametrize("filename", ["nightly.yml", "check-availability.yml"])
 def test_availability_failure_prevents_readme_handoff_to_mutation_job(filename: str) -> None:
     document = yaml.load((WORKFLOWS / filename).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
