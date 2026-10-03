@@ -258,12 +258,17 @@ class Repository:
         return summary
 
     def list_open_jobs(self) -> list[StoredJob]:
-        """Return open jobs ordered by company, title, and location; renderers order previews."""
+        """Return open jobs by company, title, location, then ID text; renderers order previews."""
         with self.factory() as session:
             rows = session.scalars(
                 select(JobRow)
                 .where(JobRow.status == JobStatus.OPEN.value)
-                .order_by(func.lower(JobRow.company), func.lower(JobRow.title), JobRow.location)
+                .order_by(
+                    func.lower(JobRow.company),
+                    func.lower(JobRow.title),
+                    JobRow.location,
+                    JobRow.linkedin_job_id,
+                )
             ).all()
             return [_stored_job(row) for row in rows]
 

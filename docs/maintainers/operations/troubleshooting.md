@@ -50,11 +50,11 @@ Never paste a complete environment file, production database, authenticated HTML
 | Code | Meaning | First action |
 |---:|---|---|
 | `0` | Success | No recovery action required |
-| `1` | Complete collection failure, validation mismatch, or a blocked or failed quality gate | Preserve state and inspect search output, projections, or the quality report |
+| `1` | Complete collection failure, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
 | `2` | Partial collection or availability audit, or rejected configuration/command input | Preserve successful work and inspect the command-specific error |
 | `3` | Database missing tables or not at migration head | Run `db-upgrade` against the same database URL |
 
-Exit code `2` is intentionally overloaded by command context: collection uses it for partial success, the availability audit uses it when one or more checks are inconclusive, and configuration or selection errors also use it for rejected input.
+Exit code `2` is intentionally overloaded by command context: collection uses it for partial success, the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors also use it for rejected input. An availability source-access denial returns `1` and skips projection rendering; review authorization before another run.
 
 Command-specific behavior is documented in the [CLI reference](cli.md#exit-codes).
 

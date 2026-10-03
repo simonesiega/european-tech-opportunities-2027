@@ -43,6 +43,20 @@ def test_raw_job_rejects_non_string_locations() -> None:
         )
 
 
+def test_job_models_canonicalize_listing_urls_consistently() -> None:
+    url = " https://WWW.LINKEDIN.COM/jobs/view/1111111111/?trk=synthetic#details "
+    discovered = DiscoveredJob.model_validate({**discovered_payload(), "link": url})
+    raw = RawJob(
+        source_job_id="1111111111",
+        company="Example Technology",
+        title="Software Engineering Intern 2027",
+        locations=["London, UK"],
+        application_url=url,
+    )
+
+    assert raw.application_url == discovered.link == "https://www.linkedin.com/jobs/view/1111111111"
+
+
 def test_job_models_normalize_naive_timestamps_to_utc() -> None:
     timestamp = datetime.fromisoformat("2026-07-01T12:30:00")
     discovered = DiscoveredJob.model_validate({**discovered_payload(), "posted_at": timestamp})

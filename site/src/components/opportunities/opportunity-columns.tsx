@@ -8,7 +8,7 @@ import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {
   formatCategory,
-  formatPublishedDate,
+  formatOpportunityDate,
   getCategoryHue,
   getEmploymentTypeHue,
   normalizeOpportunityTimestamp,
@@ -158,7 +158,7 @@ export function opportunityColumns(
           className="leading-[1.4] whitespace-nowrap text-[var(--text-soft)]"
           dateTime={normalizeOpportunityTimestamp(row.original.firstSeenAt)}
         >
-          {formatPublishedDate(row.original.firstSeenAt)}
+          {formatOpportunityDate(row.original.firstSeenAt)}
         </time>
       ),
     },

@@ -13,7 +13,7 @@ from opportunities.utils.url import canonicalize_url, validate_linkedin_job_url
 
 
 class DiscoveredJob(BaseModel):
-    """A strict 2027 European technology opportunity ready for persistence."""
+    """Normalized opportunity fields; callers must apply classification before persistence."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

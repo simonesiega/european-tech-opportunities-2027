@@ -27,7 +27,7 @@ Keep regressions near their owner. Assert resulting state and public responses r
 - `tests/unit/`: classifier, transport, parser, config, serialization, snapshots, tooling and migration contracts. Shell tests use fake SSH/SFTP against disposable files.
 - `tests/integration/`: CLI, repository, pipeline, availability, data-quality baseline persistence and README lifecycle behavior.
 - `tests/benchmarks/`: offline parsing and full classifier decisions; compare only equivalent environments.
-- `site/tests/unit/`: pure URL/API/state/serialization helpers, including seeded bounded `fast-check` query-parser properties.
+- `site/tests/unit/`: URL/API/state/serialization helpers, seeded bounded `fast-check` query-parser properties, and isolated startup/tooling regressions.
 - `site/tests/e2e/`: HTTP contracts and representative browser journeys against synthetic SQLite and exports, including axe scans.
 
 Do not use component string snapshots as substitutes for interaction tests. In particular, “button contains label” assertions do not demonstrate that saving persists, keyboard focus survives, or a private ID stays off the network.
@@ -113,7 +113,11 @@ docker compose run --rm opportunities --help
 
 Run container checks only with disposable synthetic mounts; default Compose paths describe production topology. [Docker CI](../operations/automation.md#validation-workflows) adds Actionlint, zizmor, Hadolint, Trivy fixable high/critical scanning, production-target SPDX SBOMs, and migrated read-only site/export/header smoke tests. Main-only GitHub attestations bind the SBOM and build-evidence files to their workflow; [Containers and deployment](../operations/deployment.md#sbom-and-build-provenance) documents their scope and verification. Linux restore/deploy/release-pointer tests are skipped on Windows: run them in isolated Linux before release. A skipped test is not a pass.
 
-CodeQL, Gitleaks, Dependency Review and Scorecard have distinct roles in [Automation](../operations/automation.md). Run available local dependency/static analysis too; disclose unfixed findings rather than suppressing them. Patched `brace-expansion`, `tmp`, and CommonJS-compatible `uuid` overrides support older development dependencies; remove only after upstream fixes and rerunning the audit. Lighthouse's development-only `extract-zip` dependency currently has two unpatched high-severity symlink traversal advisories: [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3). Local/CI audits use an already installed Chromium via `CHROME_PATH`; never download/extract untrusted browser archives. These packages are not standalone website runtime dependencies, but the findings remain open and must not be suppressed as fixed.
+CodeQL, Gitleaks, Dependency Review and Scorecard have distinct roles in [Automation](../operations/automation.md). Run available local dependency/static analysis too; disclose unfixed findings rather than suppressing them. Patched `brace-expansion`, `tmp`, and CommonJS-compatible `uuid` overrides support older development dependencies; remove only after upstream fixes and rerunning the audit.
+
+Lighthouse's transitive `basic-ftp` is pinned to `6.2.1` to fix [GHSA-c475-qrg2-pj4r](https://github.com/advisories/GHSA-c475-qrg2-pj4r), a directory-listing parser denial of service. It retains the CommonJS API used by `get-uri` and adopts v6's safer default of rejecting separate transfer hosts. An offline subprocess test checks the client API surface and bounds malformed-listing parsing without opening an FTP connection. Remove the override once upstream selects a patched version and the audit and Lighthouse checks pass.
+
+Lighthouse's development-only `extract-zip` dependency currently has two unpatched high-severity symlink traversal advisories: [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3). Local/CI audits use an already installed Chromium via `CHROME_PATH`; never download/extract untrusted browser archives. These packages are not standalone website runtime dependencies, but the findings remain open and must not be suppressed as fixed.
 
 ### Benchmarks
 

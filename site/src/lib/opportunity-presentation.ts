@@ -1,6 +1,6 @@
 export const ALL_FILTER_VALUE = "all";
 
-const PUBLISHED_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+const OPPORTUNITY_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
   month: "short",
   year: "numeric",
@@ -52,7 +52,7 @@ export function normalizeOpportunityTimestamp(value: string): string {
     /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?(Z|([+-])(\d{2}):(\d{2}))?$/.exec(
       value
     );
-  if (!match) throw new Error("Invalid first-seen timestamp");
+  if (!match) throw new Error("Invalid opportunity timestamp");
 
   const [
     ,
@@ -90,7 +90,7 @@ export function normalizeOpportunityTimestamp(value: string): string {
     offsetHour > 23 ||
     offsetMinute > 59
   ) {
-    throw new Error("Invalid first-seen timestamp");
+    throw new Error("Invalid opportunity timestamp");
   }
 
   const timestamp = new Date(0);
@@ -99,7 +99,7 @@ export function normalizeOpportunityTimestamp(value: string): string {
   const offset = (offsetHour * 60 + offsetMinute) * (sign === "+" ? 1 : -1);
   timestamp.setTime(timestamp.getTime() - offset * 60_000);
   if (timestamp.getUTCFullYear() < 1 || timestamp.getUTCFullYear() > 9999) {
-    throw new Error("Invalid first-seen timestamp");
+    throw new Error("Invalid opportunity timestamp");
   }
   const normalized = timestamp.toISOString();
   // Date keeps only milliseconds; preserve the original microseconds for the public contract.
@@ -107,6 +107,6 @@ export function normalizeOpportunityTimestamp(value: string): string {
   return `${normalized.slice(0, 19)}.${fraction}+00:00`;
 }
 
-export function formatPublishedDate(value: string): string {
-  return PUBLISHED_DATE_FORMATTER.format(new Date(parseOpportunityTimestamp(value)));
+export function formatOpportunityDate(value: string): string {
+  return OPPORTUNITY_DATE_FORMATTER.format(new Date(parseOpportunityTimestamp(value)));
 }

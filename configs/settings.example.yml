@@ -1,4 +1,4 @@
-# Optional YAML alternative to .env. Process environment values take precedence.
+# Optional YAML overrides for defaults and .env. Process environment values take precedence.
 database_url: sqlite:///data/opportunities.db
 readme_path: README.md
 public_export_dir: data/exports

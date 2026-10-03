@@ -78,8 +78,8 @@ class RawJob(BaseModel):
 
     @field_validator("application_url")
     @classmethod
-    def validate_url(cls, value: str) -> str:
-        """Validate and canonicalize scraped URLs."""
+    def normalize_application_url(cls, value: str) -> str:
+        """Validate and canonicalize the scraped application URL."""
         return canonicalize_url(value)
 
     @field_validator("posted_at")

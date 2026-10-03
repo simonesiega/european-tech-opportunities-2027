@@ -1,7 +1,7 @@
 .PHONY: install lock migrate scrape render validate searches stats lint format typecheck test coverage benchmark test-live migrations docs docs-lint docs-site check
 
 install:
-	uv sync --dev
+	uv sync --frozen --dev
 
 lock:
 	uv lock --check

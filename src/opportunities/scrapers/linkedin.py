@@ -88,7 +88,7 @@ class LinkedInPayloadError(ValueError):
 
 
 class TextFetcher(Protocol):
-    """Define the text-fetching interface used by the LinkedIn scraper."""
+    """Define the text-fetching interface for LinkedIn collection and availability checks."""
 
     async def get_text(self, url: str) -> str:
         """Fetch one URL and return validated text."""
@@ -506,6 +506,6 @@ def _company_allowed(company: str, allowed_companies: frozenset[str]) -> bool:
 
 
 def _reject_blocked_document(html: str) -> None:
-    """Reject authentication, challenge, and block pages."""
+    """Reject known LinkedIn access or verification pages."""
     if is_linkedin_access_challenge(html):
         raise LinkedInPayloadError("LinkedIn returned an access or verification page")
