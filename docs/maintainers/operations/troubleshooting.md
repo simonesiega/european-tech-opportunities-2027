@@ -318,7 +318,9 @@ Do not increase concurrency to evade throttling.
 
 ### Redirect, HTTP `401`, `403`, `429`, or challenge page
 
-Stop collection. A redirect, HTTP `401`, `403`, or `429` blocks further requests through the same fetcher; requests already in flight may finish. Review access before starting another run.
+An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves only that listing as inconclusive and lets unrelated checks continue. Its destination is never followed or used as evidence.
+
+Stop collection for every other redirect, HTTP `401`, `403`, or `429`, or an access or verification page. These block further requests through the same fetcher; requests already in flight may finish. Review access before starting another run.
 
 Do not add:
 
@@ -534,7 +536,7 @@ Do not initialize an empty database merely to make automation pass. An intention
 
 Confirm that:
 
-- repository auto-merge is enabled and GitHub Actions may create pull requests;
+- GitHub Actions may create pull requests and squash merging is enabled;
 - the README mutation job has `actions: write`, `contents: write`, and `pull-requests: write`;
 - branch protection requires `ruff`, `python`, `site`, `docker`, `Analyze (Python)`, `Analyze (TypeScript)`, `Gitleaks secret scan`, and `build` (Documentation site);
 - the pull request targets `main`;
@@ -542,11 +544,13 @@ Confirm that:
 - its title is `data: nightly availability and scrape update`;
 - `README.md` is the only changed file;
 - `workflow_dispatch` runs exist for all six validation workflows on the automation branch head SHA;
-- the README mutation job identified those run IDs and waited for each successful conclusion before requesting auto-merge.
+- the README mutation job identified those run IDs and waited for each successful conclusion before requesting a merge.
+
+The repository's optional auto-merge setting is not required: when disabled, the workflow requests a normal squash merge after validation. Both paths obey branch protection. A refused normal merge leaves the proposal open and fails the job; resolve its checks or required reviews and merge that proposal rather than collecting again. An older workflow revision can still fail with `Auto merge is not allowed for this repository`; rerunning that run retains its original revision. See [README update pull requests](automation.md#readme-update-pull-requests) and [missing proposal recovery](automation.md#recover-a-missing-readme-state-proposal).
 
 A branch push made by `GITHUB_TOKEN` does not reliably trigger ordinary push or pull-request recursion. The README mutation workflow compensates by explicitly dispatching all six validation workflows after its exact-scope check, then keeping the branch alive until they finish. If those runs are missing, inspect that job for workflow-dispatch permission or policy failures; do not bypass required checks.
 
-A validation run that fails instantly with zero jobs and no logs usually means the automation branch was merged and deleted before GitHub finished creating jobs. The explicit dispatch wait prevents that race without weakening validation. The workflow also refuses validation dispatch and auto-merge when any scope check differs. Do not weaken either safeguard; restore the fixed automation branch to the expected README-only diff instead.
+A validation run that fails instantly with zero jobs and no logs usually means the automation branch was merged and deleted before GitHub finished creating jobs. The explicit dispatch wait prevents that race without weakening validation. The workflow also refuses validation dispatch and merging when any scope check differs. Do not weaken either safeguard; restore the fixed automation branch to the expected README-only diff instead.
 
 ## Docker failures
 

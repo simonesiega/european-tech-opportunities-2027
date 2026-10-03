@@ -42,7 +42,7 @@ Security fixes currently target `main`. The project has no published versioned r
 |---|---|
 | Source access | Authorized public LinkedIn guest HTML only |
 | Authentication | No LinkedIn credentials, sessions, cookies, account tokens, or browser storage; source response cookies are discarded |
-| Transport | Fixed HTTPS hosts, redirects treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
+| Transport | Fixed HTTPS hosts, redirects never followed, redirects other than public-listing `301` treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
 | Processing | Local deterministic parsing and classification with sanitized errors |
 | Persistence | Canonical SQLite writes through repository transactions and Alembic migrations |
 | Website and public API | Read-only SQLite, validated links, bounded API input and output, no mutation API, and defensive production headers |
@@ -69,6 +69,14 @@ The project does not implement or accept:
 - collection from unrelated providers.
 
 Never weaken or default-enable an authorization gate. An upstream block or challenge is a stop condition.
+
+### Public-listing redirects
+
+HTTP `301` returned directly by an approved `https://www.linkedin.com/jobs/view/<numeric-id>` request preserves that listing as inconclusive without stopping unrelated checks. The stored row remains unchanged.
+
+The destination is ignored, even when missing, malformed, or untrusted. The transport never follows it, reads the redirect response body, retries the listing, or uses the redirect as availability or closure evidence. Authorization and original-request endpoint validation remain unchanged.
+
+All redirects from search or guest-detail endpoints, every other redirect status (including `302`, `307`, and `308`), authentication denials (`401` and `403`), rate limits (`429`), and access or verification pages still stop source requests.
 
 ### Data and website boundary
 

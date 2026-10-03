@@ -103,6 +103,9 @@ class HttpFetcher:
         # Reject cookies at the jar: clearing after each response would race concurrent
         # requests. Injected clients must obey the same unauthenticated-access boundary.
         self._client.cookies = CookieJar(policy=DefaultCookiePolicy(allowed_domains=[]))
+        # HTTPX parses Location even without following redirects. Discard it before
+        # that parsing so malformed destinations cannot hide the response status.
+        self._client.event_hooks["response"].append(_discard_redirect_location)
         self._host_locks: dict[str, asyncio.Lock] = {}
         self._last_request_at: dict[str, float] = {}
         self._blocked_status: int | None = None
@@ -178,11 +181,23 @@ class HttpFetcher:
         # Another request may have hit a denial while this one waited for pacing.
         self._raise_if_blocked()
         retry_after: float | None = None
+        listing_redirect: FetchError | None = None
         transient_status: int
         try:
             async with self._client.stream(
                 "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
             ) as response:
+                if response.status_code == 301 and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(
+                    urlsplit(url).path
+                ):
+                    # Only the approved original endpoint matters, never Location.
+                    # Preserve this listing without blocking unrelated requests.
+                    listing_redirect = FetchError(
+                        "listing_redirect",
+                        "LinkedIn redirected the public listing; listing is inconclusive",
+                        status_code=301,
+                    )
+                    raise listing_redirect
                 if 300 <= response.status_code < 400 or response.status_code in {
                     401,
                     403,
@@ -194,7 +209,7 @@ class HttpFetcher:
                         f"LinkedIn returned HTTP {response.status_code}",
                         status_code=response.status_code,
                     )
-                # Redirects, access denials, and rate limits are upstream stop
+                # Other redirects, access denials, and rate limits are stop
                 # signals; only server failures are eligible for bounded retries.
                 if response.status_code >= 500:
                     transient_status = response.status_code
@@ -202,9 +217,14 @@ class HttpFetcher:
                 else:
                     return await self._read_text(response)
         except FetchError:
+            if listing_redirect is not None:
+                raise listing_redirect from None
             raise
         except Exception as exc:
             self._raise_if_blocked()
+            if listing_redirect is not None:
+                # Cleanup cannot turn a recognized redirect into a retryable failure.
+                raise listing_redirect from exc
             if isinstance(exc, httpx.TimeoutException):
                 raise FetchError("timeout", "LinkedIn request timed out", retryable=True) from exc
             if isinstance(exc, httpx.TransportError):
@@ -291,6 +311,12 @@ class HttpFetcher:
             if wait_for > 0:
                 await self._sleep(wait_for)
             self._last_request_at[host] = time.monotonic()
+
+
+async def _discard_redirect_location(response: httpx.Response) -> None:
+    """Keep redirect decisions independent of an untrusted Location header."""
+    if response.is_redirect and "Location" in response.headers:
+        del response.headers["Location"]
 
 
 def _is_approved_path(path: str, query: str) -> bool:

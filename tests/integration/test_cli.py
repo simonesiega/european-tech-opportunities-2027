@@ -266,6 +266,78 @@ def test_availability_source_block_fails_closed_without_rendering(
         assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
 
 
+def test_availability_public_listing_301_returns_partial_success_and_continues(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_MAX_CONCURRENCY"] = "1"
+    initialize_projection_files(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    checked_at = now + timedelta(minutes=1)
+    monkeypatch.setattr(availability_module, "utc_now", lambda: checked_at)
+    requested: list[str] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        if request.url.path == "/jobs/view/2":
+            return httpx.Response(
+                301,
+                headers={"Location": "https://example.invalid/unfamiliar?token=synthetic-private"},
+                text="synthetic-private-redirect-body",
+            )
+        return httpx.Response(
+            200,
+            text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+            '<a class="topcard__org-name-link">Synthetic Technology</a>',
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **_kwargs: client)
+    repository, engine = repository_for(environment)
+    try:
+        repository.upsert_manual_jobs(
+            [
+                DiscoveredJob(
+                    linkedin_job_id=job_id,
+                    company="Synthetic Technology",
+                    title="Software Intern 2027",
+                    location="Berlin, Germany",
+                    link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                    category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                    employment_type=EmploymentType.INTERNSHIP,
+                )
+                for job_id in ("1", "2", "3")
+            ],
+            observed_at=now,
+        )
+        before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+
+        result = runner.invoke(app, ["check-availability"], env=environment)
+
+        assert result.exit_code == 2, result.output
+        assert "Checked 3 position(s): 2 available, 0 deleted, 0 reopened" in result.output
+        assert "1 inconclusive" in result.output
+        assert "source processing stopped" not in result.output
+        assert "synthetic-private" not in result.output
+        assert client.is_closed
+        assert requested == [
+            "/jobs/view/1",
+            "/jobs-guest/jobs/api/jobPosting/1",
+            "/jobs/view/2",
+            "/jobs/view/3",
+            "/jobs-guest/jobs/api/jobPosting/3",
+        ]
+        after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+        assert after["2"] == before["2"]
+        for job_id in ("1", "3"):
+            assert after[job_id].last_seen_at == checked_at
+        assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
+    finally:
+        asyncio.run(client.aclose())
+        engine.dispose()
+
+
 @pytest.mark.parametrize("cleanup_failure", [False, True])
 def test_availability_denial_preserves_confirmed_state_but_never_refreshes_existing_projections(
     tmp_path: Path,

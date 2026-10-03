@@ -198,7 +198,7 @@ For zero-based retry number `n`, the base delay is:
 retry_backoff_seconds × 2^n
 ```
 
-The retry delay is the greater of the exponential backoff and a valid `Retry-After` value, capped at 60 seconds. HTTP redirects, `401`, `403`, and `429` stop further requests through the same fetcher without retrying; requests already in flight may finish. A detected denial remains a stop condition even if closing its response fails. Operators must review access before another collection run.
+The retry delay is the greater of the exponential backoff and a valid `Retry-After` value, capped at 60 seconds. HTTP redirects outside the [public-listing `301` exception](../../../SECURITY.md#public-listing-redirects), `401`, `403`, and `429` stop further requests through the same fetcher without retrying; requests already in flight may finish. A detected denial remains a stop condition even if closing its response fails. Operators must review access before another collection run.
 
 The transport also enforces:
 

@@ -60,6 +60,14 @@ def test_http_fetcher_rejects_non_linkedin_or_non_https_urls_without_network() -
                 "https://example.com/jobs",
                 LINKEDIN_SEARCH_ENDPOINT.replace("https://", "http://"),
                 "https://www.linkedin.com/feed",
+                "https://de.linkedin.com/jobs/view/1111111111",
+                "https://user@www.linkedin.com/jobs/view/1111111111",
+                "https://www.linkedin.com:444/jobs/view/1111111111",
+                "https://www.linkedin.com/jobs/view/not-numeric",
+                "https://www.linkedin.com/jobs/view/" + "1" * 31,
+                "https://www.linkedin.com/jobs/view/1111111111/",
+                "https://www.linkedin.com/jobs/view/1111111111?unexpected=value",
+                "https://www.linkedin.com/jobs/view/1111111111#fragment",
             ):
                 with pytest.raises(FetchError, match="approved LinkedIn HTTPS endpoint"):
                     await fetcher.get_text(url)
@@ -85,6 +93,151 @@ def test_http_fetcher_disables_redirects_on_an_injected_client() -> None:
 
     asyncio.run(run())
     assert requested_hosts == ["www.linkedin.com"]
+
+
+# Location is not evidence. Exercise header shapes independently of stream cleanup failures.
+@pytest.mark.parametrize(
+    ("destination", "cleanup"),
+    [
+        *[
+            (destination, "normal")
+            for destination in (
+                None,
+                "",
+                "/some/relative/path",
+                "https://www.linkedin.com/login",
+                "https://de.linkedin.com/jobs/something-new",
+                "https://example.invalid/untrusted",
+                "https://www.linkedin.com/jobs/software-jobs"
+                "?trk=expired_jd_redirect&unexpected=synthetic-private",
+                "not a URL [synthetic-private]%zz",
+                "https://example.invalid:invalid/synthetic-private",
+                "https://[synthetic-private",
+                "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro?trk=expired_jd_redirect",
+            )
+        ],
+        *[
+            ("https://example.invalid/synthetic-private", cleanup)
+            for cleanup in ("timeout", "transport", "unexpected", "classified")
+        ],
+    ],
+)
+def test_public_listing_301_is_inconclusive_without_following_reading_or_retrying(
+    destination: str | None, cleanup: str
+) -> None:
+    failures = {
+        "timeout": httpx.ReadTimeout("synthetic-private-cleanup"),
+        "transport": httpx.ReadError("synthetic-private-cleanup"),
+        "unexpected": RuntimeError("synthetic-private-cleanup"),
+        "classified": FetchError("http_status", "synthetic-private-cleanup", status_code=404),
+    }
+
+    class RedirectStream(ChunkedStream):
+        async def aclose(self) -> None:
+            await super().aclose()
+            if cleanup in failures:
+                raise failures[cleanup]
+
+    stream = RedirectStream((b"synthetic-private-redirect-body",))
+    requested: list[str] = []
+    delays: list[float] = []
+    public_url = "https://www.linkedin.com/jobs/view/1111111111"
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        if str(request.url) == public_url:
+            return httpx.Response(
+                301,
+                headers={"Location": destination} if destination is not None else {},
+                stream=stream,
+            )
+        assert str(request.url) == LINKEDIN_SEARCH_ENDPOINT
+        return httpx.Response(200, text="<li>synthetic</li>")
+
+    async def sleep(delay: float) -> None:
+        delays.append(delay)
+
+    async def run() -> None:
+        async with httpx.AsyncClient(
+            transport=httpx.MockTransport(handler), follow_redirects=True
+        ) as client:
+            fetcher = HttpFetcher(
+                Settings(linkedin_crawl_authorized=True, rate_limit_seconds=0, max_retries=2),
+                client=client,
+                sleep=sleep,
+            )
+            with pytest.raises(FetchError) as error:
+                await fetcher.get_text(public_url)
+            assert error.value.code == "listing_redirect"
+            assert error.value.status_code == 301
+            assert not error.value.retryable
+            assert "synthetic-private" not in str(error.value)
+            assert "expired" not in str(error.value)
+            if destination:
+                assert destination not in str(error.value)
+            assert await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT) == "<li>synthetic</li>"
+
+    asyncio.run(run())
+    assert requested == [public_url, LINKEDIN_SEARCH_ENDPOINT]
+    assert delays == []
+    assert stream.read_count == 0
+    assert stream.closed
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "status"),
+    [
+        ("detail", 301),
+        ("search", 301),
+        *[
+            (endpoint, status)
+            for endpoint in ("public", "detail", "search")
+            for status in (302, 307, 308, 401, 403, 429)
+        ],
+    ],
+)
+@pytest.mark.parametrize(
+    "destination",
+    [
+        "https://www.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect",
+        "https://example.invalid:invalid/synthetic-private",
+    ],
+)
+def test_public_listing_301_exception_does_not_relax_other_source_stops(
+    endpoint: str, status: int, destination: str
+) -> None:
+    urls = {
+        "public": "https://www.linkedin.com/jobs/view/1111111111",
+        "detail": "https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/1111111111",
+        "search": LINKEDIN_SEARCH_ENDPOINT,
+    }
+    stream = ChunkedStream((b"synthetic-private-response",))
+    requested: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        return httpx.Response(
+            status,
+            headers={"Location": destination},
+            stream=stream,
+        )
+
+    async def run() -> None:
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            fetcher = HttpFetcher(
+                Settings(linkedin_crawl_authorized=True, rate_limit_seconds=0), client=client
+            )
+            for url in (urls[endpoint], LINKEDIN_SEARCH_ENDPOINT):
+                with pytest.raises(FetchError) as error:
+                    await fetcher.get_text(url)
+                assert error.value.code == "source_blocked"
+                assert error.value.status_code == status
+                assert not error.value.retryable
+
+    asyncio.run(run())
+    assert requested == [urls[endpoint]]
+    assert stream.read_count == 0
+    assert stream.closed
 
 
 def test_http_fetcher_retries_transient_linkedin_response() -> None:
@@ -261,7 +414,7 @@ def test_unexpected_client_failure_without_a_denial_is_preserved() -> None:
     asyncio.run(run())
 
 
-@pytest.mark.parametrize("status_code", [302, 401, 403, 429])
+@pytest.mark.parametrize("status_code", [301, 302, 307, 308, 401, 403, 429])
 def test_redirect_or_access_denial_stops_queued_and_later_requests(
     status_code: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
