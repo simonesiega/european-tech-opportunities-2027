@@ -262,10 +262,8 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
 
 
 @pytest.mark.parametrize("endpoint", ["public", "detail"])
-@pytest.mark.parametrize(
-    "denial", [301, 401, 403, 429, "challenge", "expired_redirect", "localized_expired_redirect"]
-)
-def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
+@pytest.mark.parametrize("denial", [301, 302, 307, 308, 401, 403, 429, "challenge"])
+def test_availability_distinguishes_public_listing_301s_from_source_stops(
     session_factory: sessionmaker[Session], settings: Settings, endpoint: str, denial: int | str
 ) -> None:
     repository = Repository(session_factory, settings)
@@ -292,29 +290,20 @@ def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
     def respond(request: httpx.Request) -> httpx.Response:
         requested.append(str(request.url))
         if str(request.url) == blocked_url:
-            if denial in {"expired_redirect", "localized_expired_redirect"}:
-                directory = (
-                    "it.linkedin.com/jobs/ingegnere-offerte-di-lavoro"
-                    if denial == "expired_redirect"
-                    else "de.linkedin.com/jobs/softwaretester-stellen"
-                )
-                return httpx.Response(
-                    301, headers={"Location": f"https://{directory}?trk=expired_jd_redirect"}
-                )
             if denial == "challenge":
                 return httpx.Response(200, text="<html>Security verification challenge-page</html>")
             assert isinstance(denial, int)
-            return httpx.Response(denial)
+            return httpx.Response(
+                denial,
+                headers={"Location": "https://example.invalid/unfamiliar?token=synthetic-private"},
+            )
         return httpx.Response(
             200,
             text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
             '<a class="topcard__org-name-link">Synthetic Technology</a>',
         )
 
-    inconclusive_redirect = endpoint == "public" and denial in {
-        "expired_redirect",
-        "localized_expired_redirect",
-    }
+    inconclusive_redirect = endpoint == "public" and denial == 301
 
     async def audit() -> None:
         serial_settings = settings.model_copy(update={"max_concurrency": 1})

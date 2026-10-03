@@ -318,7 +318,9 @@ Do not increase concurrency to evade throttling.
 
 ### Redirect, HTTP `401`, `403`, `429`, or challenge page
 
-Stop collection. A redirect outside the [expired-listing exception](../../../SECURITY.md#expired-listing-redirects), HTTP `401`, `403`, or `429` blocks further requests through the same fetcher; requests already in flight may finish. Review access before starting another run.
+An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves only that listing as inconclusive and lets unrelated checks continue. Its destination is never followed or used as evidence.
+
+Stop collection for every other redirect, HTTP `401`, `403`, or `429`, or an access or verification page. These block further requests through the same fetcher; requests already in flight may finish. Review access before starting another run.
 
 Do not add:
 

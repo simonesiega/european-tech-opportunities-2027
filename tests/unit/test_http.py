@@ -5,7 +5,6 @@ import gzip
 import zlib
 from collections.abc import AsyncIterator
 from types import SimpleNamespace
-from urllib.parse import quote
 
 import httpx
 import pytest
@@ -61,6 +60,14 @@ def test_http_fetcher_rejects_non_linkedin_or_non_https_urls_without_network() -
                 "https://example.com/jobs",
                 LINKEDIN_SEARCH_ENDPOINT.replace("https://", "http://"),
                 "https://www.linkedin.com/feed",
+                "https://de.linkedin.com/jobs/view/1111111111",
+                "https://user@www.linkedin.com/jobs/view/1111111111",
+                "https://www.linkedin.com:444/jobs/view/1111111111",
+                "https://www.linkedin.com/jobs/view/not-numeric",
+                "https://www.linkedin.com/jobs/view/" + "1" * 31,
+                "https://www.linkedin.com/jobs/view/1111111111/",
+                "https://www.linkedin.com/jobs/view/1111111111?unexpected=value",
+                "https://www.linkedin.com/jobs/view/1111111111#fragment",
             ):
                 with pytest.raises(FetchError, match="approved LinkedIn HTTPS endpoint"):
                     await fetcher.get_text(url)
@@ -88,32 +95,35 @@ def test_http_fetcher_disables_redirects_on_an_injected_client() -> None:
     assert requested_hosts == ["www.linkedin.com"]
 
 
+# Location is not evidence. Exercise header shapes independently of stream cleanup failures.
 @pytest.mark.parametrize(
-    "destination",
+    ("destination", "cleanup"),
     [
-        "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro?trk=expired_jd_redirect",
-        "https://www.linkedin.com/jobs/software-engineer-jobs?trk=expired_jd_redirect",
-        "https://de.linkedin.com:443/jobs/software-jobs/?trk=expired_jd_redirect",
-        "https://de.linkedin.com/jobs/softwaretester-stellen?trk=expired_jd_redirect",
         *[
-            f"https://{host}.linkedin.com/jobs/{quote(slug, safe='')}?trk=expired_jd_redirect"
-            for host, slug in (
-                ("fr", "développeur-emplois"),
-                ("nl", "softwareontwikkelaar-vacatures"),
-                ("es", "ingeniero-empleos"),
-                ("pt", "engenheiro-vagas"),
-                ("pl", "inżynier-praca"),
-                ("gr", "μηχανικός-θέσεις"),
-                ("ua", "інженер-вакансії"),
-                ("fr", "de\u0301veloppeur-emplois"),
-                ("de", "software-localizeddirectory"),
+            (destination, "normal")
+            for destination in (
+                None,
+                "",
+                "/some/relative/path",
+                "https://www.linkedin.com/login",
+                "https://de.linkedin.com/jobs/something-new",
+                "https://example.invalid/untrusted",
+                "https://www.linkedin.com/jobs/software-jobs"
+                "?trk=expired_jd_redirect&unexpected=synthetic-private",
+                "not a URL [synthetic-private]%zz",
+                "https://example.invalid:invalid/synthetic-private",
+                "https://[synthetic-private",
+                "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro?trk=expired_jd_redirect",
             )
+        ],
+        *[
+            ("https://example.invalid/synthetic-private", cleanup)
+            for cleanup in ("timeout", "transport", "unexpected", "classified")
         ],
     ],
 )
-@pytest.mark.parametrize("cleanup", ["normal", "timeout", "transport", "unexpected", "classified"])
-def test_expired_listing_redirect_is_inconclusive_without_following_reading_or_retrying(
-    destination: str, cleanup: str
+def test_public_listing_301_is_inconclusive_without_following_reading_or_retrying(
+    destination: str | None, cleanup: str
 ) -> None:
     failures = {
         "timeout": httpx.ReadTimeout("synthetic-private-cleanup"),
@@ -136,7 +146,11 @@ def test_expired_listing_redirect_is_inconclusive_without_following_reading_or_r
     def handler(request: httpx.Request) -> httpx.Response:
         requested.append(str(request.url))
         if str(request.url) == public_url:
-            return httpx.Response(301, headers={"Location": destination}, stream=stream)
+            return httpx.Response(
+                301,
+                headers={"Location": destination} if destination is not None else {},
+                stream=stream,
+            )
         assert str(request.url) == LINKEDIN_SEARCH_ENDPOINT
         return httpx.Response(200, text="<li>synthetic</li>")
 
@@ -158,12 +172,10 @@ def test_expired_listing_redirect_is_inconclusive_without_following_reading_or_r
             assert error.value.status_code == 301
             assert not error.value.retryable
             assert "synthetic-private" not in str(error.value)
-            assert destination not in str(error.value)
+            assert "expired" not in str(error.value)
+            if destination:
+                assert destination not in str(error.value)
             assert await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT) == "<li>synthetic</li>"
-            # Recognizing a destination must not authorize requests to it.
-            with pytest.raises(FetchError) as unsafe:
-                await fetcher.get_text(destination)
-            assert unsafe.value.code == "invalid_url"
 
     asyncio.run(run())
     assert requested == [public_url, LINKEDIN_SEARCH_ENDPOINT]
@@ -173,77 +185,26 @@ def test_expired_listing_redirect_is_inconclusive_without_following_reading_or_r
 
 
 @pytest.mark.parametrize(
-    ("endpoint", "status", "destination"),
+    ("endpoint", "status"),
     [
-        ("public", 301, None),
-        ("public", 301, "http://it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect"),
-        ("public", 301, "//it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect"),
-        (
-            "public",
-            301,
-            "https://it.linkedin.com.evil.test/jobs/software-jobs?trk=expired_jd_redirect",
-        ),
-        ("public", 301, "https://unknown.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect"),
-        ("public", 301, "https://user@it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect"),
-        ("public", 301, "https://it.linkedin.com:444/jobs/software-jobs?trk=expired_jd_redirect"),
-        ("public", 301, "https://it.linkedin.com/login?trk=expired_jd_redirect"),
-        ("public", 301, "https://it.linkedin.com/authwall?trk=expired_jd_redirect"),
-        ("public", 301, "https://it.linkedin.com/checkpoint/challenge?trk=expired_jd_redirect"),
-        ("public", 301, "https://it.linkedin.com/jobs/view/2222222222?trk=expired_jd_redirect"),
+        ("detail", 301),
+        ("search", 301),
         *[
-            ("public", 301, f"https://de.linkedin.com/jobs/{slug}?trk=expired_jd_redirect")
-            for slug in (
-                "login",
-                "authwall",
-                "checkpoint/challenge",
-                "../login",
-                "-stellen",
-                "software-",
-                "software--stellen",
-                "software%2Fengineer-stellen",
-                "software%5Cengineer-stellen",
-                "software-%2e%2e",
-                "software-%252e%252e",
-                "software-%00",
-                "software-%0a",
-                "software-%3Flogin",
-                "software-%ff",
-                "software-%ZZ",
-                "software-%",
-                "software-%CC%81",
-                "a" * 1023 + "-b",
-            )
-        ],
-        ("public", 301, "https://it.linkedin.com/jobs/software-jobs"),
-        ("public", 301, "https://it.linkedin.com/jobs/software-jobs?trk=unknown"),
-        (
-            "public",
-            301,
-            "https://it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect&next=login",
-        ),
-        ("public", 301, "https://it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect#login"),
-        (
-            "public",
-            301,
-            "https://it.linkedin.com/jobs/software-jobs%2f..%2flogin?trk=expired_jd_redirect",
-        ),
-        *[
-            (endpoint, status, "https://it.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect")
-            for endpoint, status in (
-                ("detail", 301),
-                ("search", 301),
-                ("public", 302),
-                ("public", 307),
-                ("public", 308),
-                ("public", 401),
-                ("public", 403),
-                ("public", 429),
-            )
+            (endpoint, status)
+            for endpoint in ("public", "detail", "search")
+            for status in (302, 307, 308, 401, 403, 429)
         ],
     ],
 )
-def test_expired_redirect_exception_does_not_relax_other_source_stops(
-    endpoint: str, status: int, destination: str | None
+@pytest.mark.parametrize(
+    "destination",
+    [
+        "https://www.linkedin.com/jobs/software-jobs?trk=expired_jd_redirect",
+        "https://example.invalid:invalid/synthetic-private",
+    ],
+)
+def test_public_listing_301_exception_does_not_relax_other_source_stops(
+    endpoint: str, status: int, destination: str
 ) -> None:
     urls = {
         "public": "https://www.linkedin.com/jobs/view/1111111111",
@@ -256,7 +217,9 @@ def test_expired_redirect_exception_does_not_relax_other_source_stops(
     def handler(request: httpx.Request) -> httpx.Response:
         requested.append(str(request.url))
         return httpx.Response(
-            status, headers={"Location": destination} if destination else {}, stream=stream
+            status,
+            headers={"Location": destination},
+            stream=stream,
         )
 
     async def run() -> None:
@@ -451,7 +414,7 @@ def test_unexpected_client_failure_without_a_denial_is_preserved() -> None:
     asyncio.run(run())
 
 
-@pytest.mark.parametrize("status_code", [302, 401, 403, 429])
+@pytest.mark.parametrize("status_code", [301, 302, 307, 308, 401, 403, 429])
 def test_redirect_or_access_denial_stops_queued_and_later_requests(
     status_code: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
