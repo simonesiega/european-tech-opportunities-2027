@@ -29,7 +29,7 @@ on:
         required: true
         type: string
       auto_merge:
-        description: Request squash auto-merge after an exact scope check.
+        description: Merge after validation and scope checks, using GitHub auto-merge when enabled.
         required: false
         default: false
         type: boolean
@@ -208,5 +208,14 @@ jobs:
               echo "README pull request scope changed during validation; refusing auto-merge."
               exit 1
             fi
-            gh pr merge "$pr_number" --auto --squash --match-head-commit "$head_sha"
+            merge_args=(--squash --match-head-commit "$head_sha")
+            # The repository's optional auto-merge feature is not required for a
+            # fully validated PR. Both modes still obey GitHub's merge protections.
+            allow_auto_merge=$(gh api "repos/${GITHUB_REPOSITORY}" --jq '.allow_auto_merge')
+            case "$allow_auto_merge" in
+              true) merge_args+=(--auto) ;;
+              false) echo "Repository auto-merge is disabled; requesting a normal squash merge." ;;
+              *) echo "Could not determine repository auto-merge policy."; exit 1 ;;
+            esac
+            gh pr merge "$pr_number" "${merge_args[@]}"
           fi

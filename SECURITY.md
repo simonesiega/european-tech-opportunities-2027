@@ -75,7 +75,8 @@ Never weaken or default-enable an authorization gate. An upstream block or chall
 One narrow redirect exception preserves an inconclusive listing without stopping unrelated checks. It applies only to HTTP `301` from an approved numeric public-job URL whose destination matches all of these conditions:
 
 - absolute HTTPS on `www.linkedin.com` or a lowercase two-letter country subdomain of `linkedin.com`, with no credentials or nonstandard port;
-- a public directory path `/jobs/<slug>-jobs` or `/jobs/<slug>-offerte-di-lavoro`, where the slug contains only lowercase ASCII letters, digits, and single separating hyphens; one trailing slash is permitted;
+- a public directory path `/jobs/<slug>` with at least two nonempty hyphen-separated segments, independent of the directory's language; each segment starts with a Unicode alphanumeric character and contains only alphanumeric characters or combining marks; the encoded slug is limited to 1,024 characters and one trailing slash is permitted;
+- any percent-encoded slug must decode once as valid UTF-8 into that same shape, excluding traversal, encoded path separators, controls, and nested encoding;
 - exactly `trk=expired_jd_redirect` as the query, with no extra parameters or fragment.
 
 The transport never follows that destination, reads its response body, retries the listing, or uses the redirect as availability or closure evidence. The stored row remains unchanged. The exception does not apply to search or guest-detail endpoints. Every other redirect, authentication denial, rate limit, or challenge still stops source requests. Recognizing a country-host destination does not authorize requests to that host.

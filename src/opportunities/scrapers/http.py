@@ -8,10 +8,11 @@ import logging
 import math
 import re
 import time
+import unicodedata
 from collections.abc import Awaitable, Callable
 from email.utils import parsedate_to_datetime
 from http.cookiejar import CookieJar, DefaultCookiePolicy
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 import httpx
 
@@ -26,11 +27,10 @@ LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 _LINKEDIN_HOST = "www.linkedin.com"
 _LINKEDIN_DETAIL_PATH_RE = re.compile(r"^/jobs-guest/jobs/api/jobPosting/[0-9]{1,30}$")
 _LINKEDIN_PUBLIC_PATH_RE = re.compile(r"^/jobs/view/[0-9]{1,30}$")
-# Recognize expired-listing redirects to public job directories, never fetch them.
+# The marker and public-directory shape are stable; localized suffixes are not.
 _LINKEDIN_EXPIRED_JOB_REDIRECT_RE = re.compile(
     r"https://(?:www|[a-z]{2})\.linkedin\.com(?::443)?"
-    r"/jobs/[a-z0-9]+(?:-[a-z0-9]+)*-(?:jobs|offerte-di-lavoro)/?"
-    r"\?trk=expired_jd_redirect"
+    r"/jobs/(?P<slug>[^/?#]{1,1024})/?\?trk=expired_jd_redirect"
 )
 _MAX_RETRY_DELAY_SECONDS = 60.0
 _BLOCK_MARKERS = (
@@ -193,9 +193,7 @@ class HttpFetcher:
                 if (
                     response.status_code == 301
                     and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(urlsplit(url).path)
-                    and _LINKEDIN_EXPIRED_JOB_REDIRECT_RE.fullmatch(
-                        response.headers.get("Location", "")
-                    )
+                    and _is_expired_listing_redirect(response.headers.get("Location", ""))
                 ):
                     # This is neither availability nor closure evidence. Leave this
                     # listing inconclusive without blocking unrelated requests.
@@ -329,6 +327,26 @@ def _is_approved_path(path: str, query: str) -> bool:
         return False
     return bool(
         _LINKEDIN_DETAIL_PATH_RE.fullmatch(path) or _LINKEDIN_PUBLIC_PATH_RE.fullmatch(path)
+    )
+
+
+def _is_expired_listing_redirect(location: str) -> bool:
+    """Recognize a bounded localized directory URL without requesting its destination."""
+    match = _LINKEDIN_EXPIRED_JOB_REDIRECT_RE.fullmatch(location)
+    if match is None:
+        return False
+    try:
+        slug = unquote(match["slug"], encoding="utf-8", errors="strict")
+    except UnicodeDecodeError:
+        return False
+    parts = slug.split("-")
+    # Decode once: encoded separators, traversal, controls, or a second encoding
+    # layer must not disguise a different endpoint. Do not depend on a language list.
+    return len(parts) >= 2 and all(
+        part
+        and part[0].isalnum()
+        and all(char.isalnum() or unicodedata.category(char).startswith("M") for char in part)
+        for part in parts
     )
 
 

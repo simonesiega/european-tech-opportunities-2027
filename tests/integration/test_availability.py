@@ -262,7 +262,9 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
 
 
 @pytest.mark.parametrize("endpoint", ["public", "detail"])
-@pytest.mark.parametrize("denial", [301, 401, 403, 429, "challenge", "expired_redirect"])
+@pytest.mark.parametrize(
+    "denial", [301, 401, 403, 429, "challenge", "expired_redirect", "localized_expired_redirect"]
+)
 def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
     session_factory: sessionmaker[Session], settings: Settings, endpoint: str, denial: int | str
 ) -> None:
@@ -290,13 +292,14 @@ def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
     def respond(request: httpx.Request) -> httpx.Response:
         requested.append(str(request.url))
         if str(request.url) == blocked_url:
-            if denial == "expired_redirect":
+            if denial in {"expired_redirect", "localized_expired_redirect"}:
+                directory = (
+                    "it.linkedin.com/jobs/ingegnere-offerte-di-lavoro"
+                    if denial == "expired_redirect"
+                    else "de.linkedin.com/jobs/softwaretester-stellen"
+                )
                 return httpx.Response(
-                    301,
-                    headers={
-                        "Location": "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro"
-                        "?trk=expired_jd_redirect"
-                    },
+                    301, headers={"Location": f"https://{directory}?trk=expired_jd_redirect"}
                 )
             if denial == "challenge":
                 return httpx.Response(200, text="<html>Security verification challenge-page</html>")
@@ -308,7 +311,10 @@ def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
             '<a class="topcard__org-name-link">Synthetic Technology</a>',
         )
 
-    inconclusive_redirect = endpoint == "public" and denial == "expired_redirect"
+    inconclusive_redirect = endpoint == "public" and denial in {
+        "expired_redirect",
+        "localized_expired_redirect",
+    }
 
     async def audit() -> None:
         serial_settings = settings.model_copy(update={"max_concurrency": 1})

@@ -212,6 +212,96 @@ uv() {
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
+@pytest.mark.parametrize(
+    ("policy", "scenario", "automatic"),
+    [
+        ("true", "ready", True),
+        ("false", "ready", True),
+        ("false", "ready", False),
+        ("true", "scope_changed", True),
+        ("false", "scope_changed", True),
+        ("null", "ready", True),
+        ("false", "policy_error", True),
+        ("true", "merge_denied", True),
+        ("false", "merge_denied", True),
+    ],
+)
+def test_readme_merge_respects_repository_policy_and_validated_head(
+    tmp_path: Path, policy: str, scenario: str, automatic: bool
+) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("README workflow tests require Bash")
+    document = yaml.load(
+        (WORKFLOWS / "reusable-readme-pr.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    script = document["jobs"]["propose"]["steps"][-1]["run"]
+    assert isinstance(script, str)
+    merge_start = script.index('if [ "$UPDATE_AUTO_MERGE" = "true" ]; then')
+    assert script.index('gh run watch "${validation_run_ids[$index]}" --compact --exit-status') < (
+        merge_start
+    )
+    # Exercise only the checked-in post-validation merge block. Every gh/jq call is fake;
+    # no commit, push, workflow dispatch, repository mutation, or network is possible.
+    fakes = """
+set -euo pipefail
+pr_number=123
+head_sha=0123456789012345678901234567890123456789
+UPDATE_BRANCH=automated/nightly
+UPDATE_TITLE='data: nightly update'
+gh() {
+  printf '%s\\n' "$*" >> "$CALLS_FILE"
+  case "$1 $2" in
+    'pr view') printf '%s\\n' '{}' ;;
+    'api repos/synthetic/repository') printf '%s\\n' "$POLICY"; return "$POLICY_STATUS" ;;
+    'pr merge') return "$MERGE_STATUS" ;;
+    *) return 97 ;;
+  esac
+}
+jq() {
+  local input
+  read -r input
+  printf '%s\\n' "$SAFE_SCOPE"
+}
+"""
+    calls_path = tmp_path / "gh-calls.log"
+    result = subprocess.run(
+        [bash, "-c", fakes + script[merge_start:]],
+        cwd=tmp_path,
+        env={
+            **offline_shell_environment(tmp_path),
+            "GITHUB_REPOSITORY": "synthetic/repository",
+            "CALLS_FILE": calls_path.as_posix(),
+            "UPDATE_AUTO_MERGE": str(automatic).lower(),
+            "SAFE_SCOPE": str(scenario != "scope_changed").lower(),
+            "POLICY": policy,
+            "POLICY_STATUS": str(int(scenario == "policy_error")),
+            "MERGE_STATUS": str(int(scenario == "merge_denied")),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    expected_failure = automatic and (scenario != "ready" or policy == "null")
+    assert result.returncode == int(expected_failure), result.stderr
+    calls = calls_path.read_text(encoding="utf-8").splitlines() if calls_path.exists() else []
+    merge_calls = [call for call in calls if call.startswith("pr merge ")]
+    if automatic and scenario in {"ready", "merge_denied"} and policy in {"true", "false"}:
+        expected = (
+            "pr merge 123 --squash --match-head-commit 0123456789012345678901234567890123456789"
+        )
+        assert merge_calls == [expected + (" --auto" if policy == "true" else "")]
+    else:
+        assert merge_calls == []
+    if not automatic:
+        assert calls == []
+    if scenario == "scope_changed":
+        assert all(call.startswith("pr view ") for call in calls)
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+
+
 def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
     nightly = yaml.load(
         (WORKFLOWS / "nightly.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
