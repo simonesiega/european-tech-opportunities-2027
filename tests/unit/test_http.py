@@ -5,6 +5,7 @@ import gzip
 import zlib
 from collections.abc import AsyncIterator
 from types import SimpleNamespace
+from urllib.parse import quote
 
 import httpx
 import pytest
@@ -93,6 +94,21 @@ def test_http_fetcher_disables_redirects_on_an_injected_client() -> None:
         "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro?trk=expired_jd_redirect",
         "https://www.linkedin.com/jobs/software-engineer-jobs?trk=expired_jd_redirect",
         "https://de.linkedin.com:443/jobs/software-jobs/?trk=expired_jd_redirect",
+        "https://de.linkedin.com/jobs/softwaretester-stellen?trk=expired_jd_redirect",
+        *[
+            f"https://{host}.linkedin.com/jobs/{quote(slug, safe='')}?trk=expired_jd_redirect"
+            for host, slug in (
+                ("fr", "développeur-emplois"),
+                ("nl", "softwareontwikkelaar-vacatures"),
+                ("es", "ingeniero-empleos"),
+                ("pt", "engenheiro-vagas"),
+                ("pl", "inżynier-praca"),
+                ("gr", "μηχανικός-θέσεις"),
+                ("ua", "інженер-вакансії"),
+                ("fr", "de\u0301veloppeur-emplois"),
+                ("de", "software-localizeddirectory"),
+            )
+        ],
     ],
 )
 @pytest.mark.parametrize("cleanup", ["normal", "timeout", "transport", "unexpected", "classified"])
@@ -174,6 +190,30 @@ def test_expired_listing_redirect_is_inconclusive_without_following_reading_or_r
         ("public", 301, "https://it.linkedin.com/authwall?trk=expired_jd_redirect"),
         ("public", 301, "https://it.linkedin.com/checkpoint/challenge?trk=expired_jd_redirect"),
         ("public", 301, "https://it.linkedin.com/jobs/view/2222222222?trk=expired_jd_redirect"),
+        *[
+            ("public", 301, f"https://de.linkedin.com/jobs/{slug}?trk=expired_jd_redirect")
+            for slug in (
+                "login",
+                "authwall",
+                "checkpoint/challenge",
+                "../login",
+                "-stellen",
+                "software-",
+                "software--stellen",
+                "software%2Fengineer-stellen",
+                "software%5Cengineer-stellen",
+                "software-%2e%2e",
+                "software-%252e%252e",
+                "software-%00",
+                "software-%0a",
+                "software-%3Flogin",
+                "software-%ff",
+                "software-%ZZ",
+                "software-%",
+                "software-%CC%81",
+                "a" * 1023 + "-b",
+            )
+        ],
         ("public", 301, "https://it.linkedin.com/jobs/software-jobs"),
         ("public", 301, "https://it.linkedin.com/jobs/software-jobs?trk=unknown"),
         (

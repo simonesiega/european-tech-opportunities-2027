@@ -266,6 +266,81 @@ def test_availability_source_block_fails_closed_without_rendering(
         assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
 
 
+def test_availability_localized_redirects_preserve_rows_and_refresh_projections(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_MAX_CONCURRENCY"] = "1"
+    initialize_projection_files(tmp_path)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    checked_at = now + timedelta(minutes=1)
+    monkeypatch.setattr(availability_module, "utc_now", lambda: checked_at)
+    requested: list[str] = []
+    directories = {
+        "/jobs/view/1": "it.linkedin.com/jobs/ingegnere-offerte-di-lavoro",
+        "/jobs/view/2": "de.linkedin.com/jobs/softwaretester-stellen",
+        "/jobs/view/3": "fr.linkedin.com/jobs/d%C3%A9veloppeur-emplois",
+    }
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        if directory := directories.get(request.url.path):
+            return httpx.Response(
+                301, headers={"Location": f"https://{directory}?trk=expired_jd_redirect"}
+            )
+        assert request.url.path in {"/jobs/view/4", "/jobs-guest/jobs/api/jobPosting/4"}
+        return httpx.Response(
+            200,
+            text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+            '<a class="topcard__org-name-link">Synthetic Technology</a>',
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(respond), follow_redirects=True)
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **_kwargs: client)
+    repository, engine = repository_for(environment)
+    try:
+        repository.upsert_manual_jobs(
+            [
+                DiscoveredJob(
+                    linkedin_job_id=job_id,
+                    company="Synthetic Technology",
+                    title="Software Intern 2027",
+                    location="Berlin, Germany",
+                    link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                    category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                    employment_type=EmploymentType.INTERNSHIP,
+                )
+                for job_id in ("1", "2", "3", "4")
+            ],
+            observed_at=now,
+        )
+        before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+        result = runner.invoke(app, ["check-availability"], env=environment)
+
+        assert result.exit_code == 2, result.output
+        assert "1 available, 0 deleted, 0 reopened, 3 inconclusive" in result.output
+        assert "source processing stopped" not in result.output
+        assert client.is_closed
+        assert requested == [
+            "/jobs/view/1",
+            "/jobs/view/2",
+            "/jobs/view/3",
+            "/jobs/view/4",
+            "/jobs-guest/jobs/api/jobPosting/4",
+        ]
+        after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+        for job_id in ("1", "2", "3"):
+            assert after[job_id] == before[job_id]
+        assert after["4"].last_seen_at == checked_at
+        assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
+        exported = (tmp_path / "exports/open-opportunities.json").read_text(encoding="utf-8")
+        assert len(json.loads(exported)) == 4
+    finally:
+        asyncio.run(client.aclose())
+        engine.dispose()
+
+
 @pytest.mark.parametrize("cleanup_failure", [False, True])
 def test_availability_denial_preserves_confirmed_state_but_never_refreshes_existing_projections(
     tmp_path: Path,
