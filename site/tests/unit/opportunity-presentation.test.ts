@@ -1,6 +1,6 @@
 import {describe, expect, test} from "bun:test";
 import {
-  formatPublishedDate,
+  formatOpportunityDate,
   getCountries,
   normalizeOpportunityTimestamp,
   parseOpportunityTimestamp,
@@ -24,7 +24,7 @@ describe("opportunity presentation", () => {
     "9999-12-31T23:59:59-01:00",
     "not a date",
   ])("rejects invalid calendar or out-of-range UTC evidence: %s", (value) => {
-    expect(() => normalizeOpportunityTimestamp(value)).toThrow("Invalid first-seen timestamp");
+    expect(() => normalizeOpportunityTimestamp(value)).toThrow("Invalid opportunity timestamp");
     expect(parseOpportunityTimestamp(value)).toBeNaN();
   });
 
@@ -41,7 +41,7 @@ describe("opportunity presentation", () => {
   });
 
   test("formats offset and SQLite timestamps consistently in UTC", () => {
-    expect(formatPublishedDate("2026-07-17T23:30:00-02:00")).toBe("18 Jul 2026");
-    expect(formatPublishedDate("2026-07-17 23:30:00")).toBe("17 Jul 2026");
+    expect(formatOpportunityDate("2026-07-17T23:30:00-02:00")).toBe("18 Jul 2026");
+    expect(formatOpportunityDate("2026-07-17 23:30:00")).toBe("17 Jul 2026");
   });
 });

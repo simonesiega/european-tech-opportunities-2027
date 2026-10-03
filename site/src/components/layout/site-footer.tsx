@@ -1,4 +1,4 @@
-import {formatPublishedDate} from "@/lib/opportunity-presentation";
+import {formatOpportunityDate} from "@/lib/opportunity-presentation";
 import {addPositionUrl, newIssueUrl, repositoryUrl} from "@/lib/project-links";
 import {siteConfig} from "@/lib/site-config";
 
@@ -80,7 +80,7 @@ export function SiteFooter({lastUpdatedAt}: SiteFooterProps) {
         </nav>
         <span>
           Last successful collection:{" "}
-          {lastUpdatedAt ? formatPublishedDate(lastUpdatedAt) : "Not available"}
+          {lastUpdatedAt ? formatOpportunityDate(lastUpdatedAt) : "Not available"}
         </span>
       </div>
     </footer>

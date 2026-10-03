@@ -675,7 +675,7 @@ def _search_registry_docs_path(settings: Settings) -> Path:
 
 
 def _render_projections(settings: Settings, repository: Repository) -> int:
-    """Refresh every read-only projection from one open-job snapshot."""
+    """Refresh generated files from one open-job snapshot and the configured registry."""
     open_jobs = repository.list_open_jobs()
     render_readme(
         settings.readme_path,

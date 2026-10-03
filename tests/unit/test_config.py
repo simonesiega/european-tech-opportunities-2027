@@ -64,6 +64,21 @@ def test_dotenv_loads_automatically_and_process_environment_wins(
     assert settings.public_export_dir == Path("generated/public")
 
 
+def test_search_text_normalization_includes_optional_notes() -> None:
+    search = LinkedInSearchConfig(
+        name="  Software   opportunities  ",
+        slug="software-opportunities",
+        keywords=" software\tintern ",
+        location=" United   Kingdom ",
+        notes="  Reviewed\n  scope.  ",
+    )
+
+    assert search.name == "Software opportunities"
+    assert search.keywords == "software intern"
+    assert search.location == "United Kingdom"
+    assert search.notes == "Reviewed scope."
+
+
 def test_trailing_environment_whitespace_is_ignored(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED", "true ")
     assert load_settings(dotenv_path=Path("missing.env")).linkedin_crawl_authorized is True

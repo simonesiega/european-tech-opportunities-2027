@@ -4,7 +4,7 @@
 
 Configure the Python pipeline and Next.js website using the paths, precedence rules, request limits, lifecycle settings, and authorization interlocks below.
 
-The pipeline builds one immutable Pydantic settings object before executing a command. Unknown fields and invalid values fail early instead of being silently ignored.
+The pipeline builds one immutable Pydantic settings object before executing a command. Unknown YAML fields and invalid setting values fail early instead of being silently ignored. Only supported `OPPORTUNITIES_*` environment variables are loaded; unrelated variables are ignored.
 
 Complete [local setup](setup.md) before configuring a new environment.
 
@@ -107,7 +107,7 @@ The 2027 publication floor (May 1, 2026) and `date_posted: cycle` search window 
 
 | Variable | Default | Validation and behavior |
 |---|---:|---|
-| `OPPORTUNITIES_REQUEST_TIMEOUT_SECONDS` | `20` | Overall timeout greater than 0 and at most 120 seconds |
+| `OPPORTUNITIES_REQUEST_TIMEOUT_SECONDS` | `20` | HTTPX read, write, and pool timeout greater than 0 and at most 120 seconds per operation; not a total-request deadline |
 | `OPPORTUNITIES_CONNECT_TIMEOUT_SECONDS` | `10` | Connection timeout greater than 0 and at most 60 seconds |
 | `OPPORTUNITIES_MAX_RETRIES` | `3` | Retry count from 0 through 10 |
 | `OPPORTUNITIES_RETRY_BACKOFF_SECONDS` | `0.5` | Exponential base delay from 0 through 30 seconds |
@@ -176,13 +176,13 @@ OPPORTUNITIES_SEARCH_MAX_RECHECKS=10
 
 Rules:
 
-- pages replace every enabled search’s `max_pages`;
-- results replace every enabled search’s `max_results`;
+- pages replace every configured search's `max_pages`;
+- results replace every configured search's `max_results`;
 - when only pages change, existing result limits are capped to page capacity;
-- rechecks replace every enabled search’s `max_rechecks`;
+- rechecks replace every configured search's `max_rechecks`;
 - results greater than pages × 25 are rejected.
 
-Review the [search registry guide](../engineering/search-registry.md#limit-tiers) before changing production limits.
+Overrides do not enable disabled searches; collection still selects only enabled entries. Review the [search registry guide](../engineering/search-registry.md#limit-tiers) before changing production limits.
 
 ## HTTP policy
 
@@ -206,7 +206,7 @@ The transport also enforces:
 - disabled redirects;
 - direct requests from its managed client, ignoring ambient proxy variables;
 - rejection of preconfigured Cookie headers and source response cookies;
-- bounded connection and overall timeouts;
+- bounded waits for connection, read, write, and pool operations, not a wall-clock deadline for the complete response;
 - bounded concurrency and same-host pacing;
 - response-size checks before and after reading;
 - HTML or plain-text content-type validation;

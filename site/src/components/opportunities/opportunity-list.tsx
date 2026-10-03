@@ -13,6 +13,8 @@ import {opportunityColumns} from "@/components/opportunities/opportunity-columns
 import {Button} from "@/components/ui/button";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import {cn} from "@/lib/cn";
+import type {LocalOpportunityState, LocalOpportunityView} from "@/lib/local-opportunity-state";
+import {sortOpportunities} from "@/lib/opportunity-sort";
 import {
   DIRECTORY_PAGE_SIZES,
   type DirectoryPageSize,
@@ -20,8 +22,6 @@ import {
   type DirectoryView,
 } from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
-import type {LocalOpportunityState, LocalOpportunityView} from "@/lib/local-opportunity-state";
-import {sortOpportunities} from "@/lib/opportunity-sort";
 
 const EMPTY_LOCAL_VIEWS = {
   saved: {

@@ -2,8 +2,8 @@ import "server-only";
 
 import {DatabaseSync} from "node:sqlite";
 import {cache} from "react";
-import {publicationPaths} from "@/lib/release-path";
 import {isCanonicalListingUrl} from "@/lib/listing-url";
+import {publicationPaths} from "@/lib/release-path";
 import type {Opportunity} from "@/types/opportunity";
 
 export function readDirectorySummary(database: DatabaseSync): {

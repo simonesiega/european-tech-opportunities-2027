@@ -37,8 +37,8 @@ class LinkedInSearchConfig(BaseModel):
 
     @field_validator("name", "keywords", "location", "notes", mode="before")
     @classmethod
-    def strip_text(cls, value: object) -> object:
-        """Trim required search text fields."""
+    def normalize_text(cls, value: object) -> object:
+        """Normalize whitespace in search text, including optional notes."""
         if isinstance(value, str):
             return clean_text(value)
         return value

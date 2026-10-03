@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Protocol
 
 from opportunities.config.settings import Settings
 from opportunities.database.repository import Repository
@@ -15,17 +14,13 @@ from opportunities.scrapers.http import (
     FetchError,
     HttpFetcher,
 )
-from opportunities.scrapers.linkedin import has_closed_application_notice, validate_job_detail_page
+from opportunities.scrapers.linkedin import (
+    TextFetcher,
+    has_closed_application_notice,
+    validate_job_detail_page,
+)
 from opportunities.utils.concurrency import map_concurrently
 from opportunities.utils.time import utc_now
-
-
-class AvailabilityFetcher(Protocol):
-    """Define the transport needed by the availability auditor."""
-
-    async def get_text(self, url: str) -> str:
-        """Fetch one public listing page."""
-        ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,7 +46,7 @@ async def audit_job_availability(
     *,
     settings: Settings,
     repository: Repository,
-    fetcher: AvailabilityFetcher | None = None,
+    fetcher: TextFetcher | None = None,
     observed_at: datetime | None = None,
 ) -> AvailabilityAuditResult:
     """Check every public job page and delete explicitly unavailable rows.
@@ -87,7 +82,7 @@ async def _audit_jobs(
     *,
     jobs: list[StoredJob],
     repository: Repository,
-    fetcher: AvailabilityFetcher,
+    fetcher: TextFetcher,
     max_concurrency: int,
     observed_at: datetime,
 ) -> AvailabilityAuditResult:

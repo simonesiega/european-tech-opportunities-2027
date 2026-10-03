@@ -136,7 +136,7 @@ Run one selected search:
 uv run opportunities scrape --search company-amazon
 ```
 
-Persist state without modifying the README:
+Persist state without refreshing generated projections:
 
 ```bash
 uv run opportunities scrape --no-render
@@ -168,7 +168,7 @@ A failed search:
 - does not increment unavailability confirmations;
 - does not close jobs.
 
-Use `--no-render` where canonical state should change without modifying generated files in the Git working tree, such as a website-only VPS.
+Use `--no-render` where canonical state should change without refreshing any generated projection, including ignored public exports, such as a website-only VPS.
 
 The collection lifecycle is documented in [Architecture](../engineering/architecture.md#failure-isolation) and [Database lifecycle](database.md#successful-search-transaction).
 
@@ -260,7 +260,7 @@ Each object uses the same required and optional fields as `add-job`; JSON field 
 uv run opportunities check-availability
 ```
 
-Check canonical state without updating generated documentation:
+Check canonical state without refreshing generated projections:
 
 ```bash
 uv run opportunities check-availability --no-render
@@ -427,7 +427,7 @@ uv run opportunities validate
 
 Validation assumes that the configured SQLite database and generated README represent the same canonical state.
 
-### Collect without modifying the README
+### Collect without refreshing projections
 
 ```bash
 uv run opportunities scrape --no-render

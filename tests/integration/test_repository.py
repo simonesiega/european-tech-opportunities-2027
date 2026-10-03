@@ -66,6 +66,33 @@ def persist_search(
     )
 
 
+@pytest.mark.parametrize(
+    "job_ids",
+    [
+        ("3333333333", "1111111111", "2222222222"),
+        ("2222222222", "3333333333", "1111111111"),
+    ],
+)
+def test_open_jobs_with_identical_display_fields_use_identifier_order(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    collected_job: DiscoveredJob,
+    job_ids: tuple[str, ...],
+) -> None:
+    repository = Repository(session_factory, settings)
+    observed_at = datetime(2026, 7, 20, tzinfo=UTC)
+    for job_id in job_ids:
+        job = collected_job.model_copy(
+            update={
+                "linkedin_job_id": job_id,
+                "link": f"https://www.linkedin.com/jobs/view/{job_id}",
+            }
+        )
+        repository.upsert_manual_job(job, observed_at=observed_at)
+
+    assert [job.linkedin_job_id for job in repository.list_open_jobs()] == sorted(job_ids)
+
+
 def test_manual_upsert_preserves_lifecycle_metadata_and_adds_no_provenance(
     session_factory: sessionmaker[Session],
     settings: Settings,
@@ -292,7 +319,7 @@ def test_repository_persists_run_and_provenance_timestamps_in_utc(
     assert repository.list_all_jobs()[0].status == JobStatus.CLOSED
 
 
-def test_absence_and_one_closed_search_cannot_close_another_searchs_active_job(
+def test_absence_and_one_closed_search_cannot_close_another_search_active_job(
     session_factory: sessionmaker[Session],
     settings: Settings,
     search: LinkedInSearchConfig,
