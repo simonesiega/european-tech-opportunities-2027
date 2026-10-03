@@ -46,7 +46,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `documentation.yml` | Push to `main`, pull request, manual | Digest-pinned Markdown and prose lint, strict MkDocs Material build, and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; explicit read-only modes propose the first public-state review seal or recover a missing README proposal without publishing a snapshot |
-| `nightly.yml` | 04:23 UTC daily | Availability audit, scrape-time drift checks and aggregate report artifact, with one narrowly scoped auto-merge pull request |
+| `nightly.yml` | 04:23 UTC daily, manual from `main` | Availability audit, scrape-time drift checks and aggregate report artifact, with one narrowly scoped auto-merge pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
 | `add-job.yml` | Manual | Add 1–10 maintainer-reviewed listings to durable canonical state without source access, then open one README-only review pull request |
@@ -208,27 +208,32 @@ Local and Docker interlocks are documented in [Configuration](../getting-started
 
 ## Schedule and concurrency
 
-The nightly full update runs once per day:
+The nightly full update runs once per day and also accepts manual runs:
 
 ```yaml
-schedule:
-  - cron: "23 4 * * *"
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: opportunity-collection
   cancel-in-progress: false
 ```
 
-The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time.
+The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
 
 The nightly, scrape-only, availability-only, manual-add, recovery-drill, and deployment paths share `opportunity-collection`. This prevents overlapping writers and state replacement while allowing the read-only website to continue serving requests.
 
 ## Manual collection inputs
 
-Two workflows can be run independently from the Actions tab:
+Three collection workflows can be run independently from the Actions tab:
 
+- **Nightly full update** completes the availability audit, then collects listings and proposes one combined README update with auto-merge after validation and configured review requirements.
 - **Check job availability** checks all existing rows and opens an availability-only pull request.
 - **Scrape jobs or deploy reviewed state** runs only the scrape and opens a scrape-only pull request when deployment mode is disabled.
+
+To run the combined update now, open **Actions → Nightly full update → Run workflow**, select `main`, and confirm **Run workflow**. The manual trigger must be merged into the default branch before GitHub shows this control. No inputs are required. Manual and scheduled full updates use the same source-authorization checks, shared concurrency lock, and reviewed-state safeguards; neither deploys to the VPS.
 
 The scrape workflow inputs are:
 
