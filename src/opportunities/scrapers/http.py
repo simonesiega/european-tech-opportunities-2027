@@ -8,11 +8,10 @@ import logging
 import math
 import re
 import time
-import unicodedata
 from collections.abc import Awaitable, Callable
 from email.utils import parsedate_to_datetime
 from http.cookiejar import CookieJar, DefaultCookiePolicy
-from urllib.parse import unquote, urlsplit
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -27,11 +26,6 @@ LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 _LINKEDIN_HOST = "www.linkedin.com"
 _LINKEDIN_DETAIL_PATH_RE = re.compile(r"^/jobs-guest/jobs/api/jobPosting/[0-9]{1,30}$")
 _LINKEDIN_PUBLIC_PATH_RE = re.compile(r"^/jobs/view/[0-9]{1,30}$")
-# The marker and public-directory shape are stable; localized suffixes are not.
-_LINKEDIN_EXPIRED_JOB_REDIRECT_RE = re.compile(
-    r"https://(?:www|[a-z]{2})\.linkedin\.com(?::443)?"
-    r"/jobs/(?P<slug>[^/?#]{1,1024})/?\?trk=expired_jd_redirect"
-)
 _MAX_RETRY_DELAY_SECONDS = 60.0
 _BLOCK_MARKERS = (
     "captcha-internal",
@@ -109,6 +103,9 @@ class HttpFetcher:
         # Reject cookies at the jar: clearing after each response would race concurrent
         # requests. Injected clients must obey the same unauthenticated-access boundary.
         self._client.cookies = CookieJar(policy=DefaultCookiePolicy(allowed_domains=[]))
+        # HTTPX parses Location even without following redirects. Discard it before
+        # that parsing so malformed destinations cannot hide the response status.
+        self._client.event_hooks["response"].append(_discard_redirect_location)
         self._host_locks: dict[str, asyncio.Lock] = {}
         self._last_request_at: dict[str, float] = {}
         self._blocked_status: int | None = None
@@ -190,16 +187,14 @@ class HttpFetcher:
             async with self._client.stream(
                 "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
             ) as response:
-                if (
-                    response.status_code == 301
-                    and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(urlsplit(url).path)
-                    and _is_expired_listing_redirect(response.headers.get("Location", ""))
+                if response.status_code == 301 and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(
+                    urlsplit(url).path
                 ):
-                    # This is neither availability nor closure evidence. Leave this
-                    # listing inconclusive without blocking unrelated requests.
+                    # Only the approved original endpoint matters, never Location.
+                    # Preserve this listing without blocking unrelated requests.
                     listing_redirect = FetchError(
                         "listing_redirect",
-                        "LinkedIn returned an expired-listing redirect; listing is inconclusive",
+                        "LinkedIn redirected the public listing; listing is inconclusive",
                         status_code=301,
                     )
                     raise listing_redirect
@@ -318,6 +313,12 @@ class HttpFetcher:
             self._last_request_at[host] = time.monotonic()
 
 
+async def _discard_redirect_location(response: httpx.Response) -> None:
+    """Keep redirect decisions independent of an untrusted Location header."""
+    if response.is_redirect and "Location" in response.headers:
+        del response.headers["Location"]
+
+
 def _is_approved_path(path: str, query: str) -> bool:
     """Allow only the three fixed public LinkedIn endpoint families."""
     search_path = urlsplit(LINKEDIN_SEARCH_ENDPOINT).path
@@ -327,26 +328,6 @@ def _is_approved_path(path: str, query: str) -> bool:
         return False
     return bool(
         _LINKEDIN_DETAIL_PATH_RE.fullmatch(path) or _LINKEDIN_PUBLIC_PATH_RE.fullmatch(path)
-    )
-
-
-def _is_expired_listing_redirect(location: str) -> bool:
-    """Recognize a bounded localized directory URL without requesting its destination."""
-    match = _LINKEDIN_EXPIRED_JOB_REDIRECT_RE.fullmatch(location)
-    if match is None:
-        return False
-    try:
-        slug = unquote(match["slug"], encoding="utf-8", errors="strict")
-    except UnicodeDecodeError:
-        return False
-    parts = slug.split("-")
-    # Decode once: encoded separators, traversal, controls, or a second encoding
-    # layer must not disguise a different endpoint. Do not depend on a language list.
-    return len(parts) >= 2 and all(
-        part
-        and part[0].isalnum()
-        and all(char.isalnum() or unicodedata.category(char).startswith("M") for char in part)
-        for part in parts
     )
 
 
