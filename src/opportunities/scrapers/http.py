@@ -26,6 +26,12 @@ LINKEDIN_PUBLIC_JOB_URL = "https://www.linkedin.com/jobs/view/{job_id}"
 _LINKEDIN_HOST = "www.linkedin.com"
 _LINKEDIN_DETAIL_PATH_RE = re.compile(r"^/jobs-guest/jobs/api/jobPosting/[0-9]{1,30}$")
 _LINKEDIN_PUBLIC_PATH_RE = re.compile(r"^/jobs/view/[0-9]{1,30}$")
+# Recognize expired-listing redirects to public job directories, never fetch them.
+_LINKEDIN_EXPIRED_JOB_REDIRECT_RE = re.compile(
+    r"https://(?:www|[a-z]{2})\.linkedin\.com(?::443)?"
+    r"/jobs/[a-z0-9]+(?:-[a-z0-9]+)*-(?:jobs|offerte-di-lavoro)/?"
+    r"\?trk=expired_jd_redirect"
+)
 _MAX_RETRY_DELAY_SECONDS = 60.0
 _BLOCK_MARKERS = (
     "captcha-internal",
@@ -178,11 +184,27 @@ class HttpFetcher:
         # Another request may have hit a denial while this one waited for pacing.
         self._raise_if_blocked()
         retry_after: float | None = None
+        listing_redirect: FetchError | None = None
         transient_status: int
         try:
             async with self._client.stream(
                 "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
             ) as response:
+                if (
+                    response.status_code == 301
+                    and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(urlsplit(url).path)
+                    and _LINKEDIN_EXPIRED_JOB_REDIRECT_RE.fullmatch(
+                        response.headers.get("Location", "")
+                    )
+                ):
+                    # This is neither availability nor closure evidence. Leave this
+                    # listing inconclusive without blocking unrelated requests.
+                    listing_redirect = FetchError(
+                        "listing_redirect",
+                        "LinkedIn returned an expired-listing redirect; listing is inconclusive",
+                        status_code=301,
+                    )
+                    raise listing_redirect
                 if 300 <= response.status_code < 400 or response.status_code in {
                     401,
                     403,
@@ -194,7 +216,7 @@ class HttpFetcher:
                         f"LinkedIn returned HTTP {response.status_code}",
                         status_code=response.status_code,
                     )
-                # Redirects, access denials, and rate limits are upstream stop
+                # Other redirects, access denials, and rate limits are stop
                 # signals; only server failures are eligible for bounded retries.
                 if response.status_code >= 500:
                     transient_status = response.status_code
@@ -202,9 +224,14 @@ class HttpFetcher:
                 else:
                     return await self._read_text(response)
         except FetchError:
+            if listing_redirect is not None:
+                raise listing_redirect from None
             raise
         except Exception as exc:
             self._raise_if_blocked()
+            if listing_redirect is not None:
+                # Cleanup cannot turn a recognized redirect into a retryable failure.
+                raise listing_redirect from exc
             if isinstance(exc, httpx.TimeoutException):
                 raise FetchError("timeout", "LinkedIn request timed out", retryable=True) from exc
             if isinstance(exc, httpx.TransportError):

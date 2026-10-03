@@ -262,8 +262,8 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
 
 
 @pytest.mark.parametrize("endpoint", ["public", "detail"])
-@pytest.mark.parametrize("denial", [301, 401, 403, 429, "challenge"])
-def test_source_denial_stops_audit_without_turning_it_into_successful_partial_collection(
+@pytest.mark.parametrize("denial", [301, 401, 403, 429, "challenge", "expired_redirect"])
+def test_availability_distinguishes_expired_listing_redirects_from_source_stops(
     session_factory: sessionmaker[Session], settings: Settings, endpoint: str, denial: int | str
 ) -> None:
     repository = Repository(session_factory, settings)
@@ -290,6 +290,14 @@ def test_source_denial_stops_audit_without_turning_it_into_successful_partial_co
     def respond(request: httpx.Request) -> httpx.Response:
         requested.append(str(request.url))
         if str(request.url) == blocked_url:
+            if denial == "expired_redirect":
+                return httpx.Response(
+                    301,
+                    headers={
+                        "Location": "https://it.linkedin.com/jobs/ingegnere-offerte-di-lavoro"
+                        "?trk=expired_jd_redirect"
+                    },
+                )
             if denial == "challenge":
                 return httpx.Response(200, text="<html>Security verification challenge-page</html>")
             assert isinstance(denial, int)
@@ -299,6 +307,8 @@ def test_source_denial_stops_audit_without_turning_it_into_successful_partial_co
             text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
             '<a class="topcard__org-name-link">Synthetic Technology</a>',
         )
+
+    inconclusive_redirect = endpoint == "public" and denial == "expired_redirect"
 
     async def audit() -> None:
         serial_settings = settings.model_copy(update={"max_concurrency": 1})
@@ -313,19 +323,31 @@ def test_source_denial_stops_audit_without_turning_it_into_successful_partial_co
                 observed_at=now + timedelta(minutes=1),
             )
         assert result.checked == 3
-        assert result.available == 1
+        assert result.available == (2 if inconclusive_redirect else 1)
         assert result.deleted == result.reopened == 0
-        assert result.inconclusive_ids == ("2", "3")
-        assert result.exit_code == 1  # Workflow must not start a new fetcher for scraping.
-        assert result.source_blocked
+        assert result.inconclusive_ids == (("2",) if inconclusive_redirect else ("2", "3"))
+        assert result.exit_code == (2 if inconclusive_redirect else 1)
+        assert result.source_blocked is not inconclusive_redirect
 
     asyncio.run(audit())
-    assert requested[-1] == blocked_url
-    assert len(requested) == (3 if endpoint == "public" else 4)
+    if inconclusive_redirect:
+        assert requested == [
+            LINKEDIN_PUBLIC_JOB_URL.format(job_id="1"),
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id="1"),
+            blocked_url,
+            LINKEDIN_PUBLIC_JOB_URL.format(job_id="3"),
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id="3"),
+        ]
+    else:
+        assert requested[-1] == blocked_url
+        assert len(requested) == (3 if endpoint == "public" else 4)
     after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
     assert after["1"].last_seen_at == now + timedelta(minutes=1)
     assert after["2"] == before["2"]
-    assert after["3"] == before["3"]
+    if inconclusive_redirect:
+        assert after["3"].last_seen_at == now + timedelta(minutes=1)
+    else:
+        assert after["3"] == before["3"]
 
 
 @pytest.mark.parametrize("inflight_status", [200, 404])

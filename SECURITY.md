@@ -42,7 +42,7 @@ Security fixes currently target `main`. The project has no published versioned r
 |---|---|
 | Source access | Authorized public LinkedIn guest HTML only |
 | Authentication | No LinkedIn credentials, sessions, cookies, account tokens, or browser storage; source response cookies are discarded |
-| Transport | Fixed HTTPS hosts, redirects treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
+| Transport | Fixed HTTPS hosts, redirects never followed, unrecognized redirects treated as stop conditions, and bounded pacing, concurrency, retries, timeouts, and response sizes |
 | Processing | Local deterministic parsing and classification with sanitized errors |
 | Persistence | Canonical SQLite writes through repository transactions and Alembic migrations |
 | Website and public API | Read-only SQLite, validated links, bounded API input and output, no mutation API, and defensive production headers |
@@ -69,6 +69,16 @@ The project does not implement or accept:
 - collection from unrelated providers.
 
 Never weaken or default-enable an authorization gate. An upstream block or challenge is a stop condition.
+
+### Expired-listing redirects
+
+One narrow redirect exception preserves an inconclusive listing without stopping unrelated checks. It applies only to HTTP `301` from an approved numeric public-job URL whose destination matches all of these conditions:
+
+- absolute HTTPS on `www.linkedin.com` or a lowercase two-letter country subdomain of `linkedin.com`, with no credentials or nonstandard port;
+- a public directory path `/jobs/<slug>-jobs` or `/jobs/<slug>-offerte-di-lavoro`, where the slug contains only lowercase ASCII letters, digits, and single separating hyphens; one trailing slash is permitted;
+- exactly `trk=expired_jd_redirect` as the query, with no extra parameters or fragment.
+
+The transport never follows that destination, reads its response body, retries the listing, or uses the redirect as availability or closure evidence. The stored row remains unchanged. The exception does not apply to search or guest-detail endpoints. Every other redirect, authentication denial, rate limit, or challenge still stops source requests. Recognizing a country-host destination does not authorize requests to that host.
 
 ### Data and website boundary
 
