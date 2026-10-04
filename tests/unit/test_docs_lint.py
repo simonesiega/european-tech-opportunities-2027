@@ -74,7 +74,7 @@ def test_generated_readme_validation_dispatches_documentation_workflow() -> None
         encoding="utf-8"
     )
     docs = (lint_docs.ROOT / ".github/workflows/documentation.yml").read_text(encoding="utf-8")
-    assert "gitleaks.yml documentation.yml)" in mutation
+    assert "gitleaks.yml documentation.yml dependency-review.yml)" in mutation
     assert "workflow_dispatch:" in docs
     assert "run: uv run --frozen python scripts/docs/lint_docs.py" in docs
 

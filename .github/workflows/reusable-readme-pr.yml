@@ -142,8 +142,8 @@ jobs:
             exit 1
           fi
 
-          # GitHub suppresses normal workflow recursion for GITHUB_TOKEN pushes. Dispatch the
-          # complete validation suite explicitly so checks attach to this head SHA.
+          # GITHUB_TOKEN-created PR workflows can require approval. Dispatch the complete
+          # validation suite explicitly so unattended checks attach to this head SHA.
           head_sha=$(git rev-parse HEAD)
           safe_scope=false
           for attempt in 1 2 3 4 5; do
@@ -161,10 +161,14 @@ jobs:
             exit 1
           fi
 
-          validation_workflows=(python-ci.yml site-ci.yml docker-ci.yml codeql.yml gitleaks.yml documentation.yml)
+          validation_workflows=(python-ci.yml site-ci.yml docker-ci.yml codeql.yml gitleaks.yml documentation.yml dependency-review.yml)
           validation_started_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           for validation_workflow in "${validation_workflows[@]}"; do
-            gh workflow run "$validation_workflow" --ref "$UPDATE_BRANCH"
+            dispatch_args=(--ref "$UPDATE_BRANCH")
+            if [ "$validation_workflow" = "dependency-review.yml" ]; then
+              dispatch_args+=(--raw-field "pull_request_number=$pr_number")
+            fi
+            gh workflow run "$validation_workflow" "${dispatch_args[@]}"
           done
 
           # Await dispatched runs before auto-merge can delete their branch, even without

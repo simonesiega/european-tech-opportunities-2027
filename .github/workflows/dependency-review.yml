@@ -2,6 +2,12 @@ name: Dependency Review
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: Open same-repository README-only PR targeting main; dispatch on its automation branch.
+        required: true
+        type: string
 
 concurrency:
   group: validation-${{ github.workflow }}-${{ github.ref }}
@@ -9,6 +15,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   dependency-review:
@@ -19,9 +26,48 @@ jobs:
         with:
           persist-credentials: false
 
+      # Dispatch has no pull_request payload. Resolve the comparison from GitHub rather
+      # than accepting caller-selected refs that could accidentally compare a commit to itself.
+      - name: Resolve and verify dispatched README review
+        if: github.event_name == 'workflow_dispatch'
+        id: review-refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST_NUMBER: ${{ inputs.pull_request_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$PULL_REQUEST_NUMBER" =~ ^[1-9][0-9]*$ ]] ||
+             [[ "$GITHUB_REF" != refs/heads/automated/* ]] ||
+             [[ ! "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Dependency review requires a PR number and its automation branch commit."
+            exit 1
+          fi
+
+          pull_request=$(gh pr view "$PULL_REQUEST_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --json state,baseRefName,baseRefOid,headRefName,headRefOid,isCrossRepository,files)
+          if ! jq -e --arg ref "$GITHUB_REF" --arg sha "$GITHUB_SHA" '
+            (.state == "OPEN") and
+            (.baseRefName == "main") and
+            (.isCrossRepository == false) and
+            ("refs/heads/" + .headRefName == $ref) and
+            (.headRefOid == $sha) and
+            # jq allows a trailing newline after the $ anchor; also require the exact length.
+            (.baseRefOid | length == 40 and test("^[0-9a-f]{40}$")) and
+            (.baseRefOid != $sha) and
+            ([.files[].path] == ["README.md"])
+          ' <<< "$pull_request" >/dev/null; then
+            echo "Dispatched dependency review failed the README-only PR scope or commit check."
+            exit 1
+          fi
+          base_sha=$(jq -er '.baseRefOid' <<< "$pull_request")
+          printf 'base_sha=%s\nhead_sha=%s\n' "$base_sha" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+
       - name: Review newly introduced dependencies
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
+          base-ref: ${{ steps.review-refs.outputs.base_sha || github.event.pull_request.base.sha }}
+          head-ref: ${{ steps.review-refs.outputs.head_sha || github.event.pull_request.head.sha }}
           fail-on-severity: high
           fail-on-scopes: runtime, development, unknown
           license-check: false

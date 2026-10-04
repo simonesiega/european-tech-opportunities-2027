@@ -309,7 +309,7 @@ flowchart TB
 
     subgraph REVIEW["GitHub review handoff<br/>No database or<br/>VPS credentials"]
         HANDOFF["README-only handoff<br/>Sanitized public exports retained separately"]
-        PR["reusable-readme-pr.yml<br/>README-only pull request<br/>Dispatch and await six validation workflows"]
+        PR["reusable-readme-pr.yml<br/>README-only pull request<br/>Dispatch and await validation workflows"]
         MERGED["Matching README + full-state seal in main<br/>Nightly: eligible for auto-merge after checks<br/>Other updates: manual merge"]
         HANDOFF --> PR --> MERGED
     end

@@ -538,17 +538,19 @@ Confirm that:
 
 - GitHub Actions may create pull requests and squash merging is enabled;
 - the README mutation job has `actions: write`, `contents: write`, and `pull-requests: write`;
-- branch protection requires `ruff`, `python`, `site`, `docker`, `Analyze (Python)`, `Analyze (TypeScript)`, `Gitleaks secret scan`, and `build` (Documentation site);
+- branch protection requires `ruff`, `python`, `site`, `docker`, `Analyze (Python)`, `Analyze (TypeScript)`, `Gitleaks secret scan`, `build` (Documentation site), and `dependency-review`;
 - the pull request targets `main`;
 - its head branch is `automated/nightly-full-update`;
 - its title is `data: nightly availability and scrape update`;
 - `README.md` is the only changed file;
-- `workflow_dispatch` runs exist for all six validation workflows on the automation branch head SHA;
+- `workflow_dispatch` runs exist for all seven validation workflows, including Dependency Review, on the automation branch head SHA;
 - the README mutation job identified those run IDs and waited for each successful conclusion before requesting a merge.
 
 The repository's optional auto-merge setting is not required: when disabled, the workflow requests a normal squash merge after validation. Both paths obey branch protection. A refused normal merge leaves the proposal open and fails the job; resolve its checks or required reviews and merge that proposal rather than collecting again. An older workflow revision can still fail with `Auto merge is not allowed for this repository`; rerunning that run retains its original revision. See [README update pull requests](automation.md#readme-update-pull-requests) and [missing proposal recovery](automation.md#recover-a-missing-readme-state-proposal).
 
-A branch push made by `GITHUB_TOKEN` does not reliably trigger ordinary push or pull-request recursion. The README mutation workflow compensates by explicitly dispatching all six validation workflows after its exact-scope check, then keeping the branch alive until they finish. If those runs are missing, inspect that job for workflow-dispatch permission or policy failures; do not bypass required checks.
+A branch push made by `GITHUB_TOKEN` does not trigger ordinary push workflows, and PR workflows created by that token can wait for **Approve workflows to run**. The README mutation workflow therefore dispatches all seven validation workflows explicitly after its exact-scope check and keeps the branch alive until they finish. Dependency Review receives the PR number, verifies the open README-only proposal and run SHA, and compares the actual base/head commits. If a run is missing, inspect workflow-dispatch permissions, the selected branch's workflow revision, and its inputs; do not bypass required checks.
+
+Older automation dispatched only six workflows. Even if they all passed, a required `dependency-review` check could still be missing or awaiting approval, causing the final merge to fail with `the base branch policy prohibits the merge`. Approving its PR workflow later does not change the failed parent run's historical result, and enabling auto-merge alone does not run a missing check. The corrected workflows must reach `main` before new proposals inherit them. For an existing proposal, resolve its actual required checks and review without repeating collection; if it is closed or missing, use the [README recovery mode](automation.md#recover-a-missing-readme-state-proposal) from updated `main`.
 
 A validation run that fails instantly with zero jobs and no logs usually means the automation branch was merged and deleted before GitHub finished creating jobs. The explicit dispatch wait prevents that race without weakening validation. The workflow also refuses validation dispatch and merging when any scope check differs. Do not weaken either safeguard; restore the fixed automation branch to the expected README-only diff instead.
 

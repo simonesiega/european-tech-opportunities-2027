@@ -17,7 +17,7 @@ These checks help catch problems before a change is merged. They use test data r
 | [Docker CI](workflows/docker-ci.yml) | PR, push to `main`, manual | Workflow and container configuration, production-image builds, SPDX SBOMs and build evidence, and high/critical vulnerabilities with available fixes. Uploads evidence for 30 days and attests those files on `main`. Also tests database access, downloads, redirects, and security headers. |
 | [CodeQL](workflows/codeql.yml) | PR, push to `main`, Monday 05:31, manual | Potential security problems in Python and TypeScript. Results appear in GitHub code scanning. |
 | [Gitleaks](workflows/gitleaks.yml) | PR, push to `main`, manual | Accidentally committed credentials and other secrets. Checks new commits on pushes and PRs, or the fetched history on manual runs. Sensitive finding values are redacted. |
-| [Dependency Review](workflows/dependency-review.yml) | PR only | Newly introduced dependencies with known high/critical vulnerabilities, including development dependencies. It does not audit every dependency already in the project. |
+| [Dependency Review](workflows/dependency-review.yml) | PR, manual on a README automation branch with `pull_request_number` | Newly introduced dependencies with known high/critical vulnerabilities, including development dependencies. Dispatched runs verify the README-only PR and its base/head commits. It does not audit every dependency already in the project. |
 | [OpenSSF Scorecard](workflows/scorecard.yml) | Saturday 06:17, manual from `main` | Repository security and supply-chain practices. Publishes a public assessment and supported code-scanning findings; individual findings do not automatically block merging. |
 
 If a check fails on your contribution, open its run in **Actions** and look for the failed step. For local test commands, see the [testing guide](../docs/maintainers/engineering/testing.md).
@@ -60,7 +60,7 @@ The listing workflows call these two `workflow_call` helpers. They are implement
 | Workflow | What it does |
 |---|---|
 | [Reusable canonical-state processing](workflows/reusable-process-state.yml) | Restores and checks the database, performs the requested update or recovery operation, and saves verified results. Also handles deployment when requested. |
-| [Reusable README pull request](workflows/reusable-readme-pr.yml) | Creates or updates a PR containing only the generated README changes. Starts Python CI, Site CI, Docker CI, CodeQL, Gitleaks, and Documentation site checks on that commit, then waits for their results before requesting any automatic merge. |
+| [Reusable README pull request](workflows/reusable-readme-pr.yml) | Creates or updates a PR containing only the generated README changes. Starts Python CI, Site CI, Docker CI, CodeQL, Gitleaks, Documentation site, and Dependency Review checks on that commit, then waits for their results before requesting any automatic merge. |
 
 ## Other GitHub features
 

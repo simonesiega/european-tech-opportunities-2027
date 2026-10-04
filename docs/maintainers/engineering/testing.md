@@ -150,6 +150,8 @@ For non-live Python tests, `tests/conftest.py` clears inherited application and 
 
 Linux shell tests use `tests/shell_helpers.py` to give subprocesses an environment allowlist, temporary home and working files, offline uv settings, and blocking SSH/SCP/SFTP fallbacks. Tests needing transport behavior provide fake binaries ahead of those blockers. Subprocess timeouts bound failures; lock tests synchronize on acquisition rather than sleeping and hoping the lock is held.
 
+README validation workflow regressions also require Bash and `jq`; they skip when either tool is unavailable. They execute the checked-in workflow scripts with fake GitHub CLI calls and real `jq` filters against synthetic PR metadata and run records. They never dispatch workflows, push branches, merge PRs, or contact GitHub.
+
 Live tests require the exact marker selection `-m live` plus both `OPPORTUNITIES_LIVE_TESTS=1` and `OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED=true`. Other marker expressions cannot enable them. These flags do not grant permission. Normal CI never enables them; an access challenge is a stop condition.
 
 ## Final review
