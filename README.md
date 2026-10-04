@@ -50,17 +50,20 @@ Need the data outside the website? Download the complete open directory as **CSV
 ### Growing across Europe
 
 <p align="center">
-  <img
-    src="docs/assets/sites/White_theme.webp#gh-light-mode-only"
-    alt="European Tech Opportunities directory in light mode"
+  <video
+    src="docs/assets/promo/european-tech-opportunities-2027.mp4"
+    aria-label="European Tech Opportunities 2027 promotional video"
+    controls
+    loop
+    playsinline
+    preload="metadata"
     width="100%"
-  />
-  <img
-    src="docs/assets/sites/Dark_theme.webp#gh-dark-mode-only"
-    alt="European Tech Opportunities directory in dark mode"
-    width="100%"
-  />
+  >
+    <a href="docs/assets/promo/european-tech-opportunities-2027.mp4">Watch the 51-second promotional film</a>
+  </video>
 </p>
+
+[Watch the video](docs/assets/promo/european-tech-opportunities-2027.mp4) · [Transcript](docs/assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Static overview](docs/assets/promo/storyboard.webp)
 
 What started as a small open-source project has grown into a directory used by people across Europe and beyond.
 

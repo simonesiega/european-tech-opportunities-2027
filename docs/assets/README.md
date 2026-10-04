@@ -13,7 +13,7 @@ Keep public media accessible and separate from runtime data. The catalog include
 | [Public listing example](listings/Amazon_example.webp) | Sanitized discovery example, not evidence of acceptance |
 | [Project identity](logo/Opportunities.webp) | Current project logo |
 | [Earlier internship identity](logo/Intern.webp) | Historical logo retained for reference |
-| [Light preview](sites/White_theme.webp) · [Dark preview](sites/Dark_theme.webp) | Historical website captures, not a guarantee of the current interface |
+| [Light preview](sites/White_theme.webp) · [Dark preview](sites/Dark_theme.webp) | Maintainer-supplied light and dark directory previews |
 | [Promotional film](promo/european-tech-opportunities-2027.mp4) | 51-second, 1920 × 1080, 60 fps product film with soundtrack |
 | [Promotional contact sheet](promo/storyboard.webp) | Fourteen stills covering the film; a static, no-motion overview |
 | [Original soundtrack](promo/soundtrack.mp3) | Unmodified input recording; confirm distribution rights before publication |

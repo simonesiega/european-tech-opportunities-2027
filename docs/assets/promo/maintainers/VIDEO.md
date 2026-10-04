@@ -58,6 +58,8 @@ The interface is the real, unmodified production application, captured in Chromi
 
 Keep this disclosure beside every published copy. The film intentionally has no burned-in demo label. The [transcript below](#timeline-and-descriptive-transcript) and contact sheet supply context and a no-motion alternative; the separate authoring player is not part of this asset-only handoff.
 
+The [root README showcase](../../../../README.md#growing-across-europe) embeds the unchanged MP4 with native controls, inline playback, metadata-only preloading, and `loop`, but no autoplay. Playback starts on request and repeats in HTML renderers that honor `loop`, including the documentation site. GitHub's Markdown renderer keeps the video but strips `loop`; do not promise automatic looping on GitHub. Retain the separate MP4 link, transcript, static overview, and fictional-data/artwork disclosure when editing this embed.
+
 ## Recover and preserve the authoring bundle
 
 ### Locate the correct working revision
