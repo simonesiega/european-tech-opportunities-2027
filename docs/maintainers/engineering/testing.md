@@ -24,6 +24,8 @@ Keep regressions near their owner. Assert resulting state and public responses r
 
 ## Suite map
 
+The source-adjacent [test inventory and review](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) explains every Python and website test, parameterized boundaries, and the cleanup decisions. Update it when adding, removing, moving, or changing a test's purpose.
+
 - `tests/unit/`: classifier, transport, parser, config, serialization, snapshots, tooling and migration contracts. Shell tests use fake SSH/SFTP against disposable files.
 - `tests/integration/`: CLI, repository, pipeline, availability, data-quality baseline persistence and README lifecycle behavior.
 - `tests/benchmarks/`: offline parsing and full classifier decisions; compare only equivalent environments.
@@ -58,7 +60,7 @@ uv run --frozen --group docs python scripts/docs/check_built_docs.py
 git diff --check
 ```
 
-`make check` wraps this gate; `make coverage` refreshes the coverage table here. CI uses `scripts/docs/coverage_docs.py --check`, so refresh metrics after changing measured paths. [Documentation maintenance](documentation.md) owns the shared writing style, lint/build inputs, and generated regions. The documentation checks include diagram Markdown and the workflow/script inventories; they do not regenerate the root README.
+`make check` wraps this gate; `make coverage` refreshes the coverage table here. CI uses `scripts/docs/coverage_docs.py --check`, so refresh metrics after changing measured paths. [Documentation maintenance](documentation.md) owns the shared writing style, lint/build inputs, and generated regions. The documentation checks include diagram Markdown and the workflow, script, and test inventories; they do not regenerate the root README.
 
 ### Website validation
 

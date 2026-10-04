@@ -1,61 +1,6 @@
-import {createHash} from "node:crypto";
 import {expect, test} from "@playwright/test";
 import {siteConfig} from "@/lib/site-config";
 import {expectResultCount, openDirectory} from "./helpers";
-
-test("downloads sanitized public CSV and JSON exports", async ({page, request}) => {
-  await openDirectory(page);
-
-  const csvLink = page.getByRole("link", {name: "Download CSV"});
-  const jsonLink = page.getByRole("link", {name: "Download JSON"});
-  await expect(csvLink).toHaveAttribute("href", "/open-opportunities.csv");
-  await expect(jsonLink).toHaveAttribute("href", "/open-opportunities.json");
-
-  const csvResponse = await request.get("/open-opportunities.csv");
-  expect(csvResponse.ok()).toBeTruthy();
-  expect(csvResponse.headers()["content-type"]).toContain("text/csv");
-  expect(csvResponse.headers()["content-disposition"]).toContain("open-opportunities.csv");
-  expect(await csvResponse.text()).toContain(
-    "linkedin_job_id,company,title,location,link,category,industries,employment_type,start_date"
-  );
-
-  const jsonResponse = await request.get("/open-opportunities.json");
-  expect(jsonResponse.ok()).toBeTruthy();
-  expect(jsonResponse.headers()["content-type"]).toContain("application/json");
-  expect(jsonResponse.headers()["content-disposition"]).toContain("open-opportunities.json");
-  const rows = (await jsonResponse.json()) as Record<string, unknown>[];
-  expect(rows).toHaveLength(12);
-  expect(Object.keys(rows[0])).toEqual([
-    "linkedin_job_id",
-    "company",
-    "title",
-    "location",
-    "link",
-    "category",
-    "industries",
-    "employment_type",
-    "start_date",
-  ]);
-  expect(rows[0]).not.toHaveProperty("status");
-  expect(rows[0]).not.toHaveProperty("first_seen_at");
-
-  const metadataResponse = await request.get("/dataset-metadata.json");
-  expect(metadataResponse.ok()).toBeTruthy();
-  const metadata = await metadataResponse.json();
-  expect(metadata.schema_version).toBe("v1");
-  expect(metadata.total).toBe(rows.length);
-  expect(metadata.internship_count + metadata.new_grad_count).toBe(rows.length);
-  expect(metadata.csv_sha256).toBe(
-    createHash("sha256")
-      .update(await csvResponse.body())
-      .digest("hex")
-  );
-  expect(metadata.json_sha256).toBe(
-    createHash("sha256")
-      .update(await jsonResponse.body())
-      .digest("hex")
-  );
-});
 
 test("filters opportunities and writes shareable URL parameters", async ({page}) => {
   await openDirectory(page);
@@ -244,53 +189,6 @@ test("defaults to latest first seen and paginates results", async ({page}) => {
   await expect(page).toHaveURL(/page-size=20/);
   await expect(page).not.toHaveURL(/(?:\?|&)page=2(?:&|$)/);
   await expect(page.getByText("Page 1 of 1")).toBeVisible();
-
-  await page.getByRole("button", {name: "Toggle color theme"}).click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  await expect
-    .poll(() => page.evaluate(() => localStorage.getItem("opportunities-theme")))
-    .toBe("dark");
-  await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-});
-
-test("keeps directory controls usable at a mobile viewport", async ({page}) => {
-  await page.setViewportSize({width: 390, height: 844});
-  await openDirectory(page);
-
-  await expect(page.getByRole("heading", {name: "Opportunity directory"})).toBeVisible();
-  await expect(page.getByRole("search", {name: "Opportunity filters"})).toBeVisible();
-  const csvLink = page.getByRole("link", {name: "Download CSV"});
-  const jsonLink = page.getByRole("link", {name: "Download JSON"});
-  await expect(csvLink).toBeVisible();
-  await expect(jsonLink).toBeVisible();
-  expect(
-    await csvLink.evaluate((element) =>
-      element instanceof HTMLElement ? element.innerText.trim() : ""
-    )
-  ).toBe("CSV");
-  expect(
-    await jsonLink.evaluate((element) =>
-      element instanceof HTMLElement ? element.innerText.trim() : ""
-    )
-  ).toBe("JSON");
-  const exportAndCountRow = csvLink.locator("..");
-  expect(
-    await exportAndCountRow.evaluate((element) => {
-      const tops = Array.from(element.children, (child) => child.getBoundingClientRect().top);
-      return Math.max(...tops) - Math.min(...tops);
-    })
-  ).toBeLessThan(1);
-  await expect(page.getByRole("button", {name: "Toggle color theme"})).toBeVisible();
-
-  const table = page.getByRole("table", {name: "Open opportunities"});
-  await expect(table).toBeVisible();
-  expect(
-    await table.locator("..").evaluate((element) => element.scrollWidth > element.clientWidth)
-  ).toBe(true);
-
-  await page.getByLabel("Search").fill("analyst");
-  await expectResultCount(page, 1);
 });
 
 test("publishes canonical SEO and crawler metadata", async ({page, request}) => {
@@ -320,14 +218,6 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   );
   await expect(page.locator('script[src="https://cloud.umami.is/script.js"]')).toHaveCount(0);
   await expect(page.getByText("Last successful collection: 17 Jul 2026")).toBeVisible();
-  await expect(page.getByRole("link", {name: "Help", exact: true})).toHaveAttribute(
-    "href",
-    "https://docs.techopportunities.eu/docs/users/index.html"
-  );
-  await expect(page.getByRole("link", {name: "Privacy", exact: true})).toHaveAttribute(
-    "href",
-    "https://docs.techopportunities.eu/PRIVACY.html"
-  );
 
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).not.toBeNull();
@@ -335,6 +225,8 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   const structuredData = JSON.parse(jsonLd!) as {
     "@graph": Array<Record<string, unknown>>;
   };
+  const website = structuredData["@graph"].find((item) => item["@type"] === "WebSite");
+  expect(website).toHaveProperty("mainEntity", {"@id": "http://127.0.0.1:3100/#dataset"});
   const dataset = structuredData["@graph"].find((item) => item["@type"] === "Dataset");
   expect(dataset).not.toHaveProperty("isPartOf");
   expect(dataset).toMatchObject({

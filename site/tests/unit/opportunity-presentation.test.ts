@@ -14,7 +14,12 @@ describe("opportunity presentation", () => {
     ]);
   });
 
+  // Date can normalize impossible dates or accept years outside the publication range.
   test.each([
+    "2026-00-17T12:00:00Z",
+    "2026-13-17T12:00:00Z",
+    "2026-07-17T12:60:00Z",
+    "2026-07-17T12:00:60Z",
     "2026-02-29 12:00:00",
     "2026-02-30T12:00:00Z",
     "2026-04-31T12:00:00Z",

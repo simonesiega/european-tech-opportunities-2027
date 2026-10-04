@@ -20,7 +20,7 @@ import opportunities.pipeline.availability as availability_module
 from opportunities.cli.app import app
 from opportunities.config.settings import Settings
 from opportunities.database.models import JobSearchRow
-from opportunities.database.repository import PersistSummary, Repository
+from opportunities.database.repository import Repository
 from opportunities.database.session import create_database_engine, create_session_factory
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
@@ -58,6 +58,7 @@ def cli_env(tmp_path: Path) -> dict[str, str]:
         "OPPORTUNITIES_CATEGORY_CONFIG_PATH": str(ROOT / "configs" / "categories.yml"),
         "OPPORTUNITIES_README_PATH": str(tmp_path / "README.md"),
         "OPPORTUNITIES_PUBLIC_EXPORT_DIR": str(tmp_path / "exports"),
+        # Exercise injected collection paths; conftest still blocks real HTTPX transports.
         "OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED": "true",
         "OPPORTUNITIES_RATE_LIMIT_SECONDS": "0",
     }
@@ -193,7 +194,8 @@ def test_scrape_quality_gate_end_to_end(
     repository, engine = repository_for(environment)
     try:
         assert len(repository.data_quality_baselines()) == baseline_count
-        assert len(repository.list_open_jobs()) == 20  # Drift never closes existing rows.
+        # Drift never closes existing rows.
+        assert len(repository.list_open_jobs()) == 20
         expected_successes = 0 if mode == "failed" else 1 if mode in {"partial", "selected"} else 2
         assert repository.stats().successful_runs == 6 + expected_successes
     finally:
@@ -787,86 +789,47 @@ def test_add_job_persists_and_renders_without_authorization_or_network(
         engine.dispose()
 
 
-def test_add_job_no_render_only_updates_sqlite(tmp_path: Path) -> None:
+def test_add_job_reports_persisted_changes_without_rendering(tmp_path: Path) -> None:
     environment = cli_env(tmp_path)
     environment["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] = "false"
     assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
-
-    result = runner.invoke(
-        app,
-        [
-            "add-job",
-            "--url",
-            "https://www.linkedin.com/jobs/view/2222222222",
-            "--company",
-            "Example Technology",
-            "--title",
-            "Graduate Software Engineer 2027",
-            "--location",
-            "Berlin, Germany",
-            "--category",
-            "software-engineering",
-            "--employment-type",
-            "new-grad",
-            "--no-render",
-        ],
-        env=environment,
-    )
-
-    assert result.exit_code == 0, result.output
-    assert not (tmp_path / "README.md").exists()
-    assert not (tmp_path / "exports").exists()
     repository, engine = repository_for(environment)
     try:
-        assert [job.linkedin_job_id for job in repository.list_open_jobs()] == ["2222222222"]
+        # Reuse one database so each reported outcome must follow real persisted changes.
+        for company, message in (
+            ("Example Technology", "added"),
+            ("Renamed Technology", "updated"),
+            ("Renamed Technology", "already current"),
+        ):
+            result = runner.invoke(
+                app,
+                [
+                    "add-job",
+                    "--url",
+                    "https://www.linkedin.com/jobs/view/2222222222",
+                    "--company",
+                    company,
+                    "--title",
+                    "Graduate Software Engineer 2027",
+                    "--location",
+                    "Berlin, Germany",
+                    "--category",
+                    "software-engineering",
+                    "--employment-type",
+                    "new-grad",
+                    "--no-render",
+                ],
+                env=environment,
+            )
+            assert result.exit_code == 0, result.output
+            assert f"Job 2222222222 {message}." in result.output
+            jobs = repository.list_open_jobs()
+            assert [(job.linkedin_job_id, job.company) for job in jobs] == [("2222222222", company)]
+            assert repository.stats().successful_runs == 0
+            assert not (tmp_path / "README.md").exists()
+            assert not (tmp_path / "exports").exists()
     finally:
         engine.dispose()
-
-
-@pytest.mark.parametrize(
-    ("summary", "message"),
-    [
-        (PersistSummary(new=1), "added"),
-        (PersistSummary(updated=1), "updated"),
-        (PersistSummary(), "already current"),
-    ],
-)
-def test_add_job_reports_exact_persistence_outcome(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    summary: PersistSummary,
-    message: str,
-) -> None:
-    repository = Mock(spec=Repository)
-    repository.upsert_manual_job.return_value = summary
-    engine = Mock(spec=Engine)
-    monkeypatch.setattr(cli_app_module, "_repository", lambda _settings: (repository, engine))
-    monkeypatch.setattr(cli_app_module, "_require_migrations", lambda _engine: None)
-
-    result = runner.invoke(
-        app,
-        [
-            "add-job",
-            "--url",
-            "https://www.linkedin.com/jobs/view/2222222222",
-            "--company",
-            "Example Technology",
-            "--title",
-            "Graduate Software Engineer 2027",
-            "--location",
-            "Berlin, Germany",
-            "--category",
-            "software-engineering",
-            "--employment-type",
-            "new-grad",
-            "--no-render",
-        ],
-        env=cli_env(tmp_path),
-    )
-
-    assert result.exit_code == 0, result.output
-    assert f"Job 2222222222 {message}." in result.output
-    engine.dispose.assert_called_once_with()
 
 
 @pytest.mark.parametrize(

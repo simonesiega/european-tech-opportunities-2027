@@ -31,9 +31,11 @@ test.describe("automated accessibility", () => {
     await expect(page).not.toHaveURL(/q=/);
   });
 
-  test("dark mode", async ({page}) => {
+  test("persisted dark mode remains accessible after reload", async ({page}) => {
     await openDirectory(page);
     await page.getByRole("button", {name: "Toggle color theme"}).click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.reload();
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expectNoAccessibilityViolations(page);
   });

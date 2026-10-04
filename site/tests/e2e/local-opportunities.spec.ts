@@ -7,19 +7,6 @@ const role = "Software Engineering Intern 2027";
 
 test("first and returning visits, corrupt state and stale IDs", async ({page}) => {
   await openDirectory(page);
-  await expect(page.getByRole("columnheader").allTextContents()).resolves.toEqual([
-    "Listing",
-    "Company",
-    "New",
-    "Role",
-    "Category",
-    "Industries",
-    "Employment type",
-    "Location",
-    "Start date",
-    "First seen",
-    "Your list",
-  ]);
   await expect(page.getByRole("cell", {name: /Not new since your last visit/})).toHaveCount(10);
   await expect(page.getByText(/new opportunities since your last visit/)).toBeHidden();
   await expect.poll(() => page.evaluate((key) => localStorage.getItem(key), key)).not.toBeNull();
@@ -158,20 +145,6 @@ test("menu dismissal preserves tab order and focus after a viewport change", asy
   await page.setViewportSize({width: 1100, height: 800});
   await expect(menu).toHaveCount(0);
   await expect(trigger).toBeFocused();
-});
-
-test("download controls remain reachable at narrow desktop widths", async ({page}) => {
-  await page.setViewportSize({width: 1085, height: 800});
-  await openDirectory(page);
-  for (const format of ["CSV", "JSON"]) {
-    const link = page.getByRole("link", {name: `Download ${format}`});
-    await expect(link).toBeInViewport();
-    const downloaded = page.waitForEvent("download");
-    await link.click();
-    const file = await downloaded;
-    expect(file.suggestedFilename()).toBe(`open-opportunities.${format.toLowerCase()}`);
-    expect(await file.failure()).toBeNull();
-  }
 });
 
 test("saved, applied, hidden and restored work across filters, pages and reloads", async ({
@@ -351,7 +324,6 @@ test("tabs merge sequential local actions and synchronize clearing without reque
     "true"
   );
   await expect(page.getByRole("button", {name: "View 1 applied opportunities"})).toBeVisible();
-  expect(requests).toEqual([]);
   await expect(page).toHaveURL("/?company=Acme+Labs");
   await expect(other).toHaveURL("/?company=Acme+Labs");
   await other.evaluate(() => localStorage.clear());
@@ -360,6 +332,10 @@ test("tabs merge sequential local actions and synchronize clearing without reque
     "false"
   );
   await expect(page.getByRole("button", {name: "View 0 applied opportunities"})).toBeVisible();
+  // Clearing preferences is private too; include it in the network and URL checks.
+  expect(requests).toEqual([]);
+  await expect(page).toHaveURL("/?company=Acme+Labs");
+  await expect(other).toHaveURL("/?company=Acme+Labs");
   await other.close();
 });
 

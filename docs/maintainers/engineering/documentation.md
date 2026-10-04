@@ -13,9 +13,9 @@ Keep each topic with its canonical owner, use the shared style below, and valida
 - Root policy files: canonical contribution/security/privacy/community/license text. Link rather than duplicate.
 - Root `AGENTS.md`: coding-agent entry point and safety constraints, with links into this handbook.
 - `docs/assets/`: the asset catalog, sanitized visuals, and editable diagram sources; never browser profiles or raw recordings.
-- `.github/WORKFLOWS.md` and `scripts/SCRIPT.md`: source-adjacent inventories. Detailed operational procedures remain in the handbook.
+- `.github/WORKFLOWS.md`, `scripts/SCRIPT.md`, and `tests/TEST.md`: source-adjacent workflow, script, and test inventories. Detailed operational procedures remain in the handbook.
 
-Link to the owner rather than copying procedures. Update `docs/README.md`, the relevant audience index, `mkdocs.yml`, and inbound references when adding or moving a public guide. The workflow and script inventories remain GitHub-only: link to their source on GitHub from published docs rather than broadening the staging allowlist to include implementation files. `scripts/docs/build_docs.py` creates redirects for former `docs/guides/` pages and flat `docs/maintainers/` and `docs/users/` guide URLs. Keep every destination pointed directly at its current topic page, not another redirect. Old section anchors may no longer apply.
+Link to the owner rather than copying procedures. Update `docs/README.md`, the relevant audience index, `mkdocs.yml`, and inbound references when adding or moving a public guide. The workflow, script, and test inventories remain GitHub-only: link to their source on GitHub from published docs rather than broadening the staging allowlist to include implementation files. `scripts/docs/build_docs.py` creates redirects for former `docs/guides/` pages and flat `docs/maintainers/` and `docs/users/` guide URLs. Keep every destination pointed directly at its current topic page, not another redirect. Old section anchors may no longer apply.
 
 ## Shared writing style
 
@@ -80,7 +80,7 @@ uv run --frozen --group docs python scripts/docs/check_built_docs.py
 git diff --check
 ```
 
-`make docs-site` wraps these checks. Source validation covers maintained root Markdown, agent guidance, workflow/script inventories, Markdown templates, and docs, including diagram sources, image links, and heading anchors. Rendered validation checks anchors, local links, image/video references, and the public-file boundary. The scheduled Lychee workflow separately checks external URLs; expired/blocked numeric source listing URLs are excluded, not fetched during ordinary tests.
+`make docs-site` wraps these checks. Source validation covers maintained root Markdown, agent guidance, workflow/script/test inventories, Markdown templates, and docs, including diagram sources, image links, and heading anchors. Rendered validation checks anchors, local links, image/video references, and the public-file boundary. The scheduled Lychee workflow separately checks external URLs; expired/blocked numeric source listing URLs are excluded, not fetched during ordinary tests.
 
 Markdownlint and Vale run from digest-pinned containers with read-only mounts and no networking. The existing exceptions in `.markdownlint-cli2.jsonc` are scoped to deliberate formatting: unwrapped prose, compact tables, generated HTML, compact agent instructions, and the title-free pull-request template. Do not weaken checks to silence a real failure. Vale checks canonical names and standalone directory labels, not third-party job-title spelling; generated regions and code are excluded.
 

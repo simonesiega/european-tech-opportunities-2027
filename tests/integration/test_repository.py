@@ -52,6 +52,7 @@ def persist_search(
     *,
     finished: datetime | None = None,
 ) -> PersistSummary:
+    """Use search start as observation time, allowing completion to occur later."""
     return repository.persist_success(
         run_id=f"run-{run}",
         search=search,
@@ -64,6 +65,200 @@ def persist_search(
         finished_at=finished or observed,
         duration_ms=1,
     )
+
+
+def test_overlapping_search_timestamps_remain_monotonic(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    earlier = datetime(2026, 7, 1, tzinfo=UTC)
+    later = earlier + timedelta(minutes=5)
+    second = search.model_copy(update={"slug": "second-search", "keywords": "software intern"})
+    repository.sync_searches([search, second], earlier)
+    posted_at = earlier - timedelta(days=10)
+    job = collected_job.model_copy(
+        update={
+            "industries": "Software Development",
+            "start_date": "Summer 2027",
+            "posted_at": posted_at,
+        }
+    )
+    persist_search(repository, search, 1, later, [job])
+    persist_search(
+        repository,
+        second,
+        2,
+        earlier,
+        [job.model_copy(update={"industries": None, "start_date": None, "posted_at": later})],
+    )
+    stored = repository.list_open_jobs()[0]
+    assert stored.first_seen_at == posted_at
+    assert stored.last_seen_at == later
+    assert stored.updated_at == later
+    assert stored.industries == "Software Development"
+    assert stored.employment_type == EmploymentType.INTERNSHIP
+    assert stored.start_date == "Summer 2027"
+    health = repository.search_health()
+    assert set(health) == {search.slug, second.slug}
+    assert health[search.slug].accepted_count == 1
+
+
+def test_newer_rediscovery_updates_fields_and_preserves_missing_optional_metadata(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 1, tzinfo=UTC)
+    repository.sync_searches([search], now)
+    job = collected_job.model_copy(
+        update={"industries": "Software Development", "start_date": "Summer 2027"}
+    )
+    assert persist_search(repository, search, 1, now, [job]).new == 1
+    later = now + timedelta(minutes=5)
+    changed = job.model_copy(
+        update={"company": "Updated Technology", "industries": None, "start_date": None}
+    )
+    assert persist_search(repository, search, 2, later, [changed]).updated == 1
+    assert (
+        persist_search(repository, search, 3, later + timedelta(minutes=1), [changed]).updated == 0
+    )
+    stored = repository.list_open_jobs()[0]
+    assert stored.company == "Updated Technology"
+    assert stored.industries == "Software Development"
+    assert stored.start_date == "Summer 2027"
+    assert stored.last_seen_at == later + timedelta(minutes=1)
+    assert stored.updated_at == later
+
+
+def test_overlapping_search_404_cannot_override_a_newer_valid_observation(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 1, tzinfo=UTC)
+    second = search.model_copy(update={"slug": "second-search", "keywords": "software intern"})
+    repository.sync_searches([search, second], now)
+    persist_search(repository, search, 1, now, [collected_job])
+    # Persist in finish order: the later-finishing search carries the older 404.
+    persist_search(repository, second, 2, now + timedelta(minutes=2), [collected_job])
+    persist_search(
+        repository,
+        search,
+        3,
+        now + timedelta(minutes=1),
+        [],
+        (collected_job.linkedin_job_id,),
+        finished=now + timedelta(minutes=3),
+    )
+    assert [job.linkedin_job_id for job in repository.list_open_jobs()] == [
+        collected_job.linkedin_job_id
+    ]
+    with session_factory() as session:
+        alias = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        assert alias is not None
+        assert alias.active
+        assert alias.unavailable_confirmations == 0
+
+
+def test_slow_search_early_valid_detail_cannot_reopen_after_later_404(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 1, tzinfo=UTC)
+    slow = search.model_copy(update={"slug": "slow-search", "keywords": "software intern"})
+    repository.sync_searches([search, slow], now)
+    unavailable = (collected_job.linkedin_job_id,)
+    persist_search(repository, search, 1, now, [collected_job])
+    persist_search(repository, search, 2, now + timedelta(minutes=1), [], unavailable)
+    # Start time, not the slow search's later finish, governs evidence freshness.
+    persist_search(
+        repository,
+        search,
+        3,
+        now + timedelta(minutes=3),
+        [],
+        unavailable,
+        finished=now + timedelta(minutes=4),
+    )
+    persist_search(
+        repository,
+        slow,
+        4,
+        now + timedelta(minutes=2),
+        [collected_job],
+        finished=now + timedelta(minutes=5),
+    )
+    assert repository.list_open_jobs() == []
+    with session_factory() as session:
+        assert session.get(JobSearchRow, (slow.slug, collected_job.linkedin_job_id)) is None
+
+
+def test_stale_observations_cannot_overwrite_metadata_or_newer_closure(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    earlier = datetime(2026, 7, 1, tzinfo=UTC)
+    later = earlier + timedelta(minutes=5)
+    unavailable = (collected_job.linkedin_job_id,)
+    repository.sync_searches([search], earlier)
+    persist_search(repository, search, 1, later, [collected_job])
+    persist_search(
+        repository,
+        search,
+        2,
+        earlier,
+        [collected_job.model_copy(update={"company": "Stale Technology"})],
+    )
+    persist_search(repository, search, 3, earlier, [], unavailable)
+    assert repository.list_open_jobs()[0].company == collected_job.company
+    with session_factory() as session:
+        alias = session.get(JobSearchRow, (search.slug, collected_job.linkedin_job_id))
+        assert alias is not None
+        assert alias.unavailable_confirmations == 0
+    persist_search(repository, search, 4, later + timedelta(minutes=1), [], unavailable)
+    persist_search(repository, search, 5, later + timedelta(minutes=2), [], unavailable)
+    assert repository.list_open_jobs() == []
+    persist_search(repository, search, 6, earlier, [collected_job])
+    assert repository.list_open_jobs() == []
+
+
+def test_distinct_linkedin_ids_are_not_fuzzy_merged_and_explicit_404s_close(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    collected_job: DiscoveredJob,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 1, tzinfo=UTC)
+    repository.sync_searches([search], now)
+    # Only IDs and matching URLs differ; display metadata cannot supply identity.
+    jobs = [
+        collected_job.model_copy(
+            update={
+                "linkedin_job_id": job_id,
+                "link": f"https://www.linkedin.com/jobs/view/{job_id}",
+            }
+        )
+        for job_id in ("1111111111", "2222222222")
+    ]
+    persist_search(repository, search, 1, now, jobs)
+    assert len(repository.list_open_jobs()) == 2
+    for run in (2, 3):
+        persist_search(repository, search, run, now + timedelta(days=run), [], ("1111111111",))
+    assert {job.linkedin_job_id for job in repository.list_open_jobs()} == {"2222222222"}
 
 
 @pytest.mark.parametrize(

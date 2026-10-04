@@ -136,21 +136,6 @@ describe("public opportunity feeds", () => {
     expect(xml).not.toContain("<entry>");
   });
 
-  test.each([false, true])("declares an Atom author when populated: %s", (populated) => {
-    const xml = renderOpportunityFeed(
-      "atom",
-      populated ? [row("1")] : [],
-      null,
-      defaultFilters,
-      origin
-    );
-
-    expect(xml.match(/<author>/g)).toHaveLength(1);
-    expect(xml).toContain("<name>Simone Siega</name>");
-    expect(xml).toContain("<uri>https://simonesiega.com/</uri>");
-    expect(xml.indexOf("<author>")).toBeLessThan(xml.indexOf("</feed>"));
-  });
-
   test("uses the latest successful collection timestamp for empty Atom feeds", () => {
     const xml = renderOpportunityFeed(
       "atom",

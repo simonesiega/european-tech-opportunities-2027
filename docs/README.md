@@ -79,6 +79,7 @@ These implementation inventories stay beside their source files and open on GitH
 |---|---|
 | Identify a workflow, trigger, or shared action | [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md) |
 | Choose a repository script and understand its effects | [Repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md) |
+| Understand every test and the behavior it protects | [Test inventory and review](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) |
 | Find coding-agent instructions and safety boundaries | [Agent guidelines](../AGENTS.md) |
 
 ## Policies and community

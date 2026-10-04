@@ -13,6 +13,7 @@ ROOT_FILES = (
     ".github/WORKFLOWS.md",
     ".github/pull_request_template.md",
     "scripts/SCRIPT.md",
+    "tests/TEST.md",
     "AGENTS.md",
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",

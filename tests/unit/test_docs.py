@@ -30,8 +30,10 @@ def test_local_workflow_references_use_self_repository_syntax_and_exist() -> Non
     assert checked_references > 0
 
 
-def test_source_checker_validates_script_inventory_and_local_workflow_overview(
+@pytest.mark.parametrize("inventory_path", ["scripts/SCRIPT.md", "tests/TEST.md"])
+def test_source_checker_validates_inventories_and_local_workflow_overview(
     tmp_path: Path,
+    inventory_path: str,
 ) -> None:
     script_dir = tmp_path / "scripts" / "docs"
     guide = tmp_path / "docs" / "maintainers" / "operations" / "automation.md"
@@ -77,10 +79,12 @@ and `settings.yml` is not a workflow reference.
         check=False,
         capture_output=True,
         text=True,
+        timeout=30,
     )
     assert valid.returncode == 0, valid.stderr
 
-    inventory = tmp_path / "scripts" / "SCRIPT.md"
+    inventory = tmp_path / inventory_path
+    inventory.parent.mkdir(exist_ok=True)
     inventory.write_text("# Scripts\n\n[Missing helper](missing.py)\n", encoding="utf-8")
     invalid_inventory = subprocess.run(
         [sys.executable, str(script_dir / "check_docs.py")],
@@ -88,6 +92,7 @@ and `settings.yml` is not a workflow reference.
         check=False,
         capture_output=True,
         text=True,
+        timeout=30,
     )
     assert invalid_inventory.returncode == 1
     assert "missing missing.py" in invalid_inventory.stderr
@@ -98,6 +103,7 @@ and `settings.yml` is not a workflow reference.
         check=False,
         capture_output=True,
         text=True,
+        timeout=30,
     )
     assert valid_inventory.returncode == 0, valid_inventory.stderr
 
@@ -118,6 +124,7 @@ and `settings.yml` is not a workflow reference.
         check=False,
         capture_output=True,
         text=True,
+        timeout=30,
     )
 
     assert invalid.returncode == 1

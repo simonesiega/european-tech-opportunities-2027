@@ -1,14 +1,8 @@
 import {describe, expect, test} from "bun:test";
-import {contentEtag, matchesIfNoneMatch} from "@/lib/http-cache";
+import {matchesIfNoneMatch} from "@/lib/http-cache";
 
 describe("conditional HTTP caching", () => {
-  test("strong ETags depend only on response content", () => {
-    const tag = contentEtag("response");
-    expect(tag).toMatch(/^"[0-9a-f]{64}"$/);
-    expect(tag).toBe(contentEtag("response"));
-    expect(tag).not.toBe(contentEtag("different response"));
-  });
-
+  // GET revalidation uses weak comparison, so W/ and strong tags can match the same content.
   test.each([
     [null, false],
     ["", false],

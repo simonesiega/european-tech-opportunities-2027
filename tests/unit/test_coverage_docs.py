@@ -51,6 +51,12 @@ def test_renders_table_and_then_passes_check(
 ) -> None:
     coverage_path, pyproject_path, readme_path = generated_inputs
 
+    # Check mode must report stale metrics without repairing the document it validates.
+    stale = _run_script(coverage_path, pyproject_path, readme_path, "--check")
+    assert stale.returncode == 1
+    assert "Coverage metrics are stale" in stale.stderr
+    assert readme_path.read_text(encoding="utf-8") == _readme_template()
+
     rendered = _run_script(coverage_path, pyproject_path, readme_path)
     checked = _run_script(coverage_path, pyproject_path, readme_path, "--check")
     content = readme_path.read_text(encoding="utf-8")
@@ -85,16 +91,6 @@ def test_default_document_targets_nested_guide_independently_of_working_director
     )
     assert readme_path.read_text(encoding="utf-8") == _readme_template()
     assert not (root / "docs/maintainers/testing.md").exists()
-
-
-def test_check_rejects_stale_metrics(generated_inputs: tuple[Path, Path, Path]) -> None:
-    coverage_path, pyproject_path, readme_path = generated_inputs
-
-    result = _run_script(coverage_path, pyproject_path, readme_path, "--check")
-
-    assert result.returncode == 1
-    assert "Coverage metrics are stale" in result.stderr
-    assert readme_path.read_text(encoding="utf-8") == _readme_template()
 
 
 def test_invalid_report_fails_cleanly_without_rewriting_readme(

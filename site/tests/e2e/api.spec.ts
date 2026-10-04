@@ -23,26 +23,6 @@ test("serves the exact repository v1 schema at its canonical product URL", async
   );
 });
 
-test("v1 schema rejects private API fields and invalid envelopes", () => {
-  expect(
-    validateApi({version: "v1", error: {code: "unavailable", message: "Directory unavailable"}})
-  ).toBe(true);
-  expect(
-    validateApi({
-      version: "v1",
-      error: {code: "invalid_query", message: "Invalid query", privatePath: "/tmp/db"},
-    })
-  ).toBe(false);
-  expect(
-    validateApi({
-      version: "v1",
-      pagination: {page: 0, pageSize: 10, total: 0, totalPages: 0},
-      data: [],
-    })
-  ).toBe(false);
-  expect(validateDownload([{company: "incomplete"}])).toBe(false);
-});
-
 test("read-only API serves canonical rows with stable schema, filtering and pagination", async ({
   request,
 }) => {
@@ -54,21 +34,6 @@ test("read-only API serves canonical rows with stable schema, filtering and pagi
   const body = await response.json();
   expect(validateApi(body), JSON.stringify(validateApi.errors)).toBe(true);
   expect(body.data[0].firstSeenAt).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+00:00$/);
-  expect(
-    validateApi({
-      ...body,
-      data: [{...body.data[0], firstSeenAt: "2026-07-17 12:00:00.000000"}],
-    })
-  ).toBe(false);
-  for (const noncanonical of [
-    "2026-07-17T12:00:00",
-    "2026-07-17T12:00:00Z",
-    "2026-07-17T12:00:00.123+00:00",
-  ]) {
-    expect(validateApi({...body, data: [{...body.data[0], firstSeenAt: noncanonical}]})).toBe(
-      false
-    );
-  }
   expect(body.version).toBe("v1");
   expect(body.pagination).toEqual({page: 1, pageSize: 10, total: 12, totalPages: 2});
   expect(body.data).toHaveLength(10);
@@ -132,6 +97,7 @@ test("semantically equivalent query strings return identical representations and
     `${endpoint}?page-size=10&sort=first-seen-desc&page=1`,
   ];
   const responses = await Promise.all(equivalentRequests.map((url) => request.get(url)));
+  // Compare wire bytes, not parsed objects: strong validators identify the representation.
   const bodies = await Promise.all(responses.map((response) => response.body()));
   const etags = responses.map((response) => response.headers().etag);
 

@@ -70,10 +70,13 @@ def test_missing_cycle_is_accepted_for_recent_posting(rules: ClassificationRules
     assert result.category == OpportunityCategory.SOFTWARE_ENGINEERING
 
 
-def test_wrong_cycle_is_excluded(rules: ClassificationRules) -> None:
+@pytest.mark.parametrize(
+    "title", ["Software Engineering Internship 2026", "Graduate Data Engineer 2026"]
+)
+def test_wrong_cycle_is_excluded(rules: ClassificationRules, title: str) -> None:
     result = classify(
         rules,
-        title="Software Engineering Internship 2026",
+        title=title,
         posted_at=datetime(2026, 7, 18, tzinfo=UTC),
     )
     assert not result.include
@@ -154,16 +157,6 @@ def test_explicit_2027_new_grad_role_is_accepted(rules: ClassificationRules) -> 
     assert result.employment_type == EmploymentType.NEW_GRAD
 
 
-def test_new_grad_cycle_and_seniority_remain_strict(rules: ClassificationRules) -> None:
-    wrong_cycle = classify(rules, title="Graduate Data Engineer 2026")
-    senior = classify(rules, title="Senior New Grad Software Engineer 2027")
-
-    assert not wrong_cycle.include
-    assert wrong_cycle.exclusion_reason == "listing is for the 2026 cycle"
-    assert not senior.include
-    assert senior.exclusion_reason == "title contains excluded seniority terminology"
-
-
 def test_title_with_both_types_is_categorized_as_internship(rules: ClassificationRules) -> None:
     result = classify(rules, title="Graduate Software Engineering Internship 2027")
 
@@ -171,72 +164,54 @@ def test_title_with_both_types_is_categorized_as_internship(rules: Classificatio
     assert result.employment_type == EmploymentType.INTERNSHIP
 
 
-def test_senior_intern_title_is_excluded(rules: ClassificationRules) -> None:
-    result = classify(rules, title="Senior Software Engineering Intern 2027")
+@pytest.mark.parametrize(
+    "title", ["Senior Software Engineering Intern 2027", "Senior New Grad Software Engineer 2027"]
+)
+def test_senior_opportunity_title_is_excluded(rules: ClassificationRules, title: str) -> None:
+    result = classify(rules, title=title)
     assert not result.include
     assert result.exclusion_reason == "title contains excluded seniority terminology"
 
 
-def test_non_technology_and_non_european_jobs_are_excluded(
+def test_non_technology_title_cannot_be_rescued_by_technical_description(
     rules: ClassificationRules,
 ) -> None:
-    finance = classify(rules, title="Finance Intern 2027")
-    usa = classify(
+    result = classify(
         rules,
-        title="Software Engineering Intern 2027",
-        locations=["New York, United States"],
+        title="Finance Intern 2027",
+        description="Work alongside software engineering and machine learning teams.",
     )
-    european_city_namesake = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["London, Ontario, Canada"],
+    assert not result.include
+    assert result.exclusion_reason == "title has no technology-role signal"
+
+
+@pytest.mark.parametrize(
+    "title", ["International Software Engineer 2027", "Internal Software Engineer 2027"]
+)
+def test_employment_type_requires_whole_word_evidence(
+    rules: ClassificationRules, title: str
+) -> None:
+    result = classify(rules, title=title)
+    assert not result.include
+    assert result.exclusion_reason == (
+        "title does not explicitly identify an internship or new-grad role"
     )
-    abbreviated_namesake = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["Paris, TX"],
-    )
-    explicitly_outside_europe = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["Remote, non-European"],
-    )
-    ambiguous_remote = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["Remote"],
-    )
-    ambiguous_emea = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["EMEA"],
-    )
-    emea_with_european_country = classify(
-        rules,
-        title="Software Engineering Intern 2027",
-        locations=["EMEA; Berlin, Germany"],
-    )
-    assert not finance.include
-    assert not usa.include
-    assert not european_city_namesake.include
-    assert not abbreviated_namesake.include
-    assert not explicitly_outside_europe.include
-    assert not ambiguous_remote.include
-    assert not ambiguous_emea.include
-    assert ambiguous_emea.exclusion_reason == "location is not explicitly European"
-    assert emea_with_european_country.include
-    assert ambiguous_remote.exclusion_reason == "location is not explicitly European"
 
 
 @pytest.mark.parametrize(
     "location",
     [
+        "New York, United States",
+        "London, Ontario, Canada",
+        "Paris, TX",
+        "Remote, non-European",
         "Paris, US",
         "London, CA",
         "Perth, AU",
         "London, IN",
         "Paris, NZ",
         "London, SG",
+        # State and province abbreviations can collide with European country codes.
         "Wilmington, DE, United States",
         "Portland, ME, USA",
         "Birmingham, AL, US",
@@ -248,7 +223,7 @@ def test_non_technology_and_non_european_jobs_are_excluded(
         "Porto Alegre, RS, Brazil",
     ],
 )
-def test_non_european_country_codes_prevent_city_fallback(
+def test_explicit_non_european_locations_prevent_city_fallback(
     rules: ClassificationRules, location: str
 ) -> None:
     result = classify(rules, title="Software Intern 2027", locations=[location])
@@ -257,7 +232,15 @@ def test_non_european_country_codes_prevent_city_fallback(
 
 
 @pytest.mark.parametrize(
-    "location", ["Paris, FR", "Berlin, DE", "London, GB", "London", "Berlin, Germany; US"]
+    "location",
+    [
+        "Paris, FR",
+        "Berlin, DE",
+        "London, GB",
+        "London",
+        "Berlin, Germany; US",
+        "EMEA; Berlin, Germany",
+    ],
 )
 def test_explicit_european_locations_remain_eligible(
     rules: ClassificationRules, location: str
@@ -346,7 +329,7 @@ def test_posting_floor_uses_the_utc_instant(
 def test_explicit_separate_european_location_survives_a_mixed_country_list(
     rules: ClassificationRules,
 ) -> None:
-    # Separate entries are independent locations; US does not qualify the DE entry.
+    # Separate entries are independent locations; US must not reinterpret DE as Delaware.
     assert classify(rules, title="Software Intern 2027", locations=["DE", "US"]).include
 
 

@@ -1,15 +1,6 @@
 import {expect, test} from "bun:test";
 import {buildStructuredData, serializeStructuredData} from "@/lib/structured-data";
 
-test("does not mark a Dataset as part of its containing WebSite", () => {
-  const data = buildStructuredData(new URL("https://techopportunities.eu"), null);
-  const website = data["@graph"].find((item) => item["@type"] === "WebSite");
-  const dataset = data["@graph"].find((item) => item["@type"] === "Dataset");
-
-  expect(website).toHaveProperty("mainEntity", {"@id": "https://techopportunities.eu/#dataset"});
-  expect(dataset).not.toHaveProperty("isPartOf");
-});
-
 test.each([
   ["2026-07-17 12:00:00.000000", "2026-07-17T12:00:00.000Z"],
   ["2026-07-17T14:00:00+02:00", "2026-07-17T12:00:00.000Z"],

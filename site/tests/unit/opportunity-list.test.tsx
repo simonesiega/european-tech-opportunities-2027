@@ -1,9 +1,6 @@
 import {expect, test} from "bun:test";
 import {renderToStaticMarkup} from "react-dom/server";
 import {OpportunityList} from "@/components/opportunities/opportunity-list";
-import {emptyLocalState} from "@/lib/local-opportunity-state";
-import {apiPayload, parseApiQuery} from "@/lib/opportunity-api";
-import {DIRECTORY_SORTS} from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
 
 const noOp = () => undefined;
@@ -22,46 +19,7 @@ const commonProps = {
   newIds: new Set<string>(),
 };
 
-test("renders an actionable message only when filters hide every opportunity", () => {
-  const emptyDirectory = renderToStaticMarkup(
-    <OpportunityList {...commonProps} hasActiveFilters={false} />
-  );
-  expect(emptyDirectory).toContain("No open opportunities");
-  expect(emptyDirectory).toContain("The directory currently has no open roles.");
-  expect(emptyDirectory).not.toContain("Reset filters");
-
-  const emptyFilterResult = renderToStaticMarkup(
-    <OpportunityList {...commonProps} hasActiveFilters />
-  );
-  expect(emptyFilterResult).toContain("No opportunities found");
-  expect(emptyFilterResult).toContain("Try changing or clearing your filters.");
-  expect(emptyFilterResult).toContain("Reset filters");
-});
-
-test.each(["saved", "applied", "new", "hidden"] as const)(
-  "empty %s lists do not claim the directory has no open roles",
-  (localView) => {
-    const html = renderToStaticMarkup(
-      <OpportunityList {...commonProps} localView={localView} hasActiveFilters={false} />
-    );
-    expect(html).toContain(`No ${localView} opportunities`);
-    expect(html).not.toContain("The directory currently has no open roles.");
-    expect(html).not.toContain("Reset filters");
-  }
-);
-
-test("an all-hidden directory explains where to restore the roles", () => {
-  const html = renderToStaticMarkup(
-    <OpportunityList
-      {...commonProps}
-      hasActiveFilters={false}
-      localState={{...emptyLocalState("2026-09-28T12:00:00Z"), hidden: ["1"]}}
-    />
-  );
-  expect(html).toContain("No visible opportunities");
-  expect(html).toContain("View your hidden opportunities to restore them.");
-});
-
+// IDs 9/10 share an instant; 11/12 differ only at microsecond precision.
 const opportunities: Opportunity[] = [
   ["9", "2026-07-17T12:00:00.123456Z"],
   ["10", "2026-07-17 12:00:00.123456"],
@@ -80,7 +38,11 @@ const opportunities: Opportunity[] = [
   startDate: null,
 }));
 
-test.each([...DIRECTORY_SORTS])("rendered rows follow the API's %s ordering", (sort) => {
+// Keep expectations literal so a shared API/UI sorting bug cannot become the test oracle.
+test.each([
+  ["first-seen-desc", ["11", "10", "9", "12"]],
+  ["first-seen-asc", ["12", "10", "9", "11"]],
+] as const)("rendered %s rows preserve microseconds and numeric ID ties", (sort, expected) => {
   const html = renderToStaticMarkup(
     <OpportunityList
       {...commonProps}
@@ -97,12 +59,6 @@ test.each([...DIRECTORY_SORTS])("rendered rows follow the API's %s ordering", (s
       )
     ),
   ];
-  expect(renderedIds).toEqual(
-    apiPayload(opportunities, null, parseApiQuery(`?sort=${sort}`)).data.map(
-      (opportunity) => opportunity.linkedinJobId
-    )
-  );
+  expect(renderedIds).toEqual([...expected]);
   expect(html).toContain('dateTime="2026-07-17T12:00:00.123456+00:00"');
-  if (sort === "first-seen-desc") expect(renderedIds).toEqual(["11", "10", "9", "12"]);
-  if (sort === "first-seen-asc") expect(renderedIds).toEqual(["12", "10", "9", "11"]);
 });

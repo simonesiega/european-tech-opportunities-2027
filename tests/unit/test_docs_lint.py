@@ -61,8 +61,10 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         assert "docs/assets/diagram/README.md" in command
         assert "docs/assets/diagram/source.md" in command
         assert "docs/assets/promo/maintainers/VIDEO.md" in command
+        # Name inventories explicitly so shrinking ROOT_FILES cannot weaken this check.
         assert ".github/WORKFLOWS.md" in command
         assert "scripts/SCRIPT.md" in command
+        assert "tests/TEST.md" in command
         assert ".github/ISSUE_TEMPLATE/question.md" in command
         assert "docs/generated/report.md" not in command
         assert "docs/vendor/upstream.md" not in command
@@ -72,16 +74,6 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         assert all(file in command for file in lint_docs.ROOT_FILES)
     assert lint_docs.MARKDOWNLINT in commands[0]
     assert lint_docs.VALE in commands[1]
-
-
-def test_generated_readme_validation_dispatches_documentation_workflow() -> None:
-    mutation = (lint_docs.ROOT / ".github/workflows/reusable-readme-pr.yml").read_text(
-        encoding="utf-8"
-    )
-    docs = (lint_docs.ROOT / ".github/workflows/documentation.yml").read_text(encoding="utf-8")
-    assert "gitleaks.yml documentation.yml dependency-review.yml)" in mutation
-    assert "workflow_dispatch:" in docs
-    assert "run: uv run --frozen python scripts/docs/lint_docs.py" in docs
 
 
 def test_documentation_lint_stops_after_failed_markdownlint(

@@ -14,6 +14,7 @@ MARKDOWN_FILES = (
     ROOT / "AGENTS.md",
     *sorted((ROOT / ".github").rglob("*.md")),
     *sorted((ROOT / "scripts").rglob("*.md")),
+    *sorted((ROOT / "tests").glob("*.md")),
     ROOT / "SECURITY.md",
     ROOT / "PRIVACY.md",
     ROOT / "CODE_OF_CONDUCT.md",

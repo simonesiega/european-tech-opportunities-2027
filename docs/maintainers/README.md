@@ -45,7 +45,7 @@ For developers, maintainers, operators, and automation authors. These guides des
 | Roll back the served projection | [Release-pointer rollback](operations/automation.md#coordinated-first-rollout-and-rollback) |
 | Diagnose a failure without losing evidence | [Operator troubleshooting](operations/troubleshooting.md) |
 
-For file-by-file inventories, use [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md) and [repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md). These source-adjacent references open on GitHub; the procedures above remain canonical.
+For file-by-file inventories, use [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md), [repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md), and [test inventory](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md). These source-adjacent references open on GitHub; the procedures above remain canonical.
 
 An upstream block, failed migration, invalid snapshot, or mismatched reviewed projection is a **stop condition**, not permission to rebuild or bypass checks. No guide grants source-access authorization.
 

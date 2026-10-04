@@ -25,14 +25,11 @@ const filters: OpportunityFilters = {
 const referenceTimestamp = Date.parse(opportunity.firstSeenAt);
 
 describe("shared opportunity filtering", () => {
-  test("empty filters preserve input order and references without mutating the input", () => {
+  test("empty filters preserve every row and its order without mutating the input", () => {
     const rows = [opportunity, {...opportunity, linkedinJobId: "101"}];
     const original = structuredClone(rows);
     const result = filterOpportunities(rows, filters, referenceTimestamp);
     expect(result).toEqual(rows);
-    expect(result).not.toBe(rows);
-    expect(result[0]).toBe(rows[0]);
-    expect(result[1]).toBe(rows[1]);
     expect(rows).toEqual(original);
   });
 

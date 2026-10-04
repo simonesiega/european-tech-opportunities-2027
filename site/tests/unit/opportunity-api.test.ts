@@ -1,6 +1,8 @@
 import {describe, expect, test} from "bun:test";
+import {readFileSync} from "node:fs";
+import path from "node:path";
+import Ajv2020 from "ajv/dist/2020.js";
 import fc from "fast-check";
-import {contentEtag} from "@/lib/http-cache";
 import {apiPayload, parseApiQuery} from "@/lib/opportunity-api";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -22,6 +24,38 @@ const payload = (search = "", items = rows) =>
   apiPayload(items, "2026-07-17T12:00:00+00:00", parseApiQuery(search));
 
 describe("public API contract", () => {
+  test("v1 schema rejects private fields, invalid envelopes and noncanonical timestamps", () => {
+    const contract = JSON.parse(
+      readFileSync(path.resolve("../schemas/opportunities-v1.schema.json"), "utf8")
+    );
+    const ajv = new Ajv2020();
+    const validate = ajv.compile({$ref: "#/$defs/apiResponse", $defs: contract.$defs});
+    expect(validate(payload()), JSON.stringify(validate.errors)).toBe(true);
+    expect(
+      validate({version: "v1", error: {code: "unavailable", message: "Directory unavailable"}})
+    ).toBe(true);
+    for (const invalid of [
+      {
+        version: "v1",
+        error: {code: "invalid_query", message: "Invalid query", privatePath: "/tmp/db"},
+      },
+      {...payload(), data: [{...payload().data[0], status: "open"}]},
+      {version: "v1", pagination: {page: 0, pageSize: 10, total: 0, totalPages: 0}, data: []},
+    ])
+      expect(validate(invalid)).toBe(false);
+    // Valid input spellings can still violate the wire format, which requires
+    // six fractional digits and an explicit +00:00 offset.
+    for (const firstSeenAt of [
+      "2026-07-17 12:00:00.000000",
+      "2026-07-17T12:00:00",
+      "2026-07-17T12:00:00Z",
+      "2026-07-17T12:00:00.123+00:00",
+    ]) {
+      expect(validate({...payload(), data: [{...payload().data[0], firstSeenAt}]})).toBe(false);
+    }
+    expect(ajv.compile(contract)([{company: "incomplete"}])).toBe(false);
+  });
+
   test("filters combined search and exact country/company/category/type and snapshot recency", () => {
     const result = payload(
       "?q=intern&country=France&company=Acme&category=software-engineering&type=internship&first-seen=24-hours"
@@ -35,31 +69,6 @@ describe("public API contract", () => {
       payload("?first-seen=24-hours", [row("1", {firstSeenAt: "2026-07-16T11:59:59Z"})]).pagination
         .total
     ).toBe(0);
-  });
-
-  test("equivalent parameter order and default pagination serialize identically with the same ETag", () => {
-    const queries = [
-      "",
-      "?page=1&page-size=10&sort=first-seen-desc",
-      "?sort=first-seen-desc&page-size=10&page=1",
-    ];
-    const representations = queries.map((query) => JSON.stringify(payload(query)));
-    const etags = representations.map(contentEtag);
-
-    expect(representations[1]).toBe(representations[0]);
-    expect(representations[2]).toBe(representations[0]);
-    expect(etags[1]).toBe(etags[0]);
-    expect(etags[2]).toBe(etags[0]);
-
-    const reorderedQueries = [
-      "?q=intern&country=Germany&category=software-engineering&type=internship&sort=company-asc",
-      "?sort=company-asc&type=internship&category=software-engineering&country=Germany&q=intern",
-    ];
-    const reorderedRepresentations = reorderedQueries.map((query) =>
-      JSON.stringify(payload(query))
-    );
-    expect(reorderedRepresentations[1]).toBe(reorderedRepresentations[0]);
-    expect(contentEtag(reorderedRepresentations[1])).toBe(contentEtag(reorderedRepresentations[0]));
   });
 
   test("stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages", () => {
@@ -121,24 +130,6 @@ describe("public API contract", () => {
       payload("", [row("100", {firstSeenAt: "2026-07-17T12:00:00.1Z"})]).data[0].firstSeenAt
     ).toBe("2026-07-17T12:00:00.100000+00:00");
     expect(() => payload("", [row("100", {firstSeenAt: "not a date"})])).toThrow();
-  });
-
-  test("rejects impossible first-seen calendar and time values", () => {
-    const invalidTimestamps = [
-      "2026-00-17T12:00:00Z",
-      "2026-13-17T12:00:00Z",
-      "2026-02-29T12:00:00Z",
-      "2026-02-31T12:00:00Z",
-      "2026-04-31T12:00:00Z",
-      "2026-07-17T24:00:00Z",
-      "2026-07-17T12:60:00Z",
-      "2026-07-17T12:00:60Z",
-    ];
-    for (const firstSeenAt of invalidTimestamps) {
-      expect(() => payload("", [row("100", {firstSeenAt})])).toThrow(
-        "Invalid first-seen timestamp"
-      );
-    }
   });
 
   test("invalid snapshot timestamps cannot turn recency results into a successful empty list", () => {
