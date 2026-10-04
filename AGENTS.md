@@ -1,6 +1,6 @@
 # AGENTS.md
 
-[← Documentation home](docs/README.md) · [Maintainer handbook](docs/maintainers/README.md) · [Security policy](SECURITY.md)
+[← Project README](README.md) · [Documentation home](docs/README.md) · [Maintainer handbook](docs/maintainers/README.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
 
 ## Purpose
 
@@ -146,7 +146,7 @@ Keep deep details canonical in those guides. Summarize and link instead of dupli
 9. **Read-only projections:** the website, README, and public CSV/JSON exports do not mutate canonical state.
 10. **Deterministic behavior:** classification, persistence, rendering, and validation are reproducible.
 
-Do not intentionally alter these contracts without explicit user direction and review of `architecture.md` plus `SECURITY.md`.
+Do not intentionally alter these contracts without explicit user direction and review of [Architecture](docs/maintainers/engineering/architecture.md) plus [Security](SECURITY.md).
 
 ## Source access and security
 
@@ -247,7 +247,7 @@ Python/docs:
 make check
 ```
 
-Equivalent core checks:
+Core checks (the [full gate](docs/maintainers/engineering/testing.md#python-and-documentation) also writes coverage reports and validates generated coverage plus the rendered docs):
 
 ```bash
 uv lock --check
@@ -259,6 +259,14 @@ uv run python scripts/database/check_migrations.py
 uv run python scripts/docs/check_docs.py
 git diff --check
 ```
+
+Documentation-only changes:
+
+```bash
+make docs-site
+```
+
+This checks source links, both Docker-based prose linters, the strict MkDocs build, and rendered links. Without Make, use the [direct documentation commands](docs/maintainers/engineering/documentation.md#source-and-rendered-checks). Report unavailable tools or skipped checks explicitly.
 
 Website:
 

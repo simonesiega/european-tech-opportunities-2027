@@ -31,6 +31,7 @@ The global `--settings` option must appear before the command name. In this refe
 - [`searches`](#searches)
 - [`search-test`](#search-test)
 - [`scrape`](#scrape)
+- [Quality report](#quality-report)
 - [`add-job`](#add-job)
 - [`add-jobs`](#add-jobs)
 - [`check-availability`](#check-availability)
@@ -197,7 +198,7 @@ A baseline-read, analysis, report-write, or baseline-persistence error fails clo
 
 ## `add-job`
 
-Maintainers can add a known LinkedIn listing without running collection:
+Maintainers can add a known LinkedIn listing without running collection. Independently verify the public source facts first: this offline command validates supplied evidence but cannot authenticate it. The example below is synthetic:
 
 ```bash
 uv run opportunities add-job \
@@ -289,7 +290,7 @@ The README projection includes:
 - latest successful collection time;
 - the public website link;
 - a hidden SHA-256 review seal covering every website-visible open row and the exact latest successful collection timestamp;
-- at most five recently discovered internships and five recently discovered New Grad opportunities.
+- at most five internships and five New Grad opportunities ordered by immutable first-seen time, then descending ID text. The generated label says “most recently discovered,” but first-seen time can use approximate source posting age.
 
 The generated registry-layout counts in [`search-registry.md`](../engineering/search-registry.md) are refreshed from `configs/searches/` at the same time. The CSV and JSON downloads are generated from all open rows using the fixed public-field allowlist. Their metadata manifest records the schema version, UTC generation time, counts, and SHA-256 hashes.
 

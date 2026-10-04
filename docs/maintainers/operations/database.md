@@ -274,7 +274,7 @@ Never rewrite an applied migration to hide schema drift.
 
 A rebuild is not a normal migration strategy because it loses first-seen history, provenance, closure evidence, and run diagnostics.
 
-Contributor expectations are summarized in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md#database-and-migrations).
+Contributor expectations and affected validation paths are summarized in [`CONTRIBUTING.md`](../../../CONTRIBUTING.md#choose-the-correct-path).
 
 ## Backup
 
@@ -358,7 +358,7 @@ The website contract belongs to the [website engineering guide](../engineering/w
 - latest successful collection time;
 - the public website link;
 - a hidden SHA-256 review seal covering all website-visible open rows and the exact latest successful collection time;
-- at most five recently discovered open internships and five recently discovered open New Grad opportunities.
+- at most five open internships and five open New Grad opportunities ordered by immutable first-seen time, then descending ID text. This is not necessarily exact discovery order; first-seen time may reflect approximate source posting age.
 
 The renderer owns the marked opportunity-count and opportunity-preview regions and replaces the resulting README atomically.
 

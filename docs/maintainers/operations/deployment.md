@@ -409,7 +409,7 @@ docker compose run --rm opportunities --help
 docker compose config
 ```
 
-Docker CI additionally runs Actionlint, Hadolint, and digest-pinned Trivy image scans. It generates SPDX SBOMs and build evidence for both final image targets, uploads them for 30 days, and attests the evidence files from `main` with GitHub Actions. It rejects fixable high or critical image vulnerabilities and smoke-tests the migrated website, sanitized CSV/JSON downloads, production Content Security Policy, and HTTP Strict Transport Security headers.
+Docker CI additionally runs Actionlint, blocking zizmor workflow audits, Hadolint, and digest-pinned Trivy image scans. It generates SPDX SBOMs and build evidence for both final image targets, uploads them for 30 days, and attests the evidence files from `main` with GitHub Actions. It rejects fixable high or critical image vulnerabilities and smoke-tests the migrated website, sanitized CSV/JSON downloads, production Content Security Policy, and HTTP Strict Transport Security headers.
 
 Preserve:
 

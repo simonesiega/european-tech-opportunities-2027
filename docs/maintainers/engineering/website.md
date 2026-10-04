@@ -6,7 +6,7 @@ The Next.js site is a read-only presentation layer. `site/src/lib/` owns server 
 
 ## Read-only database contract
 
-`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true`, selects open rows ordered by descending first-seen time and ID text, and reads the latest **successful** collection timestamp. A later failed run cannot imply fresher data. React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
+`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true` and uses an explicit read transaction to select open rows and the latest **successful** collection timestamp from one SQLite snapshot. SQL orders the rows by descending first-seen time and ID text; presentation and API helpers apply microsecond-aware first-seen sorting with numeric-ID ties. A later failed run cannot imply fresher data. React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
 
 In versioned mode, `OPPORTUNITIES_RELEASE_ROOT/current` resolves **once per server operation** to a release under `releases/`. Invalid/missing pointers fail closed rather than using legacy paths. The selected release must remain available until readers drain. Separate requests can span a cutover; a page followed by a download is not a pinned transaction.
 

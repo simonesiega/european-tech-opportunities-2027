@@ -92,7 +92,7 @@ The website must not:
 - expose mutation endpoints;
 - expose database paths, environment values, stack traces, or server configuration;
 - render database values as untrusted raw HTML;
-- emit external links outside validated public HTTPS listing URLs;
+- emit opportunity links outside validated canonical HTTPS LinkedIn listing URLs matching their numeric job IDs;
 - serve arbitrary filesystem paths or export filenames.
 
 Authentication, forms, user content, server-stored applications, write APIs, or administration interfaces require explicit architecture and security review. Existing browser-local saved/applied/hidden marks remain separate from canonical state; see [Privacy](PRIVACY.md#local-browser-preferences).

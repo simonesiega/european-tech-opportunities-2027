@@ -46,6 +46,7 @@ nav:
       - Visual assets: docs/assets/README.md
       - Workflow inventory: https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md
       - Script inventory: https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md
+      - Test inventory: https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md
   - Project and policies:
       - Product showcase: README.md
       - Contributing: CONTRIBUTING.md

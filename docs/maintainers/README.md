@@ -2,7 +2,7 @@
 
 [← Documentation home](../README.md) · [Using the product](../users/README.md) · [Contributing](../../CONTRIBUTING.md) · [Security](../../SECURITY.md)
 
-For developers, maintainers, operators, and automation authors. These guides describe how to change and operate the system, not how to browse jobs.
+For contributors, maintainers, operators, and coding agents who need the system's technical contracts. These guides name implementation owners, preconditions, side effects, verification steps, and stop conditions. To browse roles or use public data, use the separate user guides.
 
 ## Develop offline
 

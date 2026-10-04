@@ -2,13 +2,13 @@
 
 [← Documentation home](../README.md) · [Open the directory](https://techopportunities.eu/)
 
-Find early-career technology roles across Europe, keep a private shortlist, and return to see what is new. Everything is free to browse; applications happen on the original listing, not on this site.
+Find technology internships and **New Grad** roles (graduate and entry-level positions) across Europe, keep a private shortlist, and return to see what is new. You do not need to install anything or create an account. Applications happen on the original listing, not on this site.
 
 ## Your first visit
 
 1. [Open the directory](https://techopportunities.eu/).
 2. Choose **Internship** or **New Grad** under **Employment type**, then a location or search term.
-3. Open a role to check its requirements and apply at the source.
+3. Open a role to check its requirements and current availability on LinkedIn, then apply at the source.
 4. In **Your list**, use the bookmark icon to save a role, the check icon to mark it applied, or **More actions → Hide** to set it aside.
 
 ## Browsing

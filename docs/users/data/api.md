@@ -2,6 +2,8 @@
 
 [← User guide](../README.md) · [Complete downloads](data.md) · [Get help](../browsing/help.md)
 
+This reference is for people using HTTP requests or writing code. For a spreadsheet or a complete snapshot without programming, use the [download guide](data.md).
+
 Query open opportunities at **[`https://techopportunities.eu/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities)**. No account or API key is required. This is a read-only listing service; it cannot save roles or submit applications.
 
 ## Make a request
@@ -15,12 +17,13 @@ curl --get 'https://techopportunities.eu/api/v1/opportunities' \
   --data-urlencode 'page-size=20'
 ```
 
-Browser JavaScript:
+Browser JavaScript, including cross-origin requests:
 
 ```javascript
 const query = new URLSearchParams({ country: "Germany", type: "internship" });
 const response = await fetch(
   `https://techopportunities.eu/api/v1/opportunities?${query}`,
+  { credentials: "omit" },
 );
 if (!response.ok) {
   throw new Error(`Directory returned ${response.status}`);

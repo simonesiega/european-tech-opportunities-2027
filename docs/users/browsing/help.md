@@ -6,7 +6,9 @@ Find answers about listing eligibility, dates, local lists, and downloads. These
 
 ## Which roles are included?
 
-Technology internships and New Grad roles with clear early-career title evidence and European location evidence. Listings need an explicit 2027 opportunity cycle, or no conflicting cycle and eligible posting evidence from May 1, 2026 onward. Senior or unrelated roles and ambiguous evidence are excluded. Graduation-year eligibility alone does not establish an internship cycle.
+Technology internships and **New Grad** roles (graduate and entry-level positions) in Europe. The title must clearly identify an early-career role, and the location must explicitly support Europe. Senior, unrelated, or unclear listings are excluded.
+
+A listing must name the 2027 hiring cycle, or have no conflicting cycle and evidence that it was posted on or after May 1, 2026. A requirement such as “graduating in 2027” does not, by itself, prove when an internship starts.
 
 The project is not a complete index of every employer or country. A valid listing can be missed by bounded discovery. [Suggest a missing listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml) with its public URL and relevant evidence. Suggestions are reviewed, not automatically published.
 
@@ -20,7 +22,7 @@ Availability can change between checks. The directory uses conservative evidence
 
 ## No roles match my search
 
-Choose **Reset** and **View all opportunities**. Check your hidden list if a specific role is missing. Add filters one at a time. If the unfiltered directory is empty, try again later; do not assume your saved list is a backup of removed jobs.
+Choose **Reset** to clear search and filters. If you are viewing a saved, applied, hidden, or new list, choose **View all opportunities** too. Check your hidden list if a specific role is missing. Add filters one at a time. If the unfiltered directory is empty, try again later; do not assume your saved list is a backup of removed jobs.
 
 ## My saved or applied list disappeared
 

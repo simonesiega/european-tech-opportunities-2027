@@ -14,6 +14,8 @@ Download all currently open opportunities — free, without an account or API ke
 | Analyze all listings in a script | JSON; one unpaginated array |
 | Fetch a filtered page in an application | [Public API](api.md); camelCase fields and pagination |
 
+For a spreadsheet, download the CSV and open it using your spreadsheet's import function. Choose UTF-8 if asked for an encoding, and import job IDs as text so they are not reformatted. You do not need to install the repository.
+
 Downloads contain every open listing at generation time, **not** your current search results or saved list. They contain no visitor data or private application history. They are current snapshots, not a complete historical dataset.
 
 ## Fields

@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://techopportunities.eu/"><strong>Explore the directory →</strong></a> ·
   <a href="https://docs.techopportunities.eu/">Documentation</a> ·
-  <a href="https://techopportunities.eu/api/v1/opportunities">Public API</a> ·
+  <a href="#latest-opportunities">Latest opportunities</a> ·
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml">Suggest a listing</a>
 </p>
 
@@ -39,13 +39,15 @@
 
 Finding the right early-career tech role in Europe shouldn't mean digging through hundreds of scattered, outdated, or irrelevant listings.
 
-**European Tech Opportunities 2027** brings validated technology internships and New Grad roles into one searchable directory. Filter by company, country, category, employment type, or recency, sort the results, and share any search with a link.
+**European Tech Opportunities 2027** brings validated tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Find a company you like, pick a country, explore a category, or see what's been added recently. Share any search with a link.
 
-No account is required. **Save opportunities, mark them as applied, hide roles, and see what's new since your last visit directly in your browser**. Your lists stay local to your device.
+No account needed. **Save roles, mark where you've applied, hide the ones that aren't for you, and see what's new since your last visit**. Your lists stay in your browser — private, with no device sync.
 
 Need the data outside the website? Download the complete open directory as **CSV or JSON**, or query it through the free, read-only **public API**.
 
 **[Explore the live directory →](https://techopportunities.eu/)**
+
+First time here? [Here's a quick guide](docs/users/README.md). Nothing to install.
 
 ### Growing across Europe
 
@@ -57,7 +59,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 What started as a small open-source project has grown into a directory used by people across Europe and beyond.
 
-The official site has generated **12K+ page views**, with **2.2K+ users and 8.2K+ visits from more than 60 countries**. People have discovered the project through **15+ different sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook.
+So far, a recorded analytics snapshot shows **15K+ page views**, **2.6K+ users**, and **8.2K+ visits from more than 60 countries**. These aren't live counters, but it's been lovely to see the project reach people through **25+ sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook.
 
 ## Latest opportunities
 
@@ -96,7 +98,7 @@ Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/euro
 
 ## Use the data
 
-The public data is available without an account.
+Spreadsheets, side projects, or your favorite feed reader — take the listings with you. No account needed.
 
 | Access | Best for | What you get |
 |---|---|---|
@@ -104,16 +106,17 @@ The public data is available without an account.
 | [CSV](https://techopportunities.eu/open-opportunities.csv) | Spreadsheets | Complete open dataset with spreadsheet-safe text |
 | [JSON](https://techopportunities.eu/open-opportunities.json) | Scripts and analysis | Complete open dataset as one array |
 | [Public API](https://techopportunities.eu/api/v1/opportunities) | Applications and integrations | Filtered, paginated v1 JSON with deterministic sorting and cache validators |
+| [RSS](https://techopportunities.eu/feed.xml) / [Atom](https://techopportunities.eu/atom.xml) | Feed readers | Up to 50 recent open roles, with optional type, country, and category filters |
 
-The downloads expose only approved public listing fields. The API is read-only, requires no API key, and supports filters for search text, country, company, category, employment type, first-seen window, sorting, and pagination.
+Downloads include all open listings, not just your current search. The read-only API needs no key and lets you filter, sort, and page through results.
 
-For more details, see the [dataset documentation](docs/users/data/data.md) or explore the [public API documentation](docs/users/data/api.md).
+Get started with the [download guide](docs/users/data/data.md), [API guide](docs/users/data/api.md), or [feed subscriptions](docs/users/browsing/directory.md#subscribe-to-new-opportunities).
 
 ## Precision over coverage
 
-The project is intentionally conservative. A discovered listing is not published automatically: it must pass deterministic acceptance checks designed to keep the directory focused on relevant early-career technology roles.
+If the evidence isn't clear, we leave the role out rather than guess. A listing disappearing from search results doesn't automatically mean it's closed, either.
 
-| Check | Publication boundary |
+| Check | What we look for |
 |---|---|
 | **Employment type** | The title explicitly identifies an Internship or New Grad role |
 | **Seniority** | Senior and management terminology is excluded |
@@ -121,9 +124,7 @@ The project is intentionally conservative. A discovered listing is not published
 | **Cycle / posting date** | It has valid 2027 cycle evidence, or no conflicting cycle plus eligible posting-date evidence from May 1, 2026 onward |
 | **European location** | The normalized listing contains explicit European location evidence |
 
-Ambiguous evidence is excluded rather than guessed. Search-result disappearance alone never closes a listing, and a failed search does not mutate that search's lifecycle state.
-
-Read the exact rules in [Classification and collection evidence](docs/maintainers/engineering/classification.md).
+Curious about the details? Here are the [classification rules](docs/maintainers/engineering/classification.md).
 
 ## How it works
 
@@ -139,15 +140,15 @@ website · public API · CSV/JSON · bounded README preview
 </pre>
 </div>
 
-SQLite is the canonical lifecycle store. The website, API, public downloads, and README are read-only projections; they do not classify listings or mutate lifecycle state.
+SQLite keeps the listing history in one place. The website, API, feeds, downloads, and this preview only read it — they don't change job status or decide which roles qualify.
 
-The collection side is permission-gated, bounded, unauthenticated, and designed to fail safely. It does not use LinkedIn credentials, logged-in browser collection, CAPTCHA bypasses, proxy rotation, or private APIs.
+Collection requires express authorization and stays within fixed request limits. No LinkedIn logins, private APIs, or anti-bot bypasses.
 
-For implementation details, see the [architecture and invariants documentation](docs/maintainers/engineering/architecture.md), and review the [security policy](SECURITY.md) for the project's security boundaries.
+Want to look under the hood? Start with the [architecture guide](docs/maintainers/engineering/architecture.md) and [security policy](SECURITY.md).
 
 ## Engineering
 
-This is both a public directory and a production-oriented software project.
+An open-source project behind a simple directory. Here's the stack:
 
 | Area | Implementation |
 |---|---|
@@ -158,21 +159,19 @@ This is both a public directory and a production-oriented software project.
 | **Testing** | Pytest unit/integration suites, Playwright browser journeys, axe accessibility checks, property tests, Lighthouse, parser/classifier benchmarks |
 | **Security & CI** | GitHub Actions, CodeQL, Gitleaks, Dependency Review, OpenSSF Scorecard, container and documentation validation |
 
-Tests focus on contracts that can affect users or canonical state: classification boundaries, lifecycle safety, migrations, public/private data separation, browser persistence, accessibility, recovery, deployment assumptions, and documentation boundaries.
+Tests cover the things that matter: relevant roles, safe listing updates, private browser lists, accessibility, reliable downloads, and recovery without losing history.
 
-For the full approach, see the [testing strategy and quality gates](docs/maintainers/engineering/testing.md).
+See the [testing guide](docs/maintainers/engineering/testing.md) for the full picture.
 
 ## Privacy by design
 
-The website has no accounts, application forms, résumé uploads, or server-side saved profiles. Saved, applied, hidden, and previous-visit state is stored locally in the visitor's browser and is not included in the public API or downloads.
+No accounts, résumé uploads, or server-side application profiles. Your saved, applied, and hidden roles, along with your previous-visit time, stay in your browser — never in the public API or downloads.
 
-The production site uses privacy-focused aggregate analytics; local opportunity-list IDs and visit timestamps are not part of analytics payloads.
-
-For more details about data handling and visitor privacy, see the [privacy notice](PRIVACY.md).
+The live site uses aggregate analytics, but your local lists and visit timestamps aren't sent with them. Read the [privacy notice](PRIVACY.md) for the details.
 
 ## Documentation
 
-Use the guides below to find the right documentation for your task.
+Need a hand, or want to help build the project? Start here:
 
 | I want to… | Start here |
 |---|---|
@@ -184,15 +183,15 @@ Use the guides below to find the right documentation for your task.
 
 ## Contributing
 
-Focused improvements to discovery coverage, strict classification, lifecycle safety, public data contracts, tests, accessibility, website usability, and documentation are welcome.
+Found a bug, have an idea, or want to make the directory easier to use? Contributions are welcome — code, tests, accessibility fixes, and clearer docs all help.
 
-Start with [`CONTRIBUTING.md`](CONTRIBUTING.md). Source access requires express authorization; participation in the project or access to public pages does not grant permission to automate collection.
+Start with [the contribution guide](CONTRIBUTING.md). You can develop and test offline; live source access still needs express authorization.
 
-For vulnerabilities, use the private channels in [`SECURITY.md`](SECURITY.md), not a public issue. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+Report vulnerabilities privately through [the security policy](SECURITY.md), not a public issue. Be kind and follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-Project code and documentation are available under the [MIT License](LICENSE). Third-party assets and external listings remain subject to their respective licenses and terms.
+Code and docs are [MIT licensed](LICENSE). External listings and third-party media keep their own terms. Distribution rights for the promotional soundtrack and scored film still need confirmation — see the [media rights notice](docs/assets/README.md#promotional-film).
 
 ## Contributors
 

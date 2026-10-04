@@ -48,6 +48,6 @@ Lists are a convenience, not a durable record of applications. Keep any importan
 
 ## Clear your local data
 
-Use your browser's site-data controls for `techopportunities.eu` to clear storage. This also clears your theme choice. For a selective reset in browser developer tools, remove `opportunities-directory-state` from Local Storage; the theme uses the separate key `opportunities-theme`.
+Use your browser's site-data controls for `techopportunities.eu` to clear storage. This also clears your theme choice. If you are comfortable using browser developer tools, you can reset only lists and visit history by removing `opportunities-directory-state` from Local Storage. The theme uses the separate key `opportunities-theme`.
 
 This cannot remove public job listings or change another visitor's browser. Hosting and analytics data are handled separately; see the [privacy notice](../../../PRIVACY.md).

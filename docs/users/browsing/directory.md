@@ -52,14 +52,14 @@ Building an application? Use the [API](../data/api.md), which measures recency a
 
 ## Subscribe to new opportunities
 
-Subscribe with any RSS or Atom reader—no account, email address, or notification signup is needed:
+Use a feed-reader app to follow recent roles without repeatedly checking the directory. In your reader, choose its add-feed or subscribe action and paste one of these URLs. The directory itself requires no account, email address, or notification signup:
 
 - RSS 2.0: [https://techopportunities.eu/feed.xml](https://techopportunities.eu/feed.xml)
 - Atom 1.0: [https://techopportunities.eu/atom.xml](https://techopportunities.eu/atom.xml)
 
 Each feed contains up to 50 **currently open** opportunities, newest **First seen** date first. That date stays unchanged after a role is added and may reflect an approximate source posting date rather than the exact discovery time. Closed listings and listings that fall outside the latest 50 are no longer included.
 
-Add any of these exact filters to either feed URL; filters combine:
+To follow only some roles, use the filtered example below. If you want to build your own feed URL, add these exact parameters; filters combine:
 
 | Parameter | Values |
 |---|---|
