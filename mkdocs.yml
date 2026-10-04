@@ -33,6 +33,7 @@ nav:
           - Website engineering: docs/maintainers/engineering/website.md
           - Testing strategy: docs/maintainers/engineering/testing.md
           - Documentation maintenance: docs/maintainers/engineering/documentation.md
+          - Promotional video: docs/assets/promo/maintainers/VIDEO.md
       - Operations:
           - CLI reference: docs/maintainers/operations/cli.md
           - Automation and operations: docs/maintainers/operations/automation.md

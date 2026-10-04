@@ -66,6 +66,7 @@ The [asset catalog](../../assets/README.md) distinguishes checked-in visuals fro
 | Coverage region in `testing.md` | `scripts/docs/coverage_docs.py` | `make coverage`; CI uses `--check` |
 | Five repository-map SVGs | `docs/assets/diagram/source.md` | Regenerate using the shared profile; validate layout, links, and accessibility |
 | Product tour outputs, when generated | `site/scripts/record-demo.mjs` | [Media reproduction](../../assets/README.md#reproduce-safely) |
+| Promotional film and contact sheet | Separate authoring bundle; not the product-tour recorder | [Video maintenance](../../assets/promo/maintainers/VIDEO.md) |
 
 Never manually change generated counts, dates, rows, seals, export bytes, or coverage values. Do not reproduce complete generated marker pairs in examples. The README's existing published regions can be moved **unchanged** during a layout refactor; no production database is needed. Never render the committed preview from an empty local database.
 
@@ -85,7 +86,7 @@ Markdownlint and Vale run from digest-pinned containers with read-only mounts an
 
 ## Publishing boundary
 
-The build stages only public Markdown, approved root policies, and visual asset formats in a temporary directory. **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
+The build stages only public Markdown, approved root policies, visual asset formats, and the specifically cataloged `docs/assets/promo/soundtrack.mp3` in a temporary directory. Other audio files and the promotional authoring bundle remain outside the publication allowlist. **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
 
 The documentation workflow strictly builds and validates pull requests but deploys only from `main`. It has no canonical-state access. [Automation](../operations/automation.md#validation-workflows) owns GitHub Pages/DNS setup, permissions, and artifact publication. No repository setting is changed by the build script.
 

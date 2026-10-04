@@ -2,7 +2,7 @@
 
 [← Documentation home](../README.md) · [Documentation maintenance](../maintainers/engineering/documentation.md) · [Repository maps](diagram/README.md)
 
-Keep public visuals small, accessible, and separate from runtime data. The catalog below lists the checked-in assets; the product-tour section is a reproduction recipe, not a link to an existing recording.
+Keep public media accessible and separate from runtime data. The catalog includes the finished promotional film and its maintenance guide. The separate product-tour recipe below does not reproduce this film.
 
 ## Current assets
 
@@ -14,6 +14,9 @@ Keep public visuals small, accessible, and separate from runtime data. The catal
 | [Project identity](logo/Opportunities.webp) | Current project logo |
 | [Earlier internship identity](logo/Intern.webp) | Historical logo retained for reference |
 | [Light preview](sites/White_theme.webp) · [Dark preview](sites/Dark_theme.webp) | Historical website captures, not a guarantee of the current interface |
+| [Promotional film](promo/european-tech-opportunities-2027.mp4) | 51-second, 1920 × 1080, 60 fps product film with soundtrack |
+| [Promotional contact sheet](promo/storyboard.webp) | Fourteen stills covering the film; a static, no-motion overview |
+| [Original soundtrack](promo/soundtrack.mp3) | Unmodified input recording; confirm distribution rights before publication |
 
 ## Repository maps
 
@@ -21,10 +24,20 @@ The [diagram guide](diagram/README.md) explains the repository, collection/lifec
 
 Edit the source, regenerate the affected SVGs, and check labels, group-heading clearance, code links, and accessibility metadata. Keep the SVGs self-contained: no scripts, embedded HTML, external resources, or private data. These detailed maps support the handbook; product-showcase media has separate ownership.
 
+## Promotional film
+
+[Watch the film](promo/european-tech-opportunities-2027.mp4) · [View the contact sheet](promo/storyboard.webp) · [Maintain or recreate the video](promo/maintainers/VIDEO.md)
+
+The film uses the real production-built interface with **24 fictional listings and browser choices**. The Safari-style toolbar, cursor choreography, headlines, and camera are illustrated/editorial elements, not native Safari footage or human-recorded pointer input. There is no burned-in demo label; retain this disclosure with every published copy. Saved/applied marks are browser-local, and marking applied does not submit an application.
+
+The [agent-focused maintenance guide](promo/maintainers/VIDEO.md) owns the source-recovery requirements, rebuild commands, edit ownership, approved timeline, [descriptive transcript](promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript), audio treatment, verification, and replacement procedure. Only the final MP4, static contact sheet, and original MP3 accompany that guide here; the editable renderer, captures, local player, and poster remain in a separate authoring bundle.
+
+The supplied soundtrack has no accompanying license information. The repository's MIT license does not grant rights to it; confirm distribution rights before publishing either the original recording or scored film. Use normal playback controls without autoplay when embedding the video, and keep the contact sheet and transcript available as alternatives.
+
 ## Reproduce the product tour
 
 > [!NOTE]
-> The MP4, animated WebP, and poster are not currently checked in. The recipe below produces `demo/directory-tour.mp4`, `demo/directory-tour.webp`, and `demo/poster.webp`. Add playback links or embeds only after the files exist and pass review.
+> This is a separate, older 25-second recorder, not the renderer for the 51-second promotional film above. Its `demo/directory-tour.mp4`, `demo/directory-tour.webp`, and `demo/poster.webp` outputs are not currently checked in. Add playback links or embeds only after those files exist and pass review.
 
 The recorder uses the **real, production-built application**, not a mockup. All 12 listings and browser choices are synthetic. No live collection, production database, authenticated browser profile, or external browser request is used. The caption and synthetic-data label are recording overlays, not product features. The planned 25-second tour has no audio.
 
