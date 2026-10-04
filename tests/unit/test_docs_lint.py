@@ -32,6 +32,8 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         "docs/generated/report.md",
         "docs/vendor/upstream.md",
         "docs/assets/listings/third-party.md",
+        "docs/assets/promo/.work/review.md",
+        "docs/assets/promo/node_modules/dependency/README.md",
     ):
         path = tmp_path / excluded
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,12 +60,15 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         assert "docs/reference.md" in command
         assert "docs/assets/diagram/README.md" in command
         assert "docs/assets/diagram/source.md" in command
+        assert "docs/assets/promo/maintainers/VIDEO.md" in command
         assert ".github/WORKFLOWS.md" in command
         assert "scripts/SCRIPT.md" in command
         assert ".github/ISSUE_TEMPLATE/question.md" in command
         assert "docs/generated/report.md" not in command
         assert "docs/vendor/upstream.md" not in command
         assert "docs/assets/listings/third-party.md" not in command
+        assert "docs/assets/promo/.work/review.md" not in command
+        assert "docs/assets/promo/node_modules/dependency/README.md" not in command
         assert all(file in command for file in lint_docs.ROOT_FILES)
     assert lint_docs.MARKDOWNLINT in commands[0]
     assert lint_docs.VALE in commands[1]

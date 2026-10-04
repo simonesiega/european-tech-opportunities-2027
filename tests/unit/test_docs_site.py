@@ -51,6 +51,45 @@ def test_rendered_link_check_detects_missing_images_and_anchors(
     assert check_built_docs.main() == 1
 
 
+@pytest.mark.parametrize(
+    ("asset", "approved"),
+    [
+        ("docs/assets/promo/soundtrack.mp3", True),
+        ("docs/assets/soundtrack.mp3", False),
+        ("docs/assets/promo/other.mp3", False),
+        ("docs/assets/promo/soundtrack.MP3", False),
+        ("docs/assets/promo/.work/soundtrack.mp3", False),
+    ],
+)
+def test_rendered_soundtrack_links_and_exact_publication_boundary(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    asset: str,
+    approved: bool,
+) -> None:
+    monkeypatch.setattr(check_built_docs, "ROOT", tmp_path)
+    (tmp_path / "CNAME").write_text("docs.techopportunities.eu\n", encoding="utf-8")
+    icon = tmp_path / check_built_docs.STAGED_ICON
+    icon.parent.mkdir(parents=True)
+    icon.write_bytes(check_built_docs.SITE_ICON.read_bytes())
+    soundtrack = tmp_path / asset
+    soundtrack.parent.mkdir(parents=True, exist_ok=True)
+    soundtrack.write_bytes(b"synthetic audio")
+    (tmp_path / "index.html").write_text(
+        f'<a href="{asset}">Original soundtrack</a>', encoding="utf-8"
+    )
+
+    assert check_built_docs.main() == (0 if approved else 1)
+    if not approved:
+        assert f"Unexpected published file: {asset}" in capsys.readouterr().err
+        return
+
+    soundtrack.unlink()
+    assert check_built_docs.main() == 1
+    assert f"missing {asset}" in capsys.readouterr().err
+
+
 def test_legacy_redirects_require_a_real_canonical_destination(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="redirect target is missing"):
         build_docs._write_legacy_redirects(tmp_path)
@@ -92,8 +131,10 @@ def test_legacy_redirects_point_directly_to_current_topic_guides() -> None:
     assert build_docs.LEGACY_PAGES["guides/user-guide/public-dataset"] == "users/data/data"
 
 
-@pytest.mark.parametrize("asset", ["diagram.svg", "tour.mp4", "poster.webp"])
-def test_public_staging_publishes_visuals_but_not_private_root_files(
+@pytest.mark.parametrize(
+    "asset", ["diagram.svg", "tour.mp4", "poster.webp", "promo/soundtrack.mp3"]
+)
+def test_public_staging_publishes_media_but_not_private_root_files(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, asset: str
 ) -> None:
     import subprocess
@@ -103,9 +144,9 @@ def test_public_staging_publishes_visuals_but_not_private_root_files(
     icon = tmp_path / "site-icon.svg"
     icon.write_bytes(b"<svg/>")
     monkeypatch.setattr(build_docs, "SITE_ICON", icon)
-    assets = tmp_path / "docs/assets"
-    assets.mkdir(parents=True)
-    (assets / asset).write_bytes(b"synthetic visual")
+    source = tmp_path / "docs/assets" / asset
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"synthetic media")
     (tmp_path / ".env").write_text("private sentinel", encoding="utf-8")
     for filename in build_docs.PUBLIC_ROOT_FILES:
         (tmp_path / filename).write_text("# Public\n", encoding="utf-8")
@@ -116,7 +157,7 @@ def test_public_staging_publishes_visuals_but_not_private_root_files(
         assert "--strict" in command
         assert cwd == tmp_path
         staged = Path(env["DOCS_BUILD_DIR"])
-        assert (staged / "docs/assets" / asset).read_bytes() == b"synthetic visual"
+        assert (staged / "docs/assets" / asset).read_bytes() == b"synthetic media"
         assert (staged / "AGENTS.md").is_file()
         assert not (staged / ".env").exists()
         assert (staged / build_docs.STAGED_ICON).read_bytes() == icon.read_bytes()
@@ -128,7 +169,19 @@ def test_public_staging_publishes_visuals_but_not_private_root_files(
 
 
 @pytest.mark.parametrize(
-    "private_file", ["assets/private.db", "assets/.env", "maintainers/private.mp4"]
+    "private_file",
+    [
+        "assets/private.db",
+        "assets/.env",
+        "maintainers/private.mp4",
+        "assets/soundtrack.mp3",
+        "assets/promo/other.mp3",
+        "assets/promo/soundtrack.MP3",
+        "assets/promo/.work/soundtrack.mp3",
+        "assets/promo/scripts/render.mjs",
+        "assets/promo/index.html",
+        "assets/promo/bun.lock",
+    ],
 )
 def test_public_staging_rejects_unapproved_files(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, private_file: str
@@ -141,13 +194,14 @@ def test_public_staging_rejects_unapproved_files(
         build_docs.main()
 
 
-def test_public_staging_rejects_symlinked_visuals(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("asset", ["image.webp", "promo/soundtrack.mp3"])
+def test_public_staging_rejects_symlinked_media(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, asset: str
 ) -> None:
     monkeypatch.setattr(build_docs, "ROOT", tmp_path)
     private = tmp_path / "private"
     private.write_text("private", encoding="utf-8")
-    alias = tmp_path / "docs/assets/image.webp"
+    alias = tmp_path / "docs/assets" / asset
     alias.parent.mkdir(parents=True)
     try:
         alias.symlink_to(private)

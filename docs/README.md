@@ -45,6 +45,7 @@ Technical documentation for contributors, maintainers, operators, and coding age
 | Change the website without changing canonical state | [Website engineering](maintainers/engineering/website.md) |
 | Test a change | [Testing strategy and gates](maintainers/engineering/testing.md) |
 | Update docs or reproduce public visuals | [Documentation maintenance](maintainers/engineering/documentation.md) · [Visual assets](assets/README.md) |
+| Recreate, edit, or replace the promotional film | [Video maintenance for agents](assets/promo/maintainers/VIDEO.md) |
 
 ### Operations
 

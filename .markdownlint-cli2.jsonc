@@ -31,8 +31,8 @@
       "filter": ["README.md"],
       "config": {
         // The README intentionally uses HTML for its title, badges, centered links,
-        // and renderer-owned preview layout; authored guides use Markdown.
-        "MD033": { "allowed_elements": ["div", "pre", "p", "img", "h1", "a", "strong", "br"] }
+        // video, and renderer-owned preview layout; authored guides use Markdown.
+        "MD033": { "allowed_elements": ["div", "pre", "p", "img", "h1", "a", "strong", "br", "video"] }
       },
       "combine": "merge"
     }

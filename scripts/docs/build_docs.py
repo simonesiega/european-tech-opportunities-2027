@@ -108,9 +108,14 @@ def main() -> int:
             if source.is_symlink():
                 raise ValueError(f"Documentation symlinks are not allowed: {source}")
             if source.is_file():
-                if source.suffix.lower() != ".md" and not (
-                    source.is_relative_to(ROOT / "docs" / "assets")
-                    and source.suffix.lower() in {".webp", ".svg", ".mp4"}
+                if (
+                    source.suffix.lower() != ".md"
+                    and not (
+                        source.is_relative_to(ROOT / "docs" / "assets")
+                        and source.suffix.lower() in {".webp", ".svg", ".mp4"}
+                    )
+                    # Only the cataloged soundtrack is public, not arbitrary audio files.
+                    and source.relative_to(ROOT).as_posix() != "docs/assets/promo/soundtrack.mp3"
                 ):
                     raise ValueError(f"Unexpected documentation file: {source}")
                 destination = staging / source.relative_to(ROOT)

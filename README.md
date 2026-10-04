@@ -49,18 +49,11 @@ Need the data outside the website? Download the complete open directory as **CSV
 
 ### Growing across Europe
 
-<p align="center">
-  <img
-    src="docs/assets/sites/White_theme.webp#gh-light-mode-only"
-    alt="European Tech Opportunities directory in light mode"
-    width="100%"
-  />
-  <img
-    src="docs/assets/sites/Dark_theme.webp#gh-dark-mode-only"
-    alt="European Tech Opportunities directory in dark mode"
-    width="100%"
-  />
-</p>
+<!-- Keep this attachment URL bare so GitHub renders its native video player. -->
+<!-- markdownlint-disable-next-line MD034 -->
+https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
+
+[Watch the video](docs/assets/promo/european-tech-opportunities-2027.mp4) · [Transcript](docs/assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Static overview](docs/assets/promo/storyboard.webp)
 
 What started as a small open-source project has grown into a directory used by people across Europe and beyond.
 

@@ -21,6 +21,7 @@ ROOT_FILES = (
     "SECURITY.md",
     "docs/README.md",
     "docs/assets/README.md",
+    "docs/assets/promo/maintainers/VIDEO.md",
 )
 MARKDOWNLINT = (
     "davidanson/markdownlint-cli2:v0.23.3@"

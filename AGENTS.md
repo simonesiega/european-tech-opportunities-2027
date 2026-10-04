@@ -286,6 +286,7 @@ Live tests are opt-in and authorization-gated. Do not run them unless the task e
 - Follow the shared writing style in `docs/maintainers/engineering/documentation.md`; update the documentation router, audience index, and MkDocs navigation for new public guides.
 - Put product tasks under `docs/users/`, engineering and operations under `docs/maintainers/`, and public visuals under `docs/assets/`.
 - Keep the README a product showcase; coverage metrics belong to the generated region in `docs/maintainers/engineering/testing.md`.
+- Before changing the promotional video, read and follow [VIDEO.md](docs/assets/promo/maintainers/VIDEO.md).
 - Generated files must be updated through their owning command.
 - Never stage `.env`, local settings, database files, SQLite sidecars, caches, build output, quality reports, or authenticated fixtures.
 Before handing off a code change:

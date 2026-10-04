@@ -30,6 +30,7 @@ For developers, maintainers, operators, and automation authors. These guides des
 | Behavior contracts, test placement and validation commands | [Testing strategy](engineering/testing.md) |
 | Shared writing style, navigation, and generated regions | [Documentation maintenance](engineering/documentation.md) |
 | Public images, diagrams, and tour reproduction | [Visual assets](../assets/README.md) |
+| Promotional film source recovery, editing, and replacement | [Video maintenance for agents](../assets/promo/maintainers/VIDEO.md) |
 
 ## Operate and recover
 
