@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 2, 2026 at 11:17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-790-2563eb?style=for-the-badge" alt="Total opportunities: 790" />
-  <img src="https://img.shields.io/badge/Internships-343-16a34a?style=for-the-badge" alt="Internships: 343" />
-  <img src="https://img.shields.io/badge/New%20Grad-447-9333ea?style=for-the-badge" alt="New Grad opportunities: 447" />
+  <strong>Last successful collection: October 3, 2026 at 22:05 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-707-2563eb?style=for-the-badge" alt="Total opportunities: 707" />
+  <img src="https://img.shields.io/badge/Internships-325-16a34a?style=for-the-badge" alt="Internships: 325" />
+  <img src="https://img.shields.io/badge/New%20Grad-382-9333ea?style=for-the-badge" alt="New Grad opportunities: 382" />
 </p>
-<!-- Public directory state v1 sha256: 9df437daae347961e3b3ed43bf071e2ce98fb5cdd9be87bb13a52c157be5308e -->
+<!-- Public directory state v1 sha256: 497dc130b55a6203dc30b676a787e12967e5324b22fcb4acdaace358ccd375d6 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -69,34 +69,34 @@ The official site has generated **12K+ page views**, with **2.2K+ users and 8.2K
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 790 (Internships: 343 · New Grad: 447)<br>
-**Last successful collection:** October 2, 2026 at 11:17 UTC
+**Open opportunities:** 707 (Internships: 325 · New Grad: 382)<br>
+**Last successful collection:** October 3, 2026 at 22:05 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 447 open New Grad opportunities:
+Showing the 5 most recently discovered of 382 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| DeepTree | Graduate Software Engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4474709418>) |
-| Arm | Graduate Software Engineer | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4472552295>) |
-| Ocho | Graduate Software Engineer | Belfast, Northern Ireland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4474146222>) |
-| Aurora Energy Research | Graduate Software Engineering Programme \(Oxford, 2027\) | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4471994808>) |
-| Vhi | IT Graduate - Software Engineering | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4472640313>) |
+| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4473883085>) |
+| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4473863876>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4473872452>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4473882106>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4473862985>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 343 open internships:
+Showing the 5 most recently discovered of 325 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| PwC Italy | Software Engineer Intern - Milano \[DIG\] | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4474793698>) |
 | Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472891402>) |
 | Luminor Group | IT &amp; Cybersecurity Intern | Tallinn, Harjumaa, Estonia | [View](<https://www.linkedin.com/jobs/view/4472852461>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4472372378>) |
 | Mirakl | Software Engineer Intern - Financial Services | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472910231>) |
-| Titan OS | Frontend Developer Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4473790799>) |
-| Mirakl | Software Engineer Intern - Ads | Bordeaux, Nouvelle-Aquitaine, France | [View](<https://www.linkedin.com/jobs/view/4472909167>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
