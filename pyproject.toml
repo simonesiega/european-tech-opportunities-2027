@@ -70,13 +70,26 @@ include = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/opportunities"]
+dev-mode-dirs = ["src"]
+# Normal selection respects ignore rules; directory-wide force-include would
+# bundle ignored operator settings, credentials, and runtime artifacts as well.
+only-include = [
+  "src/opportunities",
+  "configs/categories.yml",
+  "configs/settings.example.yml",
+  "configs/searches",
+  "migrations",
+  "schemas",
+]
 
-[tool.hatch.build.targets.wheel.force-include]
-"alembic.ini" = "opportunities/resources/alembic.ini"
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
 "configs" = "opportunities/resources/configs"
 "migrations" = "opportunities/resources/migrations"
 "schemas" = "opportunities/resources/schemas"
+
+[tool.hatch.build.targets.wheel.force-include]
+"alembic.ini" = "opportunities/resources/alembic.ini"
 
 [tool.ruff]
 target-version = "py312"

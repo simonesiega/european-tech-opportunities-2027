@@ -45,7 +45,7 @@ if [[ -e "$release" || -L "$release" || -e "$next_pointer" || -L "$next_pointer"
 fi
 
 for sidecar in "$staging/opportunities.db-wal" "$staging/opportunities.db-shm" "$staging/opportunities.db-journal"; do
-  if [[ -e "$sidecar" ]]; then
+  if [[ -e "$sidecar" || -L "$sidecar" ]]; then
     echo "Staged SQLite sidecars are not supported." >&2
     exit 1
   fi

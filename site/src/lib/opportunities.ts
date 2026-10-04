@@ -50,8 +50,12 @@ export const getDirectoryData = cache(function getDirectoryData(): DirectoryData
   const database = new DatabaseSync(databasePath, {readOnly: true});
 
   try {
+    // Fixed-path deployments can have an active writer. Pin both reads to one
+    // SQLite snapshot so the collection timestamp cannot describe different rows.
+    database.exec("BEGIN");
     const {lastUpdatedAt} = readDirectorySummary(database);
     const rows = database.prepare(OPEN_OPPORTUNITIES_QUERY).all() as Opportunity[];
+    database.exec("COMMIT");
 
     // node:sqlite rows have a null prototype and cannot cross the Server Component boundary.
     const opportunities = rows.map((row) => {

@@ -237,8 +237,13 @@ def create_snapshot(
     source_sidecars = {Path(f"{source_path}{suffix}") for suffix in ("-wal", "-shm", "-journal")}
     if resolved_outputs & source_sidecars:
         raise SnapshotError("snapshot outputs must not be SQLite sidecars of the source database")
+    if manifest_path.resolve() in {
+        Path(f"{snapshot_path.resolve()}{suffix}") for suffix in ("-wal", "-shm", "-journal")
+    }:
+        raise SnapshotError("snapshot manifest must not be a SQLite sidecar of the snapshot")
     if any(path.exists() or path.is_symlink() for path in (snapshot_path, manifest_path)):
         raise SnapshotError("snapshot outputs must not already exist")
+    _reject_snapshot_sidecars(snapshot_path)
 
     normalized_prefix = _key_prefix(key_prefix)
     created = _utc(created_at or datetime.now(UTC), "created_at")
@@ -407,6 +412,9 @@ def verify_snapshot(
 ) -> SnapshotManifest:
     """Verify manifest structure, checksum, schema, timestamps, and SQLite recovery."""
     manifest = load_manifest(manifest_path)
+    # The manifest hashes only the main file. Never let SQLite silently merge
+    # unhashed WAL/journal state into the database being verified.
+    _reject_snapshot_sidecars(database_path)
     if not database_path.is_file() or database_path.stat().st_size == 0:
         raise SnapshotError(f"snapshot database is missing or empty: {database_path}")
     if expected_database_key is not None and manifest.database_key != expected_database_key:
@@ -431,6 +439,15 @@ def verify_snapshot(
     if metadata.collection_timestamp != manifest.collection_timestamp:
         raise SnapshotError("snapshot collection timestamp does not match its manifest")
     return manifest
+
+
+def _reject_snapshot_sidecars(database_path: Path) -> None:
+    """Preserve unexpected sidecars instead of verifying or publishing beside them."""
+    resolved = database_path.resolve()
+    for suffix in ("-wal", "-shm", "-journal"):
+        sidecar = Path(f"{resolved}{suffix}")
+        if sidecar.exists() or sidecar.is_symlink():
+            raise SnapshotError("snapshot has SQLite sidecars; preserve and checkpoint it first")
 
 
 def load_manifest(path: Path) -> SnapshotManifest:

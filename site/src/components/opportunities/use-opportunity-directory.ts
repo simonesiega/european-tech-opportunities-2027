@@ -136,7 +136,8 @@ export function useOpportunityDirectory(
   function setFilter(name: FilterName, value: string, historyMode: HistoryMode) {
     updateUrl(
       {
-        [FILTER_PARAMETERS[name]]: value && value !== ALL_FILTER_VALUE ? value : null,
+        [FILTER_PARAMETERS[name]]:
+          value && (name === "query" || value !== ALL_FILTER_VALUE) ? value : null,
         [VIEW_PARAMETERS.page]: null,
       },
       historyMode

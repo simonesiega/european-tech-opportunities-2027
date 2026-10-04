@@ -29,7 +29,7 @@ for required_file in data/opportunities.db \
 done
 check_sidecars() {
   for sidecar in data/opportunities.db-wal data/opportunities.db-shm data/opportunities.db-journal; do
-    if [[ -e "$sidecar" ]]; then
+    if [[ -e "$sidecar" || -L "$sidecar" ]]; then
       echo "Checkpoint and close the local SQLite database before deployment." >&2
       exit 1
     fi
@@ -99,7 +99,7 @@ metadata_sha=$(sha256sum data/exports/dataset-metadata.json | cut -d ' ' -f 1)
 
 # A unique run/attempt owns its uploads. Do not overwrite a prior partial upload.
 ssh "${ssh_options[@]}" "$ssh_target" \
-  "test ! -e '$staging' && install -d -m 700 '$staging/exports'"
+  "test ! -e '$staging' && test ! -L '$staging' && install -d -m 700 '$staging/exports'"
 prepared=true
 scp "${scp_options[@]}" data/opportunities.db "$ssh_target:$staging/opportunities.db"
 scp "${scp_options[@]}" data/exports/open-opportunities.csv \
