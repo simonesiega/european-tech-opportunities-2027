@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, or_, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
@@ -45,7 +45,7 @@ class PersistSummary:
 
 @dataclass(frozen=True, slots=True)
 class AvailabilityChanges:
-    """Summarize changes made by a complete availability audit."""
+    """Summarize changes made by an availability audit batch."""
 
     deleted: int = 0
     reopened: int = 0
@@ -278,22 +278,58 @@ class Repository:
             rows = session.scalars(select(JobRow).order_by(JobRow.linkedin_job_id)).all()
             return [_stored_job(row) for row in rows]
 
+    def availability_batch(self, observed_at: datetime) -> tuple[list[StoredJob], int]:
+        """Select overdue jobs, never checked first, and count due jobs deferred by the cap."""
+        cutoff = ensure_utc(observed_at) - timedelta(days=self.settings.availability_interval_days)
+        due = or_(
+            JobRow.last_availability_checked_at.is_(None),
+            JobRow.last_availability_checked_at <= cutoff,
+        )
+        with self.factory() as session:
+            due_count = session.scalar(select(func.count()).select_from(JobRow).where(due)) or 0
+            rows = session.scalars(
+                select(JobRow)
+                .where(due)
+                .order_by(
+                    JobRow.last_availability_checked_at.asc().nulls_first(),
+                    JobRow.first_seen_at,
+                    JobRow.linkedin_job_id,
+                )
+                .limit(self.settings.availability_max_jobs)
+            ).all()
+            return [_stored_job(row) for row in rows], due_count - len(rows)
+
     def apply_availability_audit(
         self,
         *,
         available_ids: tuple[str, ...],
         unavailable_ids: tuple[str, ...],
         observed_at: datetime,
+        inconclusive_ids: tuple[str, ...] = (),
     ) -> AvailabilityChanges:
         """Reopen available jobs and remove jobs with explicit unavailability evidence."""
         available = set(available_ids)
         unavailable = set(unavailable_ids)
+        inconclusive = set(inconclusive_ids)
         if available & unavailable:
             raise ValueError("a job cannot be both available and unavailable")
+        if inconclusive & (available | unavailable):
+            raise ValueError("inconclusive availability outcomes must not overlap confirmed ones")
+        observed_at = ensure_utc(observed_at)
 
         reopened = 0
         deleted = 0
         with self.factory.begin() as session:
+            # Non-denial attempts advance the queue even when evidence is inconclusive.
+            # This metadata is separate from lifecycle observations and never published.
+            attempted = available | inconclusive
+            if attempted:
+                for job in session.scalars(
+                    select(JobRow).where(JobRow.linkedin_job_id.in_(attempted))
+                ):
+                    job.last_availability_checked_at = max(
+                        ensure_utc(job.last_availability_checked_at or observed_at), observed_at
+                    )
             if available:
                 available_jobs = session.scalars(
                     select(JobRow).where(JobRow.linkedin_job_id.in_(available))
@@ -583,7 +619,7 @@ class Repository:
                 JobSearchRow.active.is_(True),
             )
         ).all()
-        # A newer observation from another search or the full-state auditor also
+        # A newer observation from another search or the availability auditor also
         # supersedes a delayed 404 for this association.
         jobs = {
             row.linkedin_job_id: row

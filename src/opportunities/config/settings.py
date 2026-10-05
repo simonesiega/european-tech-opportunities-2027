@@ -48,6 +48,8 @@ class Settings(BaseModel):
     rate_limit_seconds: float = Field(default=2.0, ge=0, le=60)
     max_concurrency: int = Field(default=3, ge=1, le=16)
     max_response_bytes: int = Field(default=15_000_000, ge=10_000, le=100_000_000)
+    availability_interval_days: int = Field(default=5, ge=1, le=365)
+    availability_max_jobs: int = Field(default=250, ge=1, le=1000)
     closure_confirmation_runs: int = Field(default=2, ge=1, le=10)
     linkedin_crawl_authorized: bool = False
     user_agent: str = Field(default=DEFAULT_USER_AGENT, min_length=20, max_length=300)
@@ -134,6 +136,8 @@ _ENV_FIELDS = {
     "RATE_LIMIT_SECONDS": "rate_limit_seconds",
     "MAX_CONCURRENCY": "max_concurrency",
     "MAX_RESPONSE_BYTES": "max_response_bytes",
+    "AVAILABILITY_INTERVAL_DAYS": "availability_interval_days",
+    "AVAILABILITY_MAX_JOBS": "availability_max_jobs",
     "CLOSURE_CONFIRMATION_RUNS": "closure_confirmation_runs",
     "LINKEDIN_CRAWL_AUTHORIZED": "linkedin_crawl_authorized",
     "USER_AGENT": "user_agent",

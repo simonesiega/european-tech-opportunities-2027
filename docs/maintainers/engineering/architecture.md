@@ -37,7 +37,7 @@ These are contracts, not suggestions. Review [SECURITY.md](../../../SECURITY.md)
 | Classification | `src/opportunities/pipeline/classification.py` | Pure acceptance/rejection decisions |
 | Collection orchestration | `src/opportunities/pipeline/runner.py` | Bounded concurrent discovery, isolated outcomes, serialized persistence |
 | Collection quality | `src/opportunities/pipeline/data_quality.py` | Pure aggregate drift analysis and publication-gate findings |
-| Availability | `src/opportunities/pipeline/availability.py` | Full-state explicit evidence audit |
+| Availability | `src/opportunities/pipeline/availability.py` | Bounded rotating explicit evidence audit |
 | Persistence | `src/opportunities/database/`, `migrations/` | Transactions, provenance, lifecycle, bounded aggregate quality baselines and schema evolution |
 | Projections | `src/opportunities/readme.py`, `public_exports.py`, `search_registry_docs.py` | Generated regions, public serialization and validation |
 | Website | `site/src/lib/`, `site/src/components/` | Server-only read-only queries; client-only interaction |
@@ -55,7 +55,7 @@ Overlapping searches share in-flight detail requests by numeric ID. Completed re
 
 Searches fetch concurrently, then outcomes persist in finish-time order. Each successful search commits independently. A failed search records bounded, sanitized diagnostics but does not upsert jobs, apply absence, confirm unavailability, or close rows. A partial batch preserves successful work. [CLI exit codes](../operations/cli.md#exit-codes) are canonical.
 
-The search start is a conservative observation lower bound: a detail page fetched early in a slow search must not overrule a newer observation merely because its search finished later. Repository stale-evidence guards and monotonic timestamps enforce this. Exact transitions, the separate full-state audit, and migrations belong to [Database and lifecycle](../operations/database.md).
+The search start is a conservative observation lower bound: a detail page fetched early in a slow search must not overrule a newer observation merely because its search finished later. Repository stale-evidence guards and monotonic timestamps enforce this. Exact transitions, the separate rotating audit, and migrations belong to [Database and lifecycle](../operations/database.md).
 
 ## Public projections
 

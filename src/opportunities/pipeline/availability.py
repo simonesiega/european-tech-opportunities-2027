@@ -1,7 +1,8 @@
-"""Full-state public-page and detail-page availability auditing."""
+"""Bounded rotating public-page and detail-page availability auditing."""
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -22,10 +23,12 @@ from opportunities.scrapers.linkedin import (
 from opportunities.utils.concurrency import map_concurrently
 from opportunities.utils.time import utc_now
 
+logger = logging.getLogger(__name__)
+
 
 @dataclass(frozen=True, slots=True)
 class AvailabilityAuditResult:
-    """Summarize one complete pass over canonical job rows."""
+    """Summarize a bounded pass and the remaining due backlog."""
 
     checked: int
     available: int
@@ -33,6 +36,7 @@ class AvailabilityAuditResult:
     reopened: int
     inconclusive_ids: tuple[str, ...]
     source_blocked: bool = False
+    deferred: int = 0
 
     @property
     def exit_code(self) -> int:
@@ -49,7 +53,7 @@ async def audit_job_availability(
     fetcher: TextFetcher | None = None,
     observed_at: datetime | None = None,
 ) -> AvailabilityAuditResult:
-    """Check every public job page and delete explicitly unavailable rows.
+    """Check a bounded batch of due jobs and delete explicitly unavailable rows.
 
     HTTP 404/410 responses and LinkedIn's explicit closed-application alert prove that
     a listing is unavailable. Otherwise, the guest detail endpoint must still contain
@@ -57,8 +61,9 @@ async def audit_job_availability(
     errors, malformed responses, and transport failures are inconclusive and never
     delete data.
     """
-    jobs = repository.list_all_jobs()
     checked_at = observed_at or utc_now()
+    jobs, deferred = repository.availability_batch(checked_at)
+    logger.info("availability batch: %d selected, %d due deferred", len(jobs), deferred)
 
     if fetcher is None:
         async with HttpFetcher(settings) as managed:
@@ -68,6 +73,7 @@ async def audit_job_availability(
                 fetcher=managed,
                 max_concurrency=settings.max_concurrency,
                 observed_at=checked_at,
+                deferred=deferred,
             )
     return await _audit_jobs(
         jobs=jobs,
@@ -75,6 +81,7 @@ async def audit_job_availability(
         fetcher=fetcher,
         max_concurrency=settings.max_concurrency,
         observed_at=checked_at,
+        deferred=deferred,
     )
 
 
@@ -85,6 +92,7 @@ async def _audit_jobs(
     fetcher: TextFetcher,
     max_concurrency: int,
     observed_at: datetime,
+    deferred: int,
 ) -> AvailabilityAuditResult:
     """Fetch all public and guest-detail pages before one atomic database mutation."""
 
@@ -123,6 +131,7 @@ async def _audit_jobs(
         available_ids=available_ids,
         unavailable_ids=unavailable_ids,
         observed_at=observed_at,
+        inconclusive_ids=tuple(job_id for job_id, state in outcomes if state == "inconclusive"),
     )
     return AvailabilityAuditResult(
         checked=len(jobs),
@@ -131,4 +140,5 @@ async def _audit_jobs(
         reopened=changes.reopened,
         inconclusive_ids=inconclusive_ids,
         source_blocked=any(state == "blocked" for _, state in outcomes),
+        deferred=deferred,
     )

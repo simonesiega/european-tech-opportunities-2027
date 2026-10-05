@@ -52,6 +52,16 @@ Source: [integration/test_availability.py](integration/test_availability.py).
 | `test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial` | Already-started 200/404 evidence is preserved while a sibling denial stops queued work |
 | `test_availability_errors_are_not_closure_evidence_except_not_found_or_gone` | At either endpoint, only 404/410 deletes; other statuses and unexpected failures preserve state |
 
+Source: [integration/test_availability_schedule.py](integration/test_availability_schedule.py).
+
+| Test | Behavior protected |
+|---|---|
+| `test_initial_backlog_is_capped_and_rotates_across_five_runs` | A 1,062-row initial backlog drains without duplicate checks, never exceeds 250 jobs per run, and resumes from persistent timestamps |
+| `test_due_boundary_and_ordering_do_not_use_discovery_timestamps` | Never-checked and oldest-checked rows take priority; the five-day boundary is inclusive and discovery does not postpone the audit |
+| `test_attempts_rotate_without_changing_inconclusive_lifecycle_or_stamping_denials` | Inconclusive attempts advance only scheduling metadata; denials and deferred rows do not advance |
+| `test_inconclusive_and_confirmed_outcomes_cannot_overlap` | Contradictory evidence fails before lifecycle or scheduling writes |
+| `test_no_due_jobs_produces_no_requests_and_audit_timestamps_are_monotonic` | No due work issues no requests; stale attempts cannot move the schedule backwards |
+
 ### CLI
 
 Source: [integration/test_cli.py](integration/test_cli.py).
@@ -177,6 +187,8 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 |---|---|
 | `test_production_search_registry_is_bounded_and_scope_specific` | Checked-in role/company/country searches preserve query scope, date windows, allowlists, geo IDs, and request/recheck bounds |
 | `test_dotenv_loads_automatically_and_process_environment_wins` | Local dotenv defaults load while explicit environment settings win, including relative export paths |
+| `test_availability_environment_overrides_and_defaults` | Operator audit settings override defaults; absent settings retain the five-day interval and bounded cap |
+| `test_availability_limits_reject_unbounded_values` | Invalid intervals and batch limits fail before collection |
 | `test_search_text_normalization_includes_optional_notes` | Whitespace-normalized search inputs are stable instead of changing queries or recorded scope accidentally |
 | `test_trailing_environment_whitespace_is_ignored` | Trailing deployment-setting whitespace does not misparse an explicit authorization value |
 | `test_global_search_limits_override_yaml_values` | Operator page/result/recheck bounds override per-search configuration |
@@ -318,6 +330,7 @@ Sources: [unit/test_migrations.py](unit/test_migrations.py) and [unit/test_publi
 | `test_upgrade_database_creates_a_missing_sqlite_parent` | Fresh setup can initialize nested database paths |
 | `test_employment_type_migration_backfills_existing_jobs` | Historical employment types migrate to valid nonnullable values |
 | `test_canonical_state_migration_preserves_rows_and_rejects_invalid_state` | Historical jobs/runs/provenance survive constraints and the additive quality revision; invalid lifecycle/count/time updates fail and foreign keys remain valid |
+| `test_availability_migration_preserves_prior_rows_and_round_trips` | Existing jobs survive upgrade/downgrade, scheduling starts null, and foreign keys remain valid |
 | `test_public_exports_include_only_approved_fields_in_stable_order` | Open-only ordered CSV/JSON, Unicode, metadata allowlists/counts/hashes, and shared schemas agree; missing files are reported |
 | `test_public_csv_neutralizes_formulas_and_validation_detects_stale_files` | Every spreadsheet-dangerous prefix in every free-text column is neutralized without altering JSON; stale exports invalidate both content and metadata |
 | `test_export_schema_and_metadata_validation_rejects_tampering` | Wrong counts, non-UTC time, extra private fields, CSV headers, and stale totals fail; an empty dataset still validates |
@@ -395,7 +408,8 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_collection_quality_gate_propagates_blocking_failures` | Workflow shell preserves blocking/configuration exits while accepting success and isolated partial collection |
 | `test_availability_denial_stops_workflow_before_follow_on_scrape` | Audit exit handling and step dependency stop subsequent collection after denial |
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
-| `test_nightly_supports_manual_and_scheduled_full_updates` | Scheduled/manual work uses a noncancelling shared lock, full audit/collection, and explicit authorization input |
+| `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, interval, and cap come from repository variables; the processor retains its bounded timeout and authorization input |
+| `test_nightly_supports_manual_and_scheduled_full_updates` | Scheduled/manual work uses a noncancelling shared lock, audit/collection, and explicit authorization input |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent handoff to the README-writing job |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |
 | `test_recovery_mode_guard_precedes_restore_and_forbids_side_effects` | Recovery-mode combinations fail before restore and cannot publish snapshots or bypass validation before handoff |

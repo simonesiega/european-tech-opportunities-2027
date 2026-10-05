@@ -10,7 +10,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  # This mode audits all stored rows but deliberately skips new discovery.
+  # This mode audits a bounded batch of due rows but skips new discovery.
   process-state:
     name: Audit and preserve state
     uses: $/.github/workflows/reusable-process-state.yml
@@ -47,5 +47,5 @@ jobs:
       title: "data: remove unavailable positions"
       commit_message: "data: remove unavailable positions"
       body: >-
-        Manual full-database availability audit. Explicit 404/410 listings and pages showing
+        Manual bounded availability audit of due listings. Explicit 404/410 listings and pages showing
         'No longer accepting applications' were removed; merge remains manual.

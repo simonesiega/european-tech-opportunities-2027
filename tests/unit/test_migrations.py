@@ -188,9 +188,13 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
     # The additive quality revision must also round-trip without touching lifecycle rows.
     command.downgrade(config, "a9c4e72b5d18")
     with closing(sqlite3.connect(database)) as connection:
-        before = {
-            table: connection.execute(f"SELECT * FROM {table}").fetchall()
+        columns = {
+            table: ", ".join(row[1] for row in connection.execute(f"PRAGMA table_info({table})"))
             for table in ("jobs", "searches", "search_runs", "job_searches")
+        }
+        before = {
+            table: connection.execute(f"SELECT {names} FROM {table}").fetchall()
+            for table, names in columns.items()
         }
         assert not connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'data_quality_snapshots'"
@@ -199,5 +203,45 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
     with closing(sqlite3.connect(database)) as connection:
         assert connection.execute("SELECT COUNT(*) FROM data_quality_snapshots").fetchone() == (0,)
         for table, rows in before.items():
-            assert connection.execute(f"SELECT * FROM {table}").fetchall() == rows
+            assert connection.execute(f"SELECT {columns[table]} FROM {table}").fetchall() == rows
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+
+
+def test_availability_migration_preserves_prior_rows_and_round_trips(tmp_path: Path) -> None:
+    database = tmp_path / "availability.db"
+    config = Config(str(ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(ROOT / "migrations"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    command.upgrade(config, "a3c8e1f6d902")
+    with closing(sqlite3.connect(database)) as connection, connection:
+        connection.execute(
+            """INSERT INTO jobs (
+                linkedin_job_id, company, title, location, link, category,
+                employment_type, first_seen_at, last_seen_at, updated_at, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                "1",
+                "Synthetic",
+                "Software Intern 2027",
+                "Berlin, Germany",
+                "https://www.linkedin.com/jobs/view/1",
+                "software-engineering",
+                "internship",
+                "2026-07-01 00:00:00",
+                "2026-07-01 00:00:00",
+                "2026-07-01 00:00:00",
+                "open",
+            ),
+        )
+        original = connection.execute("SELECT * FROM jobs").fetchall()
+    command.upgrade(config, "head")
+    with closing(sqlite3.connect(database)) as connection, connection:
+        assert connection.execute("SELECT * FROM jobs").fetchall() == [(*original[0], None)]
+        connection.execute("UPDATE jobs SET last_availability_checked_at = '2026-10-05 00:00:00'")
+    command.downgrade(config, "a3c8e1f6d902")
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT * FROM jobs").fetchall() == original
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    command.upgrade(config, "head")
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT * FROM jobs").fetchall() == [(*original[0], None)]

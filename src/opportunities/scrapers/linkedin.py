@@ -413,7 +413,7 @@ class LinkedInScraper:
             )
 
         # Bound rechecks deterministically by job ID. Collection revisits the same
-        # lowest-ID absent subset; the separate full-state audit covers every stored job.
+        # lowest-ID absent subset; the separate availability audit rotates through due jobs.
         absent_known = sorted(
             (job for job in known_jobs if job.source_job_id not in cards),
             key=lambda job: job.source_job_id,
