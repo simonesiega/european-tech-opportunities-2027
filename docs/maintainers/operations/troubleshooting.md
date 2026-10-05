@@ -396,9 +396,9 @@ Parser contribution requirements are defined in [`CONTRIBUTING.md`](../../../CON
 
 Search-card absence is intentionally ignored.
 
-During collection, closure requires repeated detail-page `404` or `410` confirmations for every active search association. Separately, the daily full-state audit permanently deletes a row after an explicit `404` or `410` from its public listing or guest detail request, or after a scoped “No longer accepting applications” alert.
+During collection, closure requires repeated detail-page `404` or `410` confirmations for every active search association. Separately, the rotating availability audit permanently deletes a row after an explicit `404` or `410` from its public listing or guest detail request, or after a scoped “No longer accepting applications” alert.
 
-`max_rechecks` selects a deterministic lowest-ID subset, not a rotating queue. Repeating the same search does not guarantee that every absent job will be checked. The separate full-state audit visits all stored jobs, preserving inconclusive results.
+`max_rechecks` selects a deterministic lowest-ID subset, not a rotating queue. Repeating the same search does not guarantee that every absent job will be checked. The separate [rotating audit](database.md#bounded-availability-audit) checks due jobs in bounded batches, preserving inconclusive results. A deferred row is not closure evidence.
 
 Check:
 
@@ -407,7 +407,7 @@ Check:
 - recent successful search runs;
 - the bounded recheck limit;
 - whether a valid detail page reset confirmations;
-- whether the latest full-state audit was complete or reported the row as inconclusive.
+- whether the row is due, deferred by the batch cap, or reported as inconclusive.
 
 The complete lifecycle algorithm is documented in [Database lifecycle](database.md#closure-lifecycle).
 

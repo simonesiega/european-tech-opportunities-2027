@@ -53,7 +53,7 @@ The global `--settings` option must appear before the command name. In this refe
 | `scrape` | Run authorized collection, persist independent outcomes, and optionally check collection quality |
 | `add-job` | Add a known LinkedIn listing to canonical state without search provenance |
 | `add-jobs` | Validate and add a bounded batch of reviewed listings in one transaction |
-| `check-availability` | Audit every stored LinkedIn listing and delete explicitly unavailable rows |
+| `check-availability` | Audit a bounded batch of due listings and delete explicitly unavailable rows |
 | `render` | Regenerate owned README, search-registry documentation, and public data projections |
 | `export-public` | Regenerate sanitized CSV/JSON downloads and their metadata manifest |
 | `stats` | Display aggregate canonical state |
@@ -216,7 +216,7 @@ The command:
 
 - extracts the numeric identity from the canonical LinkedIn `/jobs/view/<id>` URL;
 - validates and normalizes the row through `DiscoveredJob`, then applies the same deterministic classifier as collection (title, category, employment type, cycle/posting date, and European location) before writing;
-- inserts or updates an open row through the repository; rejects a closed row, which must be reopened by valid discovery or a successful full-state availability audit;
+- inserts or updates an open row through the repository; rejects a closed row, which must be reopened by valid discovery or a successful availability audit;
 - creates no search, search run, or `job_searches` provenance;
 - performs no network access and does not require the LinkedIn authorization interlock;
 - refreshes the README, search-registry documentation, and all public exports by default.
@@ -267,14 +267,14 @@ Check canonical state without refreshing generated projections:
 uv run opportunities check-availability --no-render
 ```
 
-The command requires the LinkedIn authorization interlock and checks every job row, including rows currently marked closed. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
+The command requires the LinkedIn authorization interlock and checks at most 250 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. The summary reports due rows deferred by the cap; those rows stay unchanged and do not cause a partial-success exit. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
 
 - successful public-page and detail-page validation keeps the row open or reopens it;
 - HTTP `404` or `410` from either request permanently deletes the job and cascading search provenance;
 - a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
-The command exits with code `2` when one or more checks are inconclusive without a source-access denial. This includes an [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects): the affected row stays unchanged, its destination is never followed or used as evidence, and other checks continue. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. Any other redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial. The nightly workflow runs this full audit once per day before scraping, opens or updates a tightly scoped README pull request, explicitly dispatches and awaits validation on that generated commit, and only then requests auto-merge. The availability-only workflow can run the same command manually and opens its own validated manual-review pull request.
+The command exits with code `2` when one or more checks are inconclusive without a source-access denial. This includes an [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects): the affected row stays unchanged, its destination is never followed or used as evidence, and other checks continue. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. Any other redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial. The nightly workflow runs this bounded audit once per day before scraping, opens or updates a tightly scoped README pull request, explicitly dispatches and awaits validation on that generated commit, and only then requests auto-merge. The availability-only workflow can run the same command manually and opens its own validated manual-review pull request.
 
 ## `render`
 

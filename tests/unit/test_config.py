@@ -64,6 +64,36 @@ def test_dotenv_loads_automatically_and_process_environment_wins(
     assert settings.public_export_dir == Path("generated/public")
 
 
+def test_availability_environment_overrides_and_defaults(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS", "7")
+    monkeypatch.setenv("OPPORTUNITIES_AVAILABILITY_MAX_JOBS", "100")
+    configured = load_settings()
+    assert configured.availability_interval_days == 7
+    assert configured.availability_max_jobs == 100
+    for name in ("OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS", "OPPORTUNITIES_AVAILABILITY_MAX_JOBS"):
+        monkeypatch.delenv(name)
+    defaults = load_settings()
+    assert defaults.availability_interval_days == 5
+    assert defaults.availability_max_jobs == 250
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("availability_interval_days", 0),
+        ("availability_interval_days", 366),
+        ("availability_max_jobs", 0),
+        ("availability_max_jobs", 1001),
+    ],
+)
+def test_availability_limits_reject_unbounded_values(name: str, value: int) -> None:
+    with pytest.raises(ValidationError):
+        Settings.model_validate({name: value})
+
+
 def test_search_text_normalization_includes_optional_notes() -> None:
     search = LinkedInSearchConfig(
         name="  Software   opportunities  ",

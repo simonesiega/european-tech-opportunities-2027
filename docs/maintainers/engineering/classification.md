@@ -44,7 +44,7 @@ Optional industries come from structured criteria, not arbitrary description key
 
 Malformed detail identity is not replaced by card identity. A majority-malformed page/search fails instead of masquerading as a successful empty result. Non-404/410 recheck transport failures fail the search, preserving its lifecycle state. Ambiguous recheck HTML is never closure evidence.
 
-Known-job rechecks select a deterministic bounded lowest-ID subset; they are **not a rotating queue**. The separate full-state audit covers every stored job. See [Database lifecycle](../operations/database.md#daily-full-state-availability-audit) for its distinct deletion policy and [Configuration](../getting-started/configuration.md#http-policy) for retries, pacing, cookies and stop conditions.
+Known-job rechecks select a deterministic bounded lowest-ID subset; they are **not a rotating queue**. The separate rotating audit checks bounded batches of due jobs. See [Database lifecycle](../operations/database.md#bounded-availability-audit) for its distinct deletion policy and [Configuration](../getting-started/configuration.md#http-policy) for retries, pacing, cookies and stop conditions.
 
 ## Change safely
 

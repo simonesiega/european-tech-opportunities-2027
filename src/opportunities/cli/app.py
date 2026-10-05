@@ -187,7 +187,7 @@ def check_availability(
         bool, typer.Option("--no-render", help="Do not update generated projections.")
     ] = False,
 ) -> None:
-    """Check every stored job page and delete explicitly unavailable rows."""
+    """Check a bounded batch of due job pages and delete explicitly unavailable rows."""
     settings = _settings(ctx)
     _require_linkedin_permission(settings)
     repository, engine = _repository(settings)
@@ -199,7 +199,7 @@ def check_availability(
         console.print(
             f"Checked {result.checked} position(s): {result.available} available, "
             f"{result.deleted} deleted, {result.reopened} reopened, "
-            f"{len(result.inconclusive_ids)} inconclusive."
+            f"{len(result.inconclusive_ids)} inconclusive; {result.deferred} due deferred."
         )
         if result.source_blocked:
             error_console.print(

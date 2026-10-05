@@ -73,8 +73,10 @@ class JobRow(Base):
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    last_availability_checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     __table_args__ = (
+        Index("ix_jobs_availability", "last_availability_checked_at", "first_seen_at"),
         CheckConstraint(
             "employment_type IN ('internship', 'new-grad')",
             name="ck_jobs_employment_type",

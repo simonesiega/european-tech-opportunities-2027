@@ -151,7 +151,7 @@ Disabling or deleting a search:
 - is synchronized into persisted search state on the next collection run;
 - does not directly close associated jobs.
 
-Collection-driven job closure depends on repeated explicit detail-page unavailability across every active association, not registry deletion. The separate [full-state availability audit](../operations/database.md#daily-full-state-availability-audit) follows its own explicit deletion rules.
+Collection-driven job closure depends on repeated explicit detail-page unavailability across every active association, not registry deletion. The separate [rotating availability audit](../operations/database.md#bounded-availability-audit) follows its own explicit deletion rules.
 
 ## Pagination and prefiltering
 

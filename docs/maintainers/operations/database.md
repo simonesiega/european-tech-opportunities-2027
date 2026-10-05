@@ -14,7 +14,7 @@ Preserve canonical SQLite state through repository transactions, versioned migra
 - [Successful search transaction](#successful-search-transaction)
 - [Manual job insertion](#manual-job-insertion)
 - [Closure lifecycle](#closure-lifecycle)
-- [Daily full-state availability audit](#daily-full-state-availability-audit)
+- [Bounded availability audit](#bounded-availability-audit)
 - [Timestamp invariants](#timestamp-invariants)
 - [One-writer model](#one-writer-model)
 - [Migrations](#migrations)
@@ -75,6 +75,7 @@ Important `jobs` fields:
 | `last_seen_at` | Latest successful listing observation or availability validation; monotonic |
 | `updated_at` | Latest material field change, reopen, or close |
 | `status` | `open` or `closed` |
+| `last_availability_checked_at` | UTC start time of the last non-denial availability attempt; private scheduling metadata, independent of discovery |
 
 Distinct LinkedIn IDs remain distinct jobs even when their display fields match.
 
@@ -155,9 +156,9 @@ Rediscovery:
 
 Maintainers may add one known, validated LinkedIn listing through `opportunities add-job`, or a bounded batch through `opportunities add-jobs`. The batch command validates every entry before writing and applies the rows in one repository transaction: a rejected entry leaves the whole batch unapplied. Neither command creates a synthetic search, search run, or `job_searches` association.
 
-For a new row, the command records it as open and initializes `first_seen_at` from the supplied posting timestamp when present, bounded by the actual observation time. Otherwise, the observation time is used. For an existing **open** row, normal public fields are refreshed, omitted optional metadata remains preserved, `first_seen_at` remains immutable, and lifecycle timestamps remain monotonic. A closed row cannot be reopened manually: it requires a successful full-state availability audit or later valid search discovery.
+For a new row, the command records it as open and initializes `first_seen_at` from the supplied posting timestamp when present, bounded by the actual observation time. Otherwise, the observation time is used. For an existing **open** row, normal public fields are refreshed, omitted optional metadata remains preserved, `first_seen_at` remains immutable, and lifecycle timestamps remain monotonic. A closed row cannot be reopened manually: it requires a successful availability audit or later valid search discovery.
 
-Manual rows participate in all normal read paths and the full-state availability audit. If collection later discovers the same numeric LinkedIn ID, the successful search transaction updates the existing row and attaches genuine search provenance. Manual insertion never changes collection statistics or the latest successful collection timestamp.
+Manual rows participate in all normal read paths and the rotating availability audit. If collection later discovers the same numeric LinkedIn ID, the successful search transaction updates the existing row and attaches genuine search provenance. Manual insertion never changes collection statistics or the latest successful collection timestamp.
 
 ## Closure lifecycle
 
@@ -190,9 +191,13 @@ Deleting or disabling search YAML does not close jobs.
 
 The confirmation threshold is configured through `OPPORTUNITIES_CLOSURE_CONFIRMATION_RUNS`; see [Configuration](../getting-started/configuration.md#environment-reference).
 
-## Daily full-state availability audit
+## Bounded availability audit
 
-The scheduled workflow runs `opportunities check-availability` once per day before collection. Unlike bounded per-search rechecks, this pass checks the public listing for every row, including closed rows. A successful public page without a closure alert is then followed by guest detail validation.
+The scheduled workflow runs `opportunities check-availability` once per day before collection. Each run selects at most `availability_max_jobs` rows (default 250) whose last audit attempt is at least `availability_interval_days` old (default five). Closed rows and manual listings are eligible. Never-checked rows go first, ordered by `first_seen_at` and ID; previously checked rows follow in oldest-check order. A successful public page without a closure alert is then followed by guest detail validation.
+
+The migration leaves existing rows with a null `last_availability_checked_at`; it does not fabricate prior checks. The cap applies immediately, so the initial backlog cannot cause a full-database sweep. Excess due rows remain untouched and wait for later runs. Five days is a minimum interval, not a completion guarantee: larger backlogs, failures, or delayed schedules can extend it.
+
+Completed non-denial attempts advance `last_availability_checked_at` in the audit transaction, including inconclusive responses. This prevents a repeatedly inconclusive low-ID listing from starving other jobs, without updating its lifecycle timestamps or status. Blocked and queued-after-denial jobs do not advance. Search discovery and manual updates do not reset the audit schedule. CLI output reports deferred due jobs; deferral alone is not a partial failure.
 
 Results are deliberately narrow:
 
@@ -203,7 +208,7 @@ scoped “No longer accepting applications” alert       → delete the job and
 anything else                                          → preserve the job as inconclusive
 ```
 
-The auditor collects every outcome before applying confirmed changes in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
+The auditor collects batch outcomes before applying confirmed changes and scheduling metadata in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
 
 An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) leaves that row unchanged and inconclusive without stopping unrelated checks. Its destination is never followed or used as evidence.
 

@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       run_availability:
-        description: Run the full-state availability audit before any scrape.
+        description: Run a bounded availability audit of due jobs before any scrape.
         required: false
         default: false
         type: boolean
@@ -51,7 +51,7 @@ on:
       timeout_minutes:
         description: Maximum processing-job duration.
         required: false
-        default: 180
+        default: 360
         type: number
       projection_artifact_name:
         description: Name of the retained public-projection artifact.
@@ -116,6 +116,10 @@ jobs:
     environment: ${{ inputs.environment_name }}
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ inputs.crawl_authorized }}
+      OPPORTUNITIES_MAX_CONCURRENCY: ${{ vars.OPPORTUNITIES_MAX_CONCURRENCY }}
+      OPPORTUNITIES_RATE_LIMIT_SECONDS: ${{ vars.OPPORTUNITIES_RATE_LIMIT_SECONDS }}
+      OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS: ${{ vars.OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS }}
+      OPPORTUNITIES_AVAILABILITY_MAX_JOBS: ${{ vars.OPPORTUNITIES_AVAILABILITY_MAX_JOBS }}
       UV_NO_DEV: "1"
     steps:
       # Defense in depth in addition to the canonical-state environment branch policy.
@@ -207,7 +211,7 @@ jobs:
           echo "Review and merge that README-only recovery PR, then start a fresh workflow from updated main."
           exit 1
 
-      - name: Check every stored public job page for closure alerts
+      - name: Check due public job pages for closure alerts
         if: inputs.run_availability
         shell: bash
         run: |

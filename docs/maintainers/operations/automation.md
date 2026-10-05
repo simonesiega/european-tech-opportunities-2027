@@ -48,7 +48,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; explicit read-only modes propose the first public-state review seal or recover a missing README proposal without publishing a snapshot |
 | `nightly.yml` | 04:23 UTC daily, manual from `main` | Availability audit, scrape-time drift checks and aggregate report artifact, with one narrowly scoped automated README pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
-| `check-availability.yml` | Manual | Full-state availability-only audit with its own review pull request |
+| `check-availability.yml` | Manual | Bounded availability-only audit with its own review pull request |
 | `add-job.yml` | Manual | Add 1–10 maintainer-reviewed listings to durable canonical state without source access, then open one README-only review pull request |
 
 Two `workflow_call`-only files are implementation building blocks, not operator entry points: `reusable-process-state.yml` owns canonical restore, migration, selected source phases, validation, snapshot publication, optional protected deployment, and sanitized artifacts; `reusable-readme-pr.yml` owns the narrowly scoped README branch and pull-request mutation. The pinned Python/uv setup is shared through `.github/actions/setup-python/action.yml`.
@@ -146,6 +146,10 @@ Keep these non-secret values as repository variables:
 | Variable | Required | Default |
 |---|---:|---|
 | `LINKEDIN_CRAWL_AUTHORIZED` | For source access | No enabled default |
+| `OPPORTUNITIES_MAX_CONCURRENCY` | Yes | Set to `1` |
+| `OPPORTUNITIES_RATE_LIMIT_SECONDS` | Yes | Set to `10` |
+| `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS` | Yes | Set to `5` |
+| `OPPORTUNITIES_AVAILABILITY_MAX_JOBS` | Yes | Set to `250` |
 | `VPS_BACKUP_USER` | No | `opportunities-backup` |
 | `VPS_SSH_PORT` | No | `22` |
 | `CANONICAL_STATE_RETENTION_DAYS` | No | `365` |
@@ -227,6 +231,8 @@ concurrency:
 
 The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
 
+The processor reads request and availability limits from the repository variables above and has a 360-minute default timeout. Each audit selects at most 250 due jobs, with at least five days between attempts. Never-checked and oldest-checked jobs go first; excess due jobs wait for later runs. At 1,062 jobs this drains the initial backlog in five successful daily runs. Larger backlogs or failed runs can extend the interval. HTTP `429` still stops source access. These settings apply on GitHub, not Dokploy.
+
 The nightly, scrape-only, availability-only, manual-add, recovery-drill, and deployment paths share `opportunity-collection`. This prevents overlapping writers and state replacement while allowing the read-only website to continue serving requests.
 
 ## Manual collection inputs
@@ -234,7 +240,7 @@ The nightly, scrape-only, availability-only, manual-add, recovery-drill, and dep
 Three collection workflows can be run independently from the Actions tab:
 
 - **Nightly full update** completes the availability audit, then collects listings and proposes one combined README update with automated squash merge after validation and configured review requirements.
-- **Check job availability** checks all existing rows and opens an availability-only pull request.
+- **Check job availability** checks a bounded batch of due rows and opens an availability-only pull request.
 - **Scrape jobs or deploy reviewed state** runs only the scrape and opens a scrape-only pull request when deployment mode is disabled.
 
 To run the combined update now, open **Actions → Nightly full update → Run workflow**, select `main`, and confirm **Run workflow**. The manual trigger must be merged into the default branch before GitHub shows this control. No inputs are required. Manual and scheduled full updates use the same source-authorization checks, shared concurrency lock, and reviewed-state safeguards; neither deploys to the VPS.
@@ -303,7 +309,7 @@ The manual-add workflow uses the same path but replaces all source phases with o
 
 Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. The generated seal covers the full website-visible state, including rows outside the bounded preview and exact first-seen and collection timestamps. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose public-state proposal has not yet been merged. The explicit one-time adoption mode accepts only the seal addition to an otherwise matching legacy README. The separate [README recovery mode](#recover-a-missing-readme-state-proposal) can propose a differing restored projection for manual review when its original proposal is missing or closed. Both modes validate the projections and create a review PR without collecting, publishing a snapshot, or deploying. If a proposal is rejected or closed without merging, ordinary canonical-state workflows still fail closed until the reviewed state and durable snapshot are reconciled.
 
-The availability pass visits the public listing for every stored job. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves only that row as inconclusive; its destination is never followed or used as evidence. Without a source-wide denial, the audit returns `2`, the workflow reports a partial availability audit, and scraping continues. A transport-detected access denial, any other redirect, or challenge instead fails the availability step, stopping the nightly workflow before a new scraper can reset the transport's stop condition. No snapshot or README handoff is published after that stop. Review authorization before another run. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
+The availability pass visits a bounded batch of due public listings, including closed and manually added rows. See [audit scheduling](database.md#bounded-availability-audit) for persistent queue and retry semantics. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves only that row as inconclusive; its destination is never followed or used as evidence. Without a source-wide denial, the audit returns `2`, the workflow reports a partial availability audit, and scraping continues. A transport-detected access denial, any other redirect, or challenge instead fails the availability step, stopping the nightly workflow before a new scraper can reset the transport's stop condition. No snapshot or README handoff is published after that stop. Review authorization before another run. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
 
 ### Deployment-only path
 

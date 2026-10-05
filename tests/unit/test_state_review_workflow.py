@@ -185,7 +185,7 @@ def test_availability_denial_stops_workflow_before_follow_on_scrape(
     bash = shutil.which("bash")
     if bash is None:
         pytest.skip("Availability workflow tests require Bash")
-    step = process_step("Check every stored public job page for closure alerts")
+    step = process_step("Check due public job pages for closure alerts")
     script = step["run"]
     assert isinstance(script, str)
     fake_audit = """
@@ -300,6 +300,26 @@ jq() {
     if scenario == "scope_changed":
         assert all(call.startswith("pr view ") for call in calls)
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+
+
+def test_processor_uses_repository_request_and_availability_settings() -> None:
+    processor = yaml.load(
+        (WORKFLOWS / "reusable-process-state.yml").read_text(encoding="utf-8"),
+        Loader=yaml.BaseLoader,
+    )
+    job = processor["jobs"]["process"]
+    assert processor["on"]["workflow_call"]["inputs"]["timeout_minutes"]["default"] == "360"
+    assert job["timeout-minutes"] == "${{ inputs.timeout_minutes }}"
+    for setting in (
+        "OPPORTUNITIES_MAX_CONCURRENCY",
+        "OPPORTUNITIES_RATE_LIMIT_SECONDS",
+        "OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS",
+        "OPPORTUNITIES_AVAILABILITY_MAX_JOBS",
+    ):
+        assert job["env"][setting] == "${{ vars." + setting + " }}"
+    assert job["env"]["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] == (
+        "${{ inputs.crawl_authorized }}"
+    )
 
 
 def test_nightly_supports_manual_and_scheduled_full_updates() -> None:

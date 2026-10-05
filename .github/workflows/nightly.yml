@@ -49,7 +49,7 @@ jobs:
       title: "data: nightly availability and scrape update"
       commit_message: "data: nightly availability and scrape update"
       body: >-
-        Nightly full update: every stored public listing was checked for 404/410 responses
+        Nightly update: a bounded batch of due listings was checked for 404/410 responses
         and explicit closure alerts before collection ran. The pull request automatically
         merges after configured branch-protection requirements pass.
       auto_merge: true
