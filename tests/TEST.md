@@ -363,9 +363,9 @@ Sources: [unit/test_snapshots.py](unit/test_snapshots.py) and [unit/test_bootstr
 | `test_bootstrap_fails_when_source_is_missing` | Bootstrap fails without creating a source or emitting fake database bytes |
 | `test_bootstrap_stream_includes_committed_wal_rows` | The actual bootstrap subprocess streams a complete cold backup, including live WAL rows |
 
-### Linux deployment and restore
+### Deployment, restore, and snapshot publication
 
-Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/test_deploy_shell.py](unit/test_deploy_shell.py), [unit/test_restore_shell.py](unit/test_restore_shell.py), and [unit/test_snapshot_store_shell.py](unit/test_snapshot_store_shell.py). These execute checked-in shell code with disposable files and fake transports, not a VPS.
+Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/test_deploy_shell.py](unit/test_deploy_shell.py), [unit/test_restore_shell.py](unit/test_restore_shell.py), [unit/test_snapshot_store_shell.py](unit/test_snapshot_store_shell.py), and [unit/test_sftp_publication.py](unit/test_sftp_publication.py). These execute checked-in shell code with disposable files and fake transports, not a VPS. Publication reconciliation and validation-gate tests also support Git Bash on Windows; the existing deployment and restore suites require Linux.
 
 | Test | Behavior protected |
 |---|---|
@@ -387,6 +387,8 @@ Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/t
 | `test_snapshot_store_preserves_a_mismatched_local_database` | Durable/local mismatch stops before downloading over unsnapshotted state |
 | `test_snapshot_store_rejects_sidecars_before_transfer` | Restore and publish both reject live sidecars without transfer or deletion |
 | `test_snapshot_absence_requires_successful_listing` | Only proven empty/missing stores permit absence; listing failures, malformed stores, missing pointers, and failed/empty manifest downloads stop |
+| `test_publication_reconciles_transport` | Immutable objects and the latest pointer resume after disconnects before, during, or after upload, after rename, and during download; reruns do not repeat completed writes, retries are bounded, and permission errors, conflicting bytes, or unexpected pointer changes fail closed |
+| `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum and statistics failures stop without transport retries |
 
 ### Workflow safety
 

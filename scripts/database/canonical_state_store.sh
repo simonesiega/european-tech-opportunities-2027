@@ -96,9 +96,31 @@ reject_sidecars() {
   done
 }
 
-run_sftp() {
+raw_sftp() {
   "${sftp_command[@]}"
 }
+
+run_sftp() {
+  if [[ "$operation" != publish ]]; then
+    raw_sftp
+    return $?
+  fi
+  # This boundary is used only by the read-only pre-publication pointer fetch.
+  local batch attempt status
+  batch=$(cat)
+  for attempt in 1 2 3; do
+    if publication_command inspect-pointer "$remote_latest" "$batch"; then
+      cat "$work_dir/sftp-result"
+      return 0
+    else
+      status=$?
+    fi
+    publication_retry "$attempt" "$status" || return 1
+  done
+}
+
+# shellcheck source=scripts/database/sftp_publication.sh
+source "$(dirname "${BASH_SOURCE[0]}")/sftp_publication.sh"
 
 set_output() {
   local name=$1
@@ -209,20 +231,6 @@ restore_state() {
   set_output state_source "vps-snapshot"
 }
 
-append_remote_mkdirs() {
-  local key=$1
-  local path="$VPS_BACKUP_REMOTE_ROOT"
-  local directory=${key%/*}
-  local part
-  local -a parts
-  IFS='/' read -r -a parts <<<"$directory"
-  for part in "${parts[@]}"; do
-    path="$path/$part"
-    printf '%s\n' "-mkdir \"$path\""
-  done
-  printf 'ls "%s"\n' "$path"
-}
-
 publish_state() {
   reject_sidecars
   : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required for snapshot publication}"
@@ -233,53 +241,79 @@ publish_state() {
     exit 1
   fi
 
-  local status
-  if fetch_latest_manifest; then
-    status=0
-  else
-    status=$?
-  fi
-  if ((status != 0 && status != 1)); then
-    return "$status"
-  fi
+  local status=1
 
   local publish_dir="$work_dir/publish"
   local snapshot_database="$publish_dir/opportunities.snapshot.db"
   local snapshot_manifest="$publish_dir/manifest.json"
-  rm -rf "$publish_dir"
   mkdir -p "$publish_dir"
+  # Retain a completed local bundle so the exact immutable key survives retries.
+  if [[ -e "$snapshot_database" || -e "$snapshot_manifest" ]]; then
+    snapshot_tool verify --database "$snapshot_database" --manifest "$snapshot_manifest"
+    if ! cmp -s "$CANONICAL_STATE_DATABASE" "$snapshot_database"; then
+      # The bundle normalizes WAL mode to DELETE. Compare the same normalized
+      # backup, not the original header, without modifying the working database.
+      local comparison_database="$work_dir/resume-comparison.db"
+      if [[ -e "$comparison_database" || -L "$comparison_database" ]]; then
+        echo "Resume comparison already exists; preserve and investigate." >&2
+        return 1
+      fi
+      uv run python -c '
+import sqlite3, sys
+from pathlib import Path
+with sqlite3.connect(Path(sys.argv[1]).resolve().as_uri() + "?mode=ro", uri=True) as source:
+    with sqlite3.connect(sys.argv[2]) as destination:
+        source.backup(destination)
+        destination.execute("PRAGMA journal_mode=DELETE")
+' "$CANONICAL_STATE_DATABASE" "$comparison_database"
+      if ! cmp -s "$comparison_database" "$snapshot_database"; then
+        echo "Retained publication bundle differs from canonical state; preserve and investigate." >&2
+        return 1
+      fi
+      rm "$comparison_database"
+    fi
+  else
+    if fetch_latest_manifest; then
+      status=0
+    else
+      status=$?
+    fi
+    if ((status != 0 && status != 1)); then
+      return "$status"
+    fi
 
-  local -a create_arguments=(
-    create
-    --database "$CANONICAL_STATE_DATABASE"
-    --snapshot "$snapshot_database"
-    --manifest "$snapshot_manifest"
-    --key-prefix "$CANONICAL_STATE_PREFIX"
-    --retention-days "$CANONICAL_STATE_RETENTION_DAYS"
-    --repository "$GITHUB_REPOSITORY"
-    --run-id "$GITHUB_RUN_ID"
-    --run-attempt "$GITHUB_RUN_ATTEMPT"
-  )
-  if ((status == 0)); then
-    create_arguments+=(--previous-manifest "$latest_manifest")
+    local -a create_arguments=(
+      create
+      --database "$CANONICAL_STATE_DATABASE"
+      --snapshot "$snapshot_database"
+      --manifest "$snapshot_manifest"
+      --key-prefix "$CANONICAL_STATE_PREFIX"
+      --retention-days "$CANONICAL_STATE_RETENTION_DAYS"
+      --repository "$GITHUB_REPOSITORY"
+      --run-id "$GITHUB_RUN_ID"
+      --run-attempt "$GITHUB_RUN_ATTEMPT"
+    )
+    if ((status == 0)); then
+      create_arguments+=(--previous-manifest "$latest_manifest")
+    fi
+    snapshot_tool "${create_arguments[@]}"
   fi
-  snapshot_tool "${create_arguments[@]}"
 
   local database_key
   local manifest_key
   database_key=$(snapshot_tool key --manifest "$snapshot_manifest" --kind database)
   manifest_key=$(snapshot_tool key --manifest "$snapshot_manifest" --kind manifest)
+  if [[ "$database_key" != "$CANONICAL_STATE_PREFIX/"*"-run-$GITHUB_RUN_ID-attempt-$GITHUB_RUN_ATTEMPT.db" ]]; then
+    echo "Publication bundle belongs to another run/attempt; preserve and investigate." >&2
+    return 1
+  fi
   local remote_database="$VPS_BACKUP_REMOTE_ROOT/$database_key"
   local remote_manifest="$VPS_BACKUP_REMOTE_ROOT/$manifest_key"
   local upload_suffix=".upload-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
 
-  {
-    append_remote_mkdirs "$database_key"
-    printf 'put "%s" "%s%s"\n' "$snapshot_database" "$remote_database" "$upload_suffix"
-    printf 'rename "%s%s" "%s"\n' "$remote_database" "$upload_suffix" "$remote_database"
-    printf 'put "%s" "%s%s"\n' "$snapshot_manifest" "$remote_manifest" "$upload_suffix"
-    printf 'rename "%s%s" "%s"\n' "$remote_manifest" "$upload_suffix" "$remote_manifest"
-  } | run_sftp
+  publication_directories "$database_key"
+  publication_file "$snapshot_database" "$remote_database" "$remote_database$upload_suffix"
+  publication_file "$snapshot_manifest" "$remote_manifest" "$remote_manifest$upload_suffix"
 
   # Round-trip immutable snapshot files before changing latest.json.
   local verification_dir="$work_dir/restore-verification"
@@ -287,10 +321,8 @@ publish_state() {
   local verified_manifest="$verification_dir/manifest.json"
   rm -rf "$verification_dir"
   mkdir -p "$verification_dir"
-  {
-    printf 'get "%s" "%s"\n' "$remote_manifest" "$verified_manifest"
-    printf 'get "%s" "%s"\n' "$remote_database" "$verified_database"
-  } | run_sftp
+  publication_download "$remote_manifest" "$verified_manifest" round-trip-manifest
+  publication_download "$remote_database" "$verified_database" round-trip-database
   snapshot_tool verify \
     --database "$verified_database" \
     --manifest "$verified_manifest" \
@@ -299,12 +331,9 @@ publish_state() {
     uv run opportunities stats >/dev/null
 
   local latest_upload="$remote_latest$upload_suffix"
-  {
-    printf 'put "%s" "%s"\n' "$verified_manifest" "$latest_upload"
-    printf 'rename "%s" "%s"\n' "$latest_upload" "$remote_latest"
-  } | run_sftp
+  publication_file "$verified_manifest" "$remote_latest" "$latest_upload" true "$latest_manifest"
   local promoted_manifest="$verification_dir/latest.json"
-  printf 'get "%s" "%s"\n' "$remote_latest" "$promoted_manifest" | run_sftp
+  publication_download "$remote_latest" "$promoted_manifest" confirm-latest
   if ! cmp -s "$verified_manifest" "$promoted_manifest"; then
     echo "Promoted VPS latest manifest did not round-trip exactly." >&2
     exit 1

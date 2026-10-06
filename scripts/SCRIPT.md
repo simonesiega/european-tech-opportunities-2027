@@ -84,7 +84,8 @@ Before using them directly, follow the [automation guide](../docs/maintainers/op
 | Script | What it does |
 |---|---|
 | [restore_canonical_state.sh](database/restore_canonical_state.sh) | Restores the latest verified database snapshot. For first-time setup only, it can obtain a consistent backup of the legacy live database when no snapshot history or versioned deployment exists. Stops rather than overwriting conflicting local state. |
-| [canonical_state_store.sh](database/canonical_state_store.sh) | Transfers snapshots through the restricted SFTP backup account. `restore` downloads and verifies saved state; `publish` uploads a snapshot and downloads it again for verification before marking it as latest. Publication also replaces the local working database with the verified copy. |
+| [canonical_state_store.sh](database/canonical_state_store.sh) | Transfers snapshots through the restricted SFTP backup account. `restore` downloads and verifies saved state; `publish` uploads a snapshot and downloads it again for verification before marking it as latest. Publication retains the local bundle for resumption, reconciles partial remote uploads, and replaces the local working database with the verified copy. |
+| [sftp_publication.sh](database/sftp_publication.sh) | Sourced helper for snapshot publication, not a standalone command. Inspects remote directories and final/staging objects, retries recognized transient transport failures within bounded attempts, and refuses conflicting immutable bytes or unexpected latest-pointer changes. |
 | [canonical_snapshot.py](database/canonical_snapshot.py) | Creates and verifies database snapshots and their manifests, which record checksums and recovery metadata. Its `key` and `field` commands read selected manifest values. Used by the snapshot-storage script. |
 | [bootstrap_sqlite.py](database/bootstrap_sqlite.py) | Streams a consistent backup of an existing database during first-time recovery, including committed changes still in SQLite's write-ahead log. Its output is binary database content, not text to display in a terminal. It does not initialize an empty database. |
 | [deploy_canonical_state.sh](deployment/deploy_canonical_state.sh) | Validates the reviewed database and public exports, uploads them to the VPS, and calls the release-activation script. Publishes website data, not a new application build. |
@@ -97,6 +98,8 @@ uv run --frozen python scripts/database/canonical_snapshot.py --help
 ```
 
 Database snapshots contain operational history that is not included in public downloads. Keep snapshots and manifests in protected storage; do not attach them to public issues or upload them as GitHub artifacts.
+
+For publication retry limits, staging-file handling, and same-run/attempt resumption boundaries, see [state continuity and artifacts](../docs/maintainers/operations/automation.md#state-continuity-and-artifacts).
 
 If recovery or deployment stops because files, checksums, or database state do not match, preserve the files and follow the [troubleshooting guide](../docs/maintainers/operations/troubleshooting.md). Do not delete the database or retry against empty state as a shortcut.
 
