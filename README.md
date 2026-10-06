@@ -27,12 +27,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 3, 2026 at 22:05 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-707-2563eb?style=for-the-badge" alt="Total opportunities: 707" />
-  <img src="https://img.shields.io/badge/Internships-325-16a34a?style=for-the-badge" alt="Internships: 325" />
-  <img src="https://img.shields.io/badge/New%20Grad-382-9333ea?style=for-the-badge" alt="New Grad opportunities: 382" />
+  <strong>Last successful collection: October 6, 2026 at 18:27 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-715-2563eb?style=for-the-badge" alt="Total opportunities: 715" />
+  <img src="https://img.shields.io/badge/Internships-327-16a34a?style=for-the-badge" alt="Internships: 327" />
+  <img src="https://img.shields.io/badge/New%20Grad-388-9333ea?style=for-the-badge" alt="New Grad opportunities: 388" />
 </p>
-<!-- Public directory state v1 sha256: 497dc130b55a6203dc30b676a787e12967e5324b22fcb4acdaace358ccd375d6 -->
+<!-- Public directory state v1 sha256: a055d353d02f3a26330e17b896e2074816311dd4cacd01c4629753475fbd7684 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -64,34 +64,34 @@ So far, a recorded analytics snapshot shows **15K+ page views**, **2.6K+ users**
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 707 (Internships: 325 · New Grad: 382)<br>
-**Last successful collection:** October 3, 2026 at 22:05 UTC
+**Open opportunities:** 715 (Internships: 327 · New Grad: 388)<br>
+**Last successful collection:** October 6, 2026 at 18:27 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 382 open New Grad opportunities:
+Showing the 5 most recently discovered of 388 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4473883085>) |
-| Bending Spoons | Graduate data scientist | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4473863876>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4473872452>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4473882106>) |
-| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4473862985>) |
+| Adnovum | Cybersecurity Support Analyst \(Entry level\) \(a\) | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4474288948>) |
+| Reply | Graduate Developer | Brussels, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4473653209>) |
+| Bending Spoons | Graduate AI software engineer | Germany | [View](<https://www.linkedin.com/jobs/view/4473892752>) |
+| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4473892235>) |
+| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4473891859>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 325 open internships:
+Showing the 5 most recently discovered of 327 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| AUMOVIO | Data Scientist Intern - AI Data Quality &amp; Analytics \(Autonomous Driving\) | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4476303794>) |
+| NVIDIA | Data Processing Developer Technology Intern - 2027 | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4474637777>) |
+| ARQUIMEA | Software Developer Internship | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4475867309>) |
 | PwC Italy | Software Engineer Intern - Milano \[DIG\] | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4474793698>) |
 | Quinten Health | Data Scientist Internship \(6 months\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472891402>) |
-| Luminor Group | IT &amp; Cybersecurity Intern | Tallinn, Harjumaa, Estonia | [View](<https://www.linkedin.com/jobs/view/4472852461>) |
-| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4472372378>) |
-| Mirakl | Software Engineer Intern - Financial Services | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4472910231>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
