@@ -5,6 +5,20 @@ import {expectResultCount, openDirectory} from "./helpers";
 const key = "opportunities-directory-state";
 const role = "Software Engineering Intern 2027";
 
+test("crawler HTML contains no fabricated local-state summaries", async ({request, page}) => {
+  const response = await request.get("/");
+  expect(response.ok()).toBe(true);
+  const html = await response.text();
+  expect(html).not.toContain("You have saved");
+  expect(html).not.toContain("new opportunities since your last visit");
+
+  await openDirectory(page);
+  await expect(page.getByText("You have saved", {exact: false})).toHaveCount(1);
+  await expect(page.getByRole("button", {name: "View 0 saved opportunities"})).toBeVisible();
+  await expect(page.getByRole("button", {name: "View 0 applied opportunities"})).toBeVisible();
+  await expect(page.getByRole("button", {name: "View 0 hidden opportunities"})).toBeVisible();
+});
+
 test("first and returning visits, corrupt state and stale IDs", async ({page}) => {
   await openDirectory(page);
   await expect(page.getByRole("cell", {name: /Not new since your last visit/})).toHaveCount(10);
