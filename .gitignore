@@ -25,11 +25,13 @@ site/playwright-report/
 site/test-results/
 site/tests/e2e/.tmp/
 
-# Local developer context and skills
+# Local developer routers, context, and skills; share only setup instructions
 .context/**
 !.context/.gitkeep
+!.context/README.md
 .agents/skills/**
 !.agents/skills/.gitkeep
+!.agents/skills/README.md
 
 # Local configuration and secrets
 .env
