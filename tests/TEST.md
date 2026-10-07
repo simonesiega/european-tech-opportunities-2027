@@ -590,6 +590,7 @@ Source: [local-opportunities.spec.ts](../site/tests/e2e/local-opportunities.spec
 
 | Test title | Behavior protected |
 |---|---|
+| `crawler HTML contains no fabricated local-state summaries` | Server HTML contains no invented saved/applied/hidden or new-opportunity summaries; hydration shows only one real local-state summary with initial zero counts |
 | `first and returning visits, corrupt state and stale IDs` | Real storage loads/prunes correctly; new-role membership survives reload, hidden roles disappear from new counts, and corruption recovers |
 | `empty local lists explain the selected view without claiming the directory is empty` | Empty saved/applied views remain distinguishable from an empty dataset and can return to all rows without URL changes |
 | `mobile empty messages and reset controls need no horizontal scrolling` | Mobile empty-list/filter recovery is reachable and restores the dataset |

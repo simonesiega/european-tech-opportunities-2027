@@ -83,20 +83,9 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
           <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
             {siteConfig.description}
           </p>
-          <div className="mt-[7px] grid text-sm text-[var(--text-soft)] tabular-nums max-[600px]:text-[13px] max-[600px]:leading-normal">
-            {/* Reserve the longest possible summary, including a returning visitor's new roles. */}
-            <div aria-hidden="true" className="invisible col-start-1 row-start-1 space-y-[7px]">
-              <p>
-                You have saved {opportunities.length} opportunities, marked {opportunities.length}{" "}
-                opportunities as applied, and hidden {opportunities.length}.{" "}
-                <span className="inline-block">View all opportunities</span>.
-              </p>
-              <p>
-                We found {opportunities.length} new opportunities since your last visit.{" "}
-                <span className="inline-block">View new opportunities</span>.
-              </p>
-            </div>
-            <div className="col-start-1 row-start-1 space-y-[7px]">
+          {/* Reserve summary space without publishing fabricated browser-local state. */}
+          <div className="mt-[7px] min-h-[calc(3lh+7px)] text-sm text-[var(--text-soft)] tabular-nums max-[600px]:min-h-[calc(5lh+7px)] max-[600px]:text-[13px] max-[600px]:leading-normal">
+            <div className="space-y-[7px]">
               {state ? (
                 <p>
                   You have saved{" "}
