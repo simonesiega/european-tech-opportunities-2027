@@ -34,7 +34,7 @@ Response time depends on severity and reproducibility; no service-level agreemen
 
 ## Supported versions
 
-Security fixes currently target `main`. The project has no published versioned release; historical commits are not maintained as separate support lines.
+Security fixes target `main` for the current stable release line, starting with v1.0.0. Historical commits are not maintained as separate support lines. See the [v1.0.0 release notes](docs/releases/v1.0.0.md) for release scope and compatibility.
 
 ## Security boundaries
 

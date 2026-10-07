@@ -2,25 +2,25 @@
 
 [← Documentation home](../README.md) · [Using the product](../users/README.md) · [Contributing](../../CONTRIBUTING.md) · [Security](../../SECURITY.md)
 
-For contributors, maintainers, operators, and coding agents who need the system's technical contracts. These guides name implementation owners, preconditions, side effects, verification steps, and stop conditions. To browse roles or use public data, use the separate user guides.
+Develop, test, deploy, and maintain European Tech Opportunities. Each guide explains what you need before starting, what an operation changes, and how to check the result. If you want to browse roles or download listings, start with the [user guides](../users/README.md).
 
 ## Develop offline
 
 1. Follow [local setup](getting-started/setup.md); do not use production SQLite or enable collection.
 2. Read [architecture and invariants](engineering/architecture.md) before changing boundaries.
 3. Add a test for the behavior at risk, implement the smallest robust change, and run the [affected validation gates](engineering/testing.md#validation-paths).
-4. Update the canonical guide, review the complete diff, and follow [the contribution workflow](../../CONTRIBUTING.md).
+4. Update the relevant guide, review the complete diff, and follow [the contribution workflow](../../CONTRIBUTING.md).
 
 ## Getting started
 
-| Area | Canonical reference |
+| Area | Guide |
 |---|---|
 | Tools and first local launch | [Setup](getting-started/setup.md) |
 | Paths, precedence, limits, and authorization variables | [Configuration reference](getting-started/configuration.md) |
 
 ## Engineering
 
-| Area | Canonical reference |
+| Area | Guide |
 |---|---|
 | Ownership, dependency direction, and generated projections | [Architecture and invariants](engineering/architecture.md) |
 | Visual subsystem maps and implementation links | [Repository maps](../assets/diagram/README.md) · [Diagram source](../assets/diagram/source.md) |
@@ -30,7 +30,7 @@ For contributors, maintainers, operators, and coding agents who need the system'
 | Behavior contracts, test placement and validation commands | [Testing strategy](engineering/testing.md) |
 | Shared writing style, navigation, and generated regions | [Documentation maintenance](engineering/documentation.md) |
 | Public images, diagrams, and tour reproduction | [Visual assets](../assets/README.md) |
-| Promotional film source recovery, editing, and replacement | [Video maintenance for agents](../assets/promo/maintainers/VIDEO.md) |
+| Promotional film source recovery, editing, and replacement | [Video maintenance](../assets/promo/maintainers/VIDEO.md) |
 
 ## Operate and recover
 
@@ -45,9 +45,13 @@ For contributors, maintainers, operators, and coding agents who need the system'
 | Roll back the served projection | [Release-pointer rollback](operations/automation.md#coordinated-first-rollout-and-rollback) |
 | Diagnose a failure without losing evidence | [Operator troubleshooting](operations/troubleshooting.md) |
 
-For file-by-file inventories, use [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md), [repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md), and [test inventory](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md). These source-adjacent references open on GitHub; the procedures above remain canonical.
+For file-by-file inventories, use [GitHub workflows](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md), [repository scripts](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/SCRIPT.md), and [test inventory](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md). These references open on GitHub and describe individual entry points; use the guides above for step-by-step procedures.
 
 An upstream block, failed migration, invalid snapshot, or mismatched reviewed projection is a **stop condition**, not permission to rebuild or bypass checks. No guide grants source-access authorization.
+
+## Releases
+
+See the [v1.0.0 release notes](../releases/v1.0.0.md) for stable product scope and compatibility. Release preparation does not authorize publication or deployment.
 
 ## Agents and policy ownership
 

@@ -1,6 +1,6 @@
 {
   "name": "european-tech-opportunities-2027-site",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "bun@1.4.2",
   "engines": {

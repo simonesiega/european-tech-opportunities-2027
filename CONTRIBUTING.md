@@ -2,7 +2,7 @@
 
 [← Project README](README.md) · [Documentation home](docs/README.md) · [Maintainer handbook](docs/maintainers/README.md) · [Security policy](SECURITY.md) · [Code of Conduct](CODE_OF_CONDUCT.md)
 
-Contribute a focused fix, test, accessibility improvement, search definition, or documentation update. This guide owns the contribution workflow; the maintainer handbook owns implementation and operating procedures.
+Help improve the directory with a bug fix, an accessibility improvement, a test, a search definition, or clearer documentation. This guide explains how to contribute; the [maintainer handbook](docs/maintainers/README.md) covers development and operations.
 
 ## Suggest a listing or report a problem
 
@@ -42,7 +42,7 @@ Coding agents must also follow the root [agent guidelines](AGENTS.md) and any ne
 | Docker or automation | [Containers and deployment](docs/maintainers/operations/deployment.md) · [Automation](docs/maintainers/operations/automation.md) | Compose validation and affected image, workflow, and runtime checks |
 | Documentation | [Documentation maintenance](docs/maintainers/engineering/documentation.md) | `make docs-site`, including both prose linters, plus `git diff --check` |
 
-The [testing guide](docs/maintainers/engineering/testing.md#validation-paths) owns full commands, platform requirements, benchmarks, and optional checks. Run `uv build` for packaging, dependency, or entry-point changes. Do not claim an unrun or skipped check passed; explain limitations in the pull request. Reviewers and CI must not require live LinkedIn access.
+The [testing guide](docs/maintainers/engineering/testing.md#validation-paths) lists the full commands, platform requirements, benchmarks, and optional checks. Run `uv build` for packaging, dependency, or entry-point changes. Include any skipped checks and tool or platform limitations in your pull request. Reviewers and CI must not require live LinkedIn access.
 
 ## Project contracts
 
@@ -77,7 +77,7 @@ If registry counts change, follow the [generated-content procedure](docs/maintai
 
 ### Changing classification
 
-`configs/categories.yml` owns keywords; `src/opportunities/pipeline/classification.py` owns deterministic decisions. Preserve title-explicit type evidence, seniority exclusions, technology relevance, cycle/posting-date precedence, European geography, and stable exclusion reasons. Add adjacent positive and negative tests; do not weaken a global rule to admit one ambiguous listing. The [classification guide](docs/maintainers/engineering/classification.md) owns the exact evidence policy.
+`configs/categories.yml` owns keywords; `src/opportunities/pipeline/classification.py` owns deterministic decisions. Preserve title-explicit type evidence, seniority exclusions, technology relevance, cycle/posting-date precedence, European geography, and stable exclusion reasons. Add adjacent positive and negative tests; do not weaken a global rule to admit one ambiguous listing. The [classification guide](docs/maintainers/engineering/classification.md) explains the exact evidence policy.
 
 ### Changing LinkedIn parsing
 

@@ -152,7 +152,7 @@ availability_interval_days: 5
 availability_max_jobs: 250
 closure_confirmation_runs: 2
 linkedin_crawl_authorized: false
-user_agent: european-tech-opportunities-2027/0.1 (+https://github.com/simonesiega/european-tech-opportunities-2027)
+user_agent: european-tech-opportunities-2027/1.0.0 (+https://github.com/simonesiega/european-tech-opportunities-2027)
 log_level: INFO
 ```
 

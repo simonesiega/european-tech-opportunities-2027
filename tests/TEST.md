@@ -17,7 +17,7 @@ Each table row identifies a test function or website test title. A parameterized
 
 ## Review decisions
 
-The review used two passes: first inspect each test's setup, assertions, and protected contract; then compare it with its owner and neighboring coverage to decide whether to retain, consolidate, relocate, or replace it.
+When reviewing a test, inspect its setup, assertions, and protected behavior, then compare it with the implementation and neighboring coverage. The choices below explain why some scenarios are kept separate and others are grouped or tested at a different layer.
 
 | Decision | Reason and retained coverage |
 |---|---|
@@ -35,7 +35,7 @@ The review used two passes: first inspect each test's setup, assertions, and pro
 | Remove canonical-origin source-string and duplicate workflow-dispatch string checks | Actual URL/metadata/schema/redirect responses and executable dispatch regressions provide stronger evidence; retain the retired-host leak scan without requiring every allowed reference to exist forever |
 | Consolidate stale coverage-document checks | The render/check round trip now starts by proving stale check mode cannot write |
 
-No source-access interlock, coverage threshold, lifecycle rule, production code, dependency, or lockfile is relaxed by this review. Button interactions remain only where they demonstrate behavior such as persisted choices, keyboard focus, restoration, filtering, or downloads—not the existence of a button.
+Consolidating tests must preserve source-access interlocks, coverage thresholds, and lifecycle rules. Test button interactions when they demonstrate persisted choices, keyboard focus, restoration, filtering, or downloads—not merely the existence of a button.
 
 ## Python integration tests
 

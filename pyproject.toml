@@ -1,6 +1,6 @@
 [project]
 name = "european-tech-opportunities-2027"
-version = "0.1.0"
+version = "1.0.0"
 description = "Pipeline for 2027 European technology internships and new-grad roles"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,7 +9,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "European Tech Opportunities contributors" }]
 keywords = ["internships", "new-grad", "europe", "data-pipeline", "scraping"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",

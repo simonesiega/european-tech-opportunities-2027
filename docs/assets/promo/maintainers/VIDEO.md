@@ -2,10 +2,10 @@
 
 [← Visual assets](../../README.md) · [Documentation home](../../../README.md) · [Maintainer handbook](../../../maintainers/README.md) · [Documentation maintenance](../../../maintainers/engineering/documentation.md)
 
-Recreate, revise, review, and replace the 51-second promotional film without changing the product or losing approved work. This runbook is primarily for coding agents. It records revision 15, the source requirements, the approved presentation, and the checks required for a future update.
+Use this guide to edit or recreate the 51-second promotional film while preserving the approved presentation. It describes revision 15, the source files you need, the rendering process, and the checks to run before replacing the published media.
 
 > [!IMPORTANT]
-> This asset-only handoff contains the finished MP4, the original MP3, the contact sheet, and this guide. It does **not** contain the editable renderer, capture scripts, player, or captured frames. A clean checkout cannot reproduce the film from these three media files alone. Recover the separate authoring bundle before following the rendering commands; do not invent missing scripts or claim that the older product-tour recorder creates this film.
+> The repository contains the finished MP4, the original MP3, the contact sheet, and this guide. It does **not** contain the editable renderer, capture scripts, player, or captured frames. A clean checkout cannot reproduce the film from these three media files alone. Recover the separate authoring bundle before following the rendering commands; do not invent missing scripts or claim that the older product-tour recorder creates this film.
 
 ## Contents
 
@@ -58,7 +58,7 @@ The interface is the real, unmodified production application, captured in Chromi
 
 Keep this disclosure beside every published copy. The film intentionally has no burned-in demo label. The [transcript below](#timeline-and-descriptive-transcript) and contact sheet supply context and a no-motion alternative; the separate authoring player is not part of this asset-only handoff.
 
-The [root README showcase](../../../../README.md#growing-across-europe) uses a bare GitHub attachment URL for GitHub's native video player. Keep that URL on its own line rather than wrapping it in Markdown link syntax or restoring the repository-relative HTML video element. The adjacent Markdownlint `MD034` exception applies only to that URL. Do not promise autoplay or automatic looping. The documentation site retains the separate MP4 link, transcript, and static overview; preserve those links and the fictional-data/artwork disclosure when editing the showcase.
+The [root README showcase](../../../../README.md#growing-together-across-europe) uses a bare GitHub attachment URL for GitHub's native video player. Keep that URL on its own line rather than wrapping it in Markdown link syntax or restoring the repository-relative HTML video element. The adjacent Markdownlint `MD034` exception applies only to that URL. Do not promise autoplay or automatic looping. The documentation site retains the separate MP4 link, transcript, and static overview; preserve those links and the fictional-data/artwork disclosure when editing the showcase.
 
 ## Recover and preserve the authoring bundle
 

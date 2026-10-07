@@ -49,6 +49,7 @@ nav:
       - Test inventory: https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md
   - Project and policies:
       - Product showcase: README.md
+      - v1.0.0 release notes: docs/releases/v1.0.0.md
       - Contributing: CONTRIBUTING.md
       - Security: SECURITY.md
       - Privacy: PRIVACY.md

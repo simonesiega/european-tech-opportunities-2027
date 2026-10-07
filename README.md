@@ -8,20 +8,17 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml">
-    <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/python-ci.yml/badge.svg" alt="Python CI status" />
-  </a>
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml">
-    <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/site-ci.yml/badge.svg" alt="Site CI status" />
-  </a>
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/codeql.yml">
-    <img src="https://github.com/simonesiega/european-tech-opportunities-2027/actions/workflows/codeql.yml/badge.svg" alt="CodeQL security analysis status" />
-  </a>
-  <a href="https://www.bestpractices.dev/projects/14982">
-    <img src="https://www.bestpractices.dev/projects/14982/badge" alt="OpenSSF Best Practices badge status" />
+  <a href="https://docs.techopportunities.eu/docs/releases/v1.0.0.html">
+    <img src="https://img.shields.io/badge/version-1.0.0-2563eb" alt="Project version 1.0.0" />
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/github/license/simonesiega/european-tech-opportunities-2027" alt="MIT license" />
+  </a>
+  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions?query=branch%3Amain">
+    <img src="https://img.shields.io/github/check-suites/simonesiega/european-tech-opportunities-2027/main?label=CI" alt="Aggregate CI status on main" />
+  </a>
+  <a href="https://www.bestpractices.dev/projects/14982">
+    <img src="https://www.bestpractices.dev/projects/14982/badge" alt="OpenSSF Best Practices badge status" />
   </a>
 </p>
 
@@ -49,7 +46,9 @@ Need the data outside the website? Download the complete open directory as **CSV
 
 First time here? [Here's a quick guide](docs/users/README.md). Nothing to install.
 
-### Growing across Europe
+For the first stable release, see the [v1.0.0 release notes](docs/releases/v1.0.0.md).
+
+### Growing together across Europe
 
 <!-- Keep this attachment URL bare so GitHub renders its native video player. -->
 <!-- markdownlint-disable-next-line MD034 -->

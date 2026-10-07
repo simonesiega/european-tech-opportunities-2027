@@ -27,7 +27,7 @@ Guides for job seekers and anyone using the public data.
 
 ## Maintaining the project
 
-Technical documentation for contributors, maintainers, operators, and coding agents. Browsing the product does **not** require these procedures.
+Set up a development environment, understand how listings are validated, or operate the service. These guides are for contributors and maintainers; you do not need them to browse the directory.
 
 ### Getting started
 
@@ -45,7 +45,7 @@ Technical documentation for contributors, maintainers, operators, and coding age
 | Change the website without changing canonical state | [Website engineering](maintainers/engineering/website.md) |
 | Test a change | [Testing strategy and gates](maintainers/engineering/testing.md) |
 | Update docs or reproduce public visuals | [Documentation maintenance](maintainers/engineering/documentation.md) · [Visual assets](assets/README.md) |
-| Recreate, edit, or replace the promotional film | [Video maintenance for agents](assets/promo/maintainers/VIDEO.md) |
+| Recreate, edit, or replace the promotional film | [Video maintenance](assets/promo/maintainers/VIDEO.md) |
 
 ### Operations
 
@@ -61,7 +61,7 @@ Technical documentation for contributors, maintainers, operators, and coding age
 
 ## Repository maps
 
-[Read the annotated maps](assets/diagram/README.md) for explanations, a legend, and clickable implementation links. [Editable Mermaid source](assets/diagram/source.md) owns all five SVGs; its [rendering profile](assets/diagram/source.md#rendering-profile) explains regeneration.
+[Read the annotated maps](assets/diagram/README.md) for explanations, a legend, and clickable implementation links. All five diagrams are generated from the [editable Mermaid source](assets/diagram/source.md). Follow its [rendering profile](assets/diagram/source.md#rendering-profile) to regenerate them.
 
 | View | Full-size diagram |
 |---|---|
@@ -71,9 +71,13 @@ Technical documentation for contributors, maintainers, operators, and coding age
 | How protected updates, review, and deployment connect | [Automation and deployment](assets/diagram/svg/automation.svg) |
 | How tests, documentation, and tooling support the system | [Repository foundations](assets/diagram/svg/foundations.svg) |
 
+## Releases
+
+[v1.0.0 release notes](releases/v1.0.0.md) summarize the first stable product, compatibility, and operating boundaries.
+
 ## Repository references
 
-These implementation inventories stay beside their source files and open on GitHub. The linked maintainer guides own the detailed procedures.
+Find individual workflows, scripts, and tests in these GitHub references. For setup and step-by-step procedures, use the maintainer guides above.
 
 | Task | Reference |
 |---|---|

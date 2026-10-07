@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 DEFAULT_USER_AGENT = (
-    "european-tech-opportunities-2027/0.1 "
+    "european-tech-opportunities-2027/1.0.0 "
     "(+https://github.com/simonesiega/european-tech-opportunities-2027)"
 )
 _PACKAGED_CONFIG_DIR = Path(__file__).resolve().parents[1] / "resources" / "configs"
