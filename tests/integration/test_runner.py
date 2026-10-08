@@ -74,6 +74,7 @@ class FakeScraper:
     ("failure", "code"),
     [
         (FetchError("timeout", "timed out"), "timeout"),
+        (FetchError("source_blocked", "LinkedIn access denied", status_code=429), "source_blocked"),
         (ValueError("synthetic-private-payload"), "invalid_html"),
         (RuntimeError("synthetic-private-payload"), "unexpected"),
     ],
@@ -124,7 +125,8 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
     result = asyncio.run(pipeline.run([search, failing], fetcher=UnexpectedFetcher()))
     assert result.successful_searches == 1
     assert result.failed_searches == 1
-    assert result.exit_code == 2
+    assert result.exit_code == (1 if code == "source_blocked" else 2)
+    assert result.source_blocked == (code == "source_blocked")
     assert result.found == 2
     assert result.accepted == 1
     assert result.excluded == 1

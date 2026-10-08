@@ -94,6 +94,7 @@ def install_quality_scraper(
     found: int = 20,
     accepted: int = 20,
     failed_slugs: tuple[str, ...] = (),
+    failure_code: str = "timeout",
 ) -> None:
     """Exercise the real pipeline, repository, and quality gate without source access."""
 
@@ -106,7 +107,7 @@ def install_quality_scraper(
     ) -> LinkedInScrapeResult:
         del self, fetcher, known_jobs
         if search.slug in failed_slugs:
-            raise FetchError("timeout", "private-diagnostic-must-not-leak")
+            raise FetchError(failure_code, "private-diagnostic-must-not-leak")
         return LinkedInScrapeResult(
             positions=[
                 RawJob(
@@ -137,6 +138,7 @@ def install_quality_scraper(
         ("warning", 0, "warning", 4),
         ("blocking", 1, "failed", 3),
         ("partial", 2, "warning", 3),
+        ("blocked", 1, "warning", 3),
         ("failed", 1, "failed", 3),
         ("selected", 0, "passed", 3),
     ],
@@ -165,7 +167,7 @@ def test_scrape_quality_gate_end_to_end(
     before_readme = (tmp_path / "README.md").read_bytes()
     failures = (
         (other.slug,)
-        if mode == "partial"
+        if mode in {"partial", "blocked"}
         else (search.slug, other.slug)
         if mode == "failed"
         else ()
@@ -175,6 +177,7 @@ def test_scrape_quality_gate_end_to_end(
         found=0 if mode == "blocking" else 20,
         accepted=10 if mode == "warning" else 20,
         failed_slugs=failures,
+        failure_code="source_blocked" if mode == "blocked" else "timeout",
     )
     if mode == "selected":
         args += ["--search", search.slug]
@@ -196,7 +199,9 @@ def test_scrape_quality_gate_end_to_end(
         assert len(repository.data_quality_baselines()) == baseline_count
         # Drift never closes existing rows.
         assert len(repository.list_open_jobs()) == 20
-        expected_successes = 0 if mode == "failed" else 1 if mode in {"partial", "selected"} else 2
+        expected_successes = (
+            0 if mode == "failed" else 1 if mode in {"partial", "selected", "blocked"} else 2
+        )
         assert repository.stats().successful_runs == 6 + expected_successes
     finally:
         engine.dispose()
@@ -422,7 +427,10 @@ def test_availability_denial_preserves_confirmed_state_but_never_refreshes_exist
         assert result.exit_code == 1, result.output
         assert "source processing stopped" in result.output
         assert "1 available, 1 deleted, 1 reopened" in result.output
-        assert "1 inconclusive" in result.output
+        assert "0 inconclusive, 1 blocked" in " ".join(result.output.split())
+        assert "Collection skipped: availability audit stopped (HTTP 403)" in " ".join(
+            result.output.split()
+        )
         assert "synthetic-private" not in result.output
         assert client.is_closed
         assert requested == [

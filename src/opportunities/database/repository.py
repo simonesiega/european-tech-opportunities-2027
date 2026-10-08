@@ -322,7 +322,7 @@ class Repository:
         with self.factory.begin() as session:
             # Non-denial attempts advance the queue even when evidence is inconclusive.
             # This metadata is separate from lifecycle observations and never published.
-            attempted = available | inconclusive
+            attempted = available | unavailable | inconclusive
             if attempted:
                 for job in session.scalars(
                     select(JobRow).where(JobRow.linkedin_job_id.in_(attempted))

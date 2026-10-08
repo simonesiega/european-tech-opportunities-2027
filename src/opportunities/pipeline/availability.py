@@ -37,6 +37,8 @@ class AvailabilityAuditResult:
     inconclusive_ids: tuple[str, ...]
     source_blocked: bool = False
     deferred: int = 0
+    blocked: int = 0
+    blocked_reason: str | None = None
 
     @property
     def exit_code(self) -> int:
@@ -96,7 +98,12 @@ async def _audit_jobs(
 ) -> AvailabilityAuditResult:
     """Fetch all public and guest-detail pages before one atomic database mutation."""
 
+    blocked_reason: str | None = None
+
     async def check(job: StoredJob) -> tuple[str, str]:
+        nonlocal blocked_reason
+        if blocked_reason is not None:
+            return job.linkedin_job_id, "deferred"
         try:
             public_html = await fetcher.get_text(
                 LINKEDIN_PUBLIC_JOB_URL.format(job_id=job.linkedin_job_id)
@@ -112,6 +119,9 @@ async def _audit_jobs(
             validate_job_detail_page(detail_html)
         except FetchError as exc:
             if exc.code == "source_blocked":
+                blocked_reason = blocked_reason or (
+                    f"HTTP {exc.status_code}" if exc.status_code is not None else "source_blocked"
+                )
                 return job.linkedin_job_id, "blocked"
             if exc.status_code in {404, 410}:
                 return job.linkedin_job_id, "unavailable"
@@ -124,21 +134,21 @@ async def _audit_jobs(
     outcomes = await map_concurrently(jobs, check, limit=max_concurrency)
     available_ids = tuple(job_id for job_id, state in outcomes if state == "available")
     unavailable_ids = tuple(job_id for job_id, state in outcomes if state == "unavailable")
-    inconclusive_ids = tuple(
-        job_id for job_id, state in outcomes if state in {"inconclusive", "blocked"}
-    )
+    inconclusive_ids = tuple(job_id for job_id, state in outcomes if state == "inconclusive")
     changes = repository.apply_availability_audit(
         available_ids=available_ids,
         unavailable_ids=unavailable_ids,
         observed_at=observed_at,
-        inconclusive_ids=tuple(job_id for job_id, state in outcomes if state == "inconclusive"),
+        inconclusive_ids=inconclusive_ids,
     )
     return AvailabilityAuditResult(
-        checked=len(jobs),
+        checked=sum(state != "deferred" for _, state in outcomes),
         available=len(available_ids),
         deleted=changes.deleted,
         reopened=changes.reopened,
         inconclusive_ids=inconclusive_ids,
-        source_blocked=any(state == "blocked" for _, state in outcomes),
-        deferred=deferred,
+        source_blocked=blocked_reason is not None,
+        deferred=deferred + sum(state == "deferred" for _, state in outcomes),
+        blocked=sum(state == "blocked" for _, state in outcomes),
+        blocked_reason=blocked_reason,
     )

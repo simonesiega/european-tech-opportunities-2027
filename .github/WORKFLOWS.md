@@ -35,7 +35,7 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 
 | Workflow | When it runs | What it does |
 |---|---|---|
-| [Nightly full update](workflows/nightly.yml) | Daily at 04:23, manual | Checks stored listings for availability, then collects new results. Saves a database snapshot and opens or updates one README-only PR. Requests automatic merging after validation, subject to required checks and reviews. Retains the aggregate collection-quality report separately. Does not deploy the website. |
+| [Nightly full update](workflows/nightly.yml) | Daily at 04:23, manual | Checks up to 50 due stored listings by default, then collects new results; Actions variables can override the cap. Saves a database snapshot and opens or updates one README-only PR. Requests automatic merging after validation, subject to required checks and reviews. Retains the aggregate collection-quality report separately. Does not deploy the website. |
 | [Scrape jobs or deploy reviewed state](workflows/scrape.yml) | Manual | Normally collects listings and opens a README PR for manual review, without running a full availability check; collection runs retain a separate aggregate quality report. Selecting `deploy_to_vps=true` instead publishes already-reviewed data to the website without contacting LinkedIn. |
 | [Check job availability](workflows/check-availability.yml) | Manual | Checks stored listings without discovering new jobs. Removes confirmed unavailable listings and keeps those whose availability is uncertain. Saves a snapshot and opens a README PR for manual review. |
 | [Add manually reviewed jobs](workflows/add-job.yml) | Manual, with `jobs_json` | Validates and adds a batch of 1–10 listings independently reviewed by a maintainer. Saves a snapshot and opens a dated README PR for manual review. Does not contact LinkedIn or deploy the website. |
@@ -59,7 +59,7 @@ The listing workflows call these two `workflow_call` helpers. They are implement
 
 | Workflow | What it does |
 |---|---|
-| [Reusable canonical-state processing](workflows/reusable-process-state.yml) | Restores and checks the database, performs the requested update or recovery operation, and saves verified results. Also handles deployment when requested. |
+| [Reusable canonical-state processing](workflows/reusable-process-state.yml) | Restores and checks the database, performs the requested update or recovery operation, and saves verified results. Availability uses a 50-job fallback unless an Actions variable overrides it. Source-wide denials in either source phase prevent snapshot and projection handoffs. Also handles deployment when requested. |
 | [Reusable README pull request](workflows/reusable-readme-pr.yml) | Creates or updates a PR containing only the generated README changes. Starts Python CI, Site CI, Docker CI, CodeQL, Gitleaks, Documentation site, and Dependency Review checks on that commit, then waits for their results before requesting any automatic merge. |
 
 ## Other GitHub features

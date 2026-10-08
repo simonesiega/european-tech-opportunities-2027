@@ -119,7 +119,7 @@ jobs:
       OPPORTUNITIES_MAX_CONCURRENCY: ${{ vars.OPPORTUNITIES_MAX_CONCURRENCY }}
       OPPORTUNITIES_RATE_LIMIT_SECONDS: ${{ vars.OPPORTUNITIES_RATE_LIMIT_SECONDS }}
       OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS: ${{ vars.OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS }}
-      OPPORTUNITIES_AVAILABILITY_MAX_JOBS: ${{ vars.OPPORTUNITIES_AVAILABILITY_MAX_JOBS }}
+      OPPORTUNITIES_AVAILABILITY_MAX_JOBS: ${{ vars.OPPORTUNITIES_AVAILABILITY_MAX_JOBS || '50' }}
       UV_NO_DEV: "1"
     steps:
       # Defense in depth in addition to the canonical-state environment branch policy.
@@ -222,6 +222,7 @@ jobs:
           if [ "$code" -eq 2 ]; then
             echo "Partial availability audit: inconclusive responses were preserved."
           elif [ "$code" -ne 0 ]; then
+            echo "Collection skipped: availability audit failed (exit $code); no snapshot or projection handoff will be published."
             exit "$code"
           fi
 

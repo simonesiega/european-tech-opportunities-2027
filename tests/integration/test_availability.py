@@ -8,7 +8,7 @@ import pytest
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
-from opportunities.database.models import JobSearchRow
+from opportunities.database.models import JobRow, JobSearchRow
 from opportunities.database.repository import Repository
 from opportunities.models.enums import EmploymentType, JobStatus, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
@@ -20,6 +20,7 @@ from opportunities.scrapers.http import (
     FetchError,
     HttpFetcher,
 )
+from opportunities.utils.time import ensure_utc
 
 
 class FakeAvailabilityFetcher:
@@ -227,6 +228,11 @@ def test_delayed_audit_cannot_delete_newer_rediscovery(
     assert repository.list_open_jobs()[0].last_seen_at == newer
     with session_factory() as session:
         assert session.get(JobSearchRow, (search.slug, job.linkedin_job_id)) is not None
+        row = session.get(JobRow, job.linkedin_job_id)
+        assert row is not None
+        assert row.last_availability_checked_at is not None
+        assert ensure_utc(row.last_availability_checked_at) == checked_at
+    assert repository.availability_batch(newer) == ([], 0)
 
     # A delayed successful audit must not reopen a later closure either.
     repository.persist_success(
@@ -317,10 +323,12 @@ def test_availability_distinguishes_public_listing_301s_from_source_stops(
                 fetcher=fetcher,
                 observed_at=now + timedelta(minutes=1),
             )
-        assert result.checked == 3
+        assert result.checked == (3 if inconclusive_redirect else 2)
+        assert result.blocked == (0 if inconclusive_redirect else 1)
+        assert result.deferred == (0 if inconclusive_redirect else 1)
         assert result.available == (2 if inconclusive_redirect else 1)
         assert result.deleted == result.reopened == 0
-        assert result.inconclusive_ids == (("2",) if inconclusive_redirect else ("2", "3"))
+        assert result.inconclusive_ids == (("2",) if inconclusive_redirect else ())
         assert result.exit_code == (2 if inconclusive_redirect else 1)
         assert result.source_blocked is not inconclusive_redirect
 
@@ -339,6 +347,11 @@ def test_availability_distinguishes_public_listing_301s_from_source_stops(
     after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
     assert after["1"].last_seen_at == now + timedelta(minutes=1)
     assert after["2"] == before["2"]
+    with session_factory() as session:
+        for job_id in ("2", "3"):
+            row = session.get(JobRow, job_id)
+            assert row is not None
+            assert (row.last_availability_checked_at is not None) == inconclusive_redirect
     if inconclusive_redirect:
         assert after["3"].last_seen_at == now + timedelta(minutes=1)
     else:
@@ -403,11 +416,12 @@ def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_d
             )
         assert result.source_blocked
         assert result.exit_code == 1
-        assert result.checked == 3
+        assert result.checked == 2
+        assert result.blocked == result.deferred == 1
         assert result.available == int(inflight_status == 200)
         assert result.deleted == int(inflight_status == 404)
         assert result.reopened == 0
-        assert result.inconclusive_ids == ("2", "3")
+        assert result.inconclusive_ids == ()
 
     asyncio.run(asyncio.wait_for(audit(), timeout=5))
     assert requested == [
