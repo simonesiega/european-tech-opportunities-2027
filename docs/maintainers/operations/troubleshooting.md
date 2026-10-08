@@ -51,10 +51,11 @@ Never paste a complete environment file, production database, authenticated HTML
 |---:|---|---|
 | `0` | Success | No recovery action required |
 | `1` | Complete collection failure, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
-| `2` | Partial collection or availability audit, or rejected configuration/command input | Preserve successful work and inspect the command-specific error |
+| `2` | Inconclusive availability audit or rejected configuration/command input | Inspect command context; scraping must stop |
 | `3` | Database missing tables or not at migration head | Run `db-upgrade` against the same database URL |
+| `4` | Eligible partial collection, not complete success | Inspect quality report, validate, and manually review the proposal |
 
-Exit code `2` is intentionally overloaded by command context: collection uses it for partial success, the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors also use it for rejected input. An availability source-access denial returns `1` and skips projection rendering; review authorization before another run.
+Exit code `2` is intentionally overloaded by command context: the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors use it for rejected input. Scrape partial completion uses distinct code `4` so configuration errors cannot be mistaken for publication eligibility. An availability source-access denial returns `1` and skips projection rendering; review authorization before another run.
 
 Command-specific behavior is documented in the [CLI reference](cli.md#exit-codes).
 
@@ -265,12 +266,12 @@ Identify the rejection stage before changing query limits or classification rule
 
 ### Partial collection
 
-Exit code `2` preserves successful search transactions.
+Exit code `4` preserves completed search transactions without claiming full success.
 
-1. Run validation.
-2. Identify failed search slugs.
-3. Inspect the first sanitized error for each failed search.
-4. Rerun only the affected slug when appropriate.
+1. Inspect `collection_outcome`, `publication_eligible`, `source_stopped`, and failed/skipped metrics in the aggregate quality report. HTTP `429` partial publication requires this gate.
+2. Require SQLite integrity, projection validation, and round-trip snapshot verification. Failed checks withhold publication and scheduling progress.
+3. Review the labeled `-partial` README proposal and sanitized artifact; merge manually only when correct. No full-registry quality baseline is created.
+4. Review source authorization before the next eligible execution. Do not immediately retry a denial. Denied and skipped searches keep priority through the verified SQLite rotation.
 
 A failed search does not apply absence or closure evidence.
 
@@ -534,7 +535,9 @@ Do not initialize an empty database merely to make automation pass. An intention
 
 ### Nightly pull request does not auto-merge
 
-Confirm that:
+A partial collection deliberately uses `automated/nightly-full-update-partial`, has a partial/manual-review title, and never requests auto-merge. Review and merge manually after checks pass. If rejected or closed, the reviewed-state barrier remains blocking; use [proposal recovery](automation.md#recover-a-missing-readme-state-proposal) only for correct state, or obtain explicit approval for verified canonical recovery. Do not collect again or reset only rotation metadata.
+
+For a fully successful collection, confirm that:
 
 - GitHub Actions may create pull requests and squash merging is enabled;
 - the README mutation job has `actions: write`, `contents: write`, and `pull-requests: write`;

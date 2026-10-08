@@ -78,6 +78,8 @@ The destination is ignored, even when missing, malformed, or untrusted. The tran
 
 All redirects from search or guest-detail endpoints, every other redirect status (including `302`, `307`, and `308`), authentication denials (`401` and `403`), rate limits (`429`), and access or verification pages still stop source requests.
 
+HTTP `429` during scraping alone may permit publication of independently completed searches after the required quality, integrity, projection, and snapshot checks. It never permits another source request, retry, or bypass within that execution. At least one search must have completed; failed and skipped searches provide no negative lifecycle evidence. Partial proposals require manual review and merge, and cannot establish full-registry quality baselines. Availability-audit denials and all other source denials still withhold publication. Review authorization before any subsequent eligible execution. Public download/status schemas remain unchanged; aggregate operational quality reports identify partial outcomes without exposing listing content.
+
 ### Data and website boundary
 
 `data/opportunities.db` contains public listing metadata and sensitive operational history. It must never contain credentials, sessions, or authenticated HTML.

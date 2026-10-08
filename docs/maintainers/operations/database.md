@@ -51,7 +51,7 @@ alembic_version records the current schema revision
 | Table | Primary key | Responsibility |
 |---|---|---|
 | `jobs` | `linkedin_job_id` | Accepted listing fields, category, timestamps, and open or closed state |
-| `searches` | `slug` | Synchronized search identity, configuration, and enabled state |
+| `searches` | `slug` | Synchronized search identity, configuration, enabled state, and private completion timestamp |
 | `search_runs` | UUID `id` | Per-search outcome, counts, timing, warnings, and sanitized diagnostics |
 | `job_searches` | `(search_slug, linkedin_job_id)` | Search provenance and explicit unavailability evidence |
 | `data_quality_snapshots` | integer `id` | Aggregate-only drift baselines, pruned to the newest 90 observations |
@@ -90,7 +90,11 @@ Before collection, YAML definitions synchronize into `searches`:
 - removed slugs are disabled rather than deleted;
 - YAML remains configuration, not lifecycle state.
 
-Each selected search creates one `search_runs` row.
+Each selected search creates one `search_runs` row; searches skipped after a denial record `source_skipped` diagnostics, not evidence of an attempted or empty search.
+
+`searches.last_completed_at` advances monotonically in the successful search transaction only. Null timestamps run first, then oldest completion timestamps, with stable registry-order ties. This prevents repeatedly starting with the same groups after HTTP `429`. New and substantively modified searches start with null scheduling metadata; editorial changes preserve progress. Removed searches retain disabled history, and disabled searches are not selected. Re-enabling an unchanged search retains its old completion timestamp. The additive migration starts all existing searches at null rather than inventing reviewed scheduling progress.
+
+The timestamp is private operational metadata, never a job observation, quality baseline, or closure signal. It travels with the canonical snapshot, without a separate queue. Publication gates withhold failed working copies, including their scheduling progress. A published but unmerged partial snapshot remains blocked by the reviewed-README barrier; rejection does not authorize collecting over that state. Follow the [review recovery procedure](automation.md#recover-a-missing-readme-state-proposal).
 
 Successful runs record:
 
@@ -130,7 +134,7 @@ Search ranking, pagination, card disappearance, or query changes cannot close a 
 Each successful search commits atomically:
 
 ```text
-insert successful search run
+insert successful search run + advance search completion timestamp
 ↓
 upsert accepted jobs
 ↓

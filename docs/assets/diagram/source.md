@@ -9,7 +9,7 @@ Mermaid source for the SVGs in the `svg/` subfolder. The colors, grouped compone
 ```mermaid
 flowchart TB
     accTitle: European Tech Opportunities 2027 — repository overview
-    accDescr: Configuration and the CLI drive permission-gated collection and a separate availability audit. Repository is the only application writer to canonical SQLite. The website, API, exports, and README are read-only projections. Automation, tests, documentation, policies, and build tooling support these boundaries.
+    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, API, exports, and README are read-only projections.
 
     subgraph CONTROL["Configuration and<br/>entry points"]
         CONFIG["Searches + classification rules<br/>configs/"]
@@ -18,8 +18,8 @@ flowchart TB
     end
 
     subgraph PYTHON["Python pipeline<br/>src/opportunities/"]
-        COLLECT["Collect → normalize → classify<br/>scrapers/ · normalization/ · pipeline/"]
-        AUDIT["Full-state availability audit<br/>pipeline/availability.py"]
+        COLLECT["Rotate searches → collect → classify<br/>scrapers/ · normalization/ · pipeline/"]
+        AUDIT["Bounded due-job availability audit<br/>pipeline/availability.py"]
         REPO{{"Repository<br/>Only application writer"}}
         DOMAIN["Typed records + shared helpers<br/>models/ · utils/"]
         COLLECT -->|accepted jobs + search outcomes| REPO
@@ -28,7 +28,7 @@ flowchart TB
     end
 
     subgraph STATE["Canonical lifecycle state"]
-        DB[("SQLite<br/>jobs · searches · search_runs · job_searches")]
+        DB[("SQLite lifecycle + provenance<br/>Search rotation + quality baselines")]
         MIGRATIONS["Schema evolution<br/>migrations/ · database/"]
         MIGRATIONS -.->|Alembic upgrades| DB
     end
@@ -43,7 +43,7 @@ flowchart TB
     end
 
     subgraph SUPPORT["Operations and<br/>repository foundations"]
-        OPS["Protected automation + recovery<br/>.github/workflows/ · scripts/"]
+        OPS["Protected automation + recovery<br/>Full / partial / blocked publication gates<br/>.github/workflows/ · scripts/"]
         TESTS["Offline tests + synthetic fixtures<br/>tests/ · site/tests/ · scripts/testing/"]
         DOCS["Guides + public visuals<br/>docs/ · scripts/docs/"]
         BUILD["Packages + containers<br/>pyproject.toml · site/package.json<br/>Dockerfile · docker-compose.yml"]
@@ -102,7 +102,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     accTitle: Collection and lifecycle — evidence before persistence
-    accDescr: Search YAML selects discovery scope, not publication eligibility. Authorized bounded HTTP supplies guest cards and details. After normalization the deterministic classifier produces accepted records. Successful searches persist independently; failed searches record diagnostics only. The separate full-state availability audit uses explicit evidence and preserves inconclusive rows.
+    accDescr: Search YAML selects discovery scope, not publication eligibility. SQLite completion timestamps prioritize never-completed and oldest-completed searches. Authorized bounded HTTP stops all subsequent requests on denial. Successful searches persist independently; failed and skipped searches record diagnostics without lifecycle evidence or scheduling advancement. HTTP 429 can qualify as partial publication only after completed searches and all quality and integrity gates; partial runs never establish full-registry baselines. The separate bounded availability audit preserves inconclusive rows and blocks publication on any source denial.
 
     subgraph INPUT["What to run"]
         SEARCHES["Discovery YAML<br/>configs/searches/<br/>companies/ · countries/ · roles/"]
@@ -114,7 +114,8 @@ flowchart TB
     end
 
     subgraph FETCH["Bounded public<br/>source access"]
-        RUNNER["CollectionPipeline<br/>pipeline/runner.py<br/>Concurrent fetch; isolated outcomes"]
+        RUNNER["CollectionPipeline<br/>pipeline/runner.py<br/>Bounded concurrency; isolated outcomes"]
+        ROTATION["Persistent search rotation<br/>searches.last_completed_at<br/>Never completed → oldest completed"]
         HTTP["Authorization interlock + HTTP bounds<br/>scrapers/http.py<br/>No cookies or redirects; stop on denial"]
         SOURCE(["LinkedIn guest HTML<br/>External source; permission required"])
         CARDS["Search cards + company/title prefilters<br/>scrapers/linkedin.py"]
@@ -137,26 +138,31 @@ flowchart TB
     end
 
     subgraph PERSIST["Repository owns<br/>lifecycle writes"]
-        OUTCOMES["Search outcomes<br/>pipeline/runner.py<br/>Persist in finish-time order"]
+        OUTCOMES["Search outcomes in finish-time order<br/>pipeline/runner.py<br/>Full 0 / partial 4 / blocked 1"]
+        QUALITY["Aggregate collection-quality gate<br/>pipeline/data_quality.py<br/>429 partial needs completed searches + gate<br/>Only full-registry success builds baselines"]
         REPOSITORY{{"Repository transactions<br/>database/repository.py"}}
-        DATABASE[("Canonical SQLite<br/>database/models.py · session.py<br/>Listing state + provenance + run history")]
-        OUTCOMES -->|success: jobs + provenance; failure: diagnostics only| REPOSITORY
+        DATABASE[("Canonical SQLite<br/>database/models.py · session.py<br/>Lifecycle + provenance + search rotation")]
+        OUTCOMES -->|success: jobs + completion time; failure/skipped: diagnostics only| REPOSITORY
         REPOSITORY --> DATABASE
     end
 
     subgraph MAINTENANCE["Separate<br/>maintenance paths"]
-        AUDIT["Full-state audit<br/>pipeline/availability.py<br/>Public page + guest-detail identity"]
+        AUDIT["Bounded due-job audit<br/>pipeline/availability.py<br/>50 jobs by default; five-day minimum"]
         MANUAL["Reviewed offline add-job / add-jobs<br/>cli/app.py<br/>No invented provenance or manual reopen"]
     end
 
     ENTRY -.-> RUNNER
+    DATABASE -->|completion timestamps| ROTATION
+    ROTATION -.->|stable oldest-first priority| RUNNER
+    OUTCOMES -->|completed-search metrics| QUALITY
+    QUALITY -.->|gate publication; no lifecycle rollback| ENTRY
     ENTRY -.-> AUDIT
     ENTRY -.-> MANUAL
     RULES -.-> CLASSIFY
     DETAILS --> NORMALIZE
     ACCEPTED --> OUTCOMES
     DETAILS -->|known-ID rechecks: explicit 404/410 evidence| OUTCOMES
-    RUNNER -->|failed search diagnostics| OUTCOMES
+    RUNNER -->|denied or skipped: no negative evidence| OUTCOMES
     AUDIT -.->|uses same bounded transport| HTTP
     AUDIT -->|keep/reopen; explicit unavailability deletes; uncertainty preserves| REPOSITORY
     MANUAL -.->|reuses acceptance checks| CLASSIFY
@@ -167,6 +173,8 @@ flowchart TB
     click SETTINGS "https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/src/opportunities/config"
     click ENTRY "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/cli/app.py"
     click RUNNER "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/pipeline/runner.py"
+    click ROTATION "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/database/repository.py"
+    click QUALITY "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/pipeline/data_quality.py"
     click HTTP "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/scrapers/http.py"
     click SOURCE "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/SECURITY.md"
     click CARDS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/scrapers/linkedin.py"
@@ -187,8 +195,8 @@ flowchart TB
     classDef rose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
     classDef indigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
     class SEARCHES,RULES,SETTINGS,ENTRY blue
-    class RUNNER,HTTP,CARDS,DETAILS,NORMALIZE,CLASSIFY,ACCEPTED,OUTCOMES mint
-    class REPOSITORY,DATABASE amber
+    class RUNNER,HTTP,CARDS,DETAILS,NORMALIZE,CLASSIFY,ACCEPTED,OUTCOMES,QUALITY mint
+    class REPOSITORY,DATABASE,ROTATION amber
     class SOURCE,EXCLUDED rose
     class AUDIT,MANUAL indigo
 ```
@@ -290,7 +298,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     accTitle: Automation and deployment — protected state, reviewed publication
-    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, checks the reviewed-state seal, migrates, executes the selected CLI phases, validates projections, and publishes round-trip-verified restricted snapshots. A separate job receives only the README and creates a validated review pull request. Deployment is a separate approved run after the matching README is merged, not an automatic consequence of merging.
+    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, migrates, requires the reviewed README to match, and executes selected CLI phases. Full or eligible partial collection, including HTTP 429 partial results, must pass quality, SQLite integrity, projection, and snapshot checks. Other source denials, all audit denials, and failed validation block publication. Scheduling progress travels only with verified SQLite snapshots. A separate job receives only the README: full nightly collections retain automatic merging after checks, while partial proposals require manual review and merge. Unmerged or rejected state blocks subsequent ordinary mutations and deployment.
 
     subgraph TRIGGERS["Operator-facing<br/>workflows<br/>.github/workflows/"]
         NIGHTLY["nightly.yml<br/>Availability audit → scrape"]
@@ -299,18 +307,22 @@ flowchart TB
 
     subgraph PROCESS["Protected canonical<br/>processing<br/>One shared writer lock"]
         RESTORE["Verify + restore durable state<br/>scripts/database/<br/>restore_canonical_state.sh · bootstrap_sqlite.py"]
-        PROCESSOR["reusable-process-state.yml<br/>Reviewed-state barrier → migrate → selected CLI<br/>Render + validate → checkpoint"]
+        PROCESSOR["reusable-process-state.yml<br/>Migrate → require matching reviewed README<br/>Selected CLI phases; source stops on denial"]
+        GATES{"Publication eligibility + validation<br/>Full or partial with completed searches<br/>429 may qualify; other source/audit denials block<br/>Quality + SQLite integrity + projections"}
+        BLOCKED["Blocking failure: no publication<br/>Audit denial; other source denial; no success<br/>Failed quality, integrity, or projection checks"]
         SNAPSHOTS["Create / publish / round-trip verify<br/>database/snapshots.py<br/>scripts/database/canonical_snapshot.py<br/>canonical_state_store.sh"]
         STORE[("Restricted VPS snapshot store<br/>Immutable SQLite + manifests<br/>Verified latest pointer")]
         RESTORE --> PROCESSOR
-        PROCESSOR -->|validated state| SNAPSHOTS
+        PROCESSOR --> GATES
+        GATES -->|eligible full or partial; checkpoint| SNAPSHOTS
+        GATES -->|reject| BLOCKED
         SNAPSHOTS --> STORE
     end
 
     subgraph REVIEW["GitHub review handoff<br/>No database or<br/>VPS credentials"]
-        HANDOFF["README-only handoff<br/>Sanitized public exports retained separately"]
+        HANDOFF["README-only handoff + outcome output<br/>Sanitized exports + aggregate quality report<br/>No SQLite or manifests in artifacts"]
         PR["reusable-readme-pr.yml<br/>README-only pull request<br/>Dispatch and await validation workflows"]
-        MERGED["Matching README + full-state seal in main<br/>Nightly: eligible for auto-merge after checks<br/>Other updates: manual merge"]
+        MERGED["Matching README + full-state seal in main<br/>Full nightly: existing automatic-merge policy<br/>Partial: manual review and merge required"]
         HANDOFF --> PR --> MERGED
     end
 
@@ -332,6 +344,8 @@ flowchart TB
     click MANUAL "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/WORKFLOWS.md"
     click RESTORE "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/database/restore_canonical_state.sh"
     click PROCESSOR "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/workflows/reusable-process-state.yml"
+    click GATES "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/workflows/reusable-process-state.yml"
+    click BLOCKED "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/docs/maintainers/operations/automation.md"
     click SNAPSHOTS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/src/opportunities/database/snapshots.py"
     click STORE "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/scripts/database/canonical_state_store.sh"
     click HANDOFF "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/workflows/reusable-process-state.yml"
@@ -348,13 +362,14 @@ flowchart TB
     classDef rose fill:#ffe4e6,stroke:#e11d48,stroke-width:1.5px,color:#881337
     classDef indigo fill:#e0e7ff,stroke:#4f46e5,stroke-width:1.5px,color:#312e81
     class NIGHTLY,MANUAL blue
-    class RESTORE,PROCESSOR,SNAPSHOTS,STORE amber
+    class RESTORE,PROCESSOR,GATES,SNAPSHOTS,STORE amber
+    class BLOCKED rose
     class HANDOFF,PR,MERGED indigo
     class DEPLOY,ACTIVATE rose
     class RELEASE,SITE teal
 ```
 
-The diagram traces dataset updates and deployment. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode and its separate README-recovery mode instead propose README-only PRs without snapshot publication or deployment. Verified snapshots are also the normal input to the next update's restore step; that feedback arrow is omitted for readability.
+The diagram traces dataset updates and deployment. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode and its separate README-recovery mode instead propose README-only PRs without snapshot publication or deployment. Verified snapshots, including search-rotation timestamps, are also the normal input to the next update's restore step; that feedback arrow is omitted for readability. An unmerged or rejected partial proposal does not authorize another update: the reviewed-state barrier still stops ordinary mutation and deployment. Snapshot-verification failure prevents the README handoff; scheduling metadata is never restored separately from its database.
 
 ## Testing, documentation, and tooling
 
