@@ -74,8 +74,15 @@ class PipelineResult:
     outcomes: tuple[SearchOutcome, ...]
 
     @property
+    def source_blocked(self) -> bool:
+        """Withhold publication after any source-wide denial, even with successful siblings."""
+        return any(outcome.error_code == "source_blocked" for outcome in self.outcomes)
+
+    @property
     def exit_code(self) -> int:
         """Return a process exit code derived from search outcomes."""
+        if self.source_blocked:
+            return 1
         if self.status == RunStatus.SUCCESS:
             return 0
         if self.status == RunStatus.PARTIAL:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import pytest
 from sqlalchemy.orm import Session, sessionmaker
@@ -11,6 +12,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from opportunities.config.settings import Settings
 from opportunities.database.models import JobRow
 from opportunities.database.repository import Repository
+from opportunities.database.session import create_database_engine, create_session_factory
+from opportunities.database.snapshots import create_snapshot, verify_snapshot
 from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.search import LinkedInSearchConfig
@@ -64,13 +67,16 @@ def seed(repository: Repository, search: LinkedInSearchConfig, count: int) -> No
     )
 
 
-def test_initial_backlog_is_capped_and_rotates_across_five_runs(
+def test_700_jobs_rotate_across_20_daily_runs(
     session_factory: sessionmaker[Session], settings: Settings, search: LinkedInSearchConfig
 ) -> None:
     repository = Repository(session_factory, settings)
-    seed(repository, search, 1062)
-    checked: set[str] = set()
-    for day, expected in enumerate((250, 250, 250, 250, 62)):
+    seed(repository, search, 700)
+    ordered = sorted(str(index + 1) for index in range(700))
+    last_checked: dict[str, int] = {}
+    for day in range(20):
+        # A fresh repository per run must resume from SQLite, not an in-memory cursor.
+        repository = Repository(session_factory, settings)
         fetcher = RecordingFetcher()
         result = asyncio.run(
             audit_job_availability(
@@ -80,21 +86,27 @@ def test_initial_backlog_is_capped_and_rotates_across_five_runs(
                 observed_at=NOW + timedelta(days=day),
             )
         )
-        ids = {url.rsplit("/", 1)[1] for url in fetcher.requested}
-        assert not ids & checked
-        checked.update(ids)
-        assert result.checked == result.available == expected
-        assert result.deferred == max(1062 - (day + 1) * 250, 0)
-        assert result.exit_code == 0  # A planned cap is not a source failure.
-        assert len(fetcher.requested) == expected * 2
-    assert len(checked) == 1062
-
-    # Rebuilding Repository proves the schedule is durable, not process-local.
-    repository = Repository(session_factory, settings)
-    jobs, deferred = repository.availability_batch(NOW + timedelta(days=5))
-    assert len(jobs) == 250
-    assert deferred == 0
-    assert all(job.last_seen_at == NOW for job in jobs)
+        ids = [url.rsplit("/", 1)[1] for url in fetcher.requested[::2]]
+        offset = (day % 14) * 50
+        assert ids == ordered[offset : offset + 50]
+        assert result.checked == result.available == 50
+        assert result.deleted == result.reopened == result.blocked == 0
+        assert result.exit_code == 0
+        assert len(fetcher.requested) == 100
+        for job_id in ids:
+            if job_id in last_checked:
+                assert day - last_checked[job_id] >= 5
+            last_checked[job_id] = day
+        with session_factory() as session:
+            for job_id in ids:
+                row = session.get(JobRow, job_id)
+                assert row is not None
+                assert row.last_availability_checked_at is not None
+                assert ensure_utc(row.last_availability_checked_at) == NOW + timedelta(days=day)
+        if day == 13:
+            assert len(last_checked) == 700
+        assert len(repository.list_open_jobs()) == 700
+    assert len(last_checked) == 700
 
 
 def test_due_boundary_and_ordering_do_not_use_discovery_timestamps(
@@ -229,3 +241,142 @@ def test_no_due_jobs_produces_no_requests_and_audit_timestamps_are_monotonic(
     assert fetcher.requested == []
     assert repository.availability_batch(NOW + timedelta(days=5) - timedelta(seconds=1)) == ([], 0)
     assert len(repository.availability_batch(NOW + timedelta(days=5))[0]) == 1
+
+
+def test_new_jobs_and_deferred_denials_recover_without_starvation(
+    session_factory: sessionmaker[Session], settings: Settings, search: LinkedInSearchConfig
+) -> None:
+    repository = Repository(session_factory, settings)
+    seed(repository, search, 700)
+    before = repository.list_all_jobs()
+    denied = RecordingFetcher("source_blocked")
+    result = asyncio.run(
+        audit_job_availability(
+            settings=settings, repository=repository, fetcher=denied, observed_at=NOW
+        )
+    )
+    assert result.checked == result.blocked == 1
+    assert result.deferred == 699
+    assert result.inconclusive_ids == ()
+    assert len(denied.requested) == 1
+    assert repository.list_all_jobs() == before
+    original = [job.linkedin_job_id for job in repository.availability_batch(NOW)[0]]
+    checked: set[str] = set()
+    for day in range(15):
+        if day == 1:
+            existing = repository.list_all_jobs()[0]
+            repository.upsert_manual_job(
+                DiscoveredJob(
+                    **{
+                        **existing.model_dump(include=set(DiscoveredJob.model_fields)),
+                        "linkedin_job_id": "9999",
+                        "link": "https://www.linkedin.com/jobs/view/9999",
+                        "posted_at": None,
+                    }
+                ),
+                observed_at=NOW + timedelta(days=day),
+            )
+        # Inconclusive evidence must drain the queue without lifecycle mutations.
+        fetcher = RecordingFetcher("transient_http")
+        result = asyncio.run(
+            audit_job_availability(
+                settings=settings,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=NOW + timedelta(days=day),
+            )
+        )
+        ids = [url.rsplit("/", 1)[1] for url in fetcher.requested]
+        if day == 0:
+            assert ids == original
+        if day < 14:
+            assert not checked.intersection(ids)
+        if day == 14:
+            assert ids[0] == "9999"  # Never checked beats the oldest previous attempt.
+        checked.update(ids)
+        assert result.checked == 50
+        assert result.deleted == result.reopened == result.blocked == 0
+        assert result.exit_code == 2
+    assert checked == {job.linkedin_job_id for job in before} | {"9999"}
+    assert repository.list_all_jobs()[:700] == before
+
+
+def test_interrupted_audit_does_not_stamp_completed_or_unprocessed_jobs(
+    session_factory: sessionmaker[Session], settings: Settings, search: LinkedInSearchConfig
+) -> None:
+    repository = Repository(session_factory, settings)
+    seed(repository, search, 3)
+    before = repository.list_all_jobs()
+
+    async def interrupt() -> None:
+        interrupted = asyncio.Event()
+
+        class InterruptedFetcher(RecordingFetcher):
+            async def get_text(self, url: str) -> str:
+                if url.endswith("/2"):
+                    interrupted.set()
+                    await asyncio.Event().wait()
+                return await super().get_text(url)
+
+        configured = settings.model_copy(update={"max_concurrency": 1})
+        task = asyncio.create_task(
+            audit_job_availability(
+                settings=configured,
+                repository=repository,
+                fetcher=InterruptedFetcher(),
+                observed_at=NOW,
+            )
+        )
+        await interrupted.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    asyncio.run(asyncio.wait_for(interrupt(), timeout=5))
+    assert repository.list_all_jobs() == before
+    assert len(repository.availability_batch(NOW)[0]) == 3
+    with session_factory() as session:
+        assert all(row.last_availability_checked_at is None for row in session.query(JobRow))
+
+
+def test_verified_snapshot_restores_audit_rotation(
+    tmp_path: Path,
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+) -> None:
+    repository = Repository(session_factory, settings)
+    seed(repository, search, 700)
+    asyncio.run(
+        audit_job_availability(
+            settings=settings, repository=repository, fetcher=RecordingFetcher(), observed_at=NOW
+        )
+    )
+    expected, expected_deferred = repository.availability_batch(NOW + timedelta(days=1))
+    snapshot = tmp_path / "verified.db"
+    create_snapshot(
+        tmp_path / "opportunities.db",
+        snapshot,
+        tmp_path / "verified.manifest.json",
+        key_prefix="snapshots",
+        retention_days=365,
+        repository="synthetic/repository",
+        run_id="1",
+        run_attempt=1,
+        created_at=NOW + timedelta(days=1),
+    )
+    verify_snapshot(snapshot, tmp_path / "verified.manifest.json")
+    restored_engine = create_database_engine(f"sqlite:///{snapshot.as_posix()}")
+    try:
+        restored = Repository(create_session_factory(restored_engine), settings)
+        jobs, deferred = restored.availability_batch(NOW + timedelta(days=1))
+        assert jobs == expected
+        assert deferred == expected_deferred == 600
+        with create_session_factory(restored_engine)() as session:
+            stamped = [row for row in session.query(JobRow) if row.last_availability_checked_at]
+            assert len(stamped) == 50
+            for row in stamped:
+                assert row.last_availability_checked_at is not None
+                assert ensure_utc(row.last_availability_checked_at) == NOW
+    finally:
+        restored_engine.dispose()

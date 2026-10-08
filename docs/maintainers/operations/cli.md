@@ -160,7 +160,7 @@ The command:
 7. when `--quality-report` is supplied, compares aggregate counts, field completeness, category/country mix, and scraper warnings with prior aggregate observations, labels full versus partial registry scope, writes a JSON report, and stores a bounded aggregate baseline only after every enabled search succeeds and no blocking finding occurs;
 8. renders the owned README, search-registry documentation, and all public exports after at least one successful search, unless `--no-render` is set.
 
-A partial run preserves successful search transactions. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
+A partial run preserves successful search transactions. A source-wide denial in any search returns exit code `1` and withholds projections even when sibling searches succeeded; automation publishes no snapshot or README handoff from that run. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
 
 A failed search:
 
@@ -267,7 +267,7 @@ Check canonical state without refreshing generated projections:
 uv run opportunities check-availability --no-render
 ```
 
-The command requires the LinkedIn authorization interlock and checks at most 250 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. The summary reports due rows deferred by the cap; those rows stay unchanged and do not cause a partial-success exit. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
+The command requires the LinkedIn authorization interlock and checks at most 50 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. The summary reports checked, available, deleted, reopened, inconclusive, blocked, and deferred rows; blocked and unprocessed rows never advance their audit timestamps. It reports why collection was skipped after a source denial. Due rows deferred by the cap remain eligible; those rows stay unchanged and do not cause a partial-success exit. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
 
 - successful public-page and detail-page validation keeps the row open or reopens it;
 - HTTP `404` or `410` from either request permanently deletes the job and cascading search provenance;
@@ -361,7 +361,7 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | Code | Meaning |
 |---:|---|
 | `0` | Command completed successfully |
-| `1` | All selected searches failed, the availability audit encountered a source-access denial, validation found an inconsistency, or the requested quality gate blocked or could not complete |
+| `1` | All selected searches failed, either source phase encountered a source-access denial, validation found an inconsistency, or the requested quality gate blocked or could not complete |
 | `2` | Partial scrape, availability audit with inconclusive checks, or rejected command/configuration input |
 | `3` | Required database tables are missing or the schema is not at migration head |
 

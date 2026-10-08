@@ -64,20 +64,21 @@ def test_dotenv_loads_automatically_and_process_environment_wins(
     assert settings.public_export_dir == Path("generated/public")
 
 
+@pytest.mark.parametrize("cap", [50, 100, 250])
 def test_availability_environment_overrides_and_defaults(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cap: int
 ) -> None:
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS", "7")
-    monkeypatch.setenv("OPPORTUNITIES_AVAILABILITY_MAX_JOBS", "100")
+    monkeypatch.setenv("OPPORTUNITIES_AVAILABILITY_MAX_JOBS", str(cap))
     configured = load_settings()
     assert configured.availability_interval_days == 7
-    assert configured.availability_max_jobs == 100
+    assert configured.availability_max_jobs == cap
     for name in ("OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS", "OPPORTUNITIES_AVAILABILITY_MAX_JOBS"):
         monkeypatch.delenv(name)
     defaults = load_settings()
     assert defaults.availability_interval_days == 5
-    assert defaults.availability_max_jobs == 250
+    assert defaults.availability_max_jobs == 50
 
 
 @pytest.mark.parametrize(

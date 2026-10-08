@@ -47,7 +47,7 @@ Source: [integration/test_availability.py](integration/test_availability.py).
 |---|---|
 | `test_availability_audit_checks_every_row_deletes_only_explicit_unavailability` | Audit open and closed rows; reopen explicit availability, delete explicit absence, preserve inconclusive rows and their provenance |
 | `test_availability_audit_includes_manual_jobs_without_provenance` | Manual listings are audited even without a search association |
-| `test_delayed_audit_cannot_delete_newer_rediscovery` | A delayed audit cannot delete a newer observation or reopen a later closure |
+| `test_delayed_audit_cannot_delete_newer_rediscovery` | A delayed audit cannot delete a newer observation or reopen a later closure; stale absence still advances scheduling |
 | `test_availability_distinguishes_public_listing_301s_from_source_stops` | Public 301 is inconclusive and permits unrelated work; detail redirects, denials, and challenges stop subsequent requests without mutating unchecked rows |
 | `test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial` | Already-started 200/404 evidence is preserved while a sibling denial stops queued work |
 | `test_availability_errors_are_not_closure_evidence_except_not_found_or_gone` | At either endpoint, only 404/410 deletes; other statuses and unexpected failures preserve state |
@@ -56,7 +56,10 @@ Source: [integration/test_availability_schedule.py](integration/test_availabilit
 
 | Test | Behavior protected |
 |---|---|
-| `test_initial_backlog_is_capped_and_rotates_across_five_runs` | A 1,062-row initial backlog drains without duplicate checks, never exceeds 250 jobs per run, and resumes from persistent timestamps |
+| `test_700_jobs_rotate_across_20_daily_runs` | A 700-row backlog rotates completely in 14 days at 50 jobs per run, resumes oldest-first on day 15, and respects minimum intervals across 20 runs |
+| `test_new_jobs_and_deferred_denials_recover_without_starvation` | Denials leave blocked/deferred rows eligible; new jobs outrank checked rows and inconclusive checks drain the growing backlog without lifecycle changes |
+| `test_interrupted_audit_does_not_stamp_completed_or_unprocessed_jobs` | Cancellation before the atomic write leaves all audit timestamps and lifecycle state unchanged |
+| `test_verified_snapshot_restores_audit_rotation` | A verified SQLite snapshot retains timestamps and restores the exact next batch and backlog |
 | `test_due_boundary_and_ordering_do_not_use_discovery_timestamps` | Never-checked and oldest-checked rows take priority; the five-day boundary is inclusive and discovery does not postpone the audit |
 | `test_attempts_rotate_without_changing_inconclusive_lifecycle_or_stamping_denials` | Inconclusive attempts advance only scheduling metadata; denials and deferred rows do not advance |
 | `test_inconclusive_and_confirmed_outcomes_cannot_overlap` | Contradictory evidence fails before lifecycle or scheduling writes |
@@ -68,7 +71,7 @@ Source: [integration/test_cli.py](integration/test_cli.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_scrape_quality_gate_end_to_end` | Success, warning, blocking, partial, failed, and selected-search runs produce correct exits, sanitized reports, baseline retention, and publication decisions without closing existing jobs |
+| `test_scrape_quality_gate_end_to_end` | Success, warning, blocking, partial, source-denied, failed, and selected-search runs produce correct exits, sanitized reports, baseline retention, and publication decisions without closing existing jobs |
 | `test_requested_quality_gate_fails_closed_on_local_errors` | Baseline read, analysis, report write, and persistence errors stop publication and do not disclose private diagnostics |
 | `test_availability_source_block_fails_closed_without_rendering` | Source blocks and `--no-render` preserve projections; inconclusive nonblocked audits may render with a partial-success exit |
 | `test_availability_public_listing_301_returns_partial_success_and_continues` | Full CLI/transport/repository path preserves the redirected row, continues other checks, sanitizes output, and validates projections |
@@ -135,7 +138,7 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; diagnostics are sanitized |
+| `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; diagnostics are sanitized |
 | `test_collection_uses_explicit_cycle_when_posting_age_is_missing` | Real parsing/classification persists explicit-cycle roles but rejects yearless roles without date evidence |
 | `test_malformed_detail_does_not_publish_a_current_search_card` | A plausible card cannot substitute for missing detail identity or produce a successful collection |
 | `test_concurrent_search_outcomes_apply_in_observation_order` | Reversed fetched outcomes still persist the newest metadata and both search associations |
@@ -187,7 +190,7 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 |---|---|
 | `test_production_search_registry_is_bounded_and_scope_specific` | Checked-in role/company/country searches preserve query scope, date windows, allowlists, geo IDs, and request/recheck bounds |
 | `test_dotenv_loads_automatically_and_process_environment_wins` | Local dotenv defaults load while explicit environment settings win, including relative export paths |
-| `test_availability_environment_overrides_and_defaults` | Operator audit settings override defaults; absent settings retain the five-day interval and bounded cap |
+| `test_availability_environment_overrides_and_defaults` | Operator caps of 50, 100, and legacy 250 override defaults; absent settings retain the five-day interval and 50-job cap |
 | `test_availability_limits_reject_unbounded_values` | Invalid intervals and batch limits fail before collection |
 | `test_search_text_normalization_includes_optional_notes` | Whitespace-normalized search inputs are stable instead of changing queries or recorded scope accidentally |
 | `test_trailing_environment_whitespace_is_ignored` | Trailing deployment-setting whitespace does not misparse an explicit authorization value |
@@ -410,7 +413,7 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_collection_quality_gate_propagates_blocking_failures` | Workflow shell preserves blocking/configuration exits while accepting success and isolated partial collection |
 | `test_availability_denial_stops_workflow_before_follow_on_scrape` | Audit exit handling and step dependency stop subsequent collection after denial |
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
-| `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, interval, and cap come from repository variables; the processor retains its bounded timeout and authorization input |
+| `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
 | `test_nightly_supports_manual_and_scheduled_full_updates` | Scheduled/manual work uses a noncancelling shared lock, audit/collection, and explicit authorization input |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent handoff to the README-writing job |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |

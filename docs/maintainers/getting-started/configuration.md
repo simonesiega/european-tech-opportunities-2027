@@ -122,7 +122,7 @@ The 2027 publication floor (May 1, 2026) and `date_posted: cycle` search window 
 | Variable | Default | Validation and behavior |
 |---|---:|---|
 | `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS` | `5` | Minimum days between non-denial audit attempts, from 1 through 365 |
-| `OPPORTUNITIES_AVAILABILITY_MAX_JOBS` | `250` | Maximum due jobs selected per audit, from 1 through 1,000; excess jobs remain deferred |
+| `OPPORTUNITIES_AVAILABILITY_MAX_JOBS` | `50` | Maximum due jobs selected per audit, from 1 through 1,000; excess jobs remain deferred |
 | `OPPORTUNITIES_CLOSURE_CONFIRMATION_RUNS` | `2` | Required explicit unavailability confirmations from 1 through 10 |
 | `OPPORTUNITIES_LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` |
 
@@ -149,7 +149,7 @@ max_concurrency: 3
 max_response_bytes: 15000000
 
 availability_interval_days: 5
-availability_max_jobs: 250
+availability_max_jobs: 50
 closure_confirmation_runs: 2
 linkedin_crawl_authorized: false
 user_agent: european-tech-opportunities-2027/1.0.0 (+https://github.com/simonesiega/european-tech-opportunities-2027)

@@ -49,7 +49,7 @@ class Settings(BaseModel):
     max_concurrency: int = Field(default=3, ge=1, le=16)
     max_response_bytes: int = Field(default=15_000_000, ge=10_000, le=100_000_000)
     availability_interval_days: int = Field(default=5, ge=1, le=365)
-    availability_max_jobs: int = Field(default=250, ge=1, le=1000)
+    availability_max_jobs: int = Field(default=50, ge=1, le=1000)
     closure_confirmation_runs: int = Field(default=2, ge=1, le=10)
     linkedin_crawl_authorized: bool = False
     user_agent: str = Field(default=DEFAULT_USER_AGENT, min_length=20, max_length=300)

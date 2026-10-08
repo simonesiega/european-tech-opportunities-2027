@@ -314,9 +314,11 @@ def test_processor_uses_repository_request_and_availability_settings() -> None:
         "OPPORTUNITIES_MAX_CONCURRENCY",
         "OPPORTUNITIES_RATE_LIMIT_SECONDS",
         "OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS",
-        "OPPORTUNITIES_AVAILABILITY_MAX_JOBS",
     ):
         assert job["env"][setting] == "${{ vars." + setting + " }}"
+    assert job["env"]["OPPORTUNITIES_AVAILABILITY_MAX_JOBS"] == (
+        "${{ vars.OPPORTUNITIES_AVAILABILITY_MAX_JOBS || '50' }}"
+    )
     assert job["env"]["OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED"] == (
         "${{ inputs.crawl_authorized }}"
     )

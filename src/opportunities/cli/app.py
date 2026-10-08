@@ -166,7 +166,18 @@ def scrape(
                         "Review the generated report before publishing this collection."
                     )
             _print_result(result)
-            if not no_render and result.successful_searches and not quality_blocking:
+            if result.source_blocked:
+                error_console.print(
+                    "[red]LinkedIn access was blocked; publication stopped.[/red] "
+                    "Review authorization before another source request. "
+                    "Projections were not refreshed."
+                )
+            if (
+                not no_render
+                and result.successful_searches
+                and not quality_blocking
+                and not result.source_blocked
+            ):
                 _render_projections(settings, repository)
                 console.print(
                     f"Generated projections updated: {settings.readme_path}; "
@@ -199,11 +210,13 @@ def check_availability(
         console.print(
             f"Checked {result.checked} position(s): {result.available} available, "
             f"{result.deleted} deleted, {result.reopened} reopened, "
-            f"{len(result.inconclusive_ids)} inconclusive; {result.deferred} due deferred."
+            f"{len(result.inconclusive_ids)} inconclusive, {result.blocked} blocked; "
+            f"{result.deferred} due deferred."
         )
         if result.source_blocked:
             error_console.print(
                 "[red]LinkedIn access was blocked; source processing stopped.[/red] "
+                f"Collection skipped: availability audit stopped ({result.blocked_reason}). "
                 "Review authorization before another source request. "
                 "Projections were not refreshed."
             )
