@@ -182,11 +182,13 @@ class HttpFetcher:
         self._raise_if_blocked()
         retry_after: float | None = None
         listing_redirect: FetchError | None = None
+        response_status: int | None = None
         transient_status: int
         try:
             async with self._client.stream(
                 "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
             ) as response:
+                response_status = response.status_code
                 if response.status_code == 301 and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(
                     urlsplit(url).path
                 ):
@@ -203,7 +205,9 @@ class HttpFetcher:
                     403,
                     429,
                 }:
-                    self._blocked_status = response.status_code
+                    # In-flight rate limits must never downgrade a stronger source denial.
+                    if self._blocked_status is None or self._blocked_status == 429:
+                        self._blocked_status = response.status_code
                     raise FetchError(
                         "source_blocked",
                         f"LinkedIn returned HTTP {response.status_code}",
@@ -216,9 +220,16 @@ class HttpFetcher:
                     retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
                 else:
                     return await self._read_text(response)
-        except FetchError:
+        except FetchError as exc:
             if listing_redirect is not None:
                 raise listing_redirect from None
+            # Preserve explicit in-flight absence, but never a cleanup error masking denial.
+            if not (
+                exc.code == "http_status"
+                and exc.status_code in {404, 410}
+                and exc.status_code == response_status
+            ):
+                self._raise_if_blocked()
             raise
         except Exception as exc:
             self._raise_if_blocked()
@@ -241,16 +252,17 @@ class HttpFetcher:
 
     def _raise_if_blocked(self) -> None:
         """Stop queued requests after an access denial or rate limit."""
+        # Challenges remain blocking even when an in-flight response also returns 429.
+        if self._blocked_challenge:
+            raise FetchError(
+                "source_blocked",
+                "LinkedIn returned an access or verification page; collection stopped",
+            )
         if self._blocked_status is not None:
             raise FetchError(
                 "source_blocked",
                 f"LinkedIn returned HTTP {self._blocked_status}; collection stopped",
                 status_code=self._blocked_status,
-            )
-        if self._blocked_challenge:
-            raise FetchError(
-                "source_blocked",
-                "LinkedIn returned an access or verification page; collection stopped",
             )
 
     async def _read_text(self, response: httpx.Response) -> str:

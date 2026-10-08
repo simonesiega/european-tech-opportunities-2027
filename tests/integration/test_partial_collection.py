@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import shutil
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
 from datetime import UTC, datetime, timedelta
 from itertools import pairwise
 from pathlib import Path
@@ -23,7 +23,7 @@ from opportunities.models.raw import KnownJob
 from opportunities.models.search import LinkedInSearchConfig
 from opportunities.pipeline.data_quality import analyze_collection_quality
 from opportunities.pipeline.runner import CollectionPipeline, PipelineResult
-from opportunities.scrapers.http import FetchError, HttpFetcher
+from opportunities.scrapers.http import LINKEDIN_SEARCH_ENDPOINT, FetchError, HttpFetcher
 from opportunities.scrapers.linkedin import LinkedInScrapeResult, TextFetcher
 
 NOW = datetime(2026, 10, 8, tzinfo=UTC)
@@ -122,6 +122,97 @@ def test_early_mid_late_source_stop_retains_only_completed_searches(
     assert quality.snapshot_json is None
     assert quality.blocking == (denial != 429 or not completed)
     assert quality.report["publication_eligible"] == (denial == 429 and completed > 0)
+
+
+@pytest.mark.parametrize(
+    ("denial", "cleanup"),
+    [
+        ("challenge", "normal"),
+        *[
+            (status, cleanup)
+            for status in (401, 403, 302)
+            for cleanup in ("normal", "unexpected", "classified")
+        ],
+    ],
+)
+def test_mixed_inflight_denials_never_qualify_for_partial_publication(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    rules: ClassificationRules,
+    search: LinkedInSearchConfig,
+    denial: str | int,
+    cleanup: str,
+) -> None:
+    selected = registry(search)
+    requested: list[str] = []
+    hard_started = asyncio.Event()
+    rate_limit_finished = asyncio.Event()
+
+    class DenialStream(httpx.AsyncByteStream):
+        def __init__(self, *, rate_limit: bool = False) -> None:
+            self.rate_limit = rate_limit
+
+        async def __aiter__(self) -> AsyncIterator[bytes]:
+            yield b"security verification"
+
+        async def aclose(self) -> None:
+            if self.rate_limit:
+                rate_limit_finished.set()
+            elif cleanup != "normal":
+                await rate_limit_finished.wait()
+                if cleanup == "classified":
+                    raise FetchError("http_status", "synthetic-private-cleanup", status_code=404)
+                raise RuntimeError("synthetic-private-cleanup")
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        keywords = request.url.params["keywords"]
+        requested.append(keywords)
+        if keywords == selected[0].keywords:
+            return httpx.Response(200, text="")
+        if keywords == selected[1].keywords:
+            await hard_started.wait()
+            return httpx.Response(429, stream=DenialStream(rate_limit=True))
+        hard_started.set()
+        if denial == "challenge":
+            await rate_limit_finished.wait()
+            return httpx.Response(200, stream=DenialStream())
+        return httpx.Response(int(denial), stream=DenialStream())
+
+    configured = settings.model_copy(
+        update={"max_concurrency": 3, "rate_limit_seconds": 0, "linkedin_crawl_authorized": True}
+    )
+    repository = Repository(session_factory, configured)
+
+    async def collect() -> PipelineResult:
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(configured, client=client) as fetcher,
+        ):
+            result = await CollectionPipeline(
+                settings=configured, repository=repository, rules=rules, clock=lambda: NOW
+            ).run(selected, fetcher=fetcher)
+            with pytest.raises(FetchError) as error:
+                await fetcher.get_text(LINKEDIN_SEARCH_ENDPOINT)
+            assert error.value.status_code == (None if denial == "challenge" else denial)
+            assert not error.value.retryable
+            assert "synthetic-private" not in str(error.value)
+            return result
+
+    result = asyncio.run(asyncio.wait_for(collect(), timeout=5))
+    assert len(requested) == 3
+    assert result.successful_searches == 1
+    assert result.publication_outcome == "blocked"
+    assert result.exit_code == 1
+    quality = analyze_collection_quality(
+        result,
+        open_jobs=repository.list_open_jobs(),
+        previous_snapshots=(),
+        configured_searches=selected,
+        generated_at=NOW,
+    )
+    assert quality.blocking
+    assert not quality.report["publication_eligible"]
+    assert quality.snapshot_json is None
 
 
 class LimitedScraper:
