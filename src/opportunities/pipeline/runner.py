@@ -7,7 +7,7 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime
-from typing import Protocol
+from typing import Literal, Protocol
 
 from pydantic import ValidationError
 
@@ -57,6 +57,7 @@ class SearchOutcome:
     error_message: str | None = None
     accepted_count: int = 0
     excluded_count: int = 0
+    http_status: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,19 +76,21 @@ class PipelineResult:
 
     @property
     def source_blocked(self) -> bool:
-        """Withhold publication after any source-wide denial, even with successful siblings."""
+        """Identify a source stop, independently of publication eligibility."""
         return any(outcome.error_code == "source_blocked" for outcome in self.outcomes)
+
+    @property
+    def publication_outcome(self) -> Literal["full", "partial", "blocked"]:
+        """Describe collection eligibility; quality and integrity gates still apply."""
+        denials = [o for o in self.outcomes if o.error_code == "source_blocked"]
+        if not self.successful_searches or any(o.http_status != 429 for o in denials):
+            return "blocked"
+        return "partial" if self.status == RunStatus.PARTIAL else "full"
 
     @property
     def exit_code(self) -> int:
         """Return a process exit code derived from search outcomes."""
-        if self.source_blocked:
-            return 1
-        if self.status == RunStatus.SUCCESS:
-            return 0
-        if self.status == RunStatus.PARTIAL:
-            return 2
-        return 1
+        return {"full": 0, "partial": 4, "blocked": 1}[self.publication_outcome]
 
 
 class CollectionPipeline:
@@ -124,6 +127,7 @@ class CollectionPipeline:
             raise ValueError("no enabled LinkedIn searches matched the selection")
         registry = searches if configured_searches is None else configured_searches
         self.repository.sync_searches(registry, self.clock())
+        searches = self.repository.order_searches(searches)
         if fetcher is None:
             async with HttpFetcher(self.settings) as managed:
                 outcomes = await self._fetch_all(searches, managed)
@@ -248,11 +252,26 @@ class CollectionPipeline:
     ) -> list[SearchOutcome]:
         """Run selected searches concurrently within configured limits."""
 
+        stopped: FetchError | None = None
+
         async def fetch(search: LinkedInSearchConfig) -> SearchOutcome:
             """Collect one search while isolating its errors."""
+            nonlocal stopped
             run_id = str(uuid.uuid4())
             started_at = self.clock()
             started = time.monotonic()
+            if stopped is not None:
+                return SearchOutcome(
+                    search=search,
+                    run_id=run_id,
+                    started_at=started_at,
+                    finished_at=self.clock(),
+                    duration_ms=0,
+                    result=None,
+                    error_code="source_skipped",
+                    error_message="Search skipped after source stop",
+                )
+            http_status = None
             try:
                 result = await self.scraper.scrape(
                     search,
@@ -269,6 +288,9 @@ class CollectionPipeline:
                 )
             except FetchError as exc:
                 code, message = exc.code, str(exc)
+                http_status = exc.status_code
+                if code == "source_blocked":
+                    stopped = stopped or exc
             except (ValidationError, ValueError) as exc:
                 code, message = "invalid_html", f"LinkedIn HTML rejected: {type(exc).__name__}"
             # Preserve batch progress for unexpected provider/parser failures while
@@ -284,6 +306,7 @@ class CollectionPipeline:
                 result=None,
                 error_code=code,
                 error_message=message,
+                http_status=http_status,
             )
 
         # Bound complete workflows, including parsing and database lookups, rather

@@ -187,6 +187,7 @@ def test_report_identifies_partial_registry_scope() -> None:
         "complete_registry_run": False,
         "enabled_search_count": 2,
         "attempted_search_count": 1,
+        "skipped_search_count": 0,
         "successful_search_count": 1,
     }
     assert analysis.snapshot_json is None
@@ -427,7 +428,11 @@ def test_partial_and_failed_searches_do_not_create_baselines_or_fake_zero_metric
     assert _codes(analysis) == {"collection_failed", "search_failed"}
     metrics = cast(dict[str, object], analysis.report["metrics"])
     searches = cast(dict[str, object], metrics["searches"])
-    assert searches[_search().slug] == {"status": "failed"}
+    assert searches[_search().slug] == {
+        "status": "failed",
+        "error_code": failed.outcomes[0].error_code,
+        "http_status": None,
+    }
 
     other = _search().model_copy(update={"slug": "other-search"})
     healthy = replace(

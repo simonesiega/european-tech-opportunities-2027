@@ -153,14 +153,14 @@ The command:
 
 1. verifies authorization and migration preconditions;
 2. loads and synchronizes the complete search registry;
-3. selects every enabled search or one requested slug;
+3. selects every enabled search or one requested slug, ordered by persistent oldest completion with stable registry ties;
 4. fetches, parses, normalizes, and classifies candidates;
 5. commits each search outcome independently;
 6. updates provenance and explicit lifecycle evidence;
 7. when `--quality-report` is supplied, compares aggregate counts, field completeness, category/country mix, and scraper warnings with prior aggregate observations, labels full versus partial registry scope, writes a JSON report, and stores a bounded aggregate baseline only after every enabled search succeeds and no blocking finding occurs;
 8. renders the owned README, search-registry documentation, and all public exports after at least one successful search, unless `--no-render` is set.
 
-A partial run preserves successful search transactions. A source-wide denial in any search returns exit code `1` and withholds projections even when sibling searches succeeded; automation publishes no snapshot or README handoff from that run. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
+A partial run preserves successful search transactions. HTTP `429` stops subsequent requests, retains only fully completed searches, and returns partial exit code `4` if at least one search completed and the requested quality gate passes. This source-stop partial path requires `--quality-report`; without it the command returns `1` and withholds projections. A completed search with zero accepted jobs can qualify, but still faces all quality and publication checks. No completed search, any other source denial, or blocking quality findings return `1` and withhold projections, snapshots, and README handoffs. Failed and skipped searches never provide closure evidence. Partial proposals require manual review and merge; they are not complete collection success. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
 
 A failed search:
 
@@ -175,7 +175,7 @@ The collection lifecycle is documented in [Architecture](../engineering/architec
 
 ### Quality report
 
-`--quality-report <path>` opts into the quality gate, including with `--no-render`. Without it, scrape behavior is unchanged. The versioned JSON report contains `status` (`passed`, `warning`, or `failed`), warning/blocking counts, stable finding codes, aggregate metrics, run scope, and baseline readiness. It never includes job IDs, listing text, raw warnings, source responses, or database paths. Failed-search metrics are unavailable, not fabricated zeros; collection totals cover successful searches only.
+`--quality-report <path>` opts into the quality gate, including with `--no-render`. It is mandatory for HTTP `429` partial publication. The versioned JSON report identifies `collection_outcome` (`full`, `partial`, or `blocked`), `publication_eligible` after collection-quality checks, `source_stopped`, and failed/skipped search metrics with sanitized codes and HTTP statuses. Integrity, projection, and snapshot gates still run afterward in automation. The report also contains `status` (`passed`, `warning`, or `failed`), warning/blocking counts, stable finding codes, aggregate metrics, run scope, and baseline readiness. It never includes job IDs, listing text, raw warnings, source responses, or database paths. Failed-search metrics are unavailable, not fabricated zeros; collection totals cover successful searches only.
 
 Comparisons require at least three usable observations from the latest five stored full-registry snapshots, all within the preceding 30 days. New or changed collection settings warm up a new baseline; search names, notes, and verification dates do not reset it. `baseline.status: warming_up` means historical comparisons are not ready, even if the report has no findings. Invalid or future-dated snapshots generate a warning and are ignored; expired snapshots are ignored. Only successful full-registry runs without blocking findings advance history. Warning-only runs can advance it, so review warnings rather than treating them as permanent protection against sustained drift.
 
@@ -344,6 +344,7 @@ Checks:
 
 - required database tables;
 - the Alembic revision;
+- SQLite structural integrity and foreign-key consistency;
 - monotonic lifecycle timestamps;
 - exact README projection equality with canonical state, including the full-state review seal;
 - generated search-registry layout counts against the configured YAML files;
@@ -361,16 +362,18 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | Code | Meaning |
 |---:|---|
 | `0` | Command completed successfully |
-| `1` | All selected searches failed, either source phase encountered a source-access denial, validation found an inconsistency, or the requested quality gate blocked or could not complete |
-| `2` | Partial scrape, availability audit with inconclusive checks, or rejected command/configuration input |
+| `1` | No search completed, a blocking source denial occurred, validation found an inconsistency, or the quality gate blocked or could not complete |
+| `2` | Availability audit with inconclusive checks, or rejected command/configuration input; never accepted as scrape success |
 | `3` | Required database tables are missing or the schema is not at migration head |
+| `4` | Eligible partial collection, not full success; required publication checks and manual review remain |
 
-After a partial scrape with exit code `2`:
+After a partial scrape with exit code `4`:
 
 - successful search transactions remain committed;
-- failed searches retain diagnostics;
+- failed and source-skipped searches retain diagnostics and keep scheduling priority;
 - failed searches do not mutate lifecycle state;
-- validation should pass before publication or deployment.
+- quality, integrity, projection, and snapshot validation must pass before publication;
+- manual review and merge are required before a partial dataset can be deployed.
 
 GitHub Actions handling of these codes is documented in [Automation](automation.md#exit-code-handling).
 

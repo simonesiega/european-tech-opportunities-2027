@@ -19,7 +19,7 @@ Inspired by [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram): colore
 
 **Viewing:** open an SVG directly in your browser to zoom and follow its code links. On GitHub, use the raw/download view; embedded image previews may disable node links. The SVGs work without JavaScript, a diagram service, API keys, or external resources. Code links open GitHub only when selected and target `main`; unmerged paths become available there after merging.
 
-**Legend:** solid arrows carry data, evidence, or artifacts; dashed arrows mean “runs,” “configures,” or “supports.” Cylinders represent stored data; the hexagon identifies the controlled application writer. Grouped boxes are ownership boundaries, not necessarily separate services. Python paths are relative to `src/opportunities/` unless shown in full.
+**Legend:** solid arrows carry data, evidence, or artifacts; dashed arrows mean “runs,” “configures,” or “supports.” Cylinders represent stored data; the hexagon identifies the controlled application writer, and diamonds mark publication gates. Grouped boxes are ownership boundaries, not necessarily separate services. Python paths are relative to `src/opportunities/` unless shown in full.
 
 ## Repository overview
 
@@ -29,8 +29,9 @@ Inspired by [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram): colore
 
 Read the main path as **configure → collect → classify → persist → publish**.
 Search definitions and acceptance rules tell the CLI where to look and what evidence is required.
-The Python pipeline fetches permitted guest HTML, normalizes listings, and applies deterministic checks.
-Only `Repository` writes application lifecycle state, keeping jobs, provenance, and run history in SQLite.
+The Python pipeline rotates searches by persistent completion time, fetches permitted guest HTML, and applies deterministic acceptance checks.
+Only `Repository` writes application state, keeping lifecycle evidence, search rotation, and aggregate quality baselines in SQLite.
+HTTP `429` stops requests; completed searches may proceed only through all publication gates for manual-review partial publication.
 The website, API, downloads, and bounded README present that state; production readers use verified releases.
 Browser-local lists sit beside the public data flow and never write back to the database.
 The surrounding groups show the automation, tests, documentation, policies, and build tools supporting these boundaries.
@@ -43,11 +44,15 @@ The surrounding groups show the automation, tests, documentation, policies, and 
 
 Search YAML defines discovery scope; classification rules define publication eligibility.
 The CLI supplies validated settings to a runner that bounds concurrency and isolates each search.
+Never-completed and oldest-completed searches run first, with stable registry ties; denied and skipped searches retain priority.
 Permission-gated HTTP provides search cards and identity-validated details, with company/title prefilters first.
 Normalization and classification check role type, seniority, technology, cycle/date, and European location.
-Successful searches commit independently; failed searches save diagnostics without changing listing lifecycle state.
+Successful searches commit independently with their completion timestamps; failed and skipped searches save diagnostics without lifecycle evidence or scheduling advancement.
+Full, partial, and blocked outcomes remain distinct. HTTP `429` partial candidates need completed searches and every required gate; all other source denials block publication.
+Only successful, nonblocking full-registry collections establish quality baselines.
 Missing cards cannot close jobs: known-ID rechecks need explicit `404`/`410` confirmations and no active association.
-The separate availability audit keeps/reopens valid listings, deletes explicitly unavailable ones, and preserves uncertainty.
+The separate availability audit checks at most 50 due jobs by default, with a five-day minimum interval.
+It keeps/reopens valid listings, deletes explicitly unavailable ones, and preserves uncertainty; any audit denial still blocks publication.
 Reviewed offline additions reuse acceptance checks and repository transactions, without invented provenance or manual reopening.
 
 ## Website and publication
@@ -71,9 +76,12 @@ Schema, link-validation, and metadata helpers keep the public output predictable
 ![Operations map showing serialized protected processing, verified restricted snapshots, a README-only review handoff, and a separate approved versioned-release deployment](svg/automation.svg)
 
 Scheduled and manual workflows serialize canonical updates through a shared one-writer lock.
-The protected processor restores verified state, checks its review seal, migrates, and runs selected CLI phases.
-After projection validation and checkpointing, it publishes and restore-verifies a restricted SQLite snapshot.
-A separate job receives only the README, opens a narrowly scoped pull request, and waits for validation.
+The protected processor restores verified state, migrates, requires its README to match reviewed `main`, and runs selected CLI phases.
+Full and eligible HTTP `429` partial results must pass quality, SQLite integrity, and projection checks before checkpointing and restricted snapshot publication.
+Round-trip snapshot verification must succeed before the README handoff. Search rotation travels with the database, never a separate queue or artifact.
+A separate job receives only the README and outcome output, opens a narrowly scoped pull request, and waits for validation.
+Fully successful nightly collections retain the existing automatic-merge policy; partial proposals use a labeled `-partial` branch and require manual review and merge.
+Unmerged or rejected partial snapshots still block ordinary subsequent mutation and deployment at the reviewed-state barrier.
 **Merging the matching README does not deploy:** publication is a separate protected manual run.
 Deployment verifies payloads under a lock and switches the release pointer atomically, retaining old releases for readers.
 Canonical databases and snapshot manifests never enter public GitHub caches or artifacts.
@@ -102,7 +110,7 @@ Repeated search definitions, tests, and small UI primitives are grouped so the m
 | `configs/` | Company/country/role searches, categories, example settings |
 | `src/opportunities/cli/`, `config/` | Entry point, commands, settings, search registry, rules, cycle policy |
 | `src/opportunities/scrapers/` | Bounded HTTP transport and LinkedIn guest parsing |
-| `src/opportunities/normalization/`, `pipeline/` | Title/location normalization, acceptance, collection, availability |
+| `src/opportunities/normalization/`, `pipeline/` | Title/location normalization, acceptance, rotating collection, aggregate quality gates, bounded availability |
 | `src/opportunities/models/`, `utils/` | Typed records/enums; concurrency, atomic files, paths, time, text, URL, logging |
 | `src/opportunities/database/`, `migrations/`, `alembic.ini` | Repository, SQLAlchemy models/sessions, schema history, verified snapshots |
 | Python projection modules | `readme.py`, `public_exports.py`, `search_registry_docs.py` |

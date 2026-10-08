@@ -71,7 +71,9 @@ Source: [integration/test_cli.py](integration/test_cli.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_scrape_quality_gate_end_to_end` | Success, warning, blocking, partial, source-denied, failed, and selected-search runs produce correct exits, sanitized reports, baseline retention, and publication decisions without closing existing jobs |
+| `test_scrape_quality_gate_end_to_end` | Full, warning, blocking, timeout-partial, HTTP 429 partial (including completed empty searches and blocking drift), source-denied, failed, and selected-search runs produce distinct exits, sanitized reports, uncontaminated baselines, and safe publication decisions |
+| `test_rate_limited_partial_requires_quality_gate` | HTTP 429 completed work cannot render without the mandatory quality report |
+| `test_validation_rejects_foreign_key_inconsistency_without_private_diagnostics` | A synthetic broken run-to-search reference blocks validation without exposing private diagnostic values |
 | `test_requested_quality_gate_fails_closed_on_local_errors` | Baseline read, analysis, report write, and persistence errors stop publication and do not disclose private diagnostics |
 | `test_availability_source_block_fails_closed_without_rendering` | Source blocks and `--no-render` preserve projections; inconclusive nonblocked audits may render with a partial-success exit |
 | `test_availability_public_listing_301_returns_partial_success_and_continues` | Full CLI/transport/repository path preserves the redirected row, continues other checks, sanitizes output, and validates projections |
@@ -147,6 +149,17 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 | `test_search_preview_classifies_without_persisting` | Injected and owned-fetcher preview paths classify but leave jobs, stats, and provenance unchanged |
 | `test_empty_search_selection_fails_before_persistence` | Empty collection input cannot silently succeed or change state |
 | `test_normalized_oversize_location_is_excluded_without_losing_valid_jobs` | Normalization overflow excludes only the invalid candidate, not the valid search results |
+
+### Partial collection and search rotation
+
+Source: [integration/test_partial_collection.py](integration/test_partial_collection.py).
+
+| Test | Behavior protected |
+|---|---|
+| `test_early_mid_late_source_stop_retains_only_completed_searches` | Early/mid/late search/detail 429, 401, 403, redirect, and challenge responses stop without retries or subsequent requests; only completed searches persist, and only qualifying 429 results are eligible with no baseline |
+| `test_mixed_inflight_denials_never_qualify_for_partial_publication` | Concurrent HTTP 429 cannot mask challenge, authentication, or redirect denials, including failed stream cleanup; completed siblings remain in SQLite but publication and baselines stay blocked without subsequent requests |
+| `test_multi_day_rotation_survives_snapshots_and_discarded_interruptions` | Fourteen daily partial runs cover seven searches fairly across verified snapshots; cancelled disposable executions cannot advance durable rotation |
+| `test_rotation_handles_registry_changes_and_full_recovery` | New/removed/disabled/re-enabled/modified searches and editorial edits compose deterministically with rotation and later full success |
 
 ## Python unit and tooling tests
 
@@ -333,6 +346,7 @@ Sources: [unit/test_migrations.py](unit/test_migrations.py) and [unit/test_publi
 | `test_upgrade_database_creates_a_missing_sqlite_parent` | Fresh setup can initialize nested database paths |
 | `test_employment_type_migration_backfills_existing_jobs` | Historical employment types migrate to valid nonnullable values |
 | `test_canonical_state_migration_preserves_rows_and_rejects_invalid_state` | Historical jobs/runs/provenance survive constraints and the additive quality revision; invalid lifecycle/count/time updates fail and foreign keys remain valid |
+| `test_search_rotation_migration_preserves_history_and_round_trips` | Additive scheduling migration preserves search state, initializes null timestamps, and upgrades/downgrades without foreign-key damage |
 | `test_availability_migration_preserves_prior_rows_and_round_trips` | Existing jobs survive upgrade/downgrade, scheduling starts null, and foreign keys remain valid |
 | `test_public_exports_include_only_approved_fields_in_stable_order` | Open-only ordered CSV/JSON, Unicode, metadata allowlists/counts/hashes, and shared schemas agree; missing files are reported |
 | `test_public_csv_neutralizes_formulas_and_validation_detects_stale_files` | Every spreadsheet-dangerous prefix in every free-text column is neutralized without altering JSON; stale exports invalidate both content and metadata |
@@ -410,9 +424,10 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_only_explicit_recovery_can_propose_unmerged_state` | Even microsecond seal drift blocks normal/adoption runs; only explicit recovery may propose it while retaining reviewed evidence |
 | `test_seal_adoption_still_accepts_only_the_initial_seal` | Initial seal adoption cannot also approve content/date drift |
 | `test_render_failure_cannot_be_recovered` | Recovery/adoption flags cannot convert renderer failure into success |
-| `test_collection_quality_gate_propagates_blocking_failures` | Workflow shell preserves blocking/configuration exits while accepting success and isolated partial collection |
+| `test_collection_quality_gate_propagates_blocking_failures` | Workflow accepts only scrape exits 0/4 with explicit full/partial outputs; blocking, configuration, and migration exits cannot publish |
 | `test_availability_denial_stops_workflow_before_follow_on_scrape` | Audit exit handling and step dependency stop subsequent collection after denial |
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
+| `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labeling and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
 | `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
 | `test_nightly_supports_manual_and_scheduled_full_updates` | Scheduled/manual work uses a noncancelling shared lock, audit/collection, and explicit authorization input |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent handoff to the README-writing job |

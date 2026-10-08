@@ -149,7 +149,7 @@ def test_render_failure_cannot_be_recovered(tmp_path: Path, adopt: bool, recover
     assert (tmp_path / "README.md").read_text(encoding="utf-8") == "reviewed"
 
 
-@pytest.mark.parametrize("exit_code", [0, 1, 2, 3])
+@pytest.mark.parametrize("exit_code", [0, 1, 2, 3, 4])
 def test_collection_quality_gate_propagates_blocking_failures(
     tmp_path: Path, exit_code: int
 ) -> None:
@@ -168,13 +168,24 @@ uv() {
     result = subprocess.run(
         [bash, "-c", fake_scrape + script],
         cwd=tmp_path,
-        env={**offline_shell_environment(tmp_path), "SCRAPE_EXIT_CODE": str(exit_code)},
+        env={
+            **offline_shell_environment(tmp_path),
+            "SCRAPE_EXIT_CODE": str(exit_code),
+            "GITHUB_OUTPUT": (tmp_path / "outputs").as_posix(),
+        },
         capture_output=True,
         text=True,
         check=False,
         timeout=30,
     )
-    assert result.returncode == (0 if exit_code in (0, 2) else exit_code), result.stderr
+    assert result.returncode == (0 if exit_code in (0, 4) else exit_code), result.stderr
+    output = tmp_path / "outputs"
+    if exit_code in (0, 4):
+        assert output.read_text().strip() == (
+            "collection_outcome=partial" if exit_code == 4 else "collection_outcome=full"
+        )
+    else:
+        assert not output.exists()
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
@@ -300,6 +311,62 @@ jq() {
     if scenario == "scope_changed":
         assert all(call.startswith("pr view ") for call in calls)
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+
+
+@pytest.mark.parametrize("outcome", ["full", "partial", "invalid"])
+def test_partial_proposals_force_manual_review_independently_of_caller(
+    tmp_path: Path,
+    outcome: str,
+) -> None:
+    document = yaml.load((WORKFLOWS / "reusable-readme-pr.yml").read_text(), Loader=yaml.BaseLoader)
+    step = document["jobs"]["propose"]["steps"][-1]
+    script = step["run"]
+    start = script.index('case "$COLLECTION_OUTCOME" in')
+    end = script.index('if [ "$UPDATE_APPEND_ROME_DATE"', start)
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("Proposal guard requires Bash")
+    result = subprocess.run(
+        [
+            bash,
+            "-c",
+            "set -euo pipefail\n"
+            + script[start:end]
+            + 'printf "%s|%s|%s" "$UPDATE_AUTO_MERGE" "$UPDATE_BRANCH" "$UPDATE_TITLE"',
+        ],
+        cwd=tmp_path,
+        env={
+            **offline_shell_environment(tmp_path),
+            "COLLECTION_OUTCOME": outcome,
+            "UPDATE_AUTO_MERGE": "true",
+            "UPDATE_BRANCH": "automated/nightly-full-update",
+            "UPDATE_TITLE": "nightly",
+            "UPDATE_BODY": "Synthetic",
+        },
+        capture_output=True,
+        text=True,
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == (1 if outcome == "invalid" else 0)
+    if outcome == "partial":
+        assert (
+            result.stdout == "false|automated/nightly-full-update-partial|"
+            "nightly (partial collection; manual review)"
+        )
+    elif outcome == "full":
+        assert result.stdout == "true|automated/nightly-full-update|nightly"
+    assert "--disable-auto" in script
+    assert (
+        step["env"]["UPDATE_AUTO_MERGE"]
+        == "${{ inputs.auto_merge && inputs.collection_outcome != 'partial' }}"
+    )
+    nightly = yaml.load((WORKFLOWS / "nightly.yml").read_text(), Loader=yaml.BaseLoader)
+    assert (
+        nightly["jobs"]["update-readme"]["with"]["auto_merge"]
+        == "${{ needs.process-state.outputs.collection_outcome == 'full' }}"
+    )
+    assert not (tmp_path / "blocked-network.log").exists()
 
 
 def test_processor_uses_repository_request_and_availability_settings() -> None:

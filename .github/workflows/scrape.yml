@@ -77,3 +77,4 @@ jobs:
       title: "data: scrape position updates"
       commit_message: "data: update position tables"
       body: "Manual scrape-only update. Merge remains manual."
+      collection_outcome: ${{ needs.collect.outputs.collection_outcome }}

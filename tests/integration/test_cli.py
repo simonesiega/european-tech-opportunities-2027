@@ -4,7 +4,9 @@ import asyncio
 import json
 import logging
 import socket
+import sqlite3
 from collections.abc import Iterator
+from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import Mock
@@ -95,6 +97,7 @@ def install_quality_scraper(
     accepted: int = 20,
     failed_slugs: tuple[str, ...] = (),
     failure_code: str = "timeout",
+    failure_status: int | None = None,
 ) -> None:
     """Exercise the real pipeline, repository, and quality gate without source access."""
 
@@ -107,7 +110,9 @@ def install_quality_scraper(
     ) -> LinkedInScrapeResult:
         del self, fetcher, known_jobs
         if search.slug in failed_slugs:
-            raise FetchError(failure_code, "private-diagnostic-must-not-leak")
+            raise FetchError(
+                failure_code, "private-diagnostic-must-not-leak", status_code=failure_status
+            )
         return LinkedInScrapeResult(
             positions=[
                 RawJob(
@@ -137,8 +142,11 @@ def install_quality_scraper(
         ("success", 0, "passed", 4),
         ("warning", 0, "warning", 4),
         ("blocking", 1, "failed", 3),
-        ("partial", 2, "warning", 3),
-        ("blocked", 1, "warning", 3),
+        ("partial", 4, "warning", 3),
+        ("rate-limited", 4, "warning", 3),
+        ("empty-partial", 4, "warning", 3),
+        ("partial-blocking", 1, "failed", 3),
+        ("blocked", 1, "failed", 3),
         ("failed", 1, "failed", 3),
         ("selected", 0, "passed", 3),
     ],
@@ -165,19 +173,29 @@ def test_scrape_quality_gate_end_to_end(
         command = runner.invoke(app, [*args, "--no-render"], env=environment)
         assert command.exit_code == 0, command.output
     before_readme = (tmp_path / "README.md").read_bytes()
+    repository, engine = repository_for(environment)
+    try:
+        last_slug = repository.order_searches([search, other])[-1].slug
+    finally:
+        engine.dispose()
     failures = (
-        (other.slug,)
-        if mode in {"partial", "blocked"}
+        (last_slug,)
+        if mode in {"partial", "blocked", "rate-limited", "empty-partial", "partial-blocking"}
         else (search.slug, other.slug)
         if mode == "failed"
         else ()
     )
     install_quality_scraper(
         monkeypatch,
-        found=0 if mode == "blocking" else 20,
-        accepted=10 if mode == "warning" else 20,
+        found=0 if mode in {"blocking", "empty-partial"} else 20,
+        accepted=10 if mode == "warning" else 0 if mode == "partial-blocking" else 20,
         failed_slugs=failures,
-        failure_code="source_blocked" if mode == "blocked" else "timeout",
+        failure_code="source_blocked"
+        if mode in {"blocked", "rate-limited", "empty-partial", "partial-blocking"}
+        else "timeout",
+        failure_status=429
+        if mode in {"rate-limited", "empty-partial", "partial-blocking"}
+        else None,
     )
     if mode == "selected":
         args += ["--search", search.slug]
@@ -199,12 +217,55 @@ def test_scrape_quality_gate_end_to_end(
         assert len(repository.data_quality_baselines()) == baseline_count
         # Drift never closes existing rows.
         assert len(repository.list_open_jobs()) == 20
-        expected_successes = (
-            0 if mode == "failed" else 1 if mode in {"partial", "selected", "blocked"} else 2
+        assert report["collection_outcome"] == (
+            "blocked" if mode in {"blocked", "failed"} else "partial" if failures else "full"
         )
+        assert report["publication_eligible"] == (exit_code != 1)
+        expected_successes = 0 if mode == "failed" else 1 if failures or mode == "selected" else 2
         assert repository.stats().successful_runs == 6 + expected_successes
     finally:
         engine.dispose()
+
+
+def test_rate_limited_partial_requires_quality_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    search: LinkedInSearchConfig,
+) -> None:
+    environment = cli_env(tmp_path)
+    environment["OPPORTUNITIES_MAX_CONCURRENCY"] = "1"
+    initialize_projection_files(tmp_path)
+    other = search.model_copy(update={"slug": "zzz-other-search"})
+    monkeypatch.setattr(cli_app_module, "_configured_searches", lambda _settings: [search, other])
+    install_quality_scraper(
+        monkeypatch, failed_slugs=(other.slug,), failure_code="source_blocked", failure_status=429
+    )
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    original = (tmp_path / "README.md").read_bytes()
+    command = runner.invoke(app, ["scrape"], env=environment)
+    assert command.exit_code == 1
+    assert "requires --quality-report" in command.output
+    assert (tmp_path / "README.md").read_bytes() == original
+    assert not (tmp_path / "exports").exists()
+
+
+def test_validation_rejects_foreign_key_inconsistency_without_private_diagnostics(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    search: LinkedInSearchConfig,
+) -> None:
+    environment = cli_env(tmp_path)
+    initialize_projection_files(tmp_path)
+    monkeypatch.setattr(cli_app_module, "_configured_searches", lambda _settings: [search])
+    install_quality_scraper(monkeypatch)
+    assert runner.invoke(app, ["db-upgrade"], env=environment).exit_code == 0
+    assert runner.invoke(app, ["scrape"], env=environment).exit_code == 0
+    with closing(sqlite3.connect(tmp_path / "opportunities.db")) as connection, connection:
+        connection.execute("UPDATE search_runs SET search_slug = 'private-must-not-leak'")
+    command = runner.invoke(app, ["validate"], env=environment)
+    assert command.exit_code == 1
+    assert "SQLite foreign-key check failed" in command.output
+    assert "private-must-not-leak" not in command.output
 
 
 @pytest.mark.parametrize("failure", ["read", "analysis", "write", "persist"])

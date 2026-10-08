@@ -22,6 +22,7 @@ class SearchRow(Base):
     enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     config_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    last_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class SearchRunRow(Base):
