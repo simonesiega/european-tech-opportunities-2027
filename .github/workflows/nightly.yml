@@ -50,6 +50,7 @@ jobs:
       commit_message: "data: nightly availability and scrape update"
       body: >-
         Nightly update: a bounded batch of due listings was checked for 404/410 responses
-        and explicit closure alerts before collection ran. The pull request automatically
-        merges after configured branch-protection requirements pass.
-      auto_merge: true
+        and explicit closure alerts before collection ran. Full collections retain automatic
+        merging after configured requirements pass; partial collections require manual review and merge.
+      collection_outcome: ${{ needs.process-state.outputs.collection_outcome }}
+      auto_merge: ${{ needs.process-state.outputs.collection_outcome == 'full' }}

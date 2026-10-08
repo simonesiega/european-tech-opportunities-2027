@@ -2,6 +2,10 @@ name: Reusable canonical-state processing
 
 on:
   workflow_call:
+    outputs:
+      collection_outcome:
+        description: Full, validated partial, or no collection; emitted only by successful processing.
+        value: ${{ jobs.process.outputs.collection_outcome }}
     inputs:
       run_availability:
         description: Run a bounded availability audit of due jobs before any scrape.
@@ -114,6 +118,8 @@ jobs:
     # The selected main-only environment overrides identically named caller secrets.
     # Do not configure repository- or organization-level copies of VPS secrets.
     environment: ${{ inputs.environment_name }}
+    outputs:
+      collection_outcome: ${{ steps.scrape.outputs.collection_outcome || 'none' }}
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ inputs.crawl_authorized }}
       OPPORTUNITIES_MAX_CONCURRENCY: ${{ vars.OPPORTUNITIES_MAX_CONCURRENCY }}
@@ -235,9 +241,13 @@ jobs:
           uv run opportunities scrape --quality-report quality-reports/data-quality-report.json
           code=$?
           set -e
-          if [ "$code" -eq 2 ]; then
-            echo "Partial success: successful searches were persisted; failed searches changed nothing."
-          elif [ "$code" -ne 0 ]; then
+          if [ "$code" -eq 4 ]; then
+            echo "Validated partial collection: completed searches retained; any source denial stopped subsequent requests. Failed/skipped searches provide no lifecycle evidence. Manual review and merge required."
+            echo "collection_outcome=partial" >> "$GITHUB_OUTPUT"
+          elif [ "$code" -eq 0 ]; then
+            echo "collection_outcome=full" >> "$GITHUB_OUTPUT"
+          else
+            echo "Collection blocked (exit $code); no snapshot or README handoff."
             exit "$code"
           fi
 

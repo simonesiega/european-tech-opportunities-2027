@@ -207,6 +207,37 @@ def test_canonical_state_migration_preserves_rows_and_rejects_invalid_state(
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
 
 
+def test_search_rotation_migration_preserves_history_and_round_trips(tmp_path: Path) -> None:
+    database = tmp_path / "rotation.db"
+    config = Config(str(ROOT / "alembic.ini"))
+    config.set_main_option("script_location", str(ROOT / "migrations"))
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{database.as_posix()}")
+    command.upgrade(config, "b6e8d2f4a901")
+    with closing(sqlite3.connect(database)) as connection, connection:
+        connection.execute(
+            "INSERT INTO searches VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                "test",
+                "Test",
+                "software intern",
+                "Europe",
+                1,
+                "a" * 64,
+                "2026-07-01 00:00:00",
+            ),
+        )
+        original = connection.execute("SELECT * FROM searches").fetchall()
+    command.upgrade(config, "head")
+    with closing(sqlite3.connect(database)) as connection, connection:
+        assert connection.execute("SELECT * FROM searches").fetchall() == [(*original[0], None)]
+        connection.execute("UPDATE searches SET last_completed_at = '2026-10-08 00:00:00'")
+    command.downgrade(config, "b6e8d2f4a901")
+    with closing(sqlite3.connect(database)) as connection:
+        assert connection.execute("SELECT * FROM searches").fetchall() == original
+        assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
+    command.upgrade(config, "head")
+
+
 def test_availability_migration_preserves_prior_rows_and_round_trips(tmp_path: Path) -> None:
     database = tmp_path / "availability.db"
     config = Config(str(ROOT / "alembic.ini"))

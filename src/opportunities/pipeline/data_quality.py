@@ -88,7 +88,11 @@ def analyze_collection_quality(
         bool(outcomes) and {o.search.slug for o in outcomes} == fingerprints.keys()
     )
     successful = [outcome for outcome in outcomes if outcome.result is not None]
-    full_success = complete_registry_run and len(successful) == len(outcomes)
+    full_success = (
+        complete_registry_run
+        and len(successful) == len(outcomes)
+        and result.publication_outcome == "full"
+    )
     # Registry-wide comparisons need the same search population, not just matching slugs.
     matching = [snapshot for snapshot in snapshots if snapshot.search_fingerprints == fingerprints]
     findings: list[DataQualityFinding] = []
@@ -99,6 +103,15 @@ def analyze_collection_quality(
                 "warning",
                 "Invalid stored quality baselines were ignored.",
                 {"count": invalid_count},
+            )
+        )
+    if result.publication_outcome == "blocked" and successful:
+        findings.append(
+            DataQualityFinding(
+                "source_publication_blocked",
+                "blocking",
+                "A source denial prevents publication of this collection.",
+                {},
             )
         )
     if not successful:
@@ -117,7 +130,11 @@ def analyze_collection_quality(
     for outcome in outcomes:
         slug = outcome.search.slug
         if outcome.result is None:
-            search_metrics[slug] = {"status": "failed"}
+            search_metrics[slug] = {
+                "status": "skipped" if outcome.error_code == "source_skipped" else "failed",
+                "error_code": outcome.error_code,
+                "http_status": outcome.http_status,
+            }
             findings.append(
                 DataQualityFinding(
                     "search_failed",
@@ -235,10 +252,14 @@ def analyze_collection_quality(
     report: dict[str, object] = {
         "schema_version": 1,
         "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
+        "collection_outcome": result.publication_outcome,
+        "publication_eligible": result.publication_outcome != "blocked" and not blocking_count,
+        "source_stopped": result.source_blocked,
         "scope": {
             "complete_registry_run": complete_registry_run,
             "enabled_search_count": len(fingerprints),
-            "attempted_search_count": len(outcomes),
+            "attempted_search_count": sum(o.error_code != "source_skipped" for o in outcomes),
+            "skipped_search_count": sum(o.error_code == "source_skipped" for o in outcomes),
             "successful_search_count": len(successful),
         },
         "status": "failed" if blocking_count else "warning" if warning_count else "passed",

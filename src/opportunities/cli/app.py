@@ -165,8 +165,19 @@ def scrape(
                         "[red]Blocking data-quality failure detected.[/red] "
                         "Review the generated report before publishing this collection."
                     )
+            if result.source_blocked and result.publication_outcome == "partial":
+                console.print(
+                    "Partial collection after HTTP 429: all subsequent source requests stopped. "
+                    "Completed searches retained; publication requires validation "
+                    "and manual review."
+                )
+                if quality_report is None:
+                    quality_blocking = True
+                    error_console.print(
+                        "Partial source-stop publication requires --quality-report."
+                    )
             _print_result(result)
-            if result.source_blocked:
+            if result.source_blocked and result.publication_outcome == "blocked":
                 error_console.print(
                     "[red]LinkedIn access was blocked; publication stopped.[/red] "
                     "Review authorization before another source request. "
@@ -176,7 +187,8 @@ def scrape(
                 not no_render
                 and result.successful_searches
                 and not quality_blocking
-                and not result.source_blocked
+                and result.publication_outcome != "blocked"
+                and (not result.source_blocked or quality_report is not None)
             ):
                 _render_projections(settings, repository)
                 console.print(
@@ -467,6 +479,7 @@ def validate(ctx: typer.Context) -> None:
             open_jobs,
             _readme_metadata(repository),
         )
+        errors.extend(repository.integrity_errors())
         errors.extend(
             validate_search_registry_docs(
                 _search_registry_docs_path(settings), settings.search_config_dir
@@ -717,14 +730,19 @@ def _print_result(result: PipelineResult) -> None:
     for outcome in result.outcomes:
         table.add_row(
             outcome.search.slug,
-            "success" if outcome.result is not None else "failed",
+            "success"
+            if outcome.result is not None
+            else "skipped"
+            if outcome.error_code == "source_skipped"
+            else "failed",
             str(outcome.result.search_result_count if outcome.result else 0),
             f"{outcome.duration_ms} ms",
             outcome.error_code or "",
         )
     console.print(table)
     console.print(
-        f"Status {result.status.value}: found {result.found}, accepted {result.accepted}, "
+        f"Status {result.status.value} (publication: {result.publication_outcome}): "
+        f"found {result.found}, accepted {result.accepted}, "
         f"new {result.summary.new}, updated {result.summary.updated}, "
         f"closed {result.summary.closed}, reopened {result.summary.reopened}, "
         f"excluded {result.excluded}."

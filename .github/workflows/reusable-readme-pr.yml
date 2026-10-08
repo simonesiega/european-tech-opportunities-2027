@@ -28,6 +28,11 @@ on:
         description: Commit message.
         required: true
         type: string
+      collection_outcome:
+        description: Collection outcome from the validated processor; partial always requires manual merge.
+        required: false
+        default: none
+        type: string
       auto_merge:
         description: Merge after validation and scope checks, using GitHub auto-merge when enabled.
         required: false
@@ -72,10 +77,22 @@ jobs:
           UPDATE_APPEND_ROME_DATE: ${{ inputs.append_rome_date_to_branch_and_title }}
           UPDATE_BODY: ${{ inputs.body }}
           UPDATE_COMMIT_MESSAGE: ${{ inputs.commit_message }}
-          UPDATE_AUTO_MERGE: ${{ inputs.auto_merge }}
+          UPDATE_AUTO_MERGE: ${{ inputs.auto_merge && inputs.collection_outcome != 'partial' }}
+          COLLECTION_OUTCOME: ${{ inputs.collection_outcome }}
         shell: bash
         run: |
           set -euo pipefail
+
+          case "$COLLECTION_OUTCOME" in
+            full|none) ;;
+            partial)
+              UPDATE_AUTO_MERGE=false
+              UPDATE_BRANCH+="-partial"
+              UPDATE_TITLE+=" (partial collection; manual review)"
+              UPDATE_BODY+=$'\n\nValidated partial collection, not a complete registry update. Review the aggregate quality report and public projections. Manual review and merge required.'
+              ;;
+            *) echo "Invalid collection outcome; refusing proposal."; exit 1 ;;
+          esac
 
           if [ "$UPDATE_APPEND_ROME_DATE" = "true" ]; then
             run_created_at=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" --jq '.created_at')
@@ -102,6 +119,11 @@ jobs:
               echo "Existing automation pull request has unexpected scope; refusing to mutate it."
               exit 1
             fi
+          fi
+
+          if [ "$COLLECTION_OUTCOME" = "partial" ] && [ -n "$pr_number" ]; then
+            # Cancel any previously enabled auto-merge before updating partial state.
+            gh pr merge "$pr_number" --disable-auto
           fi
 
           if git diff --quiet -- README.md; then

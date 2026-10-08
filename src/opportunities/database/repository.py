@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import delete, func, or_, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from opportunities.config.settings import Settings
@@ -107,6 +107,12 @@ class Repository:
                     row.name = search.name
                     row.keywords = search.keywords
                     row.location = search.location
+                    # Enabling/disabling preserves progress; only substantive edits reset it.
+                    previous_enabled_digest = search_config_fingerprint(
+                        search.model_copy(update={"enabled": row.enabled})
+                    )
+                    if row.config_hash not in {digest, previous_enabled_digest}:
+                        row.last_completed_at = None
                     row.enabled = search.enabled
                     row.config_hash = digest
                     row.updated_at = now
@@ -115,6 +121,22 @@ class Repository:
                 if row.slug not in active_slugs:
                     row.enabled = False
                     row.updated_at = now
+
+    def order_searches(self, searches: list[LinkedInSearchConfig]) -> list[LinkedInSearchConfig]:
+        """Prioritize never-completed and oldest-completed searches, with stable input ties."""
+        with self.factory() as session:
+            completed = {
+                row.slug: ensure_utc(row.last_completed_at) if row.last_completed_at else None
+                for row in session.scalars(select(SearchRow))
+            }
+        # Stable registry ties avoid random UUID or task-completion ordering.
+        return sorted(
+            searches,
+            key=lambda search: (
+                completed.get(search.slug) is not None,
+                completed.get(search.slug) or datetime.min.replace(tzinfo=UTC),
+            ),
+        )
 
     def known_jobs(self, search_slug: str) -> tuple[KnownJob, ...]:
         """Return active jobs associated with a search."""
@@ -173,6 +195,12 @@ class Repository:
                     excluded_count=excluded_count,
                     warning_count=warning_count,
                 )
+            )
+            row = session.get(SearchRow, search.slug)
+            if row is None:
+                raise ValueError("successful search is not configured")
+            row.last_completed_at = max(
+                ensure_utc(row.last_completed_at or finished_at), finished_at
             )
             session.flush()
             for job in jobs:
@@ -372,6 +400,16 @@ class Repository:
                     deleted += 1
 
         return AvailabilityChanges(deleted=deleted, reopened=reopened)
+
+    def integrity_errors(self) -> list[str]:
+        """Check SQLite structural and foreign-key integrity without exposing row contents."""
+        with self.factory() as session:
+            errors = []
+            if session.execute(text("PRAGMA integrity_check")).scalars().all() != ["ok"]:
+                errors.append("SQLite integrity check failed")
+            if session.execute(text("PRAGMA foreign_key_check")).first() is not None:
+                errors.append("SQLite foreign-key check failed")
+            return errors
 
     def stats(self) -> DatabaseStats:
         """Return aggregate pipeline and database statistics."""
