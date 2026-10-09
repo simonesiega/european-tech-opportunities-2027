@@ -38,7 +38,7 @@ Link to the owner rather than copying procedures. Update `docs/README.md`, the r
 
 User guides address readers who may be new to the project: explain unfamiliar product terms on first use, start with the visible action and expected result, and offer recovery choices without requiring implementation knowledge. Keep optional developer-tool steps clearly labeled; downloading or browsing must not require a local checkout. API and dataset references may include technical examples, but must not require the collection toolchain. Maintainer guides name owners, preconditions, side effects, verification steps, and stop conditions; link to user guides for public behavior instead of repeating them.
 
-Keep public documentation useful beyond the change that produced it. Explain how the product works or how to complete a task, rather than recounting a chat, editing session, or validation run. Put change-specific test results and review notes in the pull request; retain reproducible commands, known limitations, and recovery instructions in the guides.
+Avoid promotional language in runbooks and unexplained internal terminology in browsing guides. Keep public documentation useful beyond the change that produced it. Explain product behavior or a reproducible procedure; put change-specific test results and review notes in the pull request. Retain commands, known limitations, and recovery instructions in the guides.
 
 Root policies retain their authoritative wording and the contribution template retains its form structure. Agent instructions remain a technical entry point. Do not reformat generated regions, code examples, legal text, or exact UI labels merely to make them resemble prose.
 

@@ -4,38 +4,17 @@
 
 This inventory explains every test in `tests/` and `site/tests/`. Keep tests that protect publication accuracy, canonical state, source-access safety, recovery, privacy, or a usable product journey. Small tests can protect important boundaries; size and test count are not measures of value.
 
-Each table row identifies a test function or website test title. A parameterized row covers **all** its cases; its explanation identifies the varied evidence or failure paths. Helpers, fixtures, optional benchmarks, and the gated live test are listed separately. Update this inventory whenever a test's purpose or location changes. Execution commands and platform requirements remain in the testing guide.
+Each table row identifies a test function or website test title. A parameterized row covers **all** its cases; its explanation identifies the varied evidence or failure paths. Helpers, fixtures, optional benchmarks, and the gated live test are listed separately. Update this inventory whenever a test's purpose or location changes.
+
+Before consolidating or removing a test, compare its setup, assertions, and protected behavior with the implementation and neighboring coverage. Preserve source-access interlocks, coverage thresholds, and lifecycle rules. The [testing guide](../docs/maintainers/engineering/testing.md#what-earns-a-test) owns test strategy, layer selection, execution commands, and platform requirements.
 
 ## Contents
 
-- [Review decisions](#review-decisions)
 - [Python integration tests](#python-integration-tests)
 - [Python unit and tooling tests](#python-unit-and-tooling-tests)
 - [Website unit tests](#website-unit-tests)
 - [Website HTTP and browser tests](#website-http-and-browser-tests)
 - [Fixtures and optional checks](#fixtures-and-optional-checks)
-
-## Review decisions
-
-When reviewing a test, inspect its setup, assertions, and protected behavior, then compare it with the implementation and neighboring coverage. The choices below explain why some scenarios are kept separate and others are grouped or tested at a different layer.
-
-| Decision | Reason and retained coverage |
-|---|---|
-| Keep classification, transport, lifecycle, migrations, snapshots, publication, and privacy failure paths | These protect costly failures; superficially similar cases often distinguish safe evidence from unsafe evidence |
-| Move six repository-only scenarios out of `test_runner.py` | Timestamp ordering, stale closure evidence, rediscovery, and canonical identity belong beside the repository; reuse its job fixture and persistence helper |
-| Consolidate classification scenarios and replace `test_text.py` | Whole-word matching now proves that “International” and “Internal” cannot publish a software role as an internship; unrelated technical descriptions cannot rescue finance roles; geography and seniority matrices isolate failures |
-| Replace mocked CLI outcome messages with real writes | One add/update/no-change journey checks both reporting and persisted SQLite state, with no projection writes under `--no-render` |
-| Remove duplicate static empty-list text checks | Browser journeys retain empty-list recovery, filter reset, all-hidden restoration, and storage behavior rather than merely matching strings |
-| Narrow rendered sorting tests to microsecond and numeric-ID ordering | The old company/role/location cases used identical field values and could not distinguish those sort directions; independent expected IDs replace an API-derived oracle |
-| Replace the 20-case hydration/layout product with one delayed-JavaScript journey | Verify SSR does not guess private counts and hydration restores saved/hidden state; storage variants remain in state units and browser journeys, responsiveness in actionable mobile checks, and layout shift in Lighthouse |
-| Remove exact header arrays, download-label/alignment checks, and reference-identity assertions | These froze markup or allocation choices without proving user outcomes; retain filtering order, nonmutation, successful downloads, and keyboard reachability |
-| Move schema rejection cases from Playwright to Bun | Pure schema validation needs no browser/server; HTTP tests still validate actual responses against that schema |
-| Consolidate repeated timestamp, ETag, Atom-author, and structured-data assertions | Invalid-date matrices belong to the timestamp parser; integration tests retain serialization, HTTP caching, parsed Atom validity, and emitted metadata |
-| Move downloads into `downloads.spec.ts` and theme persistence into accessibility tests | Tests now follow the behavior they own instead of piggybacking unrelated checks on pagination or saved lists |
-| Remove canonical-origin source-string and duplicate workflow-dispatch string checks | Actual URL/metadata/schema/redirect responses and executable dispatch regressions provide stronger evidence; retain the retired-host leak scan without requiring every allowed reference to exist forever |
-| Consolidate stale coverage-document checks | The render/check round trip now starts by proving stale check mode cannot write |
-
-Consolidating tests must preserve source-access interlocks, coverage thresholds, and lifecycle rules. Test button interactions when they demonstrate persisted choices, keyboard focus, restoration, filtering, or downloads—not merely the existence of a button.
 
 ## Python integration tests
 
