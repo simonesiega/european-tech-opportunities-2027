@@ -2,7 +2,7 @@
 
 **[Open European Tech Opportunities →](https://techopportunities.eu/)** · [Project showcase](../README.md) · [Searchable docs](https://docs.techopportunities.eu/)
 
-Find validated 2027 technology internships and New Grad roles across Europe. You do not need an account, an installation, or technical knowledge to use the directory.
+Find technology internships and **New Grad** roles (graduate and entry-level positions) across Europe for the 2027 hiring cycle. You do not need an account or technical knowledge, and there is nothing to install.
 
 ## Using the product
 
