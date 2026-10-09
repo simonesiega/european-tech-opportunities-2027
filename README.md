@@ -1,9 +1,9 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
 <p align="center">
-  <a href="https://techopportunities.eu/"><strong>Explore the directory →</strong></a> ·
   <a href="https://docs.techopportunities.eu/">Documentation</a> ·
-  <a href="#latest-opportunities">Latest opportunities</a>
+  <a href="#latest-opportunities">Latest opportunities</a> ·
+  <a href="https://techopportunities.eu/"><strong>Explore the directory →</strong></a>
 </p>
 
 <p align="center">
