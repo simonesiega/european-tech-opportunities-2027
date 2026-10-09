@@ -6,6 +6,16 @@ This reference is for people using HTTP requests or writing code. For a spreadsh
 
 Query open opportunities at **[`https://techopportunities.eu/api/v1/opportunities`](https://techopportunities.eu/api/v1/opportunities)**. No account or API key is required. This is a read-only listing service; it cannot save roles or submit applications.
 
+## Contents
+
+- [Make a request](#make-a-request)
+- [Response](#response)
+- [Query parameters](#query-parameters)
+- [Cache responses responsibly](#cache-responses-responsibly)
+- [Methods, errors, and cross-origin use](#methods-errors-and-cross-origin-use)
+- [Check production freshness](#check-production-freshness)
+- [Compatibility](#compatibility)
+
 ## Make a request
 
 Get internships in Germany, newest first:
@@ -76,7 +86,7 @@ All parameters are optional and may appear only once.
 | `q` | Case-insensitive substring across company, title, category, industries, type, and location | All |
 | `country` | Exact country token; multi-location roles may match several countries | All |
 | `company` | Exact company name | All |
-| `category` | Exact category slug | All |
+| `category` | Exact category identifier, such as `software-engineering` | All |
 | `type` | `internship`, `new-grad` | Both |
 | `first-seen` | `24-hours`, `7-days`, `30-days` | All |
 | `sort` | `company-asc/desc`, `role-asc/desc`, `location-asc/desc`, `first-seen-asc/desc` | `first-seen-desc` |
@@ -87,7 +97,7 @@ Use a complete sort value such as `company-asc`, not the abbreviated `asc/desc` 
 
 Text values are limited to 200 characters. Exact filters must be nonempty and have no surrounding whitespace; `q` ignores surrounding whitespace. URL-encode values. Unknown/repeated keys, invalid values or encoding, control characters, and query strings longer than 2048 characters return `400`.
 
-**Recency is snapshot-relative**, measured against the later of the latest successful collection and the newest first-seen timestamp in that release (Unix epoch for an empty, never-collected dataset). Both window boundaries are inclusive. This makes unchanged data reproducible; use the [website](../browsing/directory.md) for recency relative to the directory request time.
+**Recency uses the published dataset, not your request time.** The reference time is the later of the latest successful collection and the newest first-seen timestamp in that release (Unix epoch for an empty, never-collected dataset). Both window boundaries are inclusive. This makes unchanged data reproducible; use the [website](../browsing/directory.md) for recency relative to the directory request time.
 
 ## Cache responses responsibly
 
@@ -153,7 +163,7 @@ Missing or unreadable required files, invalid required metadata fields or collec
 
 Export regeneration can change `dataset_generated_at` without changing listings. `dataset_sha256` identifies only the public JSON bytes, which omit first-seen and collection timestamps; it is not the README review seal, a database checksum, or an application Git SHA.
 
-A successful response describes the served data, not proof that it is recent or matches the latest repository state. The endpoint does not contact GitHub or LinkedIn, audit CSV contents, or reconcile state. Maintainers should follow [deployment verification](../../maintainers/operations/automation.md#verify-the-deployed-dataset) to compare production with a reviewed update.
+A successful response identifies the served data; it does not guarantee that the data is recent or matches the latest repository state. The endpoint does not contact GitHub or LinkedIn, audit CSV contents, or reconcile state. Maintainers should follow [deployment verification](../../maintainers/operations/automation.md#verify-the-deployed-dataset) to compare production with a reviewed update.
 
 ## Compatibility
 

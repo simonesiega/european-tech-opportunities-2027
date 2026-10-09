@@ -6,23 +6,23 @@ Find answers about listing eligibility, dates, local lists, and downloads. These
 
 ## Which roles are included?
 
-Technology internships and **New Grad** roles (graduate and entry-level positions) in Europe. The title must clearly identify an early-career role, and the location must explicitly support Europe. Senior, unrelated, or unclear listings are excluded.
+Technology internships and **New Grad** roles (graduate and entry-level positions) in Europe. The title must clearly identify an early-career role, and the listing must include a clearly European location. Senior, unrelated, or unclear listings are excluded.
 
 A listing must name the 2027 hiring cycle, or have no conflicting cycle and evidence that it was posted on or after May 1, 2026. A requirement such as “graduating in 2027” does not, by itself, prove when an internship starts.
 
-The project is not a complete index of every employer or country. A valid listing can be missed by bounded discovery. [Suggest a missing listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml) with its public URL and relevant evidence. Suggestions are reviewed, not automatically published.
+The project does not cover every employer or country. It checks a limited number of search results per run, so eligible listings can be missed. [Suggest a missing listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml) with its public URL and relevant evidence. Suggestions are reviewed, not automatically published.
 
 ## Is every listing still available?
 
-Availability can change between checks. The directory uses conservative evidence rather than assuming that a role has closed when it disappears from search results. Open the original listing to verify before applying. The site does not guarantee deadlines, eligibility, sponsorship, compensation, or remote-work arrangements.
+Availability can change between checks. A role disappearing from search results is not enough to mark it closed. Open the original listing to verify before applying. The site does not guarantee deadlines, eligibility, sponsorship, compensation, or remote-work arrangements.
 
 ## Why do dates look unexpected?
 
-**First seen** can reflect approximate posting age, a reviewed posting timestamp, or the project's first observation. It does not change on later observations. A newly added role may therefore have an older date. **Start date** is separate and only appears when stated clearly. The footer shows the latest successful collection, not the freshness of every row.
+**First seen** can come from the source's approximate posting age, a posting date checked by a maintainer, or when the project first found the role. Once set, it stays the same. A newly added role may therefore have an older date. **Start date** is separate and only appears when stated clearly. The footer shows the latest successful collection, not the freshness of every row.
 
 ## No roles match my search
 
-Choose **Reset** to clear search and filters. If you are viewing a saved, applied, hidden, or new list, choose **View all opportunities** too. Check your hidden list if a specific role is missing. Add filters one at a time. If the unfiltered directory is empty, try again later; do not assume your saved list is a backup of removed jobs.
+Choose **Reset** to clear search and filters. If you are viewing a saved, applied, hidden, or new list, choose **View all opportunities** too. Check your hidden list if a specific role is missing. Add filters one at a time. If the unfiltered directory is empty, try again later. Your saved list only shows roles still included in the directory; it is not a backup of removed jobs.
 
 ## My saved or applied list disappeared
 
@@ -39,9 +39,9 @@ The count covers all open roles you have not hidden with a **First seen** date a
 ## A download or API request failed
 
 - Retry a missing download later. The site does not substitute a stale file when the current export is unavailable.
-- For API `400`, check [query parameters](../data/api.md#query-parameters), spelling, encoding, duplicate keys, and bounds.
-- For API `503`, try again later; do not treat an unavailable dataset as an empty successful response.
-- If metadata hashes differ from downloads, fetch all three again: a publication may have occurred between requests.
+- For API `400` (invalid request), check [query parameters](../data/api.md#query-parameters), spelling, encoding, repeated parameters, and allowed limits.
+- For API `503` (data unavailable), try again later; do not treat an unavailable dataset as an empty successful response.
+- If you are [checking a download's hashes](../data/data.md#check-a-downloads-integrity) and they do not match the metadata, download all three files again. The dataset may have changed between downloads.
 - CSV and JSON contain all open listings, not your filtered or saved view.
 
 ## Does the project track my applications?

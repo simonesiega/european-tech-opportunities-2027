@@ -6,11 +6,17 @@ The Next.js site is a read-only presentation layer. `site/src/lib/` owns server 
 
 ## Read-only database contract
 
-`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true` and uses an explicit read transaction to select open rows and the latest **successful** collection timestamp from one SQLite snapshot. SQL orders the rows by descending first-seen time and ID text; presentation and API helpers apply microsecond-aware first-seen sorting with numeric-ID ties. A later failed run cannot imply fresher data. React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
+`getDirectoryData` opens a short-lived `node:sqlite` connection with `readOnly: true` and uses an explicit read transaction to select open rows and the latest **successful** collection timestamp from one SQLite snapshot. SQL orders the rows by descending first-seen time and ID text; presentation and API helpers apply microsecond-aware first-seen sorting with numeric-ID ties. A later failed run cannot imply fresher data.
+
+React request caching shares the query between metadata and the page. Null-prototype SQLite rows become plain objects before crossing the Server Component boundary. Every listing URL must be canonical HTTPS LinkedIn and match its numeric ID.
 
 In versioned mode, `OPPORTUNITIES_RELEASE_ROOT/current` resolves **once per server operation** to a release under `releases/`. Invalid/missing pointers fail closed rather than using legacy paths. The selected release must remain available until readers drain. Separate requests can span a cutover; a page followed by a download is not a pinned transaction.
 
-The website never collects, classifies, migrates, generates exports, or writes SQLite. The [listing API](../../users/data/api.md) reuses the same query; fixed download routes serve three Python-generated files. RSS (`/feed.xml`) and Atom (`/atom.xml`) routes also reuse the read-only open-row query, serialize only the latest 50 matches, and accept exact `type`, `country`, and `category` filters. Their query parser rejects unknown or repeated keys, output is XML-escaped, and GET/HEAD responses support conditional caching; there is no subscription state or notification service. See the [user guide](../../users/browsing/directory.md#subscribe-to-new-opportunities) for URLs and filter examples. [Configuration](../getting-started/configuration.md#website-settings) owns runtime variables; [Automation](../operations/automation.md#vps-deployment) owns release publication.
+The website never collects, classifies, migrates, generates exports, or writes SQLite.
+
+The [listing API](../../users/data/api.md) reuses the same query; fixed download routes serve three Python-generated files.
+
+RSS (`/feed.xml`) and Atom (`/atom.xml`) routes also reuse the read-only open-row query, serialize only the latest 50 matches, and accept exact `type`, `country`, and `category` filters. Their query parser rejects unknown or repeated keys, output is XML-escaped, and GET/HEAD responses support conditional caching; there is no subscription state or notification service. See the [user guide](../../users/browsing/directory.md#subscribe-to-new-opportunities) for URLs and filter examples. [Configuration](../getting-started/configuration.md#website-settings) owns runtime variables; [Automation](../operations/automation.md#vps-deployment) owns release publication.
 
 ## Production status
 

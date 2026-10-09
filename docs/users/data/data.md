@@ -11,7 +11,7 @@ Download all currently open opportunities — free, without an account or API ke
 | Use case | Choose |
 |---|---|
 | Open listings in a spreadsheet | CSV; import as UTF-8 and keep job IDs as text |
-| Analyze all listings in a script | JSON; one unpaginated array |
+| Analyze all listings in a script | JSON; all listings in one array, without fetching separate pages |
 | Fetch a filtered page in an application | [Public API](api.md); camelCase fields and pagination |
 
 For a spreadsheet, download the CSV and open it using your spreadsheet's import function. Choose UTF-8 if asked for an encoding, and import job IDs as text so they are not reformatted. You do not need to install the repository.
@@ -25,12 +25,12 @@ Downloads contain every open listing at generation time, **not** your current se
 | `linkedin_job_id` | Numeric job ID stored as a string |
 | `company`, `title`, `location` | Public listing text |
 | `link` | Canonical HTTPS LinkedIn URL matching the ID |
-| `category` | Technology category slug |
+| `category` | Technology category identifier, such as `software-engineering` |
 | `industries` | Optional source industries text |
 | `employment_type` | `internship` or `new-grad` |
 | `start_date` | Optional stated month/season and year |
 
-JSON uses `null` for missing optional fields; CSV uses an empty cell. No status, observation timestamps, provenance, search history, closure evidence, diagnostics, or internal paths are included. For the public first-seen date, use the [API](api.md#response).
+JSON uses `null` for missing optional fields; CSV uses an empty cell. The files do not include listing status, observation timestamps, how a listing was found, search history, availability-check results, diagnostics, or internal file paths. For the public first-seen date, use the [API](api.md#response).
 
 Synthetic example (not a live listing):
 
@@ -64,6 +64,8 @@ JSON is UTF-8 with a final newline. Both downloads use deterministic newest-firs
 
 ## Check a download's integrity
 
+This optional check helps confirm that you downloaded a complete file matching its metadata. It is useful for scripts and analysis; you do not need it to browse the directory or open the CSV.
+
 Fetch [dataset-metadata.json](https://techopportunities.eu/dataset-metadata.json) alongside the files. It contains:
 
 | Field | Meaning |
@@ -80,7 +82,7 @@ Use the [status endpoint](api.md#check-production-freshness) to identify the dat
 
 ## Schema, examples, and reuse
 
-The [v1 JSON Schema](https://techopportunities.eu/schemas/opportunities-v1.schema.json) is the machine-readable contract. Its root validates the JSON download; `#/$defs/csvDataset` validates decoded `{ "header": [...], "rows": [[...]] }`, `#/$defs/apiResponse` validates listing API bodies, `#/$defs/statusResponse` validates production status, and `#/$defs/metadata` validates the manifest.
+For developers, the [v1 JSON Schema](https://techopportunities.eu/schemas/opportunities-v1.schema.json) describes the expected fields and values so software can validate the data. Its root validates the JSON download; `#/$defs/csvDataset` validates decoded `{ "header": [...], "rows": [[...]] }`, `#/$defs/apiResponse` validates listing API bodies, `#/$defs/statusResponse` validates production status, and `#/$defs/metadata` validates the manifest.
 
 [Complete synthetic examples](https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/schemas/examples) are tested against that same schema. Breaking download changes require a new schema version; existing v1 consumers should not need to infer field changes.
 

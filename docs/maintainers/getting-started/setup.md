@@ -71,6 +71,8 @@ The default configuration keeps LinkedIn collection disabled. Review the [config
 
 ## Initialize the local database
 
+Confirm the configured database path is a new, disposable development path before running this command. Do not use a production database or a shared operator working copy.
+
 Create or upgrade the SQLite schema:
 
 ```bash
@@ -124,7 +126,7 @@ Windows PowerShell:
 Copy-Item .env.example .env.local
 ```
 
-For local development, make sure `site/.env.local` uses the local origin:
+For local development, make sure `site/.env.local` uses the local origin and disposable paths below. Leave `OPPORTUNITIES_RELEASE_ROOT` unset so it cannot override them:
 
 ```dotenv
 SITE_URL=http://localhost:3000

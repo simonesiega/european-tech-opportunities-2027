@@ -2,7 +2,7 @@
 
 [← Maintainer handbook](../README.md) · [Local setup](../getting-started/setup.md) · [Architecture](architecture.md) · [Contributing](../../../CONTRIBUTING.md)
 
-Test the contract that can hurt a user or canonical state, not incidental markup. Tests run offline with synthetic data by default. No normal gate requires source authorization, production data, or a running production service.
+Test observable behavior and failure boundaries that affect users or canonical state, rather than incidental markup. Tests run offline with synthetic data by default. No normal gate requires source authorization, production data, or a running production service.
 
 ## What earns a test
 
@@ -24,7 +24,7 @@ Keep regressions near their owner. Assert resulting state and public responses r
 
 ## Suite map
 
-The source-adjacent [test inventory and review](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) explains every Python and website test, parameterized boundaries, and the cleanup decisions. Update it when adding, removing, moving, or changing a test's purpose.
+The source-adjacent [test inventory and review](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) identifies Python and website tests, their protected contracts, parameterized boundaries, fixtures, and platform requirements. Update it when adding, removing, moving, or changing a test's purpose.
 
 - `tests/unit/`: classifier, transport, parser, config, serialization, snapshots, tooling and migration contracts. Shell tests use fake SSH/SFTP against disposable files.
 - `tests/integration/`: CLI, repository, pipeline, availability, data-quality baseline persistence and README lifecycle behavior.

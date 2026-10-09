@@ -279,7 +279,9 @@ For a schema change:
 8. Test a representative backup when existing state changes.
 9. Run migration consistency checks.
 
-Never rewrite an applied migration to hide schema drift.
+Never rewrite an applied migration to hide schema drift. Coordinate schema changes with compatible application and workflow revisions; protected processing upgrades its restored working copy, not existing immutable snapshots.
+
+Downgrading search-rotation revision `d8f3a6b2c901` removes `searches.last_completed_at`, not job lifecycle history. Preserve a verified backup and reconcile canonical state with the reviewed README before any rollback.
 
 A rebuild is not a normal migration strategy because it loses first-seen history, provenance, closure evidence, and run diagnostics.
 
@@ -331,12 +333,14 @@ Restricted VPS snapshot storage, sanitized artifacts, retention, and deployment 
     uv run opportunities stats
     ```
 
-When the restored database contains the representative state expected by the committed README preview, also run:
+When the restored database contains the state expected by the reviewed README, regenerate only the disposable public exports, then validate without rewriting the reviewed documentation:
 
 ```bash
-uv run opportunities render
+uv run opportunities export-public
 uv run opportunities validate
 ```
+
+A mismatch is a stop condition. Do not run `render` to make a recovered database appear reviewed; reconcile the restored state and reviewed README through the [proposal recovery procedure](automation.md#recover-a-missing-readme-state-proposal).
 
 This restores the **working** SQLite file, not the read-only versioned release served through `data/current`. For a served-projection rollback, follow [Coordinated first rollout and rollback](automation.md#coordinated-first-rollout-and-rollback); do not write through that pointer. A fresh rebuild loses lifecycle history. Do not delete the database as the first response to migration, locking, or integrity problems.
 
@@ -411,6 +415,6 @@ Restrict access to:
 - VPS volume state;
 - temporary deployment copies.
 
-Do not place canonical SQLite or its manifest in GitHub Actions cache or artifacts. Workflow artifacts may contain only explicitly sanitized public projections and ordinary quality reports.
+Do not place canonical SQLite or its manifest in GitHub Actions cache or artifacts. Canonical-state workflow artifacts may contain only explicitly sanitized public projections and approved aggregate-only quality reports.
 
 Review the disclosure and handling requirements in [`SECURITY.md`](../../../SECURITY.md).

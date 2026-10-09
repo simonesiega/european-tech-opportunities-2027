@@ -127,7 +127,7 @@ Run the smallest focused test first, then every affected gate. Use fixed UTC clo
 | Packaging / dependencies / entry points | `uv build` |
 | Parser / classifier hot paths | Offline benchmarks |
 | Containers / deployment | `docker compose config --quiet` and relevant image/workflow checks, using disposable synthetic mounts, not default operator state |
-| Production performance | Lighthouse per the testing guide; not included in website CI |
+| Production performance | Lighthouse per the testing guide; included in Site CI, but run separately from local `bun run ci` |
 
 Without Make, use the [full Python gate](docs/maintainers/engineering/testing.md#python-and-documentation) and [direct docs commands](docs/maintainers/engineering/documentation.md#source-and-rendered-checks). Core/focused examples:
 

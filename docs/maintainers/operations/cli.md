@@ -158,9 +158,17 @@ The command:
 5. commits each search outcome independently;
 6. updates provenance and explicit lifecycle evidence;
 7. when `--quality-report` is supplied, compares aggregate counts, field completeness, category/country mix, and scraper warnings with prior aggregate observations, labels full versus partial registry scope, writes a JSON report, and stores a bounded aggregate baseline only after every enabled search succeeds and no blocking finding occurs;
-8. renders the owned README, search-registry documentation, and all public exports after at least one successful search, unless `--no-render` is set.
+8. renders the owned README, search-registry documentation, and all public exports when collection is eligible for publication, unless `--no-render` is set.
 
-A partial run preserves successful search transactions. HTTP `429` stops subsequent requests, retains only fully completed searches, and returns partial exit code `4` if at least one search completed and the requested quality gate passes. This source-stop partial path requires `--quality-report`; without it the command returns `1` and withholds projections. A completed search with zero accepted jobs can qualify, but still faces all quality and publication checks. No completed search, any other source denial, or blocking quality findings return `1` and withhold projections, snapshots, and README handoffs. Failed and skipped searches never provide closure evidence. Partial proposals require manual review and merge; they are not complete collection success. Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions. The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
+A partial run preserves successful search transactions.
+
+HTTP `429` stops subsequent requests, retains only fully completed searches, and returns partial exit code `4` if at least one search completed and the requested quality gate passes. This source-stop partial path requires `--quality-report`; without it the command returns `1` and withholds projections. A completed search with zero accepted jobs can qualify, but still faces all quality and publication checks.
+
+No completed search, any other source denial, or blocking quality findings return `1` and withhold projections. Protected automation also withholds snapshot publication and README handoffs. Failed and skipped searches never provide closure evidence. Partial proposals require manual review and merge; they are not complete collection success.
+
+Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions.
+
+The report contains aggregate metrics only, not listing content. CI retains it as a separate 30-day artifact.
 
 A failed search:
 
@@ -267,14 +275,18 @@ Check canonical state without refreshing generated projections:
 uv run opportunities check-availability --no-render
 ```
 
-The command requires the LinkedIn authorization interlock and checks at most 50 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. The summary reports checked, available, deleted, reopened, inconclusive, blocked, and deferred rows; blocked and unprocessed rows never advance their audit timestamps. It reports why collection was skipped after a source denial. Due rows deferred by the cap remain eligible; those rows stay unchanged and do not cause a partial-success exit. It requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
+The command requires the LinkedIn authorization interlock and checks at most 50 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. The summary reports checked, available, deleted, reopened, inconclusive, blocked, and deferred rows; blocked and unprocessed rows never advance their audit timestamps. It reports why collection was skipped after a source denial. Due rows deferred by the cap remain eligible; those rows stay unchanged and do not cause a partial-success exit.
+
+The audit requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
 
 - successful public-page and detail-page validation keeps the row open or reopens it;
 - HTTP `404` or `410` from either request permanently deletes the job and cascading search provenance;
 - a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
-The command exits with code `2` when one or more checks are inconclusive without a source-access denial. This includes an [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects): the affected row stays unchanged, its destination is never followed or used as evidence, and other checks continue. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. Any other redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial. The nightly workflow runs this bounded audit once per day before scraping, opens or updates a tightly scoped README pull request, explicitly dispatches and awaits validation on that generated commit, and only then requests auto-merge. The availability-only workflow can run the same command manually and opens its own validated manual-review pull request.
+The command exits with code `2` when one or more checks are inconclusive without a source-access denial. This includes an [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects): the affected row stays unchanged, its destination is never followed or used as evidence, and other checks continue. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. Any other redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial.
+
+For scheduled and manual workflow sequencing, see [Automation](automation.md#collection-and-deployment-flow).
 
 ## `render`
 
@@ -384,7 +396,7 @@ GitHub Actions handling of these codes is documented in [Automation](automation.
 | `db-upgrade` | No | Schema only | No |
 | `searches` | No | No | No |
 | `search-test` | Yes, after authorization gate | No | No |
-| `scrape` | Yes, after authorization gate | Yes; optional bounded quality baseline | README + registry docs + public exports after a successful search and no requested quality block |
+| `scrape` | Yes, after authorization gate | Yes; optional bounded quality baseline | README + registry docs + public exports after eligible full/partial success and required quality checks; blocked source outcomes never render |
 | `scrape --no-render` | Yes, after authorization gate | Yes; optional bounded quality baseline | No |
 | `add-job` | No | Yes | README + registry docs + public exports |
 | `add-job --no-render` | No | Yes | No |
@@ -407,7 +419,7 @@ uv run opportunities searches
 uv run opportunities stats
 ```
 
-A fresh database intentionally contains no listings.
+Use a new, disposable development path. A fresh database intentionally contains no listings; production recovery must use [verified existing state](database.md#restore).
 
 ### Inspect registry and canonical state
 

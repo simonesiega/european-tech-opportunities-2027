@@ -28,6 +28,6 @@ Your lists stay in this browser and do not sync between devices. Read the [priva
 |---|---|
 | Work in a spreadsheet or download all listings | [Get the dataset](data/data.md) |
 | Build with the listings | [Use the public API](data/api.md) |
-| Identify the currently served dataset | [Check production freshness](data/api.md#check-production-freshness) |
+| Check which dataset the website is using | [Check its collection time](data/api.md#check-production-freshness) |
 
 Looking to change or operate the software? Use the separate [maintainer handbook](../maintainers/README.md).

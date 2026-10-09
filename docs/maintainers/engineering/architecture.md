@@ -53,7 +53,11 @@ Overlapping searches share in-flight detail requests by numeric ID. Completed re
 
 ## Failure isolation
 
-Searches fetch within the existing concurrency bound, in oldest-completed order with stable registry ties, then outcomes persist in finish-time order. Each successful search commits independently, including its private scheduling timestamp. Failed and source-skipped searches never advance that timestamp. A failed search records bounded, sanitized diagnostics but does not upsert jobs, apply absence, confirm unavailability, or close rows. A partial batch preserves successful work. HTTP `429` stops subsequent requests immediately; completed searches may proceed through quality, integrity, projection, and snapshot validation for manual-review publication. Every other source denial blocks publication, as does any availability-audit denial. No partial or blocked run establishes a full-registry quality baseline. Rotation becomes durable only through verified snapshots; the reviewed-state barrier still blocks new mutations while a partial proposal is unmerged. [CLI exit codes](../operations/cli.md#exit-codes) are canonical.
+Searches fetch within the existing concurrency bound, in oldest-completed order with stable registry ties, then outcomes persist in finish-time order. Each successful search commits independently, including its private scheduling timestamp. Failed and source-skipped searches never advance that timestamp. A failed search records bounded, sanitized diagnostics but does not upsert jobs, apply absence, confirm unavailability, or close rows. A partial batch preserves successful work.
+
+HTTP `429` stops subsequent requests immediately; completed searches may proceed through quality, integrity, projection, and snapshot validation for manual-review publication. Every other source denial blocks publication, as does any availability-audit denial. No partial or blocked run establishes a full-registry quality baseline.
+
+Rotation becomes durable only through verified snapshots; the reviewed-state barrier still blocks new mutations while a partial proposal is unmerged. [CLI exit codes](../operations/cli.md#exit-codes) are canonical.
 
 The search start is a conservative observation lower bound: a detail page fetched early in a slow search must not overrule a newer observation merely because its search finished later. Repository stale-evidence guards and monotonic timestamps enforce this. Exact transitions, the separate rotating audit, and migrations belong to [Database and lifecycle](../operations/database.md).
 

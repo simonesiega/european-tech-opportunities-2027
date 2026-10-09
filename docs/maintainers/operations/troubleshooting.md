@@ -52,7 +52,7 @@ Never paste a complete environment file, production database, authenticated HTML
 | `0` | Success | No recovery action required |
 | `1` | Complete collection failure, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
 | `2` | Inconclusive availability audit or rejected configuration/command input | Inspect command context; scraping must stop |
-| `3` | Database missing tables or not at migration head | Run `db-upgrade` against the same database URL |
+| `3` | Database missing tables or not at migration head | Confirm the configured path and recovery source before upgrading; never initialize missing production history |
 | `4` | Eligible partial collection, not complete success | Inspect quality report, validate, and manually review the proposal |
 
 Exit code `2` is intentionally overloaded by command context: the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors use it for rejected input. Scrape partial completion uses distinct code `4` so configuration errors cannot be mistaken for publication eligibility. An availability source-access denial returns `1` and skips projection rendering; review authorization before another run.
@@ -127,7 +127,9 @@ Update the branch from current `main` and rerun. Do not add insecure compatibili
 
 ### Database is not migrated
 
-Run:
+Confirm the database URL first. A missing production database requires verified restoration, not initialization. For existing production state, stop other writers and obtain a verified backup before applying pending migrations. A new disposable development database may be initialized directly.
+
+Then run:
 
 ```bash
 uv run opportunities db-upgrade
@@ -140,7 +142,7 @@ When the error remains, confirm both commands use the same `OPPORTUNITIES_DATABA
 uv run python scripts/database/check_migrations.py
 ```
 
-Back up the database before repair. Do not delete it as the first response.
+Do not delete the database as a repair strategy.
 
 ### Migration consistency or timestamp failure
 
@@ -177,7 +179,7 @@ Stop the additional writer, preserve the current database and sidecars, and retu
 
 The root README must contain exactly one opening and one closing marker for each generated region: opportunity counts and opportunity previews.
 
-Only when the database contains representative state, run:
+For an intentional projection update from reviewed representative state, run:
 
 ```bash
 uv run opportunities render
@@ -192,7 +194,7 @@ The generated regions contain:
 - a hidden review seal covering all website-visible open rows and the exact latest successful collection time;
 - at most five internships and five New Grad opportunities.
 
-Do not edit generated counts, timestamps, or rows manually; fix the database state or renderer instead.
+Do not edit generated counts, timestamps, or rows manually; fix the database state or renderer instead. During recovery, do not run `render` merely to make restored state appear reviewed. Follow [README proposal recovery](automation.md#recover-a-missing-readme-state-proposal), or [database recovery](database.md#restore) if the state is incorrect.
 
 When mismatch remains, verify:
 
@@ -213,7 +215,7 @@ uv run opportunities validate
 
 Verify `OPPORTUNITIES_PUBLIC_EXPORT_DIR`, directory write permission for the pipeline, read permission for the website, and that deployment uploaded all three files with matching checksums. Do not generate exports in the website or expose arbitrary filesystem paths as a fallback.
 
-The expected files are `open-opportunities.csv`, `open-opportunities.json`, and `dataset-metadata.json`. They contain no private lifecycle history and can be safely regenerated from SQLite.
+The expected files are `open-opportunities.csv`, `open-opportunities.json`, and `dataset-metadata.json`. They contain no private lifecycle history and can be regenerated from verified canonical state. In versioned production, publish a new reviewed release through [deployment-only automation](automation.md#deployment-only-path); never regenerate files inside the immutable `current` release.
 
 ### README replacement fails
 
@@ -277,7 +279,7 @@ A failed search does not apply absence or closure evidence.
 
 ### All searches failed
 
-Exit code `1` usually indicates a shared problem involving:
+When no search completes, exit code `1` can indicate a shared problem involving:
 
 - authorization;
 - network access;
@@ -286,7 +288,7 @@ Exit code `1` usually indicates a shared problem involving:
 - parser behavior;
 - configuration.
 
-Existing state remains valid. Preserve it while diagnosing the shared cause.
+Failed searches do not apply job lifecycle changes, but the failure does not establish that existing state is valid. Preserve it while diagnosing the shared cause.
 
 ### Quality gate blocked publication
 
@@ -552,8 +554,6 @@ For a fully successful collection, confirm that:
 The repository's optional auto-merge setting is not required: when disabled, the workflow requests a normal squash merge after validation. Both paths obey branch protection. A refused normal merge leaves the proposal open and fails the job; resolve its checks or required reviews and merge that proposal rather than collecting again. An older workflow revision can still fail with `Auto merge is not allowed for this repository`; rerunning that run retains its original revision. See [README update pull requests](automation.md#readme-update-pull-requests) and [missing proposal recovery](automation.md#recover-a-missing-readme-state-proposal).
 
 A branch push made by `GITHUB_TOKEN` does not trigger ordinary push workflows, and PR workflows created by that token can wait for **Approve workflows to run**. The README mutation workflow therefore dispatches all seven validation workflows explicitly after its exact-scope check and keeps the branch alive until they finish. Dependency Review receives the PR number, verifies the open README-only proposal and run SHA, and compares the actual base/head commits. If a run is missing, inspect workflow-dispatch permissions, the selected branch's workflow revision, and its inputs; do not bypass required checks.
-
-Older automation dispatched only six workflows. Even if they all passed, a required `dependency-review` check could still be missing or awaiting approval, causing the final merge to fail with `the base branch policy prohibits the merge`. Approving its PR workflow later does not change the failed parent run's historical result, and enabling auto-merge alone does not run a missing check. The corrected workflows must reach `main` before new proposals inherit them. For an existing proposal, resolve its actual required checks and review without repeating collection; if it is closed or missing, use the [README recovery mode](automation.md#recover-a-missing-readme-state-proposal) from updated `main`.
 
 A validation run that fails instantly with zero jobs and no logs usually means the automation branch was merged and deleted before GitHub finished creating jobs. The explicit dispatch wait prevents that race without weakening validation. The workflow also refuses validation dispatch and merging when any scope check differs. Do not weaken either safeguard; restore the fixed automation branch to the expected README-only diff instead.
 

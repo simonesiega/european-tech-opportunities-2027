@@ -20,7 +20,7 @@ Choose **More actions → Hide**. Hidden roles disappear from the main directory
 
 To undo this, choose the hidden count, then **More actions → Restore** on the role. Choose **View all opportunities** to return to normal browsing.
 
-Search and filters still apply inside each list. A nonzero saved count with no visible rows can mean that your filters or hidden choices exclude those saved roles.
+Search and filters still apply inside each list. If the saved count is above zero but the list looks empty, check your filters and hidden roles.
 
 ## See what is new
 
@@ -40,7 +40,7 @@ On a return visit, a message highlights open roles whose **First seen** time is 
 | Open another tab in this browser | Local list changes and clearing synchronize between tabs |
 | Open another device or browser profile | A separate, empty set of lists |
 | Share a filtered URL | Only public filters and sorting are shared, never your lists |
-| A role closes or is removed | Its local ID is removed the next time the directory loads |
+| A role closes or is removed | It leaves your local lists the next time the directory loads |
 | Clear this site's browser storage | Lists, visit history, and theme preference are erased |
 | Block storage or use restricted private browsing | Actions work in the current tab, but may not survive reload |
 
@@ -48,6 +48,8 @@ Lists are a convenience, not a durable record of applications. Keep any importan
 
 ## Clear your local data
 
-Use your browser's site-data controls for `techopportunities.eu` to clear storage. This also clears your theme choice. If you are comfortable using browser developer tools, you can reset only lists and visit history by removing `opportunities-directory-state` from Local Storage. The theme uses the separate key `opportunities-theme`.
+Use your browser's site-data controls for `techopportunities.eu` to clear storage. This removes your saved, applied, and hidden lists, visit history, and theme choice. There is no undo or server copy, so keep any important application history elsewhere first.
+
+If you are comfortable using browser developer tools, you can reset only lists and visit history by removing `opportunities-directory-state` from Local Storage. The theme uses the separate key `opportunities-theme`.
 
 This cannot remove public job listings or change another visitor's browser. Hosting and analytics data are handled separately; see the [privacy notice](../../../PRIVACY.md).

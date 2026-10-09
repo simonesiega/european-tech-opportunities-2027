@@ -2,7 +2,9 @@
 
 [← Repository maps](README.md) · [Visual assets](../README.md) · [Rendering profile](#rendering-profile)
 
-Mermaid source for the SVGs in the `svg/` subfolder. The colors, grouped components, directed relationships, and clickable code links follow [GitDiagram's](https://github.com/ahmedkhaleel2004/gitdiagram) visual approach. Solid arrows carry data or artifacts; dashed arrows indicate configuration, orchestration, or a supporting dependency. These are subsystem maps, not exhaustive import graphs.
+This file owns the five SVGs in `svg/`: their labels, relationships, accessibility descriptions, and rendering configuration. Use the [annotated maps](README.md) to explore the architecture and the [rendering profile](#rendering-profile) to regenerate assets after a source change.
+
+The colors, grouped components, directed relationships, and clickable code links follow [GitDiagram's](https://github.com/ahmedkhaleel2004/gitdiagram) visual approach. Solid arrows carry data or artifacts; dashed arrows indicate configuration, orchestration, or a supporting dependency. These are subsystem maps, not exhaustive import graphs.
 
 ## Repository overview
 
@@ -470,7 +472,7 @@ Keep the explicit `<br/>` breaks in group headings: Mermaid's cluster renderer w
 
 Use this shared configuration, a white SVG background, and system fonts. Retain the accessibility titles/descriptions and HTTPS code links. Do not embed scripts, external resources, or HTML labels in the exported SVGs.
 
-Mermaid's strict mode does not activate `click` directives. For the standalone export, use the explicit node-to-URL mappings in each block to wrap each corresponding node in one native SVG link after rendering. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and keyboard focus support. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
+Mermaid's strict mode does not activate `click` directives. For the standalone export, use the explicit node-to-URL mappings in each block to wrap each corresponding node in one native SVG link after rendering. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and `tabindex="0"` for explicit keyboard focus. Separate label lines with spaces in the accessible name. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
 
 ```json
 {
@@ -511,3 +513,48 @@ Mermaid's strict mode does not activate `click` directives. For the standalone e
   "themeCSS": ".cluster rect { rx: 10px; ry: 10px; } .cluster-label text { font-weight: 600; } .node rect { rx: 6px; ry: 6px; } .edgeLabel text { font-size: 15px; } a:hover .label-container, a:focus .label-container { stroke-width: 3px; }"
 }
 ```
+
+### Refresh native link accessibility
+
+After adding native SVG links, run this from the repository root to set their accessible names and keyboard focus from the Mermaid node labels. It requires the existing links to match the source mappings and changes only anchor attributes, not rendered geometry. If labels, relationships, or layout changed, render with Mermaid first; this step alone cannot update the drawing.
+
+```bash
+uv run --frozen python - <<'PY'
+import html
+import re
+from pathlib import Path
+
+root = Path("docs/assets/diagram")
+blocks = re.findall(r"```mermaid\n(.*?)\n```", (root / "source.md").read_text(encoding="utf-8"), re.S)
+names = ("repository", "collection", "website", "automation", "foundations")
+outputs = []
+for name, block in zip(names, blocks, strict=True):
+    links = dict(re.findall(r'click (\w+) "([^"]+)"', block))
+    labels = dict(re.findall(r'^\s*(\w+)[\[({]+"([^"\n]+)"', block, re.M))
+    seen = []
+
+    def refresh(match):
+        tag = match.group()
+        node = match.group(1)
+        url = html.unescape(re.search(r'\shref\s*=\s*"([^"]+)"', tag).group(1))
+        if url != links[node]:
+            raise ValueError(f"Unexpected SVG link for {node}: {name}")
+        label = labels[node].replace("<br/>", " ")
+        seen.append(node)
+        tag = re.sub(r'\s(?:aria-label|tabindex)="[^"]*"', "", tag)
+        accessible_name = html.escape(label + " — open source on GitHub", quote=True)
+        return tag[:-1] + f' tabindex="0" aria-label="{accessible_name}">'
+
+    path = root / "svg" / f"{name}.svg"
+    anchor = r'<a\s[^>]*>(?=\s*<g\s[^>]*\bid="flowchart-(\w+)-\d+"[^>]*>)'
+    updated = re.sub(anchor, refresh, path.read_text(encoding="utf-8"))
+    if sorted(seen) != sorted(links):
+        raise ValueError(f"SVG links do not match Mermaid source: {name}")
+    outputs.append((path, updated))
+
+for path, updated in outputs:
+    path.write_text(updated, encoding="utf-8", newline="\n")
+PY
+```
+
+Verify all links are reachable with Tab and show a visible focus indicator. Open a link with Enter only when external navigation is intended.

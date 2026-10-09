@@ -4,7 +4,7 @@
 
 European Tech Opportunities 2027 turns permission-gated public listing evidence into a validated directory. **SQLite owns the lifecycle; the website, API, downloads, and README only present it.**
 
-Inspired by [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram): colored subsystem groups, labeled connections, database shapes, and clickable links to the implementation. This is a map of the current working tree, not a diagram generated from production data.
+The maps use colored subsystem groups, labeled connections, database shapes, and clickable implementation links, inspired by [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram). They describe the checked-in architecture, not production data or a live deployment.
 
 ## Choose a view
 
@@ -17,7 +17,7 @@ Inspired by [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram): colore
 | [Testing, documentation, and tooling](#testing-documentation-and-tooling) | What builds, verifies, documents, and protects the project? |
 | [Editable Mermaid source](source.md) | Where do I change or reuse these diagrams? |
 
-**Viewing:** open an SVG directly in your browser to zoom and follow its code links. On GitHub, use the raw/download view; embedded image previews may disable node links. The SVGs work without JavaScript, a diagram service, API keys, or external resources. Code links open GitHub only when selected and target `main`; unmerged paths become available there after merging.
+**Viewing:** open an SVG directly in your browser to zoom and follow its code links. On GitHub, use the raw/download view; embedded image previews may disable node links. The SVGs work without JavaScript, a diagram service, API keys, or external resources. Code links open GitHub only when selected and target `main`, which may differ from the revision you are viewing.
 
 **Legend:** solid arrows carry data, evidence, or artifacts; dashed arrows mean “runs,” “configures,” or “supports.” Cylinders represent stored data; the hexagon identifies the controlled application writer, and diamonds mark publication gates. Grouped boxes are ownership boundaries, not necessarily separate services. Python paths are relative to `src/opportunities/` unless shown in full.
 
@@ -31,7 +31,9 @@ Read the main path as **configure → collect → classify → persist → publi
 Search definitions and acceptance rules tell the CLI where to look and what evidence is required.
 The Python pipeline rotates searches by persistent completion time, fetches permitted guest HTML, and applies deterministic acceptance checks.
 Only `Repository` writes application state, keeping lifecycle evidence, search rotation, and aggregate quality baselines in SQLite.
-HTTP `429` stops requests; completed searches may proceed only through all publication gates for manual-review partial publication.
+
+HTTP `429` stops subsequent source requests. Independently completed searches may qualify for partial publication only after every required gate passes; the resulting proposal requires manual review and merge.
+
 The website, API, downloads, and bounded README present that state; production readers use verified releases.
 Browser-local lists sit beside the public data flow and never write back to the database.
 The surrounding groups show the automation, tests, documentation, policies, and build tools supporting these boundaries.
@@ -48,11 +50,14 @@ Never-completed and oldest-completed searches run first, with stable registry ti
 Permission-gated HTTP provides search cards and identity-validated details, with company/title prefilters first.
 Normalization and classification check role type, seniority, technology, cycle/date, and European location.
 Successful searches commit independently with their completion timestamps; failed and skipped searches save diagnostics without lifecycle evidence or scheduling advancement.
+
 Full, partial, and blocked outcomes remain distinct. HTTP `429` partial candidates need completed searches and every required gate; all other source denials block publication.
 Only successful, nonblocking full-registry collections establish quality baselines.
-Missing cards cannot close jobs: known-ID rechecks need explicit `404`/`410` confirmations and no active association.
+
+Missing cards cannot close jobs. Known-ID rechecks require repeated explicit `404`/`410` confirmations; closure occurs only after no active search association remains.
 The separate availability audit checks at most 50 due jobs by default, with a five-day minimum interval.
-It keeps/reopens valid listings, deletes explicitly unavailable ones, and preserves uncertainty; any audit denial still blocks publication.
+It keeps or reopens valid listings, deletes explicitly unavailable ones, and preserves inconclusive rows; any audit denial blocks publication.
+
 Reviewed offline additions reuse acceptance checks and repository transactions, without invented provenance or manual reopening.
 
 ## Website and publication
@@ -65,6 +70,7 @@ SQLite feeds two publication paths: Python-generated files and server-only websi
 Python owns the README preview, full-state review seal, sanitized CSV/JSON, and dataset metadata.
 The Next.js page and v1 API share a read-only query; download routes only serve existing export files.
 In versioned mode, each server operation selects one release before opening its database or downloads.
+
 React components handle search, filters, sorting, pagination, and theme without changing canonical data.
 Saved/applied/hidden IDs and visit times stay in localStorage, never SQLite, shared URLs, the API, or analytics.
 Schema, link-validation, and metadata helpers keep the public output predictable and safe to consume.
@@ -79,10 +85,12 @@ Scheduled and manual workflows serialize canonical updates through a shared one-
 The protected processor restores verified state, migrates, requires its README to match reviewed `main`, and runs selected CLI phases.
 Full and eligible HTTP `429` partial results must pass quality, SQLite integrity, and projection checks before checkpointing and restricted snapshot publication.
 Round-trip snapshot verification must succeed before the README handoff. Search rotation travels with the database, never a separate queue or artifact.
+
 A separate job receives only the README and outcome output, opens a narrowly scoped pull request, and waits for validation.
 Fully successful nightly collections retain the existing automatic-merge policy; partial proposals use a labeled `-partial` branch and require manual review and merge.
 Unmerged or rejected partial snapshots still block ordinary subsequent mutation and deployment at the reviewed-state barrier.
 **Merging the matching README does not deploy:** publication is a separate protected manual run.
+
 Deployment verifies payloads under a lock and switches the release pointer atomically, retaining old releases for readers.
 Canonical databases and snapshot manifests never enter public GitHub caches or artifacts.
 Recovery modes differ: the normal drill publishes a verified snapshot; seal adoption and README recovery propose only README changes for review.

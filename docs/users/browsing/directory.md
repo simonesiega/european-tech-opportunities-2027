@@ -2,7 +2,7 @@
 
 [← User guide](../README.md) · [Your local lists](lists.md) · [Get help](help.md) · [Open the directory](https://techopportunities.eu/)
 
-The directory shows currently open, validated technology internships and New Grad roles across Europe. It favors clearly relevant listings over complete coverage. Always check requirements and current availability on the original listing.
+Find technology internships and **New Grad** roles (graduate and entry-level positions) across Europe for the 2027 hiring cycle. Each listing has passed the project's eligibility checks and is marked open by the project. Availability can change between checks. Always confirm requirements and availability on the original listing.
 
 ## Find a role
 
@@ -29,10 +29,10 @@ On a small screen, scroll the table sideways to reach all columns and row action
 | Company / Role / Location | Information from the original listing; a missing location may be taken from its search result |
 | New | Whether the role is newer than your previous visit; [how this works](lists.md#see-what-is-new) |
 | Category | The project's technology grouping, not a guarantee about every duty |
-| Industries | Structured source metadata; `Not specified` means it was not available |
-| Employment type | Internship or New Grad, based on explicit title evidence |
+| Industries | The industry information provided by the original listing; `Not specified` means it was not available |
+| Employment type | Internship or New Grad, based on wording in the role title |
 | Start date | A stated month or season and year, when available; `—` means unknown |
-| First seen | A date set when the role is added and kept unchanged; it may use the source's approximate posting age, a reviewed posting date, or the project's first observation |
+| First seen | A date set when the role is added and kept unchanged; it may come from the source's approximate posting age, a posting date checked by a maintainer, or when the project first found the role |
 
 **First seen is not an application deadline.** The site does not guarantee compensation, sponsorship, remote eligibility, or suitability for your background. The collection date in the footer describes the latest successful collection, not the last check of every individual listing.
 
@@ -42,7 +42,7 @@ Copy the address bar after setting your filters. Search, filters, sort, rows per
 
 Example: [internships in Germany](https://techopportunities.eu/?country=Germany&type=internship).
 
-Your saved/applied/hidden lists and previous-visit time are **not** in the URL. Someone opening your link sees the public filters, not your private list. Changing filters or sort returns to page one. Unsupported URL values are ignored or safely constrained.
+Your saved/applied/hidden lists and previous-visit time are **not** in the URL. Someone opening your link sees the public filters, not your private list. Changing filters or sort returns to page one. If the URL contains an unsupported filter or page value, the site ignores it or uses a supported value.
 
 Building an application? Use the [API](../data/api.md), which measures recency against the published dataset so the same data gives the same results. The website measures recency when you load the directory.
 
@@ -65,6 +65,6 @@ To follow only some roles, use the filtered example below. If you want to build 
 |---|---|
 | `type` | `internship` or `new-grad` |
 | `country` | Exact country name from the listing location |
-| `category` | Exact technology-category slug |
+| `category` | Exact category identifier, such as `software-engineering` |
 
-For example, [software internships in Ireland](https://techopportunities.eu/feed.xml?type=internship&country=Ireland&category=software-engineering) uses `/feed.xml?type=internship&country=Ireland&category=software-engineering`. Unknown/repeated parameters or invalid values are rejected; a valid filter with no matches produces an empty feed. These feeds use public opportunity data only: browser-saved, applied, and hidden lists are not included.
+For example, paste this [feed for software internships in Ireland](https://techopportunities.eu/feed.xml?type=internship&country=Ireland&category=software-engineering) into your reader. The same filters work with the Atom URL. If a feed fails to load, check the parameter names and values and use each parameter only once. A valid filter with no matches produces an empty feed. These feeds use public opportunity data only: browser-saved, applied, and hidden lists are not included.

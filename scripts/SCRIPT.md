@@ -102,7 +102,3 @@ Database snapshots contain operational history that is not included in public do
 For publication retry limits, staging-file handling, and same-run/attempt resumption boundaries, see [state continuity and artifacts](../docs/maintainers/operations/automation.md#state-continuity-and-artifacts).
 
 If recovery or deployment stops because files, checksums, or database state do not match, preserve the files and follow the [troubleshooting guide](../docs/maintainers/operations/troubleshooting.md). Do not delete the database or retry against empty state as a shortcut.
-
-## Supporting files
-
-The `__init__.py` files in this directory and its Python subfolders let the test suite and other tools import these helpers. You do not need to run them.
