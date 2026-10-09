@@ -55,7 +55,8 @@ Full, partial, and blocked outcomes remain distinct. HTTP `429` partial candidat
 Only successful, nonblocking full-registry collections establish quality baselines.
 
 Missing cards cannot close jobs. Known-ID rechecks require repeated explicit `404`/`410` confirmations; closure occurs only after no active search association remains.
-The separate availability audit checks at most 50 due jobs by default, with a five-day minimum interval.
+The collection map shows the built-in availability default: at most 50 due jobs, with a five-day minimum interval.
+[Production automation](../../maintainers/operations/automation.md#schedule-and-concurrency) recommends the Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for daily audits; the software default remains unchanged.
 It keeps or reopens valid listings, deletes explicitly unavailable ones, and preserves inconclusive rows; any audit denial blocks publication.
 
 Reviewed offline additions reuse acceptance checks and repository transactions, without invented provenance or manual reopening.

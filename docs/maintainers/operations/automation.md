@@ -143,13 +143,13 @@ Production automation requires two GitHub environments. Restrict both environmen
 
 Keep these non-secret values as repository variables:
 
-| Variable | Required | Default |
+| Variable | Required | Production configuration / fallback |
 |---|---:|---|
 | `LINKEDIN_CRAWL_AUTHORIZED` | For source access | No enabled default |
 | `OPPORTUNITIES_MAX_CONCURRENCY` | Yes | Set to `1` |
 | `OPPORTUNITIES_RATE_LIMIT_SECONDS` | Yes | Set to `10` |
 | `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS` | Yes | Set to `5` |
-| `OPPORTUNITIES_AVAILABILITY_MAX_JOBS` | No | `50`; remove older overrides or set to `50` |
+| `OPPORTUNITIES_AVAILABILITY_MAX_JOBS` | Yes | Set to `100`; built-in default and workflow fallback remain `50` |
 | `VPS_BACKUP_USER` | No | `opportunities-backup` |
 | `VPS_SSH_PORT` | No | `22` |
 | `CANONICAL_STATE_RETENTION_DAYS` | No | `365` |
@@ -233,11 +233,11 @@ concurrency:
 
 The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
 
-The processor reads request and availability limits from Actions variables and has a 360-minute default timeout. The availability cap falls back to `50` only when the variable is absent or empty. Existing repository, organization, or selected-environment overrides of `250` still win: remove them or set them to `50`, including copies in `canonical-state` and `production`. Verify the effective cap in the audit's selected/deferred log before relying on it. No workflow changes these variables automatically.
+The processor reads request and availability limits from Actions variables and has a 360-minute default timeout. Set the GitHub Actions repository variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for production; the built-in default and workflow fallback remain `50` when no value is configured. Check repository, organization, and selected-environment variables, including copies in `canonical-state` and `production`, for conflicting overrides such as `50` or legacy `250`. Update or remove conflicting overrides so the effective production cap is `100`, and verify it in the audit's selected/deferred log. No workflow changes these variables automatically. Keep `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS=5`, concurrency `1`, and request spacing `10` seconds.
 
-Each audit selects at most 50 due jobs by default, with at least five days between non-denial attempts. Never-checked and oldest-checked jobs go first; excess due jobs wait for later runs. With 700 initial jobs and successful daily runs, days 1–5 check the first 250, days 6–10 the next 250, and days 11–14 the remaining 200; day 15 returns to the oldest eligible jobs. New jobs join the never-checked group. Larger backlogs, a sustained arrival rate above capacity, or failed runs can extend the interval.
+With the production override, each daily audit selects at most 100 due jobs, with at least five days between non-denial attempts. Never-checked and oldest-checked jobs go first; excess due jobs wait for later runs. With 800 initial jobs and successful daily runs, days 1–5 check the first 500, days 6–8 the remaining 300, and day 9 returns to the oldest eligible jobs. Allow approximately 8–10 days to rotate through the current directory, depending on backlog and growth. New jobs join the never-checked group. Larger backlogs, a sustained arrival rate above capacity, or failed runs can extend the interval.
 
-An audit normally makes up to two requests per selected job, plus bounded retries for transient failures. Reducing the cap cuts normal audit volume from up to 500 to 100 requests; it does not guarantee continued LinkedIn access. Scraping adds separate bounded search, detail, and known-job recheck requests. Existing title/company prefilters and in-flight detail deduplication avoid unnecessary discovery requests without reusing stale completed evidence. HTTP `429` still stops source access without automatic retries. Scraping starts with never-completed and oldest-completed searches, using SQLite completion timestamps and stable registry ties. Denied/skipped searches do not advance, so they precede newly completed groups in the next eligible execution. Rotation survives verified snapshots; interruptions and failed validation do not publish progress. These settings apply on GitHub, not Dokploy.
+An audit normally makes up to two requests per selected job. At the production cap of 100 checks per day, this means up to 200 normal availability HTTP requests plus bounded retries for transient failures; it does not guarantee continued LinkedIn access. Scraping adds separate bounded search, detail, and known-job recheck requests. Existing title/company prefilters and in-flight detail deduplication avoid unnecessary discovery requests without reusing stale completed evidence. HTTP `429` still stops source access without automatic retries. Scraping starts with never-completed and oldest-completed searches, using SQLite completion timestamps and stable registry ties. Denied/skipped searches do not advance, so they precede newly completed groups in the next eligible execution. Rotation survives verified snapshots; interruptions and failed validation do not publish progress. These settings apply on GitHub, not Dokploy.
 
 The nightly, scrape-only, availability-only, manual-add, recovery-drill, and deployment paths share `opportunity-collection`. This prevents overlapping writers and state replacement while allowing the read-only website to continue serving requests.
 

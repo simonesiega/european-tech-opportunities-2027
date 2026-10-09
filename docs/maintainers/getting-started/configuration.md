@@ -126,6 +126,8 @@ The 2027 publication floor (May 1, 2026) and `date_posted: cycle` search window 
 | `OPPORTUNITIES_CLOSURE_CONFIRMATION_RUNS` | `2` | Required explicit unavailability confirmations from 1 through 10 |
 | `OPPORTUNITIES_LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` |
 
+The table lists built-in defaults, not production recommendations. For daily production audits, set the GitHub Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100`; retain the five-day interval, concurrency `1`, and `10`-second request spacing. Check repository, organization, and environment-level overrides to confirm the effective value; see [production automation settings](../operations/automation.md#schedule-and-concurrency). The settings YAML example below retains the built-in 50-job default.
+
 Environment strings are converted into their declared types by Pydantic. Invalid configuration exits with code `2` before collection begins.
 
 ## Settings YAML

@@ -197,7 +197,7 @@ The confirmation threshold is configured through `OPPORTUNITIES_CLOSURE_CONFIRMA
 
 ## Bounded availability audit
 
-The scheduled workflow runs `opportunities check-availability` once per day before collection. Each run selects at most `availability_max_jobs` rows (default 50) whose last audit attempt is at least `availability_interval_days` old (default five). Closed rows and manual listings are eligible. Never-checked rows go first, ordered by `first_seen_at` and ID; previously checked rows follow in oldest-check order. A successful public page without a closure alert is then followed by guest detail validation.
+The scheduled workflow runs `opportunities check-availability` once per day before collection. Each run selects at most `availability_max_jobs` rows (built-in default 50; [recommended production Actions override](automation.md#schedule-and-concurrency) `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100`) whose last audit attempt is at least `availability_interval_days` old (default five). Closed rows and manual listings are eligible. Never-checked rows go first, ordered by `first_seen_at` and ID; previously checked rows follow in oldest-check order. A successful public page without a closure alert is then followed by guest detail validation.
 
 The migration leaves existing rows with a null `last_availability_checked_at`; it does not fabricate prior checks. The cap applies immediately, so the initial backlog cannot cause a full-database sweep. Excess due rows remain untouched and wait for later runs. Five days is a minimum interval, not a completion guarantee: larger backlogs, failures, or delayed schedules can extend it.
 
