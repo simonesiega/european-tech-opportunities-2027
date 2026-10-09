@@ -118,7 +118,7 @@ The pipeline service uses:
 
 The website service mounts only the same host state directory in read-only mode. With `OPPORTUNITIES_RELEASE_ROOT=/app/data` it reads the database and exports from one selected `current` release per server operation; without it, it continues to use the legacy fixed paths. Switch only after the coordinated rollout in [Automation](automation.md#coordinated-first-rollout-and-rollback).
 
-Starting the website does **not** run a migration or initialize canonical state. In production, restore verified state before running `docker compose run --rm opportunities db-upgrade`, followed by `export-public`; in local development only, an intentionally empty database may be initialized explicitly. A missing or unmigrated production database is an operational failure, not a reason to create an empty history. Do not run a migration concurrently with the canonical-state workflow.
+Starting the website does **not** run a migration or initialize canonical state. In production, restore verified state and follow the [protected processing procedure](automation.md#collection-and-deployment-flow) for migration and export generation; the same commands may be run locally only against a disposable development database. A missing or unmigrated production database is an operational failure, not a reason to create an empty history. Do not run a migration concurrently with the canonical-state workflow.
 
 Expected container paths:
 
@@ -134,7 +134,9 @@ Only the controlled pipeline service may mutate canonical state or replace gener
 
 ## Start the website locally
 
-For an intentionally empty **local-only** state directory, initialize the database and downloadable projections explicitly, then build and start the website service. In production, restore and verify existing canonical state first:
+The checked-in Compose file mounts `/srv/european-tech-opportunities-2027/data`. Before running these commands locally, use a local-only Compose override to bind **both** services to the same disposable directory, and leave `OPPORTUNITIES_RELEASE_ROOT` unset. Inspect `docker compose config --quiet` and the effective mount configuration before initialization. Do not initialize the default host path merely to test the containers.
+
+For that intentionally empty **local-only** directory, initialize the database and downloadable projections, then build and start the website service. In production, restore and verify existing canonical state first:
 
 ```bash
 docker compose run --rm opportunities db-upgrade
@@ -366,7 +368,8 @@ After deployment, verify over HTTPS:
 
 - the directory returns `200`, displays the expected count and last successful collection time, and supports filtering and pagination;
 - `/api/v1/status` passes the [deployed-dataset verification](automation.md#verify-the-deployed-dataset) against the reviewed artifact;
-- `/robots.txt`, `/sitemap.xml`, `/open-opportunities.csv`, and `/open-opportunities.json` return the expected content and attachment headers on the canonical origin; metadata, JSON-LD, downloads, robots, and sitemap contain only the canonical origin;
+- `/robots.txt` and `/sitemap.xml` return the expected content on the canonical origin, and `/open-opportunities.csv` and `/open-opportunities.json` return the expected content types and attachment filenames;
+- site metadata, JSON-LD, robots, and sitemap use the canonical origin for project URLs; external listing links remain canonical LinkedIn URLs;
 - requests to the former hostname redirect with 308 to the equivalent canonical URL, including filtered query URLs and downloads;
 - Content Security Policy, HSTS, content-type, framing, referrer, cross-origin, and permissions headers remain present;
 - the site container is healthy, runs as UID/GID `10001:10001`, and can read but not write the mounted state;

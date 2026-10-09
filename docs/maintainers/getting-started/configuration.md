@@ -265,7 +265,7 @@ cd site
 cp .env.example .env.local
 ```
 
-For local development, set the values in `site/.env.local` to the local origin and database path:
+For local development, use the local origin and disposable paths in `site/.env.local`. Leave `OPPORTUNITIES_RELEASE_ROOT` unset so it cannot override these paths:
 
 ```dotenv
 SITE_URL=http://localhost:3000
