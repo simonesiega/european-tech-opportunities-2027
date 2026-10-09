@@ -3,8 +3,7 @@
 <p align="center">
   <a href="https://techopportunities.eu/"><strong>Explore the directory →</strong></a> ·
   <a href="https://docs.techopportunities.eu/">Documentation</a> ·
-  <a href="#latest-opportunities">Latest opportunities</a> ·
-  <a href="https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml">Suggest a listing</a>
+  <a href="#latest-opportunities">Latest opportunities</a>
 </p>
 
 <p align="center">
@@ -17,9 +16,11 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions?query=branch%3Amain">
     <img src="https://img.shields.io/github/check-suites/simonesiega/european-tech-opportunities-2027/main?label=CI" alt="Aggregate CI status on main" />
   </a>
+  <!--
   <a href="https://www.bestpractices.dev/projects/14982">
     <img src="https://www.bestpractices.dev/projects/14982/badge" alt="OpenSSF Best Practices badge status" />
   </a>
+  -->
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
@@ -36,19 +37,13 @@
 
 Finding the right early-career tech role in Europe shouldn't mean digging through hundreds of scattered, outdated, or irrelevant listings.
 
-**European Tech Opportunities 2027** brings validated tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Find a company you like, pick a country, explore a category, or see what's been added recently. Share any search with a link.
+**European Tech Opportunities 2027** brings tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Listings are checked against the project's eligibility rules, with the directory updated daily.
 
-No account needed. **Save roles, mark where you've applied, hide the ones that aren't for you, and see what's new since your last visit**. Your lists stay in your browser — private, with no device sync.
+Find a company you like, pick a country, explore a category, or see what's been added recently. Share any search with a link. No installation needed. No account needed. **Save roles, mark where you've applied, hide the ones that aren't for you, and see what's new since your last visit**. Your lists stay in your browser, with no device sync. Marking a role applied is a reminder; it does not submit an application.
 
 Need the data outside the website? Download the complete open directory as **CSV or JSON**, or query it through the free, read-only **public API**.
 
-**[Explore the live directory →](https://techopportunities.eu/)**
-
-First time here? [Here's a quick guide](docs/users/README.md). Nothing to install.
-
-For the first stable release, see the [v1.0.0 release notes](docs/releases/v1.0.0.md).
-
-### Growing together across Europe
+### See the directory in action
 
 <!-- Keep this attachment URL bare so GitHub renders its native video player. -->
 <!-- markdownlint-disable-next-line MD034 -->
@@ -56,9 +51,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Watch the video](docs/assets/promo/european-tech-opportunities-2027.mp4) · [Transcript](docs/assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Static overview](docs/assets/promo/storyboard.webp)
 
-What started as a small open-source project has grown into a directory used by people across Europe and beyond.
-
-So far, a recorded analytics snapshot shows **15K+ page views**, **2.6K+ users**, and **8.2K+ visits from more than 60 countries**. These aren't live counters, but it's been lovely to see the project reach people through **25+ sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook.
+What started as a small open-source project has grown into a directory reaching people across Europe and beyond. With **19K+ page views**, **3.8K+ users**, and **9.3K+ visits from more than 70 countries**, it's been incredible to see how far the project has come. People have discovered it through **25+ different sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook, and its reach continues to grow.
 
 ## Latest opportunities
 
@@ -104,7 +97,7 @@ Spreadsheets, side projects, or your favorite feed reader — take the listings 
 | [Live directory](https://techopportunities.eu/) | Browsing and sharing | Search, filters, sorting, pagination, local lists, and original-listing links |
 | [CSV](https://techopportunities.eu/open-opportunities.csv) | Spreadsheets | Complete open dataset with spreadsheet-safe text |
 | [JSON](https://techopportunities.eu/open-opportunities.json) | Scripts and analysis | Complete open dataset as one array |
-| [Public API](https://techopportunities.eu/api/v1/opportunities) | Applications and integrations | Filtered, paginated v1 JSON with deterministic sorting and cache validators |
+| [Public API](https://techopportunities.eu/api/v1/opportunities) | Applications and integrations | Filtered, sorted, paginated JSON, with caching support |
 | [RSS](https://techopportunities.eu/feed.xml) / [Atom](https://techopportunities.eu/atom.xml) | Feed readers | Up to 50 recent open roles, with optional type, country, and category filters |
 
 Downloads include all open listings, not just your current search. The read-only API needs no key and lets you filter, sort, and page through results.
@@ -120,30 +113,19 @@ If the evidence isn't clear, we leave the role out rather than guess. A listing 
 | **Employment type** | The title explicitly identifies an Internship or New Grad role |
 | **Seniority** | Senior and management terminology is excluded |
 | **Technology** | The role matches a configured technology category |
-| **Cycle / posting date** | It has valid 2027 cycle evidence, or no conflicting cycle plus eligible posting-date evidence from May 1, 2026 onward |
-| **European location** | The normalized listing contains explicit European location evidence |
+| **Cycle / posting date** | It clearly identifies the 2027 hiring cycle, or has no conflicting hiring cycle and eligible evidence of posting on or after May 1, 2026 |
+| **European location** | The listing contains clear European location evidence |
 
 Curious about the details? Here are the [classification rules](docs/maintainers/engineering/classification.md).
 
 ## How it works
 
-<div align="center">
-<pre>
-bounded discovery
-↓
-normalization + deterministic classification
-↓
-canonical SQLite lifecycle state
-↓
-website · public API · CSV/JSON · bounded README preview
-</pre>
-</div>
+1. Find public listings within fixed request limits.
+2. Check the role, seniority, hiring cycle, posting date, and European location.
+3. Store accepted listings and their history in SQLite, the project's database.
+4. Present open roles through the website, API, feeds, downloads, and README preview. These views only read the data; they do not change job status or decide which roles qualify.
 
-SQLite keeps the listing history in one place. The website, API, feeds, downloads, and this preview only read it — they don't change job status or decide which roles qualify.
-
-Collection requires express authorization and stays within fixed request limits. No LinkedIn logins, private APIs, or anti-bot bypasses.
-
-Want to look under the hood? Start with the [architecture guide](docs/maintainers/engineering/architecture.md) and [security policy](SECURITY.md).
+Collection requires express authorization and stays within fixed request limits. No LinkedIn logins, private APIs, or anti-bot bypasses. Want to look under the hood? Start with the [architecture guide](docs/maintainers/engineering/architecture.md) and [security policy](SECURITY.md).
 
 ## Engineering
 
@@ -158,9 +140,7 @@ An open-source project behind a simple directory. Here's the stack:
 | **Testing** | Pytest unit/integration suites, Playwright browser journeys, axe accessibility checks, property tests, Lighthouse, parser/classifier benchmarks |
 | **Security & CI** | GitHub Actions, CodeQL, Gitleaks, Dependency Review, OpenSSF Scorecard, container and documentation validation |
 
-Tests cover the things that matter: relevant roles, safe listing updates, private browser lists, accessibility, reliable downloads, and recovery without losing history.
-
-See the [testing guide](docs/maintainers/engineering/testing.md) for the full picture.
+Offline tests check listing eligibility, safe lifecycle updates, browser-list privacy, accessibility, downloads, and recovery. See the [testing guide](docs/maintainers/engineering/testing.md) for coverage, commands, and known limitations.
 
 ## Privacy by design
 

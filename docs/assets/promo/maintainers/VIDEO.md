@@ -25,7 +25,7 @@ Use this guide to edit or recreate the 51-second promotional film while preservi
 
 ## Start here
 
-1. Read the root [agent guidelines](../../../../AGENTS.md), [security policy](../../../../SECURITY.md), and [media publication rules](../../README.md#publication-safety). Check for nested agent instructions and relevant local context.
+1. Read the [security policy](../../../../SECURITY.md) and [media publication rules](../../README.md#publication-safety). Coding agents must also follow the root [agent guidelines](../../../../AGENTS.md) and any nested instructions.
 2. Confirm the requested change and the intended worktree with `git worktree list`, `git branch --show-current`, and `git status --short --untracked-files=all`. Do not switch branches, reset files, clean worktrees, restage another person's work, commit, or publish without authorization.
 3. Identify whether the task needs only documentation, an audio remux, an editorial re-render, or new interface captures. Use the [update matrix](#choose-the-smallest-update); do not regenerate unrelated inputs.
 4. Preserve the approved outputs and source before running anything that overwrites them. Keep the source MP3 input-only. Compare the complete Git index, not just the files being edited.
@@ -52,19 +52,19 @@ b7a0f7ece3aa86d491cec2f2b6d95595b51b8e3897dd8bfe27d140073e7776c9  soundtrack.mp3
 
 The master uses H.264 High, level 4.2, `yuv420p`, BT.709, fast-start metadata, and one AAC LC stereo track at 48 kHz with a 192 kb/s target. The encoder uses libx264, `slow`, CRF 18, four threads, and a two-second GOP. Container metadata and chapters are stripped. This is a high-quality film, not the older sub-1-MiB README animation.
 
-The captured application revision is `48ac7135f868e1e82133081c57f64cbd2e7d5a7f`. That is the **application source revision**, not a commit containing the final authoring bundle. The showcase-assets branch was created separately from `main`; rebuilding its current application code may change the interface.
+The captured application revision is `48ac7135f868e1e82133081c57f64cbd2e7d5a7f`. That is the **application source revision**, not a commit containing the final authoring bundle. Rebuilding from another application revision may change the interface; preserve the recorded revision and captures for a historical reconstruction.
 
 The interface is the real, unmodified production application, captured in Chromium on Windows with 24 fictional listings. The Safari-style browser frame, pointer paths, headlines, and camera movement are illustrated/editorial elements, not native Safari footage or human-recorded pointer input. No stock footage, AI-synthesized scenes, narration, or additional sound effects are used.
 
-Keep this disclosure beside every published copy. The film intentionally has no burned-in demo label. The [transcript below](#timeline-and-descriptive-transcript) and contact sheet supply context and a no-motion alternative; the separate authoring player is not part of this asset-only handoff.
+Keep this disclosure beside every published copy. The film intentionally has no burned-in demo label. The [transcript below](#timeline-and-descriptive-transcript) and contact sheet supply context and a no-motion alternative; the separate authoring player is not included in the published assets.
 
-The [root README showcase](../../../../README.md#growing-together-across-europe) uses a bare GitHub attachment URL for GitHub's native video player. Keep that URL on its own line rather than wrapping it in Markdown link syntax or restoring the repository-relative HTML video element. The adjacent Markdownlint `MD034` exception applies only to that URL. Do not promise autoplay or automatic looping. The documentation site retains the separate MP4 link, transcript, and static overview; preserve those links and the fictional-data/artwork disclosure when editing the showcase.
+The [root README showcase](../../../../README.md#see-the-directory-in-action) uses a bare GitHub attachment URL for GitHub's native video player. Keep that URL on its own line rather than wrapping it in Markdown link syntax or restoring the repository-relative HTML video element. The adjacent Markdownlint `MD034` exception applies only to that URL. Do not promise autoplay or automatic looping. The documentation site retains the separate MP4 link, transcript, and static overview; preserve those links and the fictional-data/artwork disclosure when editing the showcase.
 
 ## Recover and preserve the authoring bundle
 
 ### Locate the correct working revision
 
-At this handoff, the editable revision 15 bundle remains under `docs/assets/promo/` in the separate `feat/promotional-video` worktree, conventionally named `european-tech-internships-2027-promotional-video`. Use `git worktree list` to locate it; do not assume a machine-specific absolute path.
+The editable revision 15 bundle was retained under `docs/assets/promo/` in the separate `feat/promotional-video` worktree, conventionally named `european-tech-internships-2027-promotional-video`. Use `git worktree list` to locate it; do not assume a machine-specific absolute path.
 
 The final source is working-tree content, not a published branch snapshot. Its Git index contains an older staged restoration. Checking out that branch elsewhere, using `git show`, or copying only staged files does **not** recover revision 15. Do not reset or restage the original worktree to simplify its status.
 
@@ -173,7 +173,7 @@ $env:TEMP = $env:TMPDIR
 
 Then run the Bun and Node commands above in order. In PowerShell, check `$LASTEXITCODE` after each native command and stop on any nonzero result; `$ErrorActionPreference` alone does not make native commands fail fast in every PowerShell version.
 
-Retain the browser-path variable for capture and verification. Installation may access package/browser registries; capture accesses only loopback. Direct Node entrypoints avoid the previously observed Bun 1.3 Windows script-launcher crash while retaining Bun for dependency management.
+Retain the browser-path variable for capture and verification. Installation may access package/browser registries; capture accesses only loopback. Use direct Node entry points to avoid the Bun 1.3 Windows script-launcher crash; keep Bun for dependency management.
 
 The commands have these side effects:
 
@@ -250,7 +250,7 @@ Check the repository address against `site/src/lib/project-links.ts` in the appl
 - Use mixed-case, single-line 56 px headlines centered at x = 960 with baseline y = 112. Neutral text uses Geist 400, tracking −0.8, and `#c8c8ce`; emphasis uses Space Grotesk Medium 500, tracking −0.9, and `#ffffff`.
 - Keep the 1 px emphasis underline at y = 130, white at 30% opacity. The headline clip is x = 240, y = 46, width = 1440, height = 96.
 - Reveal each word over 360 ms with 40 ms staggering, an 11 px masked rise, and scale 0.985 → 1. Exit over 300 ms. The underline grows from chapter start + 0.22s to + 0.82s. After entry, every headline pixel stays still until exit; there is no reading-phase drift.
-- Keep the restored “Saved and applied. At a glance.” headline. Do not revive the superseded caption-free version, green emphasis, uppercase keyword stacks, bottom feature captions, or editorial corner labels.
+- Keep the “Saved and applied. At a glance.” headline. Do not use a caption-free version, green emphasis, uppercase keyword stacks, bottom feature captions, or editorial corner labels.
 - Retain the original illustrated Safari-style single-tab toolbar and centered domain. Its design width is 1728 px, toolbar height 60 px, and centered address-field width 760 px. It is artwork, not an Apple affiliation or native-capture claim.
 
 The baseline background RGBA SHA-256 is `e3c31dee88af5e2c00fce7cb42097314f808eed086cc1b3c01da4cf11eb0a431`. It belongs to uncompressed artwork pixels, not the encoded video file. Do not update that regression hash without an intentional design change.
@@ -298,7 +298,7 @@ Capture uses a fresh Chromium context at 1440 × 600 CSS pixels, device scale 2,
 
 The fixed clock is `2026-10-02T12:00:00.000Z`; the previous browser visit is `2026-10-01T12:00:00.000Z`. Seed `opportunities-directory-state` with version 1, that `lastVisitAt`, and empty `saved`, `applied`, and `hidden` arrays. Set `opportunities-theme` to `light`. Use disposable browser-local state only; never read a person's real saved/applied lists.
 
-The fixture owner creates 24 invented rows with numeric IDs `1000000001` through `1000000024` through real Alembic migrations and `Repository` methods, then generates/validates CSV and JSON through the real exporter. Preserve its row order, dates, categories, employment types, and the fictional Lumen Cloud Brussels role when reproducing the baseline. That company membership enables the real 19 → 4 → 3 → 2 filter progression.
+The fixture generator creates 24 fictional rows with numeric IDs `1000000001` through `1000000024`, using real Alembic migrations and `Repository` methods, then generates/validates CSV and JSON through the real exporter. Preserve its row order, dates, categories, employment types, and the fictional Lumen Cloud Brussels role when reproducing the baseline. That company membership enables the real 19 → 4 → 3 → 2 filter progression.
 
 | Local mark | Explicit ID  | Company     | Role and location                             | Expected state            |
 | ---------- | ------------ | ----------- | --------------------------------------------- | ------------------------- |
