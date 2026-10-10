@@ -8,7 +8,11 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Added
 
+- Add Italian, French, German, Spanish, and Simplified Chinese READMEs to the documentation site, with reciprocal language navigation and synchronized generated data.
+
 ### Changed
+
+- Refresh localized README counts, review seals, and opportunity previews alongside English in dataset automation, preserving localized presentation and authored text.
 
 ### Fixed
 

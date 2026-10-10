@@ -39,7 +39,7 @@ These are contracts, not suggestions. Review [SECURITY.md](../../../SECURITY.md)
 | Collection quality | `src/opportunities/pipeline/data_quality.py` | Pure aggregate drift analysis and publication-gate findings |
 | Availability | `src/opportunities/pipeline/availability.py` | Bounded rotating explicit evidence audit |
 | Persistence | `src/opportunities/database/`, `migrations/` | Transactions, provenance, lifecycle, bounded aggregate quality baselines and schema evolution |
-| Projections | `src/opportunities/readme.py`, `public_exports.py`, `search_registry_docs.py` | Generated regions, public serialization and validation |
+| Projections | `src/opportunities/readme.py`, `readme_localization.py`, `public_exports.py`, `search_registry_docs.py` | Localized generated regions, public serialization and validation |
 | Website | `site/src/lib/`, `site/src/components/` | Server-only read-only queries; client-only interaction |
 | Operations | `scripts/`, `.github/workflows/` | Verified recovery, validation, review handoff and release-pointer deployment |
 
@@ -69,12 +69,12 @@ The search start is a conservative observation lower bound: a detail page fetche
 | API | Shared release selection, bounded inputs, and explicit field allowlists; listing queries and read-only dataset status; [v1 contract](../../users/data/api.md) |
 | RSS / Atom feeds | Same read-only open rows, latest 50 entries, exact type/country/category filters, and escaped XML; [subscriber guide](../../users/browsing/directory.md#subscribe-to-new-opportunities) |
 | CSV / JSON / metadata | Python renderer selects approved fields, neutralizes CSV formulas, validates schema/bytes/counts/hashes, and atomically replaces files; [download contract](../../users/data/data.md) |
-| README | Renderer owns exactly one count region and one preview region; maximum five newest rows per employment type |
+| READMEs | English and five translations share canonical counts, seals, and listing data with localized renderer-owned presentation; maximum five newest rows per employment type in each file |
 | Registry documentation | Renderer owns the search-directory count block, not the surrounding guide |
 
 Optional collection-time data-quality monitoring compares aggregate observations with recent matching runs and stores bounded counts through `Repository`. Its gate runs after search commits and can withhold publication, but never changes classification or rolls back lifecycle state. Reports contain no listing text or raw source responses; website and export projections do not read monitoring baselines. The [CLI quality-report reference](../operations/cli.md#quality-report) owns thresholds and scope.
 
-The README includes a hidden SHA-256 seal covering **every** website-visible open row and the exact last-successful-collection timestamp, including rows outside its preview. Validation reconstructs both regions from SQLite and requires equality. [Automation's reviewed-state barrier](../operations/automation.md#first-public-state-review-seal) prevents deploying unreviewed public state. A hash alone does not explain a change: review the sanitized artifact and protected evidence when necessary.
+The README includes a hidden SHA-256 seal covering **every** website-visible open row and the exact last-successful-collection timestamp, including rows outside its preview. Validation reconstructs both regions from SQLite using fixed presentation strings for each supported language and requires exact localized output equality. Rendering preflights all files before atomic per-file writes and preserves authored text; [README localization](documentation.md#readme-localization) defines file discovery and ownership. [Automation's reviewed-state barrier](../operations/automation.md#first-public-state-review-seal) prevents deploying unreviewed public state. A hash alone does not explain a change: review the sanitized artifact and protected evidence when necessary.
 
 Coverage metrics are a separate generated region in [Testing](testing.md#coverage-baseline), owned by `scripts/docs/coverage_docs.py`. No production database is needed to refresh them.
 

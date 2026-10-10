@@ -28,7 +28,7 @@ This handbook covers development, system contracts, validation, and production o
 | Discovery YAML, query identities, and request tiers | [Search registry](engineering/search-registry.md) |
 | Read-only queries, browser state, URL behavior, and metadata | [Website engineering](engineering/website.md) |
 | Behavior contracts, test placement, and validation commands | [Testing strategy](engineering/testing.md) |
-| Shared writing style, navigation, and generated regions | [Documentation maintenance](engineering/documentation.md) |
+| Shared writing style, navigation, generated regions, and README translations | [Documentation maintenance](engineering/documentation.md) · [README localization](engineering/documentation.md#readme-localization) |
 | Public images, diagrams, and tour reproduction | [Visual assets](../assets/README.md) |
 | Promotional film source recovery, editing, and replacement | [Video maintenance](../assets/promo/maintainers/VIDEO.md) |
 

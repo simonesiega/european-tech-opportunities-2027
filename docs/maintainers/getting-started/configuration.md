@@ -88,7 +88,7 @@ Do not commit, paste, or attach them to public issues.
 | `OPPORTUNITIES_DATABASE_URL` | `sqlite:///data/opportunities.db` | Valid SQLite SQLAlchemy URL; other database backends are rejected |
 | `OPPORTUNITIES_SEARCH_CONFIG_DIR` | `configs/searches` | Recursive YAML search-registry directory |
 | `OPPORTUNITIES_CATEGORY_CONFIG_PATH` | `configs/categories.yml` | Classification-rules file |
-| `OPPORTUNITIES_README_PATH` | `README.md` | Existing UTF-8 file containing exactly one opportunity-count marker pair and one opportunity-preview marker pair |
+| `OPPORTUNITIES_README_PATH` | `README.md` | Existing UTF-8 file with one count and one preview marker pair; a sibling `docs/translations/` directory enables the five required [localized projections](../engineering/documentation.md#readme-localization) when the file is named `README.md` |
 | `OPPORTUNITIES_PUBLIC_EXPORT_DIR` | `data/exports` | Directory for generated `open-opportunities.csv`, `open-opportunities.json`, and `dataset-metadata.json`; each file is replaced atomically |
 | `OPPORTUNITIES_TARGET_CYCLE` | `2027` | Integer from 2020 through 2100 |
 | `OPPORTUNITIES_SETTINGS_FILE` | unset | Selects an optional settings YAML file |
