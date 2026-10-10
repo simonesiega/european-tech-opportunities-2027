@@ -176,7 +176,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 ## 许可证
 
-代码与文档均采用 [MIT 许可证](../../LICENSE)。外部招聘信息及第三方媒体内容仍受各自条款约束。宣传配乐及使用该配乐的视频的分发权限尚待确认，详情请参阅 [媒体版权说明](../assets/README.md#promotional-film)。
+代码与文档均采用 [MIT 许可证](../../LICENSE)。外部招聘信息及第三方媒体内容仍受各自条款约束。宣传视频使用 RoyaltyFreeMusicStudio 创作的《Minimal Corporate Atmosphere》，适用 Pixabay Content License，而非 MIT 许可证。允许的用途及可选署名详见 [第三方媒体声明](../assets/README.md#third-party-media-notice)；项目不分发原始 MP3 文件。
 
 ## 贡献者
 

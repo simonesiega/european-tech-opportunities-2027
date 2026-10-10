@@ -52,21 +52,20 @@ def test_rendered_link_check_detects_missing_images_and_anchors(
 
 
 @pytest.mark.parametrize(
-    ("asset", "approved"),
+    "asset",
     [
-        ("docs/assets/promo/soundtrack.mp3", True),
-        ("docs/assets/soundtrack.mp3", False),
-        ("docs/assets/promo/other.mp3", False),
-        ("docs/assets/promo/soundtrack.MP3", False),
-        ("docs/assets/promo/.work/soundtrack.mp3", False),
+        "docs/assets/promo/soundtrack.mp3",
+        "docs/assets/soundtrack.mp3",
+        "docs/assets/promo/other.mp3",
+        "docs/assets/promo/soundtrack.MP3",
+        "docs/assets/promo/.work/soundtrack.mp3",
     ],
 )
-def test_rendered_soundtrack_links_and_exact_publication_boundary(
+def test_rendered_standalone_audio_is_rejected_and_missing_links_fail(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     asset: str,
-    approved: bool,
 ) -> None:
     monkeypatch.setattr(check_built_docs, "ROOT", tmp_path)
     (tmp_path / "CNAME").write_text("docs.techopportunities.eu\n", encoding="utf-8")
@@ -80,10 +79,8 @@ def test_rendered_soundtrack_links_and_exact_publication_boundary(
         f'<a href="{asset}">Original soundtrack</a>', encoding="utf-8"
     )
 
-    assert check_built_docs.main() == (0 if approved else 1)
-    if not approved:
-        assert f"Unexpected published file: {asset}" in capsys.readouterr().err
-        return
+    assert check_built_docs.main() == 1
+    assert f"Unexpected published file: {asset}" in capsys.readouterr().err
 
     soundtrack.unlink()
     assert check_built_docs.main() == 1
@@ -131,9 +128,7 @@ def test_legacy_redirects_point_directly_to_current_topic_guides() -> None:
     assert build_docs.LEGACY_PAGES["guides/user-guide/public-dataset"] == "users/data/data"
 
 
-@pytest.mark.parametrize(
-    "asset", ["diagram.svg", "tour.mp4", "poster.webp", "promo/soundtrack.mp3"]
-)
+@pytest.mark.parametrize("asset", ["diagram.svg", "tour.mp4", "poster.webp"])
 def test_public_staging_publishes_media_but_not_private_root_files(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, asset: str
 ) -> None:
@@ -182,6 +177,7 @@ def test_public_staging_publishes_media_but_not_private_root_files(
         "assets/.env",
         "maintainers/private.mp4",
         "assets/soundtrack.mp3",
+        "assets/promo/soundtrack.mp3",
         "assets/promo/other.mp3",
         "assets/promo/soundtrack.MP3",
         "assets/promo/.work/soundtrack.mp3",

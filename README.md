@@ -176,7 +176,7 @@ Report vulnerabilities privately through [the security policy](SECURITY.md), not
 
 ## License
 
-Code and docs are [MIT licensed](LICENSE). External listings and third-party media keep their own terms. Distribution rights for the promotional soundtrack and scored film still need confirmation — see the [media rights notice](docs/assets/README.md#promotional-film).
+Code and docs are [MIT licensed](LICENSE). External listings and third-party media keep their own terms. The promotional film uses “Minimal Corporate Atmosphere” by RoyaltyFreeMusicStudio under the Pixabay Content License, not MIT. See the [third-party media notice](docs/assets/README.md#third-party-media-notice) for permissions and optional attribution; the original MP3 is not distributed.
 
 ## Contributors
 

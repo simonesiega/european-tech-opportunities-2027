@@ -434,11 +434,11 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
 | `test_rendered_link_check_detects_missing_images_and_anchors` | Rendered anchors/media, favicon fidelity, and private-file leaks fail validation |
-| `test_rendered_soundtrack_links_and_exact_publication_boundary` | Only the cataloged soundtrack path may publish, and missing linked audio still fails |
+| `test_rendered_standalone_audio_is_rejected_and_missing_links_fail` | Standalone MP3s at the former soundtrack path, alternate paths, mixed-case extension, and private authoring path all fail publication; removed audio links also fail |
 | `test_legacy_redirects_require_a_real_canonical_destination` | Redirects cannot be generated without real destination pages and point correctly across directories |
 | `test_legacy_redirects_point_directly_to_current_topic_guides` | Legacy mappings resolve directly to current guides, never redirect chains or overwritten canonical pages |
 | `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
-| `test_public_staging_rejects_unapproved_files` | Databases, environment files, uncataloged audio, and promotional implementation files fail the publication allowlist |
+| `test_public_staging_rejects_unapproved_files` | Databases, environment files, all standalone audio (including the former soundtrack path), and promotional implementation files fail the publication allowlist |
 | `test_public_staging_rejects_symlinked_media` | Allowed extensions cannot smuggle private files through symlinks |
 | `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors resolving to every supported language |
 | `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |

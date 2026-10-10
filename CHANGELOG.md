@@ -18,6 +18,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Removed
 
+- Remove the standalone promotional MP3 from the public tree and documentation allowlists; document Pixabay soundtrack permissions while preserving the scored film.
+
 ### Security
 
 ## [1.0.0] - 2026-10-07

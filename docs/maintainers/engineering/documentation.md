@@ -103,7 +103,7 @@ Markdownlint and Vale run from digest-pinned containers with read-only mounts an
 
 ## Publishing boundary
 
-The build stages only public Markdown, approved root policies, visual asset formats, and the specifically cataloged `docs/assets/promo/soundtrack.mp3` in a temporary directory. Other audio files and the promotional authoring bundle remain outside the publication allowlist. **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
+The build stages only public Markdown, approved root policies, and visual asset formats in a temporary directory. Standalone audio files, including the private promotional soundtrack, and the promotional authoring bundle remain outside the publication allowlist; see the [third-party media notice](../../assets/README.md#third-party-media-notice). **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
 
 The documentation workflow strictly builds and validates pull requests but deploys only from `main`. It has no canonical-state access. [Automation](../operations/automation.md#validation-workflows) owns GitHub Pages/DNS setup, permissions, and artifact publication. No repository setting is changed by the build script.
 

@@ -176,7 +176,7 @@ Si detectas una vulnerabilidad, comunícala de forma privada siguiendo la [polí
 
 ## Licencia
 
-El código y la documentación se distribuyen bajo la [licencia MIT](../../LICENSE). Las ofertas externas y los contenidos multimedia de terceros mantienen sus propias condiciones de uso. Los derechos de distribución de la banda sonora y del vídeo promocional que la utiliza aún están pendientes de confirmación; consulta el [aviso sobre derechos de los contenidos multimedia](../assets/README.md#promotional-film).
+El código y la documentación se distribuyen bajo la [licencia MIT](../../LICENSE). Las ofertas externas y los contenidos multimedia de terceros mantienen sus propias condiciones de uso. El vídeo promocional utiliza «Minimal Corporate Atmosphere» de RoyaltyFreeMusicStudio bajo la Pixabay Content License, no bajo la licencia MIT. Consulta el [aviso sobre contenidos multimedia de terceros](../assets/README.md#third-party-media-notice) para conocer los usos permitidos y la atribución opcional; el MP3 original no se distribuye.
 
 ## Colaboradores
 

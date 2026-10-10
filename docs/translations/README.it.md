@@ -176,7 +176,7 @@ Le vulnerabilità devono essere segnalate privatamente seguendo la [policy di si
 
 ## Licenza
 
-Il codice e la documentazione sono distribuiti con [licenza MIT](../../LICENSE). Gli annunci esterni e i contenuti multimediali di terzi restano soggetti alle rispettive condizioni d'uso. I diritti di distribuzione della colonna sonora promozionale e del filmato che la contiene devono ancora essere confermati: consulta la [nota sui diritti dei contenuti multimediali](../assets/README.md#promotional-film).
+Il codice e la documentazione sono distribuiti con [licenza MIT](../../LICENSE). Gli annunci esterni e i contenuti multimediali di terzi restano soggetti alle rispettive condizioni d'uso. Il filmato promozionale utilizza “Minimal Corporate Atmosphere” di RoyaltyFreeMusicStudio con la Pixabay Content License, non con la licenza MIT. Consulta la [nota sui contenuti multimediali di terzi](../assets/README.md#third-party-media-notice) per gli usi consentiti e l'attribuzione facoltativa; il file MP3 originale non viene distribuito.
 
 ## Contributori
 

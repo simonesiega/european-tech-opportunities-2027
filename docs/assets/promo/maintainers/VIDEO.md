@@ -5,7 +5,7 @@
 Use this guide to edit or recreate the 51-second promotional film while preserving the approved presentation. It describes revision 15, the source files you need, the rendering process, and the checks to run before replacing the published media.
 
 > [!IMPORTANT]
-> The repository contains the finished MP4, the original MP3, the contact sheet, and this guide. It does **not** contain the editable renderer, capture scripts, player, or captured frames. A clean checkout cannot reproduce the film from these three media files alone. Recover the separate authoring bundle before following the rendering commands; do not invent missing scripts or claim that the older product-tour recorder creates this film.
+> The repository contains the finished MP4, the contact sheet, and this guide. Rebuilding the film requires the separate authoring bundle: renderer, capture scripts, player, captured frames, and private MP3 input. The older product-tour recorder produces a different video.
 
 ## Contents
 
@@ -40,9 +40,9 @@ Paths in this table are relative to `docs/assets/promo/`.
 | ---------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | [Main film](../european-tech-opportunities-2027.mp4) | Delivery master with music                                        | 51 seconds; 1920 × 1080; 60 fps; 3,060 frames; 10,386,902 bytes               |
 | [Contact sheet](../storyboard.webp)                  | Static, no-motion overview; not an animation or editable timeline | Fourteen sampled frames; 1280 × 2758; 243,474 bytes                           |
-| [Original soundtrack](../soundtrack.mp3)             | Unmodified input recording                                        | Approximately 145.68 seconds; MP3; 44.1 kHz stereo; 256 kb/s; 4,661,916 bytes |
+| Private soundtrack input (not distributed)           | Unmodified recording obtained from Pixabay                        | Approximately 145.68 seconds; MP3; 44.1 kHz stereo; 256 kb/s; 4,661,916 bytes |
 
-Baseline SHA-256 values identify these delivered files, not every possible re-encode:
+Baseline SHA-256 values identify the delivered film/contact sheet and retained private authoring input, not every possible re-encode:
 
 ```text
 2dffbca95e0a3348ef50b69e29a3b78d3b2d343a56466d5b5038c2259d71a211  european-tech-opportunities-2027.mp4
@@ -97,7 +97,7 @@ All paths below are relative to the **authoring** `docs/assets/promo/`, not this
 | `.work/captures/`, including `manifest.json`                                      | Reusable real screenshots, hit regions, UI state, and frame selection metadata                                               |
 | `.work/source-revision.txt`                                                       | Application commit actually used to prepare the captured UI                                                                  |
 
-Retain the capture manifest and its referenced image files together. Keep the original MP3 and font notices with the archive. Dependencies, the copied app, disposable SQLite, caches, logs, and scratch frames belong only in ignored authoring directories; they must not enter the public docs tree.
+Retain the capture manifest and its referenced image files together. Keep the original MP3 only in the private authoring archive, alongside its source/license evidence and the font notices. Do not redistribute the MP3 with a shared renderer archive. Dependencies, the copied app, disposable SQLite, caches, logs, and scratch frames belong only in ignored authoring directories; they must not enter the public docs tree.
 
 Before an edit, take a new, uniquely named backup and hash its files. Save `git ls-files --stage -z` as binary data plus branch, HEAD, and working status. Compare the same NUL-delimited output afterward; omitting `-z` produces a false index mismatch. Never overwrite an earlier approved backup.
 
@@ -370,7 +370,11 @@ The fade start is derived as `DURATION - fadeOutSeconds - endSilenceSeconds`. If
 
 Revision 15 measured mean volume −16.3 dBFS and peak −2.3 dBFS. The verifier requires audible audio with at least 1 dB of peak headroom; the tail test requires progressive decay and silence before the final frame. Browser audio decoding and automated level checks are not a listening review.
 
-The repository's [MIT license](../../../../LICENSE) does **not** grant rights to this supplied recording. No soundtrack license accompanied the original file. Confirm rights for distribution of both the scored MP4 and original MP3 before publication. Keep the source bundle's SIL Open Font License notices when retaining or sharing the renderer/fonts.
+The soundtrack is “Minimal Corporate Atmosphere” by RoyaltyFreeMusicStudio. The [third-party media notice](../../README.md#third-party-media-notice) covers the Pixabay Content License, optional attribution, standalone-redistribution restriction, and Content ID claims.
+
+Obtain the original through the download controls on the [Pixabay source page](https://pixabay.com/music/electronic-minimal-corporate-atmosphere-490834/), following Pixabay's current terms. Keep your legally obtained copy and any available download/license certificate in private authoring storage outside the public checkout. For authoring, place the input at `soundtrack.mp3` in the separate private bundle; never copy it into this repository's `docs/` tree or distribute it standalone. Compare its SHA-256 with the [private input baseline](#assets-and-provenance) before a historical reconstruction; a different hash requires review before using the recording in a historical rebuild.
+
+Keep the source bundle's SIL Open Font License notices when retaining or sharing the renderer/fonts; those notices do not license the soundtrack.
 
 ## Verification and review
 
@@ -397,7 +401,7 @@ from hashlib import sha256
 from pathlib import Path
 
 root = Path("docs/assets/promo")
-for name in ("european-tech-opportunities-2027.mp4", "storyboard.webp", "soundtrack.mp3"):
+for name in ("european-tech-opportunities-2027.mp4", "storyboard.webp"):
     data = (root / name).read_bytes()
     print(name, len(data), sha256(data).hexdigest())
 PY
@@ -426,11 +430,11 @@ The lint command requires Docker and its pinned images; retain its read-only/no-
 ## Replace, publish, and roll back
 
 1. Render and approve in the separate authoring workspace. Back up the previous MP4/contact sheet and review evidence before replacing delivery files; never use the publication directory as a scratch renderer workspace.
-2. Copy only the reviewed master and regenerated contact sheet into their stable paths. Copy `soundtrack.mp3` only when initially transferring the unchanged source or when an explicitly approved, licensed replacement is intended. Verify source/destination SHA-256 values after copying.
+2. Copy only the reviewed master and regenerated contact sheet into their stable paths. Never copy the private `soundtrack.mp3` into the publication checkout; maintainers obtain it directly from Pixabay. Verify source/destination SHA-256 values after copying.
 3. Keep authoring source, lockfile, font notices, captures/manifest, application revision, validation report, and approval evidence together in the separate durable archive. Record the new presentation revision and intentional changes. Do not publish runtime data or `.work/` backups.
 4. Update this guide's current specifications, transcript, baseline hashes, and provenance when the approved master changes. Update the [asset catalog](../../README.md), [documentation router](../../../README.md), [maintainer index](../../../maintainers/README.md), and MkDocs navigation if paths or guide ownership change. Preserve existing filenames unless migration is intentional.
 5. Keep a descriptive transcript, fictional-data/artwork disclosure, and no-motion contact sheet next to the film. Use ordinary playback controls if embedding it later; do not add autoplay, tracking, or links to the absent authoring player/poster.
-6. Confirm recording distribution rights and run the source/rendered documentation gates. The docs publisher permits this exact `docs/assets/promo/soundtrack.mp3`; it does not permit arbitrary audio files, source scripts, HTML players, lockfiles, or working directories. Do not broaden the public boundary to publish the authoring bundle.
+6. Confirm recording distribution rights and run the source/rendered documentation gates. The docs publisher rejects standalone audio files, including `soundtrack.mp3`, as well as source scripts, HTML players, lockfiles, and working directories. Do not broaden the public boundary to publish the authoring bundle.
 7. Review `git status --short --untracked-files=all`, `git diff --check`, and the full diff; verify the original authoring worktree and index remain unchanged. Stage only explicitly approved files, and commit or publish only when authorized.
 8. To roll back, restore the last approved media pair and matching documentation/provenance from the verified archive in the publication worktree, then rerun checks. Do not use a broad Git reset/clean or delete any canonical state.
 
@@ -453,5 +457,5 @@ For a handoff, state the source and presentation revisions, changed/unchanged as
 | Both local lists show the same role                                  | Check explicit IDs and genuine local state. Saved must be Berlin ID `1000000001`; Applied must be Munich ID `1000000006` unless a new fixture is explicitly approved.                                                         |
 | Render hangs or exhausts memory                                      | Check encoder failure handling, await `film.draw()`, and retain the six-image decoded-image LRU rather than loading all Retina captures.                                                                                      |
 | Soundtrack ends abruptly or gains another audio track                | Recheck the derived half-sine fade and explicit stream maps. Use the guarded audio owner, leave the MP3 untouched, and listen to the ending.                                                                                  |
-| Docs build rejects promo contents                                    | Build from the asset-only publication checkout. Do not copy `.work/`, dependencies, source scripts, player, or lockfile into its docs tree. Only the specifically cataloged MP3 is exempt from the visual-format restriction. |
+| Docs build rejects promo contents                                    | Build from the asset-only publication checkout. Do not copy `.work/`, dependencies, source scripts, player, or lockfile into its docs tree. Standalone audio files have no publication exemption. |
 | Links pass locally but fail after publishing                         | Run the strict staged build and rendered-link checker; use repository-relative links, include the new guide in navigation, and avoid links to authoring-only files.                                                           |

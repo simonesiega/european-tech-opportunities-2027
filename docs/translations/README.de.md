@@ -176,7 +176,7 @@ Sicherheitslücken meldest du bitte vertraulich über die in der [Sicherheitsric
 
 ## Lizenz
 
-Code und Dokumentation stehen unter der [MIT-Lizenz](../../LICENSE). Für externe Stellenanzeigen und Medien Dritter gelten deren jeweilige Nutzungsbedingungen. Die Verbreitungsrechte am Soundtrack und an dem damit vertonten Werbevideo müssen noch geklärt werden. Einzelheiten stehen in den [Hinweisen zu Medienrechten](../assets/README.md#promotional-film).
+Code und Dokumentation stehen unter der [MIT-Lizenz](../../LICENSE). Für externe Stellenanzeigen und Medien Dritter gelten deren jeweilige Nutzungsbedingungen. Der Werbefilm verwendet „Minimal Corporate Atmosphere“ von RoyaltyFreeMusicStudio unter der Pixabay Content License, nicht unter MIT. Die [Hinweise zu Medien Dritter](../assets/README.md#third-party-media-notice) erläutern erlaubte Nutzungen und freiwillige Urheberangaben; die ursprüngliche MP3-Datei wird nicht verbreitet.
 
 ## Mitwirkende
 

@@ -16,7 +16,6 @@ Keep public media accessible and separate from runtime data. The catalog include
 | [Light preview](sites/White_theme.webp) · [Dark preview](sites/Dark_theme.webp) | Maintainer-supplied light and dark directory previews |
 | [Promotional film](promo/european-tech-opportunities-2027.mp4) | 51-second, 1920 × 1080, 60 fps product film with soundtrack |
 | [Promotional contact sheet](promo/storyboard.webp) | Fourteen stills covering the film; a static, no-motion overview |
-| [Original soundtrack](promo/soundtrack.mp3) | Unmodified input recording; confirm distribution rights before publication |
 
 ## Repository maps
 
@@ -30,9 +29,19 @@ Edit the source, regenerate the affected SVGs, and check labels, group-heading c
 
 The film uses the real production-built interface with **24 fictional listings and browser choices**. The Safari-style toolbar, cursor choreography, headlines, and camera are illustrated/editorial elements, not native Safari footage or human-recorded pointer input. There is no burned-in demo label; retain this disclosure with every published copy. Saved/applied marks are browser-local, and marking applied does not submit an application.
 
-The [video maintenance guide](promo/maintainers/VIDEO.md) explains how to recover the source, rebuild and edit the film, treat its audio, and verify replacement files. It also includes the approved timeline and [descriptive transcript](promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript). Only the final MP4, static contact sheet, and original MP3 accompany that guide here; the editable renderer, captures, local player, and poster remain in a separate authoring bundle.
+The [video maintenance guide](promo/maintainers/VIDEO.md) explains how to recover the source, rebuild and edit the film, treat its audio, and verify replacement files. It also includes the approved timeline and [descriptive transcript](promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript). Only the final MP4 and static contact sheet accompany that guide here; the editable renderer, captures, local player, and poster remain in a separate authoring bundle.
 
-The supplied soundtrack has no accompanying license information. The repository's MIT license does not grant rights to it; confirm distribution rights before publishing either the original recording or scored film. Use normal playback controls without autoplay when embedding the video, and keep the contact sheet and transcript available as alternatives.
+Use normal playback controls without autoplay when embedding the video, and keep the contact sheet and transcript available as alternatives.
+
+### Third-party media notice
+
+The film's soundtrack is **“Minimal Corporate Atmosphere” by RoyaltyFreeMusicStudio**, available on [Pixabay](https://pixabay.com/music/electronic-minimal-corporate-atmosphere-490834/) under the [Pixabay Content License](https://pixabay.com/service/license-summary/). The [full terms](https://pixabay.com/service/terms/) govern its use.
+
+The license permits free commercial and non-commercial use, modification, and synchronization with this promotional video, subject to its prohibited uses and any applicable third-party rights. Attribution is appreciated but not mandatory. Optional credit: **“Music: Minimal Corporate Atmosphere by RoyaltyFreeMusicStudio via Pixabay.”** The recording is not MIT-licensed, CC0, public domain, or open-source software. Code and documentation remain under the repository's MIT license; source-bundle fonts retain their SIL Open Font License notices.
+
+Standalone redistribution of the original MP3 is prohibited. The recording is therefore excluded from the repository and public documentation. For video production, [download the original from Pixabay](promo/maintainers/VIDEO.md#soundtrack) and keep it in private authoring storage. The music is distributed only as part of the 51-second promotional film.
+
+The track is **Content ID Registered**, so automated claims may occur even for licensed use. Keep the source page and any download/license certificate available from Pixabay as evidence of authorized use. Licensing does not prevent automated claims or settle third-party rights disputes.
 
 ## Reproduce the product tour
 
