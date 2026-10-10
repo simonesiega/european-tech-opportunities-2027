@@ -147,6 +147,10 @@ def test_public_staging_publishes_media_but_not_private_root_files(
     source = tmp_path / "docs/assets" / asset
     source.parent.mkdir(parents=True)
     source.write_bytes(b"synthetic media")
+    translation = tmp_path / "docs/translations/README.zh-CN.md"
+    translation.parent.mkdir(parents=True)
+    translated_text = "# 项目简介\n\n[English](../../README.md)\n"
+    translation.write_text(translated_text, encoding="utf-8")
     (tmp_path / ".env").write_text("private sentinel", encoding="utf-8")
     for filename in build_docs.PUBLIC_ROOT_FILES:
         (tmp_path / filename).write_text("# Public\n", encoding="utf-8")
@@ -159,6 +163,9 @@ def test_public_staging_publishes_media_but_not_private_root_files(
         staged = Path(env["DOCS_BUILD_DIR"])
         assert (staged / "docs/assets" / asset).read_bytes() == b"synthetic media"
         assert (staged / "AGENTS.md").is_file()
+        assert (staged / "docs/translations/README.zh-CN.md").read_text(
+            encoding="utf-8"
+        ) == translated_text
         assert not (staged / ".env").exists()
         assert (staged / build_docs.STAGED_ICON).read_bytes() == icon.read_bytes()
         return 0
