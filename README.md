@@ -25,12 +25,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 9, 2026 at 14:59 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-746-2563eb?style=for-the-badge" alt="Total opportunities: 746" />
-  <img src="https://img.shields.io/badge/Internships-349-16a34a?style=for-the-badge" alt="Internships: 349" />
-  <img src="https://img.shields.io/badge/New%20Grad-397-9333ea?style=for-the-badge" alt="New Grad opportunities: 397" />
+  <strong>Last successful collection: October 10, 2026 at 13:52 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-725-2563eb?style=for-the-badge" alt="Total opportunities: 725" />
+  <img src="https://img.shields.io/badge/Internships-348-16a34a?style=for-the-badge" alt="Internships: 348" />
+  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New Grad opportunities: 377" />
 </p>
-<!-- Public directory state v1 sha256: 273123bbf2f37586ef470a52eac5ff30f9506c35a949f85b385ee49c8204b1f3 -->
+<!-- Public directory state v1 sha256: 1afce926542853a919c8553df5e35ffc2beda6cbbd405907b89250d83ec17a32 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -56,34 +56,34 @@ What started as a small open-source project has grown into a directory reaching 
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 746 (Internships: 349 · New Grad: 397)<br>
-**Last successful collection:** October 9, 2026 at 14:59 UTC
+**Open opportunities:** 725 (Internships: 348 · New Grad: 377)<br>
+**Last successful collection:** October 10, 2026 at 13:52 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 397 open New Grad opportunities:
+Showing the 5 most recently discovered of 377 open New Grad opportunities:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Reply | Graduate AI Software Developer | London Area, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4475215107>) |
-| Bending Spoons | Graduate AI software engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4476254760>) |
-| Bending Spoons | Graduate data scientist | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4476222851>) |
-| Bending Spoons | Graduate data scientist | Cambridge, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4476231582>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4476224769>) |
+| HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4475611055>) |
+| Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477857755>) |
+| EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477838098>) |
+| Beyond Sports | Graduate Software Engineers &amp; Product Designers - Beyond Sports Alkmaar | Alkmaar, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4477693947>) |
+| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4476272008>) |
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 349 open internships:
+Showing the 5 most recently discovered of 348 open internships:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4476853550>) |
+| SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [View](<https://www.linkedin.com/jobs/view/4475243096>) |
 | Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4475211197>) |
 | Sensirion | Intern Data Engineering in Operations • 100% | Stäfa, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4477652460>) |
 | vialytics | Computer Vision Intern \(m/f/d\) | Stuttgart, Baden-Württemberg, Germany | [View](<https://www.linkedin.com/jobs/view/4475995576>) |
-| Intel | AI Software Engineering - Workloads Validation Intern | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4475937976>) |
-| Belimo | Intern Embedded Implementation of Advanced HVAC Controllers 100% | Hinwil, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4475946454>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
