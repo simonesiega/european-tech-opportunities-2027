@@ -43,7 +43,7 @@
 
 Wer in Europa ein Praktikum oder den Einstieg in die Tech-Branche sucht, sollte sich dafür nicht durch Hunderte verstreute, veraltete oder unpassende Stellenanzeigen kämpfen müssen.
 
-**European Tech Opportunities 2027** bündelt **Praktika** und **New-Grad-Stellen** (Positionen für Hochschulabsolventen und andere Berufseinsteiger) in ganz Europa. Das durchsuchbare Verzeichnis konzentriert sich auf die Einstellungsrunde 2027. Alle aufgenommenen Anzeigen müssen die Eignungskriterien des Projekts erfüllen; das Verzeichnis wird täglich aktualisiert.
+**European Tech Opportunities 2027** bündelt **Praktika** und **New-Grad-Stellen** (Positionen für Hochschulabsolventen und andere Berufseinsteiger) in ganz Europa. Das durchsuchbare Verzeichnis konzentriert sich auf die Einstellungsrunde 2027. Alle aufgenommenen Anzeigen müssen die Eignungskriterien des Projekts erfüllen. Die Datenerfassung ist täglich geplant; Aktualisierungen werden erst nach Prüfung und Validierung auf der öffentlichen Website bereitgestellt.
 
 Suche nach einem Unternehmen, filtere nach Land oder Kategorie oder entdecke neu hinzugekommene Stellen. Jede Suche lässt sich per Link teilen. Du brauchst weder eine Installation noch ein Konto. **Merke dir interessante Stellen, markiere Angebote, auf die du dich bereits beworben hast, blende unpassende Anzeigen aus und entdecke, was seit deinem letzten Besuch neu ist.** Deine Listen bleiben in deinem Browser und werden nicht zwischen Geräten synchronisiert. Eine Stelle als „beworben“ zu markieren, dient nur als Merkhilfe: Dadurch wird keine Bewerbung abgeschickt.
 

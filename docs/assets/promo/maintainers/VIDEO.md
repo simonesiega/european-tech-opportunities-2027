@@ -231,7 +231,7 @@ The table describes the complete visible sequence. Bold text is the emphasized p
 | 34.3–41.4s | **Open data.** Ready to build with. | Zoom into CSV/JSON, hover each, return to wide, scroll down, and hover Public API. No completed download or API interaction is fabricated.                                               |
 | 41.4–51s   | Smaller browser and closing copy    | Return to the top while the pointer exits, recede, and reveal the four closing lines. Hold the completed composition for 3.1 seconds. Applied remains selected.                          |
 
-The source player also carries “Hundreds of validated internships and New Grad roles,” “Updated daily,” and “Free CSV, JSON, and public API access.” These describe the product, not fixture counts or real-time collection. Recheck claims against reviewed public evidence and the current documented schedule before a future release. Do not collect live source data for a video or invent counts to support a claim.
+The source player also carries “Hundreds of validated internships and New Grad roles,” “Updated daily,” and “Free CSV, JSON, and public API access.” These captions describe the product rather than the 24-row recording fixture. Collection is scheduled daily; production deployment follows review and validation, so “Updated daily” is not a daily deployment guarantee. Before releasing an updated film, check its captions against the published dataset and current schedule. Recording uses synthetic data, not live collection.
 
 The approved closing copy is:
 

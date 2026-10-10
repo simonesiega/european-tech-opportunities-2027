@@ -43,7 +43,7 @@
 
 Trouver un stage ou un premier emploi dans la tech en Europe ne devrait pas nécessiter de parcourir des centaines d’annonces éparpillées, obsolètes ou sans rapport avec ce que vous recherchez.
 
-**European Tech Opportunities 2027** réunit au même endroit des **stages** et des **offres New Grad** (postes destinés aux jeunes diplômés et aux personnes en début de carrière) dans toute l’Europe, pour la campagne de recrutement 2027. Les annonces sont sélectionnées selon les critères d’éligibilité du projet, et l’annuaire, doté d’un moteur de recherche, est mis à jour chaque jour.
+**European Tech Opportunities 2027** réunit au même endroit des **stages** et des **offres New Grad** (postes destinés aux jeunes diplômés et aux personnes en début de carrière) dans toute l’Europe, pour la campagne de recrutement 2027. Les annonces sont sélectionnées selon les critères d’éligibilité du projet. La collecte est programmée chaque jour ; les mises à jour de l’annuaire sont déployées en production après examen et validation.
 
 Recherchez une entreprise, choisissez un pays, explorez une catégorie ou découvrez les offres ajoutées récemment. Chaque recherche peut être partagée grâce à un simple lien. Aucune installation, aucune inscription. **Enregistrez les offres qui vous intéressent, indiquez celles auxquelles vous avez postulé, masquez les autres et retrouvez les nouveautés depuis votre dernière visite.** Vos listes restent dans votre navigateur et ne sont pas synchronisées entre vos appareils. Marquer une offre comme « candidature envoyée » permet uniquement de suivre vos démarches : cela n’envoie aucune candidature.
 

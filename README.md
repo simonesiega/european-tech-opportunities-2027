@@ -43,7 +43,7 @@
 
 Finding the right early-career tech role in Europe shouldn't mean digging through hundreds of scattered, outdated, or irrelevant listings.
 
-**European Tech Opportunities 2027** brings tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Listings are checked against the project's eligibility rules, with the directory updated daily.
+**European Tech Opportunities 2027** brings tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Listings are checked against the project's eligibility rules. Collection is scheduled daily; directory updates reach production after review and validation.
 
 Find a company you like, pick a country, explore a category, or see what's been added recently. Share any search with a link. No installation needed. No account needed. **Save roles, mark where you've applied, hide the ones that aren't for you, and see what's new since your last visit**. Your lists stay in your browser, with no device sync. Marking a role applied is a reminder; it does not submit an application.
 

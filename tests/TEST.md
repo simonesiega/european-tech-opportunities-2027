@@ -440,7 +440,7 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
 | `test_public_staging_rejects_unapproved_files` | Databases, environment files, all standalone audio (including the former soundtrack path), and promotional implementation files fail the publication allowlist |
 | `test_public_staging_rejects_symlinked_media` | Allowed extensions cannot smuggle private files through symlinks |
-| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors resolving to every supported language |
+| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors using native language names and resolving to every supported language |
 | `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |
 | `test_readme_translations_participate_in_documentation_checks_and_navigation` | Every supported README participates in curated source/lint discovery and parsed MkDocs language navigation without restricting unrelated Markdown files |
 | `test_renders_table_and_then_passes_check` | Stale check mode does not write; rendering updates measured values and subsequent checking passes without altering unrelated content |
