@@ -1,5 +1,11 @@
 <h1 align="center">European Tech Opportunities 2027</h1>
 
+<div align="center" markdown="1">
+
+[English](README.md) · [Italiano](docs/translations/README.it.md) · [Français](docs/translations/README.fr.md) · [Deutsch](docs/translations/README.de.md) · [Español](docs/translations/README.es.md) · [简体中文](docs/translations/README.zh-CN.md)
+
+</div>
+
 <p align="center">
   <a href="https://docs.techopportunities.eu/">Documentation</a> ·
   <a href="#latest-opportunities">Latest opportunities</a> ·
@@ -51,7 +57,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Watch the video](docs/assets/promo/european-tech-opportunities-2027.mp4) · [Transcript](docs/assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Static overview](docs/assets/promo/storyboard.webp)
 
-What started as a small open-source project has grown into a directory reaching people across Europe and beyond. With **19K+ page views**, **3.8K+ users**, and **9.3K+ visits from more than 70 countries**, it's been incredible to see how far the project has come. People have discovered it through **25+ different sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook, and its reach continues to grow.
+What started as a small open-source project has reached people across Europe and beyond. An earlier aggregate traffic snapshot recorded **19K+ page views**, **3.8K+ users**, and **9.3K+ visits from more than 70 countries**, with people discovering the project through **25+ different sources**, including Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram, and Facebook.
 
 ## Latest opportunities
 

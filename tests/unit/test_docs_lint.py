@@ -24,6 +24,9 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
     guide.parent.mkdir(parents=True)
     guide.write_text("# Guide\n", encoding="utf-8")
     (tmp_path / "docs/reference.md").write_text("# Maintained\n", encoding="utf-8")
+    translation = tmp_path / "docs/translations/README.zh-CN.md"
+    translation.parent.mkdir(parents=True)
+    translation.write_text("# 项目简介\n", encoding="utf-8")
     for filename in ("README.md", "source.md"):
         diagram = tmp_path / "docs/assets/diagram" / filename
         diagram.parent.mkdir(parents=True, exist_ok=True)
@@ -58,6 +61,7 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         assert f"type=bind,source={tmp_path},target=/workdir,readonly" in command
         assert "docs/maintainers/engineering/guide.md" in command
         assert "docs/reference.md" in command
+        assert "docs/translations/README.zh-CN.md" in command
         assert "docs/assets/diagram/README.md" in command
         assert "docs/assets/diagram/source.md" in command
         assert "docs/assets/promo/maintainers/VIDEO.md" in command

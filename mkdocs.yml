@@ -49,6 +49,13 @@ nav:
       - Test inventory: https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md
   - Project and policies:
       - Product showcase: README.md
+      - README languages:
+          - English: README.md
+          - Italiano: docs/translations/README.it.md
+          - Français: docs/translations/README.fr.md
+          - Deutsch: docs/translations/README.de.md
+          - Español: docs/translations/README.es.md
+          - 简体中文: docs/translations/README.zh-CN.md
       - v1.0.0 release notes: docs/releases/v1.0.0.md
       - Contributing: CONTRIBUTING.md
       - Security: SECURITY.md
@@ -79,8 +86,11 @@ theme:
         name: Switch to light mode
 markdown_extensions:
   - admonition
+  # Render centered README Markdown links and keep localized anchors GitHub-compatible.
+  - md_in_html
   - toc:
       permalink: true
+      slugify: !!python/name:markdown.extensions.toc.slugify_unicode
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences

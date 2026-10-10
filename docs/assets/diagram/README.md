@@ -68,7 +68,7 @@ Reviewed offline additions reuse acceptance checks and repository transactions, 
 ![Publication map separating Python-generated README and downloads, server-only read-only SQLite queries and API routes, React directory controls, metadata, and private browser localStorage](svg/website.svg)
 
 SQLite feeds two publication paths: Python-generated files and server-only website queries.
-Python owns the README preview, full-state review seal, sanitized CSV/JSON, and dataset metadata.
+Python owns the README preview, full-state review seal, sanitized CSV/JSON, and dataset metadata. The README projection node includes English and the five localized READMEs in `docs/translations/`: all six share canonical counts, seals, and bounded listing data, with localized presentation labels and UTC date displays. The renderer preserves authored text and reciprocal language selectors outside those regions.
 The Next.js page and v1 API share a read-only query; download routes only serve existing export files.
 In versioned mode, each server operation selects one release before opening its database or downloads.
 
@@ -87,7 +87,7 @@ The protected processor restores verified state, migrates, requires its README t
 Full and eligible HTTP `429` partial results must pass quality, SQLite integrity, and projection checks before checkpointing and restricted snapshot publication.
 Round-trip snapshot verification must succeed before the README handoff. Search rotation travels with the database, never a separate queue or artifact.
 
-A separate job receives only the README and outcome output, opens a narrowly scoped pull request, and waits for validation.
+A separate job receives only the six public README projections and outcome output, opens a pull request restricted to their explicit path allowlist, and waits for validation. Only the English README controls the reviewed-state barrier; localized projections cannot approve mismatched canonical state.
 Fully successful nightly collections retain the existing automatic-merge policy; partial proposals use a labeled `-partial` branch and require manual review and merge.
 Unmerged or rejected partial snapshots still block ordinary subsequent mutation and deployment at the reviewed-state barrier.
 **Merging the matching README does not deploy:** publication is a separate protected manual run.
@@ -122,7 +122,7 @@ Repeated search definitions, tests, and small UI primitives are grouped so the m
 | `src/opportunities/normalization/`, `pipeline/` | Title/location normalization, acceptance, rotating collection, aggregate quality gates, bounded availability |
 | `src/opportunities/models/`, `utils/` | Typed records/enums; concurrency, atomic files, paths, time, text, URL, logging |
 | `src/opportunities/database/`, `migrations/`, `alembic.ini` | Repository, SQLAlchemy models/sessions, schema history, verified snapshots |
-| Python projection modules | `readme.py`, `public_exports.py`, `search_registry_docs.py` |
+| Python projection modules | `readme.py`, `readme_localization.py`, `public_exports.py`, `search_registry_docs.py` |
 | `schemas/` | Public v1 schema and sanitized contract examples |
 | `site/src/app/`, `components/`, `lib/`, `types/` | Routes, directory UI, theme/layout, server queries, browser state, helpers, metadata |
 | `site/scripts/`, site configuration | Standalone startup, synthetic demo recording, Next.js/security headers, browser/Lighthouse tooling |

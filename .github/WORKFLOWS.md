@@ -43,11 +43,11 @@ Maintainers use these workflows to update listings, verify backups, and publish 
 
 ### How updates reach the website
 
-1. An update workflow saves the new database state and proposes the corresponding README changes.
+1. An update workflow saves the new database state and proposes matching generated counts, review seals, and bounded previews in `README.md` and the five `docs/translations/README.<language>.md` files. Authored translation text remains unchanged.
 2. The README PR goes through validation and review. Fully successful nightly collections can merge automatically if all configured requirements are met; partial collections and other listing updates require a manual merge.
 3. After the matching PR is merged, a maintainer runs **Scrape jobs or deploy reviewed state** from `main` with `deploy_to_vps=true` to publish that data.
 
-Merging a listing-update PR does not deploy the website automatically. If the saved data does not match the reviewed README, further updates and deployment stop until the difference is resolved. For a missing or closed proposal, follow [README proposal recovery](../docs/maintainers/operations/automation.md#recover-a-missing-readme-state-proposal) rather than rerunning collection.
+Merging a listing-update PR does not deploy the website automatically. The English README remains the reviewed-state barrier: if the saved data does not match it, further updates and deployment stop until the difference is resolved. For a missing or closed proposal, follow [README proposal recovery](../docs/maintainers/operations/automation.md#recover-a-missing-readme-state-proposal) rather than rerunning collection.
 
 The downloadable files attached to dataset runs contain only the public README, CSV/JSON listings, and dataset metadata. They are available for 30 days and are **not database backups**. Collection workflows retain a separate aggregate-only quality report for 30 days; it contains no listing content. The live database is not uploaded to GitHub artifacts.
 
@@ -60,7 +60,7 @@ The listing workflows call these two `workflow_call` helpers. They are implement
 | Workflow | What it does |
 |---|---|
 | [Reusable canonical-state processing](workflows/reusable-process-state.yml) | Restores and checks the database, performs the requested update or recovery operation, and saves verified results. Availability uses a 50-job fallback; production should set the Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100`. Availability denials and scraper denials other than HTTP 429 prevent handoffs. Eligible HTTP 429 partial collections proceed only through all quality, integrity, projection, and snapshot gates; outputs explicitly identify partial state. SQLite completion timestamps rotate search priority. Also handles deployment when requested. |
-| [Reusable README pull request](workflows/reusable-readme-pr.yml) | Creates or updates a PR containing only the generated README changes. Starts Python CI, Site CI, Docker CI, CodeQL, Gitleaks, Documentation site, and Dependency Review checks on that commit, then waits for their results before requesting any automatic merge. Partial outcomes use a labeled `-partial` branch and require manual review and merge, independently of caller auto-merge input. |
+| [Reusable README pull request](workflows/reusable-readme-pr.yml) | Creates or updates a PR containing generated changes in the English README and five translations, restricted to an explicit six-path allowlist. Starts Python CI, Site CI, Docker CI, CodeQL, Gitleaks, Documentation site, and Dependency Review checks on that commit, then waits for their results before requesting any automatic merge. Partial outcomes use a labeled `-partial` branch and require manual review and merge, independently of caller auto-merge input. |
 
 ## Other GitHub features
 

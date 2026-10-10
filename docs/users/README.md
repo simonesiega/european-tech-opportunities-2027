@@ -4,6 +4,8 @@
 
 Find technology internships and **New Grad** roles (graduate and entry-level positions) across Europe, keep a private shortlist, and return to see what is new. You do not need to install anything or create an account. Applications happen on the original listing, not on this site.
 
+For a project overview in another language, see [README languages](../README.md#readme-languages). These user guides remain in English.
+
 ## Your first visit
 
 1. [Open the directory](https://techopportunities.eu/).

@@ -68,7 +68,12 @@ jobs:
           path: ${{ runner.temp }}/readme-handoff
       - name: Install generated README
         shell: bash
-        run: cp "${{ runner.temp }}/readme-handoff/README.md" README.md
+        run: |
+          set -euo pipefail
+          cp "${{ runner.temp }}/readme-handoff/README.md" README.md
+          for language in it fr de es zh-CN; do
+            cp "${{ runner.temp }}/readme-handoff/docs/translations/README.${language}.md" "docs/translations/README.${language}.md"
+          done
       - name: Open or update scoped README pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -114,7 +119,14 @@ jobs:
             existing_scope=$(gh pr view "$pr_number" \
               --json baseRefName,headRefName,title,files,isCrossRepository | \
               jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" \
-                '(.baseRefName == "main") and (.headRefName == $branch) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.isCrossRepository == false) and (.title == $title) and ((.files | length) > 0) and (all(.files[].path; . as $path | [
+                  "README.md",
+                  "docs/translations/README.it.md",
+                  "docs/translations/README.fr.md",
+                  "docs/translations/README.de.md",
+                  "docs/translations/README.es.md",
+                  "docs/translations/README.zh-CN.md"
+                ] | index($path) != null))')
             if [ "$existing_scope" != "true" ]; then
               echo "Existing automation pull request has unexpected scope; refusing to mutate it."
               exit 1
@@ -126,7 +138,11 @@ jobs:
             gh pr merge "$pr_number" --disable-auto
           fi
 
-          if git diff --quiet -- README.md; then
+          readme_paths=(README.md)
+          for language in it fr de es zh-CN; do
+            readme_paths+=("docs/translations/README.${language}.md")
+          done
+          if git diff --quiet -- "${readme_paths[@]}"; then
             echo "No README changes to propose."
             if [ -n "$pr_number" ]; then
               # Prevent an older automation proposal from merging after state returns to main.
@@ -142,7 +158,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin "$UPDATE_BRANCH:refs/remotes/origin/$UPDATE_BRANCH" || true
           git checkout -B "$UPDATE_BRANCH"
-          git add README.md
+          git add -- "${readme_paths[@]}"
           git commit -m "$UPDATE_COMMIT_MESSAGE"
           git push --force-with-lease --set-upstream origin "$UPDATE_BRANCH"
 
@@ -172,7 +188,14 @@ jobs:
             safe_scope=$(gh pr view "$pr_number" \
               --json baseRefName,headRefName,headRefOid,title,files,isCrossRepository | \
               jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" --arg sha "$head_sha" \
-                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ((.files | length) > 0) and (all(.files[].path; . as $path | [
+                  "README.md",
+                  "docs/translations/README.it.md",
+                  "docs/translations/README.fr.md",
+                  "docs/translations/README.de.md",
+                  "docs/translations/README.es.md",
+                  "docs/translations/README.zh-CN.md"
+                ] | index($path) != null))')
             if [ "$safe_scope" = "true" ]; then
               break
             fi
@@ -229,7 +252,14 @@ jobs:
             safe_scope=$(gh pr view "$pr_number" \
               --json baseRefName,headRefName,headRefOid,title,files,isCrossRepository | \
               jq -r --arg branch "$UPDATE_BRANCH" --arg title "$UPDATE_TITLE" --arg sha "$head_sha" \
-                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ([.files[].path] == ["README.md"])')
+                '(.baseRefName == "main") and (.headRefName == $branch) and (.headRefOid == $sha) and (.isCrossRepository == false) and (.title == $title) and ((.files | length) > 0) and (all(.files[].path; . as $path | [
+                  "README.md",
+                  "docs/translations/README.it.md",
+                  "docs/translations/README.fr.md",
+                  "docs/translations/README.de.md",
+                  "docs/translations/README.es.md",
+                  "docs/translations/README.zh-CN.md"
+                ] | index($path) != null))')
             if [ "$safe_scope" != "true" ]; then
               echo "README pull request scope changed during validation; refusing auto-merge."
               exit 1

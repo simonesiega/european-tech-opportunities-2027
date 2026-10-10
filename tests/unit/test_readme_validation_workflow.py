@@ -142,8 +142,20 @@ def test_dependency_review_preserves_real_action_and_pull_request_validation() -
     }
 
 
-def test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit(tmp_path: Path) -> None:
-    result = run_review_guard(tmp_path, pull_request_metadata())
+@pytest.mark.parametrize("scope", ["english", "translations", "all"])
+def test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit(
+    tmp_path: Path, scope: str
+) -> None:
+    metadata = pull_request_metadata()
+    if scope != "english":
+        files = [
+            {"path": f"docs/translations/README.{language}.md"}
+            for language in ("it", "fr", "de", "es", "zh-CN")
+        ]
+        if scope == "all":
+            files.append({"path": "README.md"})
+        metadata["files"] = files
+    result = run_review_guard(tmp_path, metadata)
     assert result.returncode == 0, result.stderr
     assert (tmp_path / "outputs").read_text(encoding="utf-8") == (
         f"base_sha={BASE_SHA}\nhead_sha={HEAD_SHA}\n"
@@ -173,6 +185,10 @@ def test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit(tmp_pa
         ("files", []),
         ("files", [{"path": "README.md"}, {"path": "pyproject.toml"}]),
         ("files", [{"path": "other/README.md"}]),
+        ("files", [{"path": "docs/translations/README.ja.md"}]),
+        ("files", [{"path": "docs/translations/README.it.md"}, {"path": "docs/README.md"}]),
+        ("files", [{"path": "docs/translations/README.it.md.bak"}]),
+        ("files", [{"path": None}]),
     ],
 )
 def test_dependency_dispatch_rejects_untrusted_scope_or_comparison(
@@ -228,6 +244,8 @@ def test_dependency_dispatch_fails_closed_on_unavailable_metadata(
     "scenario",
     [
         "success",
+        "translations-success",
+        "translation-only-success",
         "dispatch-failed",
         "dependency-failed",
         "dependency-missing",
@@ -260,7 +278,15 @@ def test_readme_dispatch_waits_for_dependency_review_before_merge(
         runs[-1]["createdAt"] = "2026-10-03T22:05:59Z"
     metadata = pull_request_metadata()
     if scenario == "scope-changed":
-        metadata["files"] = [{"path": "README.md"}, {"path": "pyproject.toml"}]
+        metadata["files"] = [{"path": "docs/translations/README.it.md"}, {"path": "pyproject.toml"}]
+    elif scenario in {"translations-success", "translation-only-success"}:
+        files = [
+            {"path": f"docs/translations/README.{language}.md"}
+            for language in ("it", "fr", "de", "es", "zh-CN")
+        ]
+        if scenario == "translations-success":
+            files.append({"path": "README.md"})
+        metadata["files"] = files
     # Execute the checked-in dispatch, lookup, wait, and merge logic. gh is fake,
     # but jq evaluates the actual run-selection and scope expressions on synthetic data.
     fakes = """
@@ -311,7 +337,8 @@ gh() {
             "UPDATE_AUTO_MERGE": "true",
         },
     )
-    assert result.returncode == (0 if scenario == "success" else 1), result.stderr
+    succeeded = scenario in {"success", "translations-success", "translation-only-success"}
+    assert result.returncode == (0 if succeeded else 1), result.stderr
     calls = (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines()
     dispatches = [call for call in calls if call.startswith("workflow run ")]
     assert dispatches == [
@@ -320,7 +347,7 @@ gh() {
         for name in VALIDATION_WORKFLOWS
     ]
     merges = [call for call in calls if call.startswith("pr merge ")]
-    if scenario == "success":
+    if succeeded:
         assert merges == [f"pr merge 123 --squash --match-head-commit {HEAD_SHA}"]
         watches = [call for call in calls if call.startswith("run watch ")]
         assert watches == [f"run watch {100 + index} --compact --exit-status" for index in range(7)]
@@ -331,6 +358,60 @@ gh() {
         assert "Could not identify the dependency-review.yml validation run" in result.stdout
     if scenario == "scope-changed":
         assert "scope changed during validation" in result.stdout
+
+
+def test_readme_handoff_installs_only_supported_projections(tmp_path: Path) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("README handoff tests require Bash")
+    processing = workflow_steps("reusable-process-state.yml", "process")
+    upload = next(step for step in processing if step.get("name") == "Upload README handoff")
+    settings = upload["with"]
+    assert isinstance(settings, dict)
+    paths = str(settings["path"]).splitlines()
+    expected = [
+        "README.md",
+        *[
+            f"docs/translations/README.{language}.md"
+            for language in ("it", "fr", "de", "es", "zh-CN")
+        ],
+    ]
+    assert set(paths) == set(expected)
+    staging = tmp_path / "readme-handoff"
+    for name in expected:
+        source = staging / name
+        source.parent.mkdir(parents=True, exist_ok=True)
+        source.write_text(f"Generated {name} · 更新\n", encoding="utf-8")
+        destination = tmp_path / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text("Old projection\n", encoding="utf-8")
+    unexpected = "docs/translations/README.unreviewed.md"
+    (staging / unexpected).write_text("Not approved for handoff\n", encoding="utf-8")
+    (tmp_path / unexpected).write_text("Keep authored file\n", encoding="utf-8")
+    install = next(
+        step
+        for step in workflow_steps("reusable-readme-pr.yml", "propose")
+        if step.get("name") == "Install generated README"
+    )
+    script = install["run"]
+    assert isinstance(script, str)
+    script = script.replace("${{ runner.temp }}", tmp_path.as_posix())
+
+    result = subprocess.run(
+        [bash, "-c", script],
+        cwd=tmp_path,
+        env=offline_shell_environment(tmp_path),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+
+    assert result.returncode == 0, result.stderr
+    for name in expected:
+        assert (tmp_path / name).read_bytes() == (staging / name).read_bytes()
+    assert (tmp_path / unexpected).read_text(encoding="utf-8") == "Keep authored file\n"
+    assert not (tmp_path / "blocked-network.log").exists()
 
 
 def test_all_readme_validation_workflows_accept_explicit_dispatch() -> None:

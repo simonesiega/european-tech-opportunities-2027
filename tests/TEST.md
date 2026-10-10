@@ -81,7 +81,11 @@ Source: [integration/test_readme.py](integration/test_readme.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_readme_contains_type_sections_and_escapes_values` | Counts, collection time, both employment sections, escaped table values, rendering, and validation agree |
+| `test_readme_contains_type_sections_and_escapes_values` | Counts, collection time, both employment sections, escaped table values, rendering, and validation agree; English output remains the default for root and custom filenames |
+| `test_readme_render_preserves_authored_text_and_updates_translations` | One root render refreshes all six projections from synthetic state; root validation accepts every sibling, Unicode authored text remains unchanged, and repeated rendering is idempotent |
+| `test_readme_validation_reports_stale_translation` | Independent count-card and preview drift is reported by localized filename without modifying any file |
+| `test_translation_preflight_failure_preserves_all_projections` | Missing localized files, duplicate/reversed markers, and overlapping regions fail before any English or localized projection changes |
+| `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with localized headers, link labels, and fixed UTC month/date formatting across a year boundary; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
 | `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest rows of each type appear, with truthful full counts |
 | `test_review_seal_detects_changes_beyond_preview_and_exact_timestamps` | Off-preview public edits and microsecond changes alter the seal; private lifecycle-only edits do not; malformed seals fail |
 | `test_readme_rejects_reversed_generated_markers` | Invalid region ownership fails before rendering can overwrite the document |
@@ -393,11 +397,12 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | Test | Behavior protected |
 |---|---|
 | `test_dependency_review_preserves_real_action_and_pull_request_validation` | Dependency review retains read-only permissions, real pinned action, mandatory dispatch input, correct comparison refs, and unsuppressed high-severity failure |
-| `test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit` | Dispatch resolves the PR's actual base and binds its head to the workflow commit |
-| `test_dependency_dispatch_rejects_untrusted_scope_or_comparison` | Closed/foreign/wrong-base/mismatched-head/non-README PRs and malformed/injected SHAs fail without output refs |
+| `test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit` | Actual scope guard accepts English-only, translations-only, and combined proposals, resolves the PR base, and binds its head to the workflow commit |
+| `test_dependency_dispatch_rejects_untrusted_scope_or_comparison` | Closed/foreign/wrong-base/mismatched-head PRs, mixed documentation, unsupported or suffixed translation paths, null paths, and malformed/injected SHAs fail without output refs |
 | `test_dependency_dispatch_rejects_invalid_inputs_before_api_access` | Invalid PR numbers, branch refs, and SHAs fail before even the fake API is called |
 | `test_dependency_dispatch_fails_closed_on_unavailable_metadata` | API failure, malformed JSON, and absent metadata cannot authorize review |
-| `test_readme_dispatch_waits_for_dependency_review_before_merge` | Dispatch and await every required check for the exact fresh head; missing/stale/failed runs and changed scope prevent merge |
+| `test_readme_dispatch_waits_for_dependency_review_before_merge` | English-only, translations-only, and combined proposals dispatch and await every required check for the exact fresh head; missing/stale/failed runs and mixed-file scope prevent merge |
+| `test_readme_handoff_installs_only_supported_projections` | The artifact allowlist contains exactly six public READMEs; the actual install step copies their UTF-8 bytes and preserves unrelated local files |
 | `test_all_readme_validation_workflows_accept_explicit_dispatch` | Every workflow in the required validation set supports the dispatch path |
 | `test_matching_reviewed_state_passes` | Normal, seal-adoption, and recovery modes accept an exact reviewed projection |
 | `test_only_explicit_recovery_can_propose_unmerged_state` | Even microsecond seal drift blocks normal/adoption runs; only explicit recovery may propose it while retaining reviewed evidence |
@@ -416,7 +421,7 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 
 ### Documentation and public links
 
-Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
+Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_readme_translations.py](unit/test_readme_translations.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
 
 | Test | Behavior protected |
 |---|---|
@@ -424,7 +429,7 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
 | `test_external_link_scope_keeps_authored_diagram_markdown` | POSIX/Windows paths include authored diagram Markdown while excluding generated media from external-link crawling |
-| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including this inventory, with read-only mounts/no network and no generated/vendor/private authoring trees |
+| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including this inventory and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
@@ -432,9 +437,12 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_rendered_soundtrack_links_and_exact_publication_boundary` | Only the cataloged soundtrack path may publish, and missing linked audio still fails |
 | `test_legacy_redirects_require_a_real_canonical_destination` | Redirects cannot be generated without real destination pages and point correctly across directories |
 | `test_legacy_redirects_point_directly_to_current_topic_guides` | Legacy mappings resolve directly to current guides, never redirect chains or overwritten canonical pages |
-| `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon reach strict staging while private root files do not |
+| `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
 | `test_public_staging_rejects_unapproved_files` | Databases, environment files, uncataloged audio, and promotional implementation files fail the publication allowlist |
 | `test_public_staging_rejects_symlinked_media` | Allowed extensions cannot smuggle private files through symlinks |
+| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors resolving to every supported language |
+| `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |
+| `test_readme_translations_participate_in_documentation_checks_and_navigation` | Every supported README participates in curated source/lint discovery and parsed MkDocs language navigation without restricting unrelated Markdown files |
 | `test_renders_table_and_then_passes_check` | Stale check mode does not write; rendering updates measured values and subsequent checking passes without altering unrelated content |
 | `test_default_document_targets_nested_guide_independently_of_working_directory` | Default coverage updates target the canonical nested guide, not the README or a caller-relative path |
 | `test_invalid_report_fails_cleanly_without_rewriting_readme` | Invalid measurement data leaves the target untouched with a sanitized error |
@@ -634,6 +642,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | File or test | Purpose and boundary |
 |---|---|
 | [conftest.py](conftest.py) | Temporary settings/home/cwd, HTTPX blocking, exact live opt-in, checked-in fixture loader, deterministic rules/search, and migrated database/session fixtures |
+| `readme_projections` in [integration/test_readme.py](integration/test_readme.py) | Disposable English and five localized templates with synthetic markers and Unicode authored text; no committed preview or canonical database is rendered |
 | [shell_helpers.py](shell_helpers.py) | Environment allowlist and blocking SSH/SCP/SFTP fallbacks for offline shell tests |
 | `__init__.py` files | Python package discovery/import support; no tests or behavior assertions |
 | [linkedin_search_page_1.html](fixtures/linkedin_search_page_1.html) | One eligible internship plus an unrelated senior role exercises stable IDs and prefiltering |

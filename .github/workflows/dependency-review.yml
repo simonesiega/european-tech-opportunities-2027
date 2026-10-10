@@ -55,7 +55,14 @@ jobs:
             # jq allows a trailing newline after the $ anchor; also require the exact length.
             (.baseRefOid | length == 40 and test("^[0-9a-f]{40}$")) and
             (.baseRefOid != $sha) and
-            ([.files[].path] == ["README.md"])
+            ((.files | length) > 0) and (all(.files[].path; . as $path | [
+              "README.md",
+              "docs/translations/README.it.md",
+              "docs/translations/README.fr.md",
+              "docs/translations/README.de.md",
+              "docs/translations/README.es.md",
+              "docs/translations/README.zh-CN.md"
+            ] | index($path) != null))
           ' <<< "$pull_request" >/dev/null; then
             echo "Dispatched dependency review failed the README-only PR scope or commit check."
             exit 1

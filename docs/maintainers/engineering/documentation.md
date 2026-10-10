@@ -6,7 +6,8 @@ Keep each topic with its canonical owner, use the shared style below, and valida
 
 ## One concept, one owner
 
-- Root `README.md`: product showcase and renderer-owned public counts, review seal, and listing preview. Keep detailed procedures in the guides.
+- Root `README.md`: canonical English product showcase and renderer-owned public counts, review seal, and listing preview. Keep detailed procedures in the guides.
+- `docs/translations/README.<language>.md`: authored product showcases in Italian (`it`), French (`fr`), German (`de`), Spanish (`es`), and Simplified Chinese (`zh-CN`). Their authored text is documentation; their generated regions are read-only data projections.
 - `docs/README.md`: documentation router for both audiences, repository references, and visual maps.
 - `docs/users/README.md`: user router; `browsing/` owns directory use, browser lists, and help; `data/` owns downloads and API usage. No CLI setup or production operations.
 - `docs/maintainers/README.md`: maintainer router; `getting-started/` owns setup and configuration; `engineering/` owns architecture, classification, search definitions, website development, testing, and documentation; `operations/` owns the CLI, automation, database lifecycle, deployment, and recovery.
@@ -62,7 +63,7 @@ The [asset catalog](../../assets/README.md) distinguishes checked-in visuals fro
 
 | Content | Owner | Update / validate |
 |---|---|---|
-| README count, seal, and preview regions | `src/opportunities/readme.py` | `opportunities render` / `opportunities validate`, with representative reviewed state only |
+| README count, seal, and preview regions | `src/opportunities/readme.py` and `readme_localization.py` | `opportunities render` / `opportunities validate`, with representative reviewed state only |
 | Registry layout counts | `src/opportunities/search_registry_docs.py` | Same commands, from configured YAML |
 | Public CSV/JSON and dataset metadata | `src/opportunities/public_exports.py` | `opportunities export-public` / `opportunities validate` |
 | Coverage region in `testing.md` | `scripts/docs/coverage_docs.py` | `make coverage`; CI uses `--check` |
@@ -71,6 +72,20 @@ The [asset catalog](../../assets/README.md) distinguishes checked-in visuals fro
 | Promotional film and contact sheet | Separate authoring bundle; not the product-tour recorder | [Video maintenance](../../assets/promo/maintainers/VIDEO.md) |
 
 Never manually change generated counts, dates, rows, seals, export bytes, or coverage values. Do not reproduce complete generated marker pairs in examples. The README's existing published regions can be moved **unchanged** during a layout refactor; no production database is needed. Never render the committed preview from an empty local database.
+
+## README localization
+
+The [README language index](../../README.md#readme-languages) links all six versions. English is authoritative for factual changes and generated information. Only the READMEs are localized; the website, API, policies, and other guides are not translated.
+
+When changing the showcase, review the five translations for the same section hierarchy, order, information coverage, and meaning. Write naturally for each language rather than translating sentence by sentence. Keep proper nouns, technologies, commands, identifiers, and URLs unchanged, and preserve distinctions about browser-only lists, applications, read-only projections, classification, closure evidence, and authorized source access.
+
+Keep the centered language selector immediately after the title in every README, linking directly to all six versions with relative Markdown links. Links from translations use `../../` for root files and `../` for other docs and assets. MkDocs uses the built-in `md_in_html` extension for centered Markdown navigation and Unicode heading slugs for GitHub-compatible localized anchors; existing English anchors are unchanged.
+
+The same renderer owns both generated regions in every README: opportunity counts with the full-directory state seal, and the bounded opportunity preview. Canonical counts, listing values, ordering, URLs, and review seals are identical across languages. Renderer-owned labels, table headings, link text, and UTC date display use the fixed presentation strings in `src/opportunities/readme_localization.py`; update that module rather than editing generated text manually. Supported `README.<language>.md` filenames select their locale, while `README.md` and custom filenames retain English presentation. When the configured file is named `README.md` and its sibling `docs/translations/` directory exists, `opportunities render` requires the five supported translation files, preflights all six projections, and refreshes them from the same SQLite rows and metadata. Missing files, duplicate or reversed markers, and overlapping regions stop rendering before any file is replaced. Without that directory, or with a differently named README, rendering remains a single-file operation. `opportunities validate` checks these siblings too, reporting stale translations by filename. Authored text outside the markers remains unchanged. Writes are atomic per file, not a transaction across all READMEs; failed rendering or validation blocks the automation handoff.
+
+When adding or changing localized presentation, verify it against reviewed state or disposable synthetic fixtures; never generate committed previews from empty local state. Identify traffic figures as historical snapshots, not current metrics. Dataset automation hands off the root README and all five translations together, with an explicit six-path PR allowlist. English remains the canonical reviewed-state barrier; translation updates cannot approve mismatched SQLite state.
+
+The existing staging and link-validation scripts discover these Markdown files under `docs/`; no separate generator, localization state, service, or dependency is needed. Keep the language index, audience entry points, and `mkdocs.yml` navigation consistent. Run the source, lint, strict build, and rendered checks below, along with `uv run pytest tests/unit/test_readme_translations.py -q` for structure, reciprocal language navigation, and synchronized generated data. Review the language itself as well: structural tests do not establish translation quality.
 
 ## Source and rendered checks
 

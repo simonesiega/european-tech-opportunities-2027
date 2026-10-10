@@ -310,7 +310,7 @@ The command:
 
 - performs no network access;
 - does not modify SQLite;
-- writes the owned README regions through atomic replacement;
+- preflights and writes the owned regions in English and all five supported translations through atomic per-file replacement when `docs/translations/` exists beside the configured `README.md`; otherwise it updates only the configured file;
 - refreshes the owned generated registry-layout block in `search-registry.md`;
 - atomically replaces each of the three public export files.
 
@@ -358,7 +358,7 @@ Checks:
 - the Alembic revision;
 - SQLite structural integrity and foreign-key consistency;
 - monotonic lifecycle timestamps;
-- exact README projection equality with canonical state, including the full-state review seal;
+- exact README projection equality with canonical state, including the full-state review seal in English and each supported translation; missing translation files or invalid generated markers fail validation;
 - generated search-registry layout counts against the configured YAML files;
 - exact public CSV and JSON equality with the approved fields from open SQLite rows;
 - v1 schema compliance for downloads and metadata, including manifest fields, UTC generation time, counts, and hashes.

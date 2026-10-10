@@ -28,9 +28,9 @@
       "combine": "merge"
     },
     {
-      "filter": ["README.md"],
+      "filter": ["README.md", "docs/translations/README.*.md"],
       "config": {
-        // The README intentionally uses HTML for its title, badges, centered links,
+        // Product READMEs intentionally use HTML for titles, badges, centered links,
         // video, and renderer-owned preview layout; authored guides use Markdown.
         "MD033": { "allowed_elements": ["div", "pre", "p", "img", "h1", "a", "strong", "br", "video"] }
       },

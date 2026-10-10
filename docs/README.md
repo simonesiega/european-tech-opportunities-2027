@@ -4,6 +4,12 @@
 
 Find technology internships and **New Grad** roles (graduate and entry-level positions) across Europe for the 2027 hiring cycle. You do not need an account or technical knowledge, and there is nothing to install.
 
+## README languages
+
+[English](../README.md) · [Italiano](translations/README.it.md) · [Français](translations/README.fr.md) · [Deutsch](translations/README.de.md) · [Español](translations/README.es.md) · [简体中文](translations/README.zh-CN.md)
+
+Only the project READMEs are localized. English remains authoritative; the website, API, and other documentation are not translated.
+
 ## Using the product
 
 Guides for job seekers and anyone using the public data.

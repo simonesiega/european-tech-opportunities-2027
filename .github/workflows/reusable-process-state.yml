@@ -356,7 +356,7 @@ jobs:
           if-no-files-found: error
           path: ${{ runner.temp }}/public-projection-artifact/
 
-      # Mutation jobs receive only README.md, never the database or VPS credentials.
+      # Mutation jobs receive only README projections, never the database or VPS credentials.
       - name: Upload README handoff
         if: inputs.readme_artifact_name != ''
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -364,4 +364,10 @@ jobs:
           name: ${{ inputs.readme_artifact_name }}
           retention-days: 1
           if-no-files-found: error
-          path: README.md
+          path: |
+            README.md
+            docs/translations/README.it.md
+            docs/translations/README.fr.md
+            docs/translations/README.de.md
+            docs/translations/README.es.md
+            docs/translations/README.zh-CN.md

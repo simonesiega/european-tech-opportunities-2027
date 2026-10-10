@@ -11,7 +11,7 @@ The colors, grouped components, directed relationships, and clickable code links
 ```mermaid
 flowchart TB
     accTitle: European Tech Opportunities 2027 — repository overview
-    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, API, exports, and README are read-only projections.
+    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, API, exports, and README are read-only projections. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph CONTROL["Configuration and<br/>entry points"]
         CONFIG["Searches + classification rules<br/>configs/"]
@@ -205,10 +205,12 @@ flowchart TB
 
 ## Website and publication
 
+The README node represents the English README and five localized READMEs in `docs/translations/`. Their counts, full-state seals, and bounded listing data are identical, while labels and UTC date displays are localized. The renderer preserves authored text and reciprocal language selectors outside those regions.
+
 ```mermaid
 flowchart TB
     accTitle: Website and publication — read-only server, private browser state
-    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once.
+    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph DATA["Publication inputs"]
         DB[("Canonical SQLite<br/>Open jobs + last successful collection")]
@@ -300,7 +302,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     accTitle: Automation and deployment — protected state, reviewed publication
-    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, migrates, requires the reviewed README to match, and executes selected CLI phases. Full or eligible partial collection, including HTTP 429 partial results, must pass quality, SQLite integrity, projection, and snapshot checks. Other source denials, all audit denials, and failed validation block publication. Scheduling progress travels only with verified SQLite snapshots. A separate job receives only the README: full nightly collections retain automatic merging after checks, while partial proposals require manual review and merge. Unmerged or rejected state blocks subsequent ordinary mutations and deployment.
+    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, migrates, requires the reviewed README to match, and executes selected CLI phases. Full or eligible partial collection, including HTTP 429 partial results, must pass quality, SQLite integrity, projection, and snapshot checks. Other source denials, all audit denials, and failed validation block publication. Scheduling progress travels only with verified SQLite snapshots. A separate job receives only the README: full nightly collections retain automatic merging after checks, while partial proposals require manual review and merge. Unmerged or rejected state blocks subsequent ordinary mutations and deployment. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph TRIGGERS["Operator-facing<br/>workflows<br/>.github/workflows/"]
         NIGHTLY["nightly.yml<br/>Availability audit → scrape"]
@@ -371,7 +373,7 @@ flowchart TB
     class RELEASE,SITE teal
 ```
 
-The diagram traces dataset updates and deployment. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode and its separate README-recovery mode instead propose README-only PRs without snapshot publication or deployment. Verified snapshots, including search-rotation timestamps, are also the normal input to the next update's restore step; that feedback arrow is omitted for readability. An unmerged or rejected partial proposal does not authorize another update: the reviewed-state barrier still stops ordinary mutation and deployment. Snapshot-verification failure prevents the README handoff; scheduling metadata is never restored separately from its database.
+The diagram traces dataset updates and deployment. The README-only handoff carries the six public README projections together, never SQLite or snapshot manifests. The PR job restricts changes to their explicit six-path allowlist; only the English README controls the reviewed-state barrier. `canonical-state-drill.yml` reuses the processor for recovery verification without source access; its normal mode publishes a verified snapshot without a README PR. Its one-time seal-adoption mode and its separate README-recovery mode instead propose README-only PRs without snapshot publication or deployment. Verified snapshots, including search-rotation timestamps, are also the normal input to the next update's restore step; that feedback arrow is omitted for readability. An unmerged or rejected partial proposal does not authorize another update: the reviewed-state barrier still stops ordinary mutation and deployment. Snapshot-verification failure prevents the README handoff; scheduling metadata is never restored separately from its database.
 
 ## Testing, documentation, and tooling
 
