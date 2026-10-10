@@ -1,4 +1,4 @@
-"""Atomic rendering of the bounded database-backed README preview."""
+"""Render bounded README projections with preflight and atomic per-file writes."""
 
 from __future__ import annotations
 
@@ -9,10 +9,12 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import quote
 
 from opportunities.models.enums import EmploymentType
 from opportunities.models.job import StoredJob
 from opportunities.public_exports import directory_state_rows
+from opportunities.readme_localization import LOCALES, ReadmeLocale, locale_for_path
 from opportunities.utils.files import atomic_write_text
 from opportunities.utils.time import ensure_utc
 
@@ -20,8 +22,9 @@ SUMMARY_BEGIN_MARKER = "<!-- BEGIN OPPORTUNITY COUNTS -->"
 SUMMARY_END_MARKER = "<!-- END OPPORTUNITY COUNTS -->"
 BEGIN_MARKER = "<!-- BEGIN OPPORTUNITIES -->"
 END_MARKER = "<!-- END OPPORTUNITIES -->"
-TABLE_HEADER = "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
+TABLE_HEADER = LOCALES["en"].table_header
 README_PREVIEW_LIMIT = 5
+README_LANGUAGES = ("it", "fr", "de", "es", "zh-CN")
 DIRECTORY_URL = "https://techopportunities.eu/"
 STATE_SEAL_PREFIX = "<!-- Public directory state v1 sha256: "
 STATE_SEAL_PATTERN = re.compile(r"<!-- Public directory state v1 sha256: [0-9a-f]{64} -->")
@@ -36,17 +39,31 @@ class ReadmeMetadata:
 
 
 def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -> None:
-    """Replace both generated regions without touching surrounding documentation."""
+    """Preflight all README projections, then replace only their generated regions."""
+    outputs = [
+        (target, _render_readme(target, jobs, metadata))
+        for target in (path, *_translation_paths(path))
+    ]
+    for target, rendered in outputs:
+        atomic_write_text(target, rendered)
+
+
+def _render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
     if not path.is_file():
         raise ValueError(f"README does not exist: {path}")
     content = path.read_text(encoding="utf-8")
+    locale = locale_for_path(path)
     summary_begin, summary_end = _marker_bounds(content, SUMMARY_BEGIN_MARKER, SUMMARY_END_MARKER)
+    begin, end = _marker_bounds(content)
+    if not (summary_end < begin or end < summary_begin):
+        raise ValueError("README generated regions must not overlap")
     internship_count, new_grad_count = _type_counts(jobs)
     summary = opportunity_count_cards(
         metadata.open_positions,
         internship_count,
         new_grad_count,
         metadata.last_successful_collection,
+        locale=locale,
     ) + _directory_state_seal(jobs, metadata.last_successful_collection)
     content = (
         content[:summary_begin]
@@ -59,27 +76,34 @@ def render_readme(path: Path, jobs: list[StoredJob], metadata: ReadmeMetadata) -
     begin, end = _marker_bounds(content)
     before = content[:begin]
     after = content[end + len(END_MARKER) :]
-    block = markdown_block(jobs, metadata)
-    rendered = f"{before}{BEGIN_MARKER}\n{block}{END_MARKER}{after}"
-    atomic_write_text(path, rendered)
+    block = markdown_block(jobs, metadata, locale=locale)
+    return f"{before}{BEGIN_MARKER}\n{block}{END_MARKER}{after}"
 
 
-def markdown_block(jobs: list[StoredJob], metadata: ReadmeMetadata) -> str:
+def _translation_paths(path: Path) -> list[Path]:
+    """Require the five supported projections when a translation directory exists."""
+    directory = path.parent / "docs/translations"
+    if path.name != "README.md" or not directory.is_dir():
+        return []
+    return [directory / f"README.{language}.md" for language in README_LANGUAGES]
+
+
+def markdown_block(
+    jobs: list[StoredJob], metadata: ReadmeMetadata, *, locale: ReadmeLocale = LOCALES["en"]
+) -> str:
     """Build bounded previews for both supported opportunity types."""
     internships = _latest(jobs, EmploymentType.INTERNSHIP)
     new_grad = _latest(jobs, EmploymentType.NEW_GRAD)
     internship_count, new_grad_count = _type_counts(jobs)
     return (
-        f"{markdown_metadata(metadata, internship_count, new_grad_count)}\n"
-        f"Browse and filter the complete directory at **[{DIRECTORY_URL}]({DIRECTORY_URL})**.\n\n"
-        f"### Latest New Grad opportunities\n\n"
-        f"Showing the {len(new_grad)} most recently discovered of {new_grad_count} open "
-        f"New Grad opportunities:\n\n"
-        f"{markdown_table(new_grad)}\n"
-        f"### Latest internships\n\n"
-        f"Showing the {len(internships)} most recently discovered of {internship_count} open "
-        f"internships:\n\n"
-        f"{markdown_table(internships)}"
+        f"{markdown_metadata(metadata, internship_count, new_grad_count, locale=locale)}\n"
+        f"{locale.directory.format(url=DIRECTORY_URL)}\n\n"
+        f"### {locale.new_grad_heading}\n\n"
+        f"{locale.new_grad_preview.format(shown=len(new_grad), total=new_grad_count)}\n\n"
+        f"{markdown_table(new_grad, locale=locale)}\n"
+        f"### {locale.internship_heading}\n\n"
+        f"{locale.internship_preview.format(shown=len(internships), total=internship_count)}\n\n"
+        f"{markdown_table(internships, locale=locale)}"
     )
 
 
@@ -88,24 +112,26 @@ def opportunity_count_cards(
     internships: int,
     new_grad: int,
     last_successful_collection: datetime | None,
+    *,
+    locale: ReadmeLocale = LOCALES["en"],
 ) -> str:
-    """Build the generated update and count cards for the README header."""
-    updated_text = (
-        _format_collection_time(last_successful_collection)
-        if last_successful_collection is not None
-        else "Never"
+    """Build localized update and count cards from the same canonical counters."""
+    updated_text = locale.collection_time(last_successful_collection)
+    badges = "".join(
+        f'  <img src="https://img.shields.io/badge/{quote(label, safe="")}-'
+        f'{count}-{color}?style=for-the-badge" alt="{alt}{count}" />\n'
+        for label, alt, count, color in zip(
+            locale.badge_labels,
+            locale.badge_alt_labels,
+            (total, internships, new_grad),
+            ("2563eb", "16a34a", "9333ea"),
+            strict=True,
+        )
     )
     return (
         '<p align="center">\n'
-        f"  <strong>Last successful collection: {updated_text}</strong><br>\n"
-        '  <img src="https://img.shields.io/badge/Total%20opportunities-'
-        f'{total}-2563eb?style=for-the-badge" alt="Total opportunities: {total}" />\n'
-        '  <img src="https://img.shields.io/badge/Internships-'
-        f'{internships}-16a34a?style=for-the-badge" alt="Internships: {internships}" />\n'
-        '  <img src="https://img.shields.io/badge/New%20Grad-'
-        f'{new_grad}-9333ea?style=for-the-badge" '
-        f'alt="New Grad opportunities: {new_grad}" />\n'
-        "</p>\n"
+        f"  <strong>{locale.collection_label}{updated_text}</strong><br>\n"
+        f"{badges}</p>\n"
     )
 
 
@@ -144,18 +170,18 @@ def _type_counts(jobs: list[StoredJob]) -> tuple[int, int]:
 
 
 def markdown_metadata(
-    metadata: ReadmeMetadata, internship_count: int = 0, new_grad_count: int = 0
+    metadata: ReadmeMetadata,
+    internship_count: int = 0,
+    new_grad_count: int = 0,
+    *,
+    locale: ReadmeLocale = LOCALES["en"],
 ) -> str:
     """Build README collection metadata and per-type counters."""
-    last_collection = (
-        _format_collection_time(metadata.last_successful_collection)
-        if metadata.last_successful_collection is not None
-        else "Never"
-    )
-    return (
-        f"**Open opportunities:** {metadata.open_positions} "
-        f"(Internships: {internship_count} · New Grad: {new_grad_count})<br>\n"
-        f"**Last successful collection:** {last_collection}\n"
+    return locale.metadata.format(
+        total=metadata.open_positions,
+        internships=internship_count,
+        new_grad=new_grad_count,
+        updated=locale.collection_time(metadata.last_successful_collection),
     )
 
 
@@ -168,9 +194,9 @@ def _latest(jobs: list[StoredJob], employment_type: EmploymentType) -> list[Stor
     )[:README_PREVIEW_LIMIT]
 
 
-def markdown_table(jobs: list[StoredJob]) -> str:
-    """Build a four-column opportunity table from the supplied preview rows."""
-    lines = [TABLE_HEADER.rstrip("\n")]
+def markdown_table(jobs: list[StoredJob], *, locale: ReadmeLocale = LOCALES["en"]) -> str:
+    """Localize table labels without translating or altering supplied listing values."""
+    lines = [locale.table_header.rstrip("\n")]
     for job in jobs:
         lines.append(
             "| "
@@ -179,7 +205,7 @@ def markdown_table(jobs: list[StoredJob]) -> str:
                     _escape(job.company),
                     _escape(job.title),
                     _escape(job.location),
-                    f"[View](<{_safe_url(job.link)}>)",
+                    f"[{locale.view}](<{_safe_url(job.link)}>)",
                 )
             )
             + " |"
@@ -196,12 +222,15 @@ def validate_readme(
     if not path.is_file():
         return [f"README does not exist: {path}"]
     content = path.read_text(encoding="utf-8")
+    locale = locale_for_path(path)
     errors: list[str] = []
     try:
         begin, end = _marker_bounds(content)
         summary_begin, summary_end = _marker_bounds(
             content, SUMMARY_BEGIN_MARKER, SUMMARY_END_MARKER
         )
+        if not (summary_end < begin or end < summary_begin):
+            raise ValueError("README generated regions must not overlap")
     except ValueError as exc:
         errors.append(str(exc))
         return errors
@@ -222,19 +251,24 @@ def validate_readme(
                 internship_count,
                 new_grad_count,
                 metadata.last_successful_collection,
+                locale=locale,
             )
             + _directory_state_seal(jobs, metadata.last_successful_collection)
         ).strip()
         if summary != expected_summary:
             errors.append("README opportunity counts or directory state seal do not match SQLite")
-    if TABLE_HEADER.strip() not in block:
-        errors.append("README position tables must have Company, Title, Location, Listing columns")
+    if locale.table_header.strip() not in block:
+        errors.append("README position tables must have " + ", ".join(locale.columns) + " columns")
     if (
         jobs is not None
         and metadata is not None
-        and block != markdown_block(jobs, metadata).strip()
+        and block != markdown_block(jobs, metadata, locale=locale).strip()
     ):
         errors.append("README opportunity block does not match open jobs and metadata in SQLite")
+    for translation in _translation_paths(path):
+        errors.extend(
+            f"{translation.name}: {error}" for error in validate_readme(translation, jobs, metadata)
+        )
     return errors
 
 
@@ -249,16 +283,6 @@ def _escape(value: str) -> str:
 def _safe_url(value: str) -> str:
     """Escape angle brackets in a Markdown link target."""
     return value.replace("<", "%3C").replace(">", "%3E")
-
-
-def _format_collection_time(value: datetime) -> str:
-    """Format a collection timestamp for README display."""
-    normalized = ensure_utc(value)
-    month = normalized.strftime("%B")
-    return (
-        f"{month} {normalized.day}, {normalized.year} at "
-        f"{normalized.hour:02d}:{normalized.minute:02d} UTC"
-    )
 
 
 def _marker_bounds(
