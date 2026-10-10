@@ -86,7 +86,7 @@ Source: [integration/test_readme.py](integration/test_readme.py).
 | `test_readme_validation_reports_stale_translation` | Independent count-card and preview drift is reported by localized filename without modifying any file |
 | `test_translation_preflight_failure_preserves_all_projections` | Missing localized files, duplicate/reversed markers, and overlapping regions fail before any English or localized projection changes |
 | `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with localized headers, link labels, and fixed UTC month/date formatting across a year boundary; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
-| `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest rows of each type appear, with truthful full counts |
+| `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest first-seen rows of each type appear, with truthful full counts and explicit ordering labels; later observations cannot promote older rows |
 | `test_review_seal_detects_changes_beyond_preview_and_exact_timestamps` | Off-preview public edits and microsecond changes alter the seal; private lifecycle-only edits do not; malformed seals fail |
 | `test_readme_rejects_reversed_generated_markers` | Invalid region ownership fails before rendering can overwrite the document |
 | `test_empty_database_still_renders_both_table_headers` | An empty projection remains a valid two-section table with zero counts and no invented collection time |
