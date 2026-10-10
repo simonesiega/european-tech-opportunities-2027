@@ -80,10 +80,10 @@ def test_localized_readmes_share_canonical_data(
                 ]
 
             assert rows(translated.group()) == rows(canonical.group())
-            urls = r"https://www.linkedin.com/jobs/view/\d+"
+            urls = r"https://www\.linkedin\.com/jobs/view/\d+"
             assert re.findall(urls, translated.group()) == re.findall(urls, canonical.group())
         else:
-            counts = r"https://img.shields.io/badge/[^\n\"]+?-(\d+)-[0-9a-f]{6}"
+            counts = r"https://img\.shields\.io/badge/[^\n\"]+?-(\d+)-[0-9a-f]{6}"
             assert re.findall(counts, translated.group()) == re.findall(counts, canonical.group())
     seal = re.escape(STATE_SEAL_PREFIX) + r"[0-9a-f]{64} -->"
     assert re.findall(seal, text) == re.findall(seal, english)

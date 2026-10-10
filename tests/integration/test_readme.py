@@ -264,10 +264,10 @@ def test_localized_rendering_preserves_canonical_data_and_formats_utc(
     assert validate_readme(path, jobs, metadata) == []
     assert content.count(never if empty else timestamp) == 2
     assert content.count(header) == 2
-    assert re.findall(r"https://img.shields.io/badge/[^\n\"]+?-(\d+)-[0-9a-f]{6}", content) == (
+    assert re.findall(r"https://img\.shields\.io/badge/[^\n\"]+?-(\d+)-[0-9a-f]{6}", content) == (
         ["0", "0", "0"] if empty else ["12", "6", "6"]
     )
-    ids = re.findall(r"https://www.linkedin.com/jobs/view/(\d+)", content)
+    ids = re.findall(r"https://www\.linkedin\.com/jobs/view/(\d+)", content)
     assert ids == (
         []
         if empty
