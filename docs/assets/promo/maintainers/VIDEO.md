@@ -25,8 +25,8 @@ Use this guide to edit or recreate the 51-second promotional film while preservi
 
 ## Start here
 
-1. Read the [security policy](../../../../SECURITY.md) and [media publication rules](../../README.md#publication-safety). Coding agents must also follow the root [agent guidelines](../../../../AGENTS.md) and any nested instructions.
-2. Confirm the requested change and the intended worktree with `git worktree list`, `git branch --show-current`, and `git status --short --untracked-files=all`. Do not switch branches, reset files, clean worktrees, restage another person's work, commit, or publish without authorization.
+1. Read the [security policy](../../../../SECURITY.md) and [media publication rules](../../README.md#publication-safety).
+2. Locate the authoring worktree with `git worktree list`, then inspect its branch and local changes with `git branch --show-current` and `git status --short --untracked-files=all`. Keep unrelated changes intact and follow the [contribution process](../../../../CONTRIBUTING.md) for review and publication.
 3. Identify whether the task needs only documentation, an audio remux, an editorial re-render, or new interface captures. Use the [update matrix](#choose-the-smallest-update); do not regenerate unrelated inputs.
 4. Preserve the approved outputs and source before running anything that overwrites them. Keep the source MP3 input-only. Compare the complete Git index, not just the files being edited.
 5. Use only fictional fixture data and the isolated production-built application. No collection commands, LinkedIn requests, production SQLite, credentials, browser profiles, or source-access authorization changes are needed.
@@ -50,7 +50,7 @@ Baseline SHA-256 values identify the delivered film/contact sheet and retained p
 b7a0f7ece3aa86d491cec2f2b6d95595b51b8e3897dd8bfe27d140073e7776c9  soundtrack.mp3
 ```
 
-The master uses H.264 High, level 4.2, `yuv420p`, BT.709, fast-start metadata, and one AAC LC stereo track at 48 kHz with a 192 kb/s target. The encoder uses libx264, `slow`, CRF 18, four threads, and a two-second GOP. Container metadata and chapters are stripped. This is a high-quality film, not the older sub-1-MiB README animation.
+The master uses H.264 High, level 4.2, `yuv420p`, BT.709, fast-start metadata, and one AAC LC stereo track at 48 kHz with a 192 kb/s target. The encoder uses libx264, `slow`, CRF 18, four threads, and a two-second GOP. Container metadata and chapters are stripped. The delivery master is separate from the older sub-1-MiB product-tour animation.
 
 The captured application revision is `48ac7135f868e1e82133081c57f64cbd2e7d5a7f`. That is the **application source revision**, not a commit containing the final authoring bundle. Rebuilding from another application revision may change the interface; preserve the recorded revision and captures for a historical reconstruction.
 
@@ -66,9 +66,9 @@ The [root README showcase](../../../../README.md#see-the-directory-in-action) us
 
 The editable revision 15 bundle was retained under `docs/assets/promo/` in the separate `feat/promotional-video` worktree, conventionally named `european-tech-internships-2027-promotional-video`. Use `git worktree list` to locate it; do not assume a machine-specific absolute path.
 
-The final source is working-tree content, not a published branch snapshot. Its Git index contains an older staged restoration. Checking out that branch elsewhere, using `git show`, or copying only staged files does **not** recover revision 15. Do not reset or restage the original worktree to simplify its status.
+Revision 15 requires the saved authoring working tree, not just the branch checkout: its renderer and captures were not published in the branch snapshot. Recover the complete working-tree archive or revision backup, keeping it separate from older staged or committed versions.
 
-A verified local backup also exists at `docs/assets/promo/.work/revisions/distinct-lists-v15/` in that authoring worktree. It contains 26 bundle files, 1,491 capture-directory files, provenance, and review evidence. Earlier revision backups remain there; do not overwrite them. The 1,491-file inventory includes retained captures, not just the frames referenced by the current manifest.
+The historical backup location is `docs/assets/promo/.work/revisions/distinct-lists-v15/` within the authoring worktree. Its inventory comprises 26 bundle files and 1,491 capture-directory files, together with provenance and review records. The capture inventory includes retained images beyond those referenced by the current manifest. Keep each revision backup separate.
 
 If the worktree or backup is unavailable, ask the maintainer for a reviewed authoring archive. The MP4 and contact sheet cannot recover the exact source, layers, fixture, or choreography. Before retiring the original workstation/worktree, retain a durable, checksum-verified authoring archive or separately reviewed source commit. Record its retrievable location and revision here once one exists; a branch name or local backup alone is not durable distribution.
 
@@ -99,7 +99,7 @@ All paths below are relative to the **authoring** `docs/assets/promo/`, not this
 
 Retain the capture manifest and its referenced image files together. Keep the original MP3 only in the private authoring archive, alongside its source/license evidence and the font notices. Do not redistribute the MP3 with a shared renderer archive. Dependencies, the copied app, disposable SQLite, caches, logs, and scratch frames belong only in ignored authoring directories; they must not enter the public docs tree.
 
-Before an edit, take a new, uniquely named backup and hash its files. Save `git ls-files --stage -z` as binary data plus branch, HEAD, and working status. Compare the same NUL-delimited output afterward; omitting `-z` produces a false index mismatch. Never overwrite an earlier approved backup.
+Before an edit, take a new, uniquely named backup and hash its files. Record the branch, HEAD, working status, and Git index with `git ls-files --stage -z`. Compare the index before and after editing; NUL-delimited output avoids differences caused by filename quoting. Never overwrite an earlier approved backup.
 
 ## Recreate the film
 
@@ -123,7 +123,7 @@ Choose the application revision deliberately:
 - For a historical reconstruction, retain the recorded application commit and original captures. Re-rendering preserved inputs avoids unintended interface changes.
 - For a future product update, use a reviewed, clean target application commit, rebuild its isolated copy, and recapture. Review any changed labels, geometry, fixture APIs, or counts before changing assertions.
 
-The preparation guard checks `site/`, `src/`, `migrations/`, `configs/`, `schemas/`, the root README, `pyproject.toml`, `uv.lock`, `alembic.ini`, and `.python-version` against HEAD. Do not bypass a dirty-input failure or falsely label a dirty build with a clean commit hash.
+The preparation guard checks `site/`, `src/`, `migrations/`, `configs/`, `schemas/`, the root README, `pyproject.toml`, `uv.lock`, `alembic.ini`, and `.python-version` against HEAD. Preparation requires clean inputs so the recorded commit identifies the application actually captured.
 
 ### Full preparation, capture, and render
 
@@ -356,7 +356,7 @@ Finish the upward scroll **before** opening the one-row lists. In the baseline, 
 
 ## Soundtrack
 
-Use the first 51 seconds of the supplied MP3 without looping or speed changes. Keep −3 dB gain, a 0.5-second fade-in, a four-second half-sine fade at 46.75–50.75s, and 0.25 seconds of silence before the cut. No additional narration or effects.
+Use the first 51 seconds of the original recording without looping or speed changes. Keep −3 dB gain, a 0.5-second fade-in, a four-second half-sine fade at 46.75–50.75s, and 0.25 seconds of silence before the cut. No additional narration or effects.
 
 The exact baseline filter is:
 
@@ -368,7 +368,7 @@ The fade start is derived as `DURATION - fadeOutSeconds - endSilenceSeconds`. If
 
 `addSoundtrack()` rejects the source MP3 as an output, hashes the MP3 and encoded H.264 stream, writes to an ignored temporary MP4, maps only `0:v:0` and `1:a:0`, copies video with `-c:v copy`, and encodes AAC. It verifies source/video integrity before replacing the destination and cleans its temporary directory. Reapplying it replaces audio rather than stacking tracks. Do not overwrite, normalize, trim, or delete the original MP3.
 
-Revision 15 measured mean volume −16.3 dBFS and peak −2.3 dBFS. The verifier requires audible audio with at least 1 dB of peak headroom; the tail test requires progressive decay and silence before the final frame. Browser audio decoding and automated level checks are not a listening review.
+The baseline audio levels are −16.3 dBFS mean volume and −2.3 dBFS peak. The verifier requires audible audio with at least 1 dB of peak headroom; the tail test requires progressive decay and silence before the final frame. Browser audio decoding and automated level checks are not a listening review.
 
 The soundtrack is “Minimal Corporate Atmosphere” by RoyaltyFreeMusicStudio. The [third-party media notice](../../README.md#third-party-media-notice) covers the Pixabay Content License, optional attribution, standalone-redistribution restriction, and Content ID claims.
 
@@ -380,14 +380,14 @@ Keep the source bundle's SIL Open Font License notices when retaining or sharing
 
 ### Authoring gates
 
-1. Run `node --test scripts/film.test.mjs scripts/audio.test.mjs` in the recovered bundle. Revision 15 had 46 visual and four audio tests. Preserve their behavior contracts, not an arbitrary test count.
+1. Run `node --test scripts/film.test.mjs scripts/audio.test.mjs` in the recovered bundle to check visual behavior, motion, interface state, and audio processing.
 2. Regenerate the master and run `node scripts/verify.mjs`. Require complete audio/video decode, 3,060 frames at 60 fps, the expected dimensions/codec, fast-start, exactly one audio track, audible levels/headroom, and successful full browser playback.
-3. Check the authoring player has native playback and volume controls, no autoplay, correct chapter seeks/transcript/links, no mobile overflow at 390 px, and no external browser requests or page errors. Do not claim these player checks ran from this asset-only checkout; its `index.html` is intentionally absent.
+3. Check the authoring player has native playback and volume controls, no autoplay, correct chapter seeks/transcript/links, no mobile overflow at 390 px, and no external browser requests or page errors. These checks require the authoring bundle's `index.html`, which is not included in this checkout.
 4. Assert the real filter counts, distinct Saved/Applied rows, browser-local marks, unchanged fixture checksum, no View all detour, persistent Applied view, real hit targets, and fixed header.
 5. Inspect all-frame aperture bounds, focus targets, click-time camera stability, cursor velocity, simultaneous scroll/pointer samples, headline margins/contrast/static reading holds, and the identical settled ending. Keep source-state assertions even if the encoded result looks plausible.
 6. Compare preserved inputs against the prior approved revision. For audio-only work, prove encoded video bytes/packets are unchanged. For visual-only work, compare source MP3 and expected audio packets/timestamps; do not confuse full-MP4, video-stream, audio-stream, and uncompressed-artwork hashes.
-7. Review text from the **encoded** MP4, not only canvas output. Revision 15's optional Windows OCR review recognized 26 headline, closing, control, and distinct-role phrases. OCR is extra evidence, not a portable build prerequisite or a substitute for viewing.
-8. Watch the full film with sound, inspect the contact sheet, and obtain human review of pacing, legibility, truthful states, and the final music fade. Do not claim human artistic/listening approval from automated checks.
+7. Review text from the **encoded** MP4, not only canvas output. Optional Windows OCR can help check headlines, closing copy, controls, and role labels. It supplements visual review and is not a build prerequisite.
+8. Watch the full film with sound, inspect the contact sheet, and obtain human review of pacing, legibility, truthful states, and the final music fade. Automated checks complement this viewing and listening review; they cannot assess the film's artistic quality.
 
 The contact sheet samples `2, 6.8, 10.75, 13.6, 16.8, 19.65, 22.7, 27.45, 29.65, 30.65, 33.9, 37.1, 40.4, 49` seconds. The authoring poster uses `DURATION - 2`, currently 49s. For encoded review, inspect the different list rows at 29.65s and 30.65s and the native count text at 32.1s, after the pointer has moved away.
 
@@ -425,7 +425,7 @@ uv run --frozen --group docs python scripts/docs/check_built_docs.py
 git diff --check
 ```
 
-The lint command requires Docker and its pinned images; retain its read-only/no-network container options. If a dependency/tool is unavailable, report that limitation instead of claiming the check passed. Source checks validate local links and heading anchors; the strict build and rendered checker validate the published paths, media links, anchors, and public-file boundary. They do not guarantee every external website remains reachable; [documentation maintenance](../../../maintainers/engineering/documentation.md#source-and-rendered-checks) explains the separate external-link workflow.
+The lint command requires Docker and its pinned images, using read-only mounts with networking disabled. Missing tools leave the corresponding checks incomplete. Source checks validate local links and heading anchors; the strict build and rendered checker validate the published paths, media links, anchors, and public-file boundary. They do not guarantee every external website remains reachable; [documentation maintenance](../../../maintainers/engineering/documentation.md#source-and-rendered-checks) explains the separate external-link workflow.
 
 ## Replace, publish, and roll back
 
@@ -438,15 +438,15 @@ The lint command requires Docker and its pinned images; retain its read-only/no-
 7. Review `git status --short --untracked-files=all`, `git diff --check`, and the full diff; verify the original authoring worktree and index remain unchanged. Stage only explicitly approved files, and commit or publish only when authorized.
 8. To roll back, restore the last approved media pair and matching documentation/provenance from the verified archive in the publication worktree, then rerun checks. Do not use a broad Git reset/clean or delete any canonical state.
 
-For a handoff, state the source and presentation revisions, changed/unchanged assets, actual commands/results, hash verification, remaining limitations, and whether any staging, commit, or publication occurred. Preserve the original MP3 and earlier reviewed revisions.
+Keep a production record with the application and presentation revisions, asset hashes, validation results, review notes, and publication status. Retain the private original MP3 and earlier approved revisions for future maintenance.
 
 ## Troubleshooting
 
 | Symptom                                                              | Correct response                                                                                                                                                                                                              |
 | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `scripts/motion.mjs`, `package.json`, or capture manifest is missing | This may be the asset-only checkout. Recover the reviewed authoring bundle; do not substitute the older 25-second recorder or reconstruct fake interface frames.                                                              |
-| Checking out `feat/promotional-video` does not yield revision 15     | The final source was working-tree content with an older staged index. Obtain the working-tree archive/backup, not a staged or HEAD-only export.                                                                               |
-| Preparation refuses dirty application inputs                         | Stop and identify the intended reviewed source revision. Do not disable the provenance guard or overwrite another agent's edits.                                                                                              |
+| Checking out `feat/promotional-video` does not yield revision 15     | The branch snapshot does not include the complete revision 15 source. Recover the working-tree archive or revision backup.                                                                               |
+| Preparation refuses dirty application inputs                         | Stop and identify the intended reviewed source revision. Keep the provenance guard enabled and preserve existing local changes.                                                                                              |
 | Port 3417 is occupied                                                | Identify the process and stop only your own fixture server. Do not attach to an unrelated service or kill an unknown process.                                                                                                 |
 | Fixture sidecars exist                                               | Close the isolated server/readers before rebuilding the disposable fixture. Do not apply deletion advice to canonical databases.                                                                                              |
 | Bun's Windows script launcher crashes                                | Keep frozen Bun dependencies and use the direct Node entrypoints above. Do not upgrade the toolchain as an unrelated fix.                                                                                                     |

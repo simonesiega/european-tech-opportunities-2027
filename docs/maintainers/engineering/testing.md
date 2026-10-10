@@ -121,6 +121,8 @@ Lighthouse's transitive `basic-ftp` is pinned to `6.2.1` to fix [GHSA-c475-qrg2-
 
 Lighthouse's development-only `extract-zip` dependency currently has two unpatched high-severity symlink traversal advisories: [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3). Local/CI audits use an already installed Chromium via `CHROME_PATH`; never download/extract untrusted browser archives. These packages are not standalone website runtime dependencies, but the findings remain open and must not be suppressed as fixed.
 
+ESLint's development-only `braces` dependency also has an unpatched high-severity stack-exhaustion advisory, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), affecting versions through `3.0.3`. Do not feed untrusted nested glob patterns to this tooling or treat a clean production build as a clean dependency audit. Retain the finding until an upstream fix is available and validated.
+
 ### Benchmarks
 
 ```bash
@@ -158,4 +160,4 @@ Live tests require the exact marker selection `-m live` plus both `OPPORTUNITIES
 
 ## Final review
 
-Inspect `git status --short`, `git diff --check`, and the complete diff. Confirm generated boundaries, lockfile intent, docs, lifecycle/security/privacy invariants, and every affected gate. Record the exact commands, failures, skips, environment limitations, and remaining risks. Never claim checks that did not run.
+Inspect `git status --short`, `git diff --check`, and the complete diff. Check generated-content boundaries, intentional lockfile changes, documentation, lifecycle safety, security, privacy, and all affected quality gates. The validation record should distinguish successful, failed, skipped, and unavailable checks, with their commands, environment requirements, and remaining risks.
