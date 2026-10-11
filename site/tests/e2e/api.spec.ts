@@ -97,6 +97,10 @@ test("semantically equivalent query strings return identical representations and
     `${endpoint}?page-size=10&sort=first-seen-desc&page=1`,
   ];
   const responses = await Promise.all(equivalentRequests.map((url) => request.get(url)));
+  for (const response of responses) {
+    expect(response.status()).toBe(200);
+    expect(response.headers().etag).toMatch(/^"[0-9a-f]{64}"$/);
+  }
   // Compare wire bytes, not parsed objects: strong validators identify the representation.
   const bodies = await Promise.all(responses.map((response) => response.body()));
   const etags = responses.map((response) => response.headers().etag);
@@ -112,6 +116,12 @@ test("semantically equivalent query strings return identical representations and
   const reorderedEquivalent = await request.get(
     `${endpoint}?sort=company-asc&type=internship&category=software-engineering&country=Germany&q=intern`
   );
+  expect(reorderedFilters.status()).toBe(200);
+  expect(reorderedEquivalent.status()).toBe(200);
+  expect(
+    (await reorderedFilters.json()).data.map((row: {linkedinJobId: string}) => row.linkedinJobId)
+  ).toEqual(["1000000001"]);
+  expect(reorderedFilters.headers().etag).toMatch(/^"[0-9a-f]{64}"$/);
   expect(await reorderedEquivalent.body()).toEqual(await reorderedFilters.body());
   expect(reorderedEquivalent.headers().etag).toBe(reorderedFilters.headers().etag);
 });

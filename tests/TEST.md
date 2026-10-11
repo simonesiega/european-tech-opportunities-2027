@@ -85,11 +85,10 @@ Source: [integration/test_readme.py](integration/test_readme.py).
 | `test_readme_render_preserves_authored_text_and_updates_translations` | One root render refreshes all six projections from synthetic state; root validation accepts every sibling, Unicode authored text remains unchanged, and repeated rendering is idempotent |
 | `test_readme_validation_reports_stale_translation` | Independent count-card and preview drift is reported by localized filename without modifying any file |
 | `test_translation_preflight_failure_preserves_all_projections` | Missing localized files, duplicate/reversed markers, and overlapping regions fail before any English or localized projection changes |
-| `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with localized headers, link labels, and fixed UTC month/date formatting across a year boundary; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
+| `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with both complete Markdown table headers, link labels, and fixed UTC month/date formatting across a year boundary; empty English metadata has zero counts and no invented collection time; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
 | `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest first-seen rows of each type appear, with truthful full counts and explicit ordering labels; later observations cannot promote older rows |
 | `test_review_seal_detects_changes_beyond_preview_and_exact_timestamps` | Off-preview public edits and microsecond changes alter the seal; private lifecycle-only edits do not; malformed seals fail |
 | `test_readme_rejects_reversed_generated_markers` | Invalid region ownership fails before rendering can overwrite the document |
-| `test_empty_database_still_renders_both_table_headers` | An empty projection remains a valid two-section table with zero counts and no invented collection time |
 
 ### Repository
 
@@ -114,7 +113,7 @@ Source: [integration/test_repository.py](integration/test_repository.py). All ca
 | `test_failed_search_transaction_rolls_back_earlier_job_and_provenance_writes` | A real SQLite failure rolls back earlier updates, inserts, run history, and provenance; subsequent writes still work |
 | `test_contradictory_availability_evidence_fails_without_writes` | The same ID cannot be simultaneously available and unavailable |
 | `test_manual_batch_bounds_fail_before_any_write` | Zero and eleven rows are rejected at the repository boundary, independently of the CLI |
-| `test_data_quality_baseline_rejects_non_integer_schema_versions` | Boolean/float schema versions cannot enter persisted baseline history |
+| `test_data_quality_baseline_rejects_non_integer_schema_versions` | Boolean/float schema versions fail validation and leave persisted baseline history empty |
 | `test_data_quality_baselines_are_aggregate_bounded_and_newest_first` | History retains 90 observations, reads five newest with stable ties, rejects oversized payloads, and cannot be displaced by late old writes |
 
 ### Collection pipeline
@@ -157,11 +156,6 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 |---|---|
 | `test_explicit_2027_software_internship_is_accepted` | Clear internship evidence produces the expected type and technical category |
 | `test_cycle_must_be_explicit_and_not_only_graduation_year` | Internship eligibility years in titles or descriptions are not programme-cycle evidence |
-| `test_new_grad_graduation_year_is_cycle_evidence` | New Grad eligibility has different semantics: an explicit wrong graduation cycle defeats recent posting evidence |
-| `test_missing_cycle_is_accepted_for_recent_posting` | Yearless New Grad roles may qualify at the exact posting-date floor |
-| `test_wrong_cycle_is_excluded` | Wrong-cycle internships and New Grad roles remain excluded despite recent posting |
-| `test_conflicting_cycle_evidence_is_rejected` | Multiple conflicting title or contextual body years cannot be guessed into the target cycle |
-| `test_program_year_is_not_mistaken_for_graduation_eligibility` | Programme start years remain authoritative negative evidence |
 | `test_canonical_2025_2026_graduate_listing_is_rejected` | A representative multi-year graduate description rejects the old cycle even with a recent posting |
 | `test_full_time_title_is_rejected_even_if_description_mentions_internships` | Company internship boilerplate cannot turn a full-time title into an opportunity |
 | `test_explicit_2027_new_grad_role_is_accepted` | University Graduate title evidence produces New Grad and the expected category |
@@ -172,10 +166,10 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 | `test_explicit_non_european_locations_prevent_city_fallback` | Country names/codes, regional abbreviations, city namesakes, and explicit non-European remote evidence defeat European-city fallback |
 | `test_explicit_european_locations_remain_eligible` | European codes, recognized cities, and explicit European entries within mixed/EMEA locations remain eligible |
 | `test_description_can_classify_generic_technical_internship` | A generic technical title may use explicit description evidence for its category |
-| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Past/future years across title/body evidence and both types cannot disappear into the date fallback |
+| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Both evidence paths recognize 19xx, 20xx, and 21xx conflicts, including the former 2020/2049 limits; paired cases cover each path/type without Cartesian duplication; 2026 title, programme, eligibility, and conflicting-year inputs preserve their distinct semantics and the rejected role's category/type despite recent posting |
 | `test_title_precedence_and_internship_eligibility_remain_distinct` | Target-cycle titles beat historical body mentions; distant eligibility years do not override valid internship evidence |
-| `test_supported_target_cycles_need_no_posting_date` | Boundary target cycles throughout the supported range work with explicit title evidence |
-| `test_posting_floor_uses_the_utc_instant` | Both types respect the exact UTC cutoff, including equivalent positive/negative offsets and adjacent microseconds |
+| `test_supported_target_cycles_need_no_posting_date` | Supported minimum 2020, former upper-limit crossing 2050, and maximum 2100 need no posting evidence; intermediate values add no separate boundary |
+| `test_posting_floor_uses_the_utc_instant` | Both types respect the exact UTC cutoff, including equivalent positive/negative offsets and adjacent microseconds; date-based acceptance preserves the correct type and technical category |
 | `test_explicit_separate_european_location_survives_a_mixed_country_list` | Separate European and non-European locations do not incorrectly qualify each other |
 | `test_missing_or_ambiguous_geography_is_not_assumed_european` | Empty locations, Remote, and EMEA alone fail with the stable ambiguity reason |
 
@@ -186,7 +180,6 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | Test | Behavior protected |
 |---|---|
 | `test_production_search_registry_is_bounded_and_scope_specific` | Checked-in role/company/country searches preserve query scope, date windows, allowlists, geo IDs, and request/recheck bounds |
-| `test_dotenv_loads_automatically_and_process_environment_wins` | Local dotenv defaults load while explicit environment settings win, including relative export paths |
 | `test_availability_environment_overrides_and_defaults` | Operator caps of 50, 100, and legacy 250 override defaults; absent settings retain the five-day interval and 50-job cap |
 | `test_availability_limits_reject_unbounded_values` | Invalid intervals and batch limits fail before collection |
 | `test_search_text_normalization_includes_optional_notes` | Whitespace-normalized search inputs are stable instead of changing queries or recorded scope accidentally |
@@ -195,9 +188,9 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | `test_invalid_search_and_duplicate_query_are_rejected` | Invalid slugs and duplicate effective queries fail before collection |
 | `test_duplicate_query_identity_ignores_company_allowlist_order` | Reordering a company allowlist cannot bypass duplicate detection |
 | `test_settings_and_classification_yaml_fail_closed` | Malformed YAML and invalid rule-list shapes are rejected, not defaulted silently |
-| `test_settings_require_sqlite_and_safe_header_values` | Non-SQLite storage and header-control injection cannot enter settings |
+| `test_settings_reject_header_injection` | CRLF header injection fails independently of database URL restrictions |
 | `test_configuration_errors_do_not_echo_invalid_values` | Validation errors omit credentials embedded in invalid database URLs |
-| `test_settings_precedence_is_defaults_dotenv_yaml_then_environment` | All four settings layers compose correctly and leave source authorization false unless explicitly enabled |
+| `test_settings_precedence_is_defaults_dotenv_yaml_then_environment` | Automatic dotenv and explicit YAML entry paths preserve relative export paths and compose all four settings layers correctly; source authorization remains false unless explicitly enabled |
 | `test_false_authorization_values_never_enable_source_access` | Supported false spellings remain false |
 | `test_discovered_job_rejects_non_string_text_fields` | Canonical job input rejects null/non-string required text |
 | `test_raw_job_rejects_non_string_locations` | Malformed location items cannot cross the parser-model boundary |
@@ -234,7 +227,7 @@ Source: [unit/test_http.py](unit/test_http.py). All requests use mocks or the of
 | `test_public_listing_301_is_inconclusive_without_following_reading_or_retrying` | Missing/malformed/untrusted destinations and stream-cleanup failures stay inconclusive, sanitized, unread, unretried, and do not block unrelated requests |
 | `test_public_listing_301_exception_does_not_relax_other_source_stops` | The narrow public-301 exception never applies to guest endpoints, other redirects, authentication denials, or rate limits |
 | `test_http_fetcher_retries_transient_linkedin_response` | A transient 503 can recover within the configured retry budget |
-| `test_http_fetcher_caps_exponential_backoff` | Repeated transient failures use bounded attempts and capped delays |
+| `test_http_fetcher_caps_exponential_backoff` | Four failed attempts use three delays of 30, 60, and 60 seconds; backoff cannot grow beyond the cap |
 | `test_http_fetcher_stops_on_429_without_reading_response_body` | Retry-After does not authorize retrying a source rate-limit denial or reading its body |
 | `test_response_cleanup_cannot_hide_a_detected_source_denial` | Timeout/transport/unexpected close errors cannot replace denial classification, cause retries, or leak detail, including after exhausted transient retries |
 | `test_unexpected_client_failure_without_a_denial_is_preserved` | Unexpected client failures are not mislabeled as denial evidence |
@@ -244,7 +237,7 @@ Source: [unit/test_http.py](unit/test_http.py). All requests use mocks or the of
 | `test_http_fetcher_rejects_preconfigured_cookie_header` | Injected session cookies are rejected before use |
 | `test_owned_http_client_ignores_ambient_https_proxy` | Owned clients disable ambient transport configuration and still discard cookies |
 | `test_http_fetcher_rejects_non_html_response` | JSON responses cannot silently become guest HTML evidence |
-| `test_http_fetcher_enforces_response_size_limit` | Declared oversized bodies fail the response limit |
+| `test_http_fetcher_enforces_response_size_limit` | Declared oversized bodies fail before any stream chunk is read, and the stream is closed |
 | `test_http_fetcher_stops_streaming_at_response_size_limit` | Undeclared oversized streams stop at the bound and close without consuming later chunks |
 | `test_injected_http_clients_must_remain_unauthenticated` | Authorization headers, proxy authorization, and client auth are rejected without requests |
 | `test_response_bounds_apply_before_decompression` | Gzip/deflate/unknown encodings are rejected before decoding; identity remains usable and explicitly requested |
@@ -272,13 +265,13 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 | `test_linkedin_job_detail_does_not_infer_industries_from_description` | Unstructured prose cannot invent structured industry metadata |
 | `test_linkedin_job_detail_does_not_treat_graduation_date_as_start_date` | Candidate graduation dates are not advertised start dates |
 | `test_linkedin_scraper_paginates_and_deduplicates_job_ids` | Bounded pages deduplicate identity/detail requests, prefilter unrelated titles, and distinguish workplace type from industries |
-| `test_concurrent_searches_share_an_inflight_detail_request` | Overlapping searches do not duplicate simultaneous detail traffic |
-| `test_completed_detail_requests_are_not_retained_between_scrapes` | Later scrapes fetch fresh evidence instead of reusing completed response bodies |
+| `test_concurrent_searches_share_an_inflight_detail_request` | Overlapping searches both receive the listing from one simultaneous detail request |
+| `test_completed_detail_requests_are_not_retained_between_scrapes` | Later scrapes issue a new request and publish changed company evidence instead of reusing completed response bodies |
 | `test_cycle_search_url_covers_every_posting_since_may_cutoff` | Search URL date windows cover the full eligible posting interval |
 | `test_title_prefilter_selects_new_grad_cards` | New Grad titles reach detail fetching rather than being lost by an internship-only prefilter |
 | `test_title_prefilter_continues_to_later_search_pages` | A page of unrelated titles does not prematurely end bounded discovery |
 | `test_linkedin_scraper_leaves_cycle_and_posting_evidence_to_classifier` | The scraper forwards candidates on both sides of the posting floor instead of duplicating acceptance policy |
-| `test_linkedin_company_filter_is_applied_before_detail_fetch` | Company scope prevents unnecessary detail requests |
+| `test_linkedin_company_filter_is_applied_before_detail_fetch` | Company scope rejects a title-eligible out-of-scope card before requesting its detail |
 | `test_stale_search_card_detail_404_confirms_known_job_unavailability` | A stale visible card does not negate explicit known-job absence |
 | `test_known_job_recheck_requires_identity_in_the_detail_response` | Malformed rechecks remain inconclusive and cannot synthesize availability from stored identity |
 | `test_known_job_404_is_reported_as_confirmed_unavailable` | Bounded rechecks report explicit absence even when the job is not on the search page |
@@ -435,7 +428,7 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
-| `test_rendered_link_check_detects_missing_images_and_anchors` | Rendered anchors/media, favicon fidelity, and private-file leaks fail validation |
+| `test_rendered_link_check_detects_missing_images_and_anchors` | Independently broken image and anchor cases fail validation; repairing each passes, while favicon drift and private-file leaks remain rejected |
 | `test_rendered_standalone_audio_is_rejected_and_missing_links_fail` | Standalone MP3s at the former soundtrack path, alternate paths, mixed-case extension, and private authoring path all fail publication; removed audio links also fail |
 | `test_legacy_redirects_require_a_real_canonical_destination` | Redirects cannot be generated without real destination pages and point correctly across directories |
 | `test_legacy_redirects_point_directly_to_current_topic_guides` | Legacy mappings resolve directly to current guides, never redirect chains or overwritten canonical pages |
@@ -499,8 +492,8 @@ Source: [opportunity-api.test.ts](../site/tests/unit/opportunity-api.test.ts).
 | Test title | Behavior protected |
 |---|---|
 | `v1 schema rejects private fields, invalid envelopes and noncanonical timestamps` | The shared schema accepts actual payloads/errors but rejects private fields, invalid pagination, timestamp spellings, and incomplete downloads |
-| `filters combined search and exact country/company/category/type and snapshot recency` | Filters combine with AND semantics, search normalizes case/spacing, and recency uses snapshot evidence |
-| `stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages` | API ordering/pagination is deterministic, numeric ties are stable, and empty/out-of-range envelopes remain truthful |
+| `filters combined search and exact country/company/category/type and snapshot recency` | Six one-predicate near-misses prove every API filter participates independently in AND semantics; query normalization, snapshot recency, and nonmutating input remain covered |
+| `stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages` | Company pagination and role sorting have different expected ID orders, so a default comparator cannot satisfy both; empty/out-of-range envelopes remain truthful; first-seen numeric ties belong to the microsecond matrix |
 | `orders distinct microseconds chronologically before applying numeric ID ties` | Submillisecond differences and equivalent offset/SQLite instants sort correctly without mutating inputs |
 | `publishes UTC RFC 3339 first-seen timestamps without losing microseconds` | API serialization normalizes valid storage timestamps and rejects unreadable values |
 | `invalid snapshot timestamps cannot turn recency results into a successful empty list` | Bad first-seen or collection dates fail rather than silently filtering every row out |
@@ -583,7 +576,7 @@ Sources: [directory-hydration.spec.ts](../site/tests/e2e/directory-hydration.spe
 
 | Test title | Behavior protected |
 |---|---|
-| `hydration restores private lists without guessing their counts in server HTML` | Withheld JavaScript proves SSR's public total/unknown private state; hydration applies saved/hidden data without changing the URL or producing errors |
+| `hydration restores private lists without guessing their counts in server HTML` | Raw crawler HTML and the DOM with JavaScript withheld contain no fabricated local summaries or saved/applied/hidden counts; hydration applies saved/hidden data without changing the URL or producing errors |
 | `normal directory` | Axe scans the default directory for supported WCAG violations |
 | `filtered directory` | Axe scans a populated filtered view |
 | `empty results` | Axe scans an empty view and its real reset journey restores rows/search/URL |
@@ -597,8 +590,7 @@ Source: [local-opportunities.spec.ts](../site/tests/e2e/local-opportunities.spec
 
 | Test title | Behavior protected |
 |---|---|
-| `crawler HTML contains no fabricated local-state summaries` | Server HTML contains no invented saved/applied/hidden or new-opportunity summaries; hydration shows only one real local-state summary with initial zero counts |
-| `first and returning visits, corrupt state and stale IDs` | Real storage loads/prunes correctly; new-role membership survives reload, hidden roles disappear from new counts, and corruption recovers |
+| `first and returning visits, corrupt state and stale IDs` | A first visit has one real summary with zero saved/applied/hidden counts; real storage loads/prunes correctly, new-role membership survives reload, hidden roles disappear from new counts, and corruption recovers |
 | `empty local lists explain the selected view without claiming the directory is empty` | Empty saved/applied views remain distinguishable from an empty dataset and can return to all rows without URL changes |
 | `mobile empty messages and reset controls need no horizontal scrolling` | Mobile empty-list/filter recovery is reachable and restores the dataset |
 | `hiding every role leaves a clear route to restoring the directory` | All-hidden state is recoverable through Hidden and restore actions |
@@ -618,12 +610,12 @@ Sources: [api.spec.ts](../site/tests/e2e/api.spec.ts) and [feed.spec.ts](../site
 |---|---|
 | `serves the exact repository v1 schema at its canonical product URL` | The public schema route serves the reviewed contract bytes and identity |
 | `read-only API serves canonical rows with stable schema, filtering and pagination` | Real SQLite/API/export projections agree on sanitized fields and IDs, timestamp format, filtering, pagination, and CORS |
-| `semantically equivalent query strings return identical representations and ETags` | Defaults and reordered filters cannot fragment conditional caching |
+| `semantically equivalent query strings return identical representations and ETags` | Successful default and reordered-filter requests return valid, identical wire representations and ETags, with the expected filtered identity |
 | `ETag revalidation, validation errors, and no mutation endpoints` | GET/HEAD/OPTIONS, weak validators, query failures, CORS, and 405 mutation rejection preserve the read-only HTTP contract |
 | `RSS publishes recent open opportunities as a bounded, cacheable read-only feed` | RSS serves fixture rows with validators, public-only data, and homepage autodiscovery |
 | `RSS and Atom accept only safe exact filters and return an empty feed for unmatched values` | Both feed formats filter real rows; unmatched values remain valid empty feeds and malformed queries fail safely |
 | `Atom supplies a feed-level author inherited by entries, including empty feeds` | XML parsing verifies valid namespace-scoped author metadata for populated, filtered, and empty Atom feeds |
-| `feed validators support HEAD and conditional GET without mutation methods` | Feed bodies/validators agree across methods and mutation methods are rejected |
+| `feed validators support HEAD and conditional GET without mutation methods` | Both RSS and Atom retain matching GET/HEAD validators, body-free conditional responses, and rejection of every mutation method |
 
 ### Status over HTTP and standalone production
 

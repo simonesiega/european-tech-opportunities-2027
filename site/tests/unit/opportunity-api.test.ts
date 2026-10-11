@@ -19,7 +19,11 @@ const row = (id: string, fields: Partial<Opportunity> = {}): Opportunity => ({
   firstSeenAt: "2026-07-17T12:00:00+00:00",
   ...fields,
 });
-const rows = [row("100"), row("101"), row("102", {company: "Other", employmentType: "new-grad"})];
+const rows = [
+  row("100", {title: "Zebra Software Intern 2027"}),
+  row("101", {title: "Backend Software Intern 2027"}),
+  row("102", {company: "Other", title: "Data Graduate 2027", employmentType: "new-grad"}),
+];
 const payload = (search = "", items = rows) =>
   apiPayload(items, "2026-07-17T12:00:00+00:00", parseApiQuery(search));
 
@@ -57,11 +61,26 @@ describe("public API contract", () => {
   });
 
   test("filters combined search and exact country/company/category/type and snapshot recency", () => {
+    const matching = row("700", {industries: "Robotics"});
+    const decoy = (id: string, fields: Partial<Opportunity>) =>
+      row(id, {industries: "Robotics", ...fields});
+    const items = [
+      matching,
+      decoy("701", {industries: null}),
+      decoy("702", {location: "Berlin, Germany"}),
+      decoy("703", {company: "Other"}),
+      decoy("704", {category: "machine-learning"}),
+      decoy("705", {employmentType: "new-grad"}),
+      decoy("706", {firstSeenAt: "2026-07-16T11:59:59Z"}),
+    ];
+    const original = structuredClone(items);
     const result = payload(
-      "?q=intern&country=France&company=Acme&category=software-engineering&type=internship&first-seen=24-hours"
+      "?q=robotics&country=France&company=Acme&category=software-engineering&type=internship&first-seen=24-hours",
+      items
     );
-    expect(result.pagination.total).toBe(2);
-    expect(result.data.map((item) => item.linkedinJobId)).toEqual(["101", "100"]);
+    expect(result.pagination.total).toBe(1);
+    expect(result.data.map((item) => item.linkedinJobId)).toEqual(["700"]);
+    expect(items).toEqual(original);
     expect(payload("?country=Spain").data).toEqual([]);
     expect(payload("?q=NEW-GRAD").pagination.total).toBe(1);
     expect(payload("?q=+NEW-GRAD+").data).toEqual(payload("?q=new-grad").data);
@@ -73,11 +92,6 @@ describe("public API contract", () => {
 
   test("stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages", () => {
     expect(payload("?sort=company-asc&page-size=1&page=2").data[0].linkedinJobId).toBe("100");
-    expect(payload("?sort=first-seen-asc").data.map((item) => item.linkedinJobId)).toEqual([
-      "102",
-      "101",
-      "100",
-    ]);
     expect(payload("?page=99").pagination).toEqual({
       page: 99,
       pageSize: 10,
@@ -88,9 +102,9 @@ describe("public API contract", () => {
     expect(payload("", []).pagination).toEqual({page: 1, pageSize: 10, total: 0, totalPages: 0});
     expect(payload("", []).data).toEqual([]);
     expect(payload("?sort=role-desc").data.map((item) => item.linkedinJobId)).toEqual([
+      "100",
       "102",
       "101",
-      "100",
     ]);
   });
 

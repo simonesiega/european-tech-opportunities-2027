@@ -287,7 +287,7 @@ def test_http_fetcher_caps_exponential_backoff() -> None:
     settings = Settings(
         rate_limit_seconds=0,
         retry_backoff_seconds=30,
-        max_retries=2,
+        max_retries=3,
         linkedin_crawl_authorized=True,
     )
 
@@ -299,8 +299,8 @@ def test_http_fetcher_caps_exponential_backoff() -> None:
                 )
 
     asyncio.run(run())
-    assert attempts == 3
-    assert delays == [30, 60]
+    assert attempts == 4
+    assert delays == [30, 60, 60]
 
 
 def test_http_fetcher_stops_on_429_without_reading_response_body() -> None:
@@ -611,11 +611,12 @@ def test_http_fetcher_rejects_non_html_response() -> None:
 
 def test_http_fetcher_enforces_response_size_limit() -> None:
     body = ("<html>" + ("x" * 20_000) + "</html>").encode()
+    stream = ChunkedStream((body,))
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(
             200,
-            content=body,
+            stream=stream,
             request=request,
             headers={"content-type": "text/html", "content-length": str(len(body))},
         )
@@ -634,6 +635,8 @@ def test_http_fetcher_enforces_response_size_limit() -> None:
                 await HttpFetcher(settings, client=client).get_text(LINKEDIN_SEARCH_ENDPOINT)
 
     asyncio.run(run())
+    assert stream.read_count == 0
+    assert stream.closed
 
 
 def test_http_fetcher_stops_streaming_at_response_size_limit() -> None:

@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from opportunities.utils.paths import find_project_root
+from tests.shell_helpers import offline_shell_environment
 
 ROOT = find_project_root(Path(__file__))
 
@@ -90,7 +91,15 @@ publication_file "$local_source" /state/final /state/final.upload-1-1 "$mutable"
     )
     if not bash.exists():
         pytest.skip("Bash is unavailable")
-    result = subprocess.run([str(bash), "-c", script], capture_output=True, text=True, timeout=30)
+    result = subprocess.run(
+        [str(bash), "-c", script],
+        cwd=tmp_path,
+        env=offline_shell_environment(tmp_path),
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
     success = failure not in {"always", "permission", "staging-conflict", "changed-pointer"} and (
         failure != "conflict" or mutable
     )
@@ -164,7 +173,15 @@ publish_state
     )
     if not bash.exists():
         pytest.skip("Bash is unavailable")
-    result = subprocess.run([str(bash), "-c", script], capture_output=True, text=True, timeout=30)
+    result = subprocess.run(
+        [str(bash), "-c", script],
+        cwd=tmp_path,
+        env=offline_shell_environment(tmp_path),
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
     assert (result.returncode == 0) == (gate == "success"), result.stderr
     assert ("promote /state/canonical-state/latest.json" in result.stdout) == (gate == "success")
     assert "retry" not in result.stderr

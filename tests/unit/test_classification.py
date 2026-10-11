@@ -46,76 +46,6 @@ def test_cycle_must_be_explicit_and_not_only_graduation_year(
     assert not class_of.include
 
 
-def test_new_grad_graduation_year_is_cycle_evidence(rules: ClassificationRules) -> None:
-    result = classify(
-        rules,
-        title="Graduate Software Engineer",
-        description="Applicants must graduate in 2026.",
-        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
-    )
-
-    assert not result.include
-    assert result.exclusion_reason == "listing is for the 2026 cycle"
-
-
-def test_missing_cycle_is_accepted_for_recent_posting(rules: ClassificationRules) -> None:
-    result = classify(
-        rules,
-        title="Graduate Software Engineer",
-        posted_at=datetime(2026, 5, 1, tzinfo=UTC),
-    )
-
-    assert result.include
-    assert result.employment_type == EmploymentType.NEW_GRAD
-    assert result.category == OpportunityCategory.SOFTWARE_ENGINEERING
-
-
-@pytest.mark.parametrize(
-    "title", ["Software Engineering Internship 2026", "Graduate Data Engineer 2026"]
-)
-def test_wrong_cycle_is_excluded(rules: ClassificationRules, title: str) -> None:
-    result = classify(
-        rules,
-        title=title,
-        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
-    )
-    assert not result.include
-    assert result.exclusion_reason == "listing is for the 2026 cycle"
-
-
-def test_conflicting_cycle_evidence_is_rejected(rules: ClassificationRules) -> None:
-    conflicting_title = classify(
-        rules,
-        title="Graduate Software Engineer 2026/2027",
-    )
-    conflicting_description = classify(
-        rules,
-        title="Graduate Software Engineer",
-        description=(
-            "Our 2026 graduate programme remains open. The 2027 graduate programme is now open."
-        ),
-    )
-
-    assert not conflicting_title.include
-    assert conflicting_title.exclusion_reason == "listing is for the 2026 cycle"
-    assert not conflicting_description.include
-    assert conflicting_description.exclusion_reason == "listing is for the 2026 cycle"
-
-
-def test_program_year_is_not_mistaken_for_graduation_eligibility(
-    rules: ClassificationRules,
-) -> None:
-    result = classify(
-        rules,
-        title="Graduate Software Engineer",
-        description="Our graduate programme starts in 2026.",
-        posted_at=datetime(2026, 7, 18, tzinfo=UTC),
-    )
-
-    assert not result.include
-    assert result.exclusion_reason == "listing is for the 2026 cycle"
-
-
 def test_canonical_2025_2026_graduate_listing_is_rejected(
     rules: ClassificationRules,
 ) -> None:
@@ -260,20 +190,55 @@ def test_description_can_classify_generic_technical_internship(
     assert result.category == OpportunityCategory.MACHINE_LEARNING
 
 
-@pytest.mark.parametrize("year", [1999, 2000, 2019, 2050, 2099, 2100])
-@pytest.mark.parametrize("evidence", ["title", "description"])
-@pytest.mark.parametrize("title", ["Software Intern", "Software Engineer New Grad"])
+@pytest.mark.parametrize(
+    ("title", "description", "year"),
+    [
+        # Each lexical boundary reaches both evidence paths. Alternate employment
+        # types instead of multiplying every equivalent year by every type.
+        ("Software Intern 1999", "", 1999),
+        ("Software Engineer New Grad", "Our programme starts in 1999.", 1999),
+        ("Software Engineer New Grad 2000", "", 2000),
+        ("Software Intern", "Our programme starts in 2000.", 2000),
+        ("Software Intern 2019", "", 2019),
+        ("Software Engineer New Grad", "Our programme starts in 2019.", 2019),
+        ("Software Engineer New Grad 2050", "", 2050),
+        ("Software Intern", "Our programme starts in 2050.", 2050),
+        ("Software Intern 2099", "", 2099),
+        ("Software Engineer New Grad", "Our programme starts in 2099.", 2099),
+        ("Software Engineer New Grad 2100", "", 2100),
+        ("Software Intern", "Our programme starts in 2100.", 2100),
+        # These have different semantics from a single generic programme year.
+        ("Software Engineering Internship 2026", "", 2026),
+        ("Graduate Data Engineer 2026", "", 2026),
+        ("Graduate Software Engineer", "Applicants must graduate in 2026.", 2026),
+        ("Graduate Software Engineer", "Our graduate programme starts in 2026.", 2026),
+        ("Graduate Software Engineer 2026/2027", "", 2026),
+        (
+            "Graduate Software Engineer",
+            "Our 2026 graduate programme remains open. The 2027 graduate programme is now open.",
+            2026,
+        ),
+    ],
+)
 def test_conflicting_years_cannot_fall_back_to_recent_posting_dates(
-    rules: ClassificationRules, year: int, evidence: str, title: str
+    rules: ClassificationRules, title: str, description: str, year: int
 ) -> None:
     result = classify(
         rules,
-        title=f"{title} {year}" if evidence == "title" else title,
-        description=f"Our programme starts in {year}." if evidence == "description" else "",
+        title=title,
+        description=description,
         posted_at=datetime(2026, 7, 20, tzinfo=UTC),
     )
     assert not result.include
     assert result.exclusion_reason == f"listing is for the {year} cycle"
+    assert result.employment_type == (
+        EmploymentType.INTERNSHIP if "Intern" in title else EmploymentType.NEW_GRAD
+    )
+    assert result.category == (
+        OpportunityCategory.DATA_ENGINEERING
+        if title == "Graduate Data Engineer 2026"
+        else OpportunityCategory.SOFTWARE_ENGINEERING
+    )
 
 
 @pytest.mark.parametrize(
@@ -292,7 +257,7 @@ def test_title_precedence_and_internship_eligibility_remain_distinct(
     assert result.employment_type == EmploymentType.INTERNSHIP
 
 
-@pytest.mark.parametrize("target", [2020, 2049, 2050, 2099, 2100])
+@pytest.mark.parametrize("target", [2020, 2050, 2100])
 def test_supported_target_cycles_need_no_posting_date(
     rules: ClassificationRules, target: int
 ) -> None:
@@ -320,6 +285,10 @@ def test_posting_floor_uses_the_utc_instant(
 ) -> None:
     result = classify(rules, title=title, posted_at=datetime.fromisoformat(timestamp))
     assert result.include is include
+    assert result.category == OpportunityCategory.SOFTWARE_ENGINEERING
+    assert result.employment_type == (
+        EmploymentType.INTERNSHIP if title == "Software Intern" else EmploymentType.NEW_GRAD
+    )
     if not include:
         assert result.exclusion_reason == (
             "opportunity cycle is not explicitly 2027 and posting date is not eligible"

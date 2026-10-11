@@ -34,11 +34,21 @@ test("hydration restores private lists without guessing their counts in server H
   });
   try {
     // DOMContentLoaded would wait for the withheld scripts; commit exposes the server HTML.
-    await page.goto("/", {waitUntil: "commit"});
+    const response = await page.goto("/", {waitUntil: "commit"});
+    expect(response?.ok()).toBe(true);
+    const html = await response!.text();
+    expect(html).not.toContain("You have saved");
+    expect(html).not.toContain("new opportunities since your last visit");
     const directory = page.getByRole("region", {name: "Opportunity directory"});
     await expect(directory).toHaveAttribute("aria-busy", "true");
     await expectResultCount(page, 12);
-    await expect(page.getByRole("button", {name: /View \d+ saved opportunities/})).toHaveCount(0);
+    await expect(page.getByText("You have saved", {exact: false})).toHaveCount(0);
+    await expect(page.getByText(/new opportunities since your last visit/)).toHaveCount(0);
+    for (const list of ["saved", "applied", "hidden"]) {
+      await expect(
+        page.getByRole("button", {name: new RegExp(`View \\d+ ${list} opportunities`)})
+      ).toHaveCount(0);
+    }
     releaseScripts();
     await expect(directory).toHaveAttribute("aria-busy", "false");
     await expectResultCount(page, 11);

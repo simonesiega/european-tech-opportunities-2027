@@ -263,7 +263,12 @@ def test_localized_rendering_preserves_canonical_data_and_formats_utc(
 
     assert validate_readme(path, jobs, metadata) == []
     assert content.count(never if empty else timestamp) == 2
-    assert content.count(header) == 2
+    assert content.count(header + "\n|---|---|---|---|\n") == 2
+    if empty and language == "en":
+        assert markdown_block(jobs, metadata).startswith(
+            "**Open opportunities:** 0 (Internships: 0 · New Grad: 0)<br>\n"
+            "**Last successful collection:** Never\n\n"
+        )
     assert re.findall(r"https://img\.shields\.io/badge/[^\n\"]+?-(\d+)-[0-9a-f]{6}", content) == (
         ["0", "0", "0"] if empty else ["12", "6", "6"]
     )
@@ -379,13 +384,3 @@ def test_readme_rejects_reversed_generated_markers(tmp_path: Path) -> None:
     assert validate_readme(readme) == ["README opportunity markers are out of order"]
     with pytest.raises(ValueError, match="out of order"):
         render_readme(readme, [], ReadmeMetadata(0, None))
-
-
-def test_empty_database_still_renders_both_table_headers() -> None:
-    assert markdown_table([]) == "| Company | Title | Location | Listing |\n|---|---|---|---|\n"
-    block = markdown_block([], ReadmeMetadata(0, None))
-    assert block.startswith(
-        "**Open opportunities:** 0 (Internships: 0 · New Grad: 0)<br>\n"
-        "**Last successful collection:** Never\n\n"
-    )
-    assert block.count("| Company | Title | Location | Listing |") == 2

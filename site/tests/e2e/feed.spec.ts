@@ -53,22 +53,23 @@ test("RSS and Atom accept only safe exact filters and return an empty feed for u
   expect(atomXml).toContain("Graduate Data Analyst 2027");
   expect(atomXml).toContain("urn:linkedin:job:1000000003");
 
-  const empty = await request.get("/feed.xml?country=Unknown");
-  const emptyXml = await empty.text();
-  expect(empty.status()).toBe(200);
-  expect(emptyXml).toContain("<channel>");
-  expect(emptyXml).not.toContain("<item>");
-
-  for (const query of [
-    "?type=contract",
-    "?type=internship&type=new-grad",
-    "?category=software-engineering&unknown=x",
-    "?country=%00",
-  ]) {
-    const invalid = await request.get(`/feed.xml${query}`);
-    expect(invalid.status()).toBe(400);
-    expect(invalid.headers()["cache-control"]).toBe("no-store");
-    expect(await invalid.text()).toBe("Invalid feed query.\n");
+  for (const endpoint of ["/feed.xml", "/atom.xml"]) {
+    const empty = await request.get(`${endpoint}?country=Unknown`);
+    expect(empty.status()).toBe(200);
+    const emptyXml = await empty.text();
+    expect(emptyXml).toContain(endpoint === "/feed.xml" ? "<channel>" : "<feed ");
+    expect(emptyXml).not.toMatch(/<(?:item|entry)>/);
+    for (const query of [
+      "?type=contract",
+      "?type=internship&type=new-grad",
+      "?category=software-engineering&unknown=x",
+      "?country=%00",
+    ]) {
+      const invalid = await request.get(`${endpoint}${query}`);
+      expect(invalid.status()).toBe(400);
+      expect(invalid.headers()["cache-control"]).toBe("no-store");
+      expect(await invalid.text()).toBe("Invalid feed query.\n");
+    }
   }
 });
 
@@ -108,27 +109,30 @@ test("Atom supplies a feed-level author inherited by entries, including empty fe
 test("feed validators support HEAD and conditional GET without mutation methods", async ({
   request,
 }) => {
-  const response = await request.get("/feed.xml?type=internship");
-  const etag = response.headers().etag;
-  expect(etag).toMatch(/^"[0-9a-f]{64}"$/);
+  for (const endpoint of ["/feed.xml", "/atom.xml"]) {
+    const url = `${endpoint}?type=internship`;
+    const response = await request.get(url);
+    expect(response.status()).toBe(200);
+    const etag = response.headers().etag;
+    expect(etag).toMatch(/^"[0-9a-f]{64}"$/);
 
-  const unchanged = await request.get("/feed.xml?type=internship", {
-    headers: {"If-None-Match": `W/${etag}`},
-  });
-  expect(unchanged.status()).toBe(304);
-  expect(await unchanged.text()).toBe("");
-  expect(unchanged.headers().etag).toBe(etag);
+    const unchanged = await request.get(url, {
+      headers: {"If-None-Match": `W/${etag}`},
+    });
+    expect(unchanged.status()).toBe(304);
+    expect(await unchanged.text()).toBe("");
+    expect(unchanged.headers().etag).toBe(etag);
 
-  const head = await request.fetch("/atom.xml", {method: "HEAD"});
-  const get = await request.get("/atom.xml");
-  expect(head.status()).toBe(200);
-  expect(await head.text()).toBe("");
-  expect(head.headers()["content-type"]).toBe(get.headers()["content-type"]);
-  expect(head.headers().etag).toBe(get.headers().etag);
+    const head = await request.fetch(url, {method: "HEAD"});
+    expect(head.status()).toBe(200);
+    expect(await head.text()).toBe("");
+    expect(head.headers()["content-type"]).toBe(response.headers()["content-type"]);
+    expect(head.headers().etag).toBe(etag);
 
-  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
-    const rejected = await request.fetch("/feed.xml", {method, data: "ignored"});
-    expect(rejected.status()).toBe(405);
-    expect(rejected.headers().allow).toBe("GET, HEAD");
+    for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+      const rejected = await request.fetch(endpoint, {method, data: "ignored"});
+      expect(rejected.status()).toBe(405);
+      expect(rejected.headers().allow).toBe("GET, HEAD");
+    }
   }
 });
