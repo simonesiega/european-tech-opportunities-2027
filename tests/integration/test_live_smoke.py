@@ -17,11 +17,8 @@ pytestmark = pytest.mark.live
 def test_public_linkedin_search_and_detail_are_reachable() -> None:
     configured = load_search_registry(ROOT / "configs" / "searches", enabled_only=True)[0]
     search = configured.model_copy(update={"max_pages": 1, "max_results": 1})
-    settings = Settings(
-        rate_limit_seconds=0,
-        max_retries=1,
-        linkedin_crawl_authorized=True,
-    )
+    # Keep normal source pacing even in an explicitly authorized compatibility check.
+    settings = Settings(max_retries=1, linkedin_crawl_authorized=True)
 
     async def run() -> None:
         async with HttpFetcher(settings) as fetcher:
