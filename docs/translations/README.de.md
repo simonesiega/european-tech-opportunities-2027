@@ -69,7 +69,7 @@ Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[http
 
 ### Neueste New-Grad-Stellen
 
-Die 5 zuletzt entdeckten Stellen unter den 377 offenen New-Grad-Angeboten:
+5 von 377 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Die 5 zuletzt entdeckten Stellen unter den 377 offenen New-Grad-Angeboten:
 
 ### Neueste Praktika
 
-Die 5 zuletzt entdeckten Praktika unter den 348 noch offenen Angeboten:
+5 von 348 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|

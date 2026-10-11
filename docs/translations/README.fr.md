@@ -69,7 +69,7 @@ Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu
 
 ### Dernières offres New Grad
 
-Les 5 offres découvertes le plus récemment parmi les 377 offres New Grad actives :
+5 offres parmi les 377 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Les 5 offres découvertes le plus récemment parmi les 377 offres New Grad activ
 
 ### Derniers stages
 
-Les 5 offres découvertes le plus récemment parmi les 348 stages actifs :
+5 offres parmi les 348 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|

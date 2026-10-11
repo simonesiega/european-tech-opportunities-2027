@@ -69,7 +69,7 @@ Browse and filter the complete directory at **[https://techopportunities.eu/](ht
 
 ### Latest New Grad opportunities
 
-Showing the 5 most recently discovered of 377 open New Grad opportunities:
+Showing 5 of 377 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Showing the 5 most recently discovered of 377 open New Grad opportunities:
 
 ### Latest internships
 
-Showing the 5 most recently discovered of 348 open internships:
+Showing 5 of 348 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
