@@ -98,6 +98,7 @@ def install_quality_scraper(
     failed_slugs: tuple[str, ...] = (),
     failure_code: str = "timeout",
     failure_status: int | None = None,
+    failure: Exception | None = None,
 ) -> None:
     """Exercise the real pipeline, repository, and quality gate without source access."""
 
@@ -110,6 +111,8 @@ def install_quality_scraper(
     ) -> LinkedInScrapeResult:
         del self, fetcher, known_jobs
         if search.slug in failed_slugs:
+            if failure is not None:
+                raise failure
             raise FetchError(
                 failure_code, "private-diagnostic-must-not-leak", status_code=failure_status
             )
@@ -142,7 +145,10 @@ def install_quality_scraper(
         ("success", 0, "passed", 4),
         ("warning", 0, "warning", 4),
         ("blocking", 1, "failed", 3),
-        ("partial", 4, "warning", 3),
+        ("partial", 1, "failed", 3),
+        ("invalid-html", 1, "failed", 3),
+        ("unexpected", 1, "failed", 3),
+        ("transport", 1, "failed", 3),
         ("rate-limited", 4, "warning", 3),
         ("empty-partial", 4, "warning", 3),
         ("partial-blocking", 1, "failed", 3),
@@ -180,7 +186,17 @@ def test_scrape_quality_gate_end_to_end(
         engine.dispose()
     failures = (
         (last_slug,)
-        if mode in {"partial", "blocked", "rate-limited", "empty-partial", "partial-blocking"}
+        if mode
+        in {
+            "partial",
+            "invalid-html",
+            "unexpected",
+            "transport",
+            "blocked",
+            "rate-limited",
+            "empty-partial",
+            "partial-blocking",
+        }
         else (search.slug, other.slug)
         if mode == "failed"
         else ()
@@ -192,10 +208,16 @@ def test_scrape_quality_gate_end_to_end(
         failed_slugs=failures,
         failure_code="source_blocked"
         if mode in {"blocked", "rate-limited", "empty-partial", "partial-blocking"}
+        else "transport"
+        if mode == "transport"
         else "timeout",
         failure_status=429
         if mode in {"rate-limited", "empty-partial", "partial-blocking"}
         else None,
+        failure={
+            "invalid-html": ValueError("private-diagnostic-must-not-leak"),
+            "unexpected": RuntimeError("private-diagnostic-must-not-leak"),
+        }.get(mode),
     )
     if mode == "selected":
         args += ["--search", search.slug]
@@ -218,7 +240,11 @@ def test_scrape_quality_gate_end_to_end(
         # Drift never closes existing rows.
         assert len(repository.list_open_jobs()) == 20
         assert report["collection_outcome"] == (
-            "blocked" if mode in {"blocked", "failed"} else "partial" if failures else "full"
+            "blocked"
+            if mode in {"partial", "invalid-html", "unexpected", "transport", "blocked", "failed"}
+            else "partial"
+            if failures
+            else "full"
         )
         assert report["publication_eligible"] == (exit_code != 1)
         expected_successes = 0 if mode == "failed" else 1 if failures or mode == "selected" else 2

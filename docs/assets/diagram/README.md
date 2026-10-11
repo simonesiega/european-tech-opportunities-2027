@@ -51,7 +51,7 @@ Permission-gated HTTP provides search cards and identity-validated details, with
 Normalization and classification check role type, seniority, technology, cycle/date, and European location.
 Successful searches commit independently with their completion timestamps; failed and skipped searches save diagnostics without lifecycle evidence or scheduling advancement.
 
-Full, partial, and blocked outcomes remain distinct. HTTP `429` partial candidates need completed searches and every required gate; all other source denials block publication.
+Full, partial, and blocked outcomes remain distinct. HTTP `429` partial candidates require at least one completed search, only HTTP `429` failures or source-skipped searches, and every publication gate. Any other search failure blocks publication, even alongside a rate limit.
 Only successful, nonblocking full-registry collections establish quality baselines.
 
 Missing cards cannot close jobs. Known-ID rechecks require repeated explicit `404`/`410` confirmations; closure occurs only after no active search association remains.

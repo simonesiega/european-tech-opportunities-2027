@@ -467,9 +467,46 @@ def test_partial_and_failed_searches_do_not_create_baselines_or_fake_zero_metric
             configured_searches=[_search(), other],
             generated_at=datetime(2026, 7, 20, tzinfo=UTC),
         )
-        assert not analysis.blocking
+        assert analysis.blocking == bool(sibling)
+        assert analysis.report["publication_eligible"] == (not sibling)
         assert analysis.snapshot_json is None
         assert not {"parser_field_missing_rate_high", "collected_volume_drop"} & _codes(analysis)
+
+
+@pytest.mark.parametrize(
+    ("code", "http_status", "eligible"),
+    [
+        ("source_blocked", 429, True),
+        ("source_blocked", 403, False),
+        ("source_blocked", None, False),
+        ("timeout", None, False),
+        ("invalid_html", None, False),
+        ("unexpected", None, False),
+        ("source_skipped", None, False),
+        (None, None, False),
+    ],
+)
+def test_publication_requires_full_success_or_only_rate_limit_failures(
+    code: str | None, http_status: int | None, eligible: bool
+) -> None:
+    successful = _collection(found=0, parsed=0, accepted=0)
+    failure = replace(
+        _collection(failed=True).outcomes[0], error_code=code, http_status=http_status
+    )
+    result = replace(
+        successful,
+        status=RunStatus.PARTIAL,
+        failed_searches=1,
+        outcomes=(*successful.outcomes, failure),
+    )
+    assert result.publication_outcome == ("partial" if eligible else "blocked")
+    assert result.exit_code == (4 if eligible else 1)
+    analysis = _analyze(result)
+    assert analysis.blocking == (not eligible)
+    assert analysis.report["publication_eligible"] == eligible
+    assert analysis.snapshot_json is None
+    if not eligible:
+        assert "source_publication_blocked" in _codes(analysis)
 
 
 def test_changed_registry_does_not_compare_incompatible_profiles() -> None:

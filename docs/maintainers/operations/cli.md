@@ -164,7 +164,7 @@ A partial run preserves successful search transactions.
 
 HTTP `429` stops subsequent requests, retains only fully completed searches, and returns partial exit code `4` if at least one search completed and the requested quality gate passes. This source-stop partial path requires `--quality-report`; without it the command returns `1` and withholds projections. A completed search with zero accepted jobs can qualify, but still faces all quality and publication checks.
 
-No completed search, any other source denial, or blocking quality findings return `1` and withhold projections. Protected automation also withholds snapshot publication and README handoffs. Failed and skipped searches never provide closure evidence. Partial proposals require manual review and merge; they are not complete collection success.
+Partial publication requires every failed search to be an HTTP `429` denial or a search skipped after the source stop. Any other search failure blocks publication, even alongside HTTP `429`. If no search completes or the quality gate blocks or cannot complete, publication also stops. In each case, the command returns `1` and leaves projections unchanged. Protected automation also withholds snapshot publication and README handoffs. Failed and skipped searches never provide closure evidence. Partial proposals require manual review and merge; they are not complete collection success.
 
 Quality warnings are reported but do not block the scrape. Blocking drift (such as every enabled search unexpectedly returning zero candidates or an extreme acceptance-rate change) returns exit code `1`; the report is still written before the command exits, and projections are not refreshed. The gate runs after independent search transactions commit, so blocking drift withholds projection rendering but does not roll back those canonical transactions.
 
@@ -196,7 +196,7 @@ Comparisons require at least three usable observations from the latest five stor
 | Field missingness | Increase ≥40 percentage points, or newly reaching ≥99% missing | No |
 | Category disappearance | No open rows for a category with historical median ≥3 | No |
 | Country distribution | Total-variation distance ≥0.5, or fewer than 10 country observations remain against a sampled baseline | No |
-| Failed searches | Any selected search fails | No selected search succeeds |
+| Failed searches | HTTP `429` failures and searches skipped after that stop | No selected search succeeds, or any other search failure occurs (including alongside HTTP `429`) |
 
 Acceptance uses parsed details, including bounded known-job rechecks, rather than search-card counts. Both the current sample and at least three matching historical samples must contain 10 classified records. Field comparisons require 10 open jobs for optional stored fields or 5 parsed details for parser fields in both the current and at least three historical samples. Country comparisons require at least 10 country observations per historical sample; multi-country listings count once per recognized country. Parser fields are description, industries, locations, posting time, and start date; stored optional fields are industries and start date. Missing optional metadata alone is not a cold-start error.
 
@@ -374,7 +374,7 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | Code | Meaning |
 |---:|---|
 | `0` | Command completed successfully |
-| `1` | No search completed, a blocking source denial occurred, validation found an inconsistency, or the quality gate blocked or could not complete |
+| `1` | No search completed, a search failure other than HTTP `429` or source-skipped work occurred, a source denial blocked availability, validation found an inconsistency, or the quality gate blocked or could not complete |
 | `2` | Availability audit with inconclusive checks, or rejected command/configuration input; never accepted as scrape success |
 | `3` | Required database tables are missing or the schema is not at migration head |
 | `4` | Eligible partial collection, not full success; required publication checks and manual review remain |

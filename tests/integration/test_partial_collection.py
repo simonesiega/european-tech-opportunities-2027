@@ -215,6 +215,82 @@ def test_mixed_inflight_denials_never_qualify_for_partial_publication(
     assert quality.snapshot_json is None
 
 
+@pytest.mark.parametrize(
+    "failure",
+    [
+        FetchError("timeout", "synthetic-private-timeout"),
+        FetchError("transport", "synthetic-private-transport"),
+        FetchError("http_status", "synthetic-private-status", status_code=503),
+        ValueError("synthetic-private-html"),
+        RuntimeError("synthetic-private-exception"),
+    ],
+)
+def test_rate_limit_cannot_mask_an_independent_concurrent_failure(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    rules: ClassificationRules,
+    search: LinkedInSearchConfig,
+    failure: Exception,
+) -> None:
+    selected = registry(search, 4)
+    failure_started = asyncio.Event()
+    rate_limit_finished = asyncio.Event()
+    calls: list[str] = []
+
+    class MixedScraper:
+        async def scrape(
+            self,
+            search: LinkedInSearchConfig,
+            fetcher: TextFetcher,
+            *,
+            known_jobs: tuple[KnownJob, ...] = (),
+        ) -> LinkedInScrapeResult:
+            del fetcher, known_jobs
+            calls.append(search.slug)
+            if search == selected[0]:
+                await rate_limit_finished.wait()
+                return LinkedInScrapeResult([], (), 1, 0)
+            if search == selected[1]:
+                await failure_started.wait()
+                rate_limit_finished.set()
+                raise FetchError("source_blocked", "LinkedIn returned HTTP 429", status_code=429)
+            failure_started.set()
+            await rate_limit_finished.wait()
+            raise failure
+
+    configured = settings.model_copy(update={"max_concurrency": 3})
+    repository = Repository(session_factory, configured)
+    result = asyncio.run(
+        asyncio.wait_for(
+            CollectionPipeline(
+                settings=configured,
+                repository=repository,
+                rules=rules,
+                scraper=MixedScraper(),
+                clock=lambda: NOW,
+            ).run(selected, fetcher=NoNetwork()),
+            timeout=5,
+        )
+    )
+    assert len(calls) == 3
+    assert result.successful_searches == repository.stats().successful_runs == 1
+    assert result.outcomes[-1].error_code == "source_skipped"
+    assert result.publication_outcome == "blocked"
+    assert result.exit_code == 1
+    assert repository.list_all_jobs() == []
+    quality = analyze_collection_quality(
+        result,
+        open_jobs=[],
+        previous_snapshots=(),
+        configured_searches=selected,
+        generated_at=NOW,
+    )
+    assert quality.blocking
+    assert not quality.report["publication_eligible"]
+    assert quality.snapshot_json is None
+    assert "synthetic-private" not in str(quality.report)
+
+
 class LimitedScraper:
     def __init__(self, successes: int = 2, *, interrupt: bool = False) -> None:
         self.successes = successes

@@ -177,10 +177,10 @@ def scrape(
                         "Partial source-stop publication requires --quality-report."
                     )
             _print_result(result)
-            if result.source_blocked and result.publication_outcome == "blocked":
+            if result.publication_outcome == "blocked":
                 error_console.print(
-                    "[red]LinkedIn access was blocked; publication stopped.[/red] "
-                    "Review authorization before another source request. "
+                    "[red]Collection is unsafe for publication.[/red] "
+                    "Review failed searches and source authorization before another run. "
                     "Projections were not refreshed."
                 )
             if (

@@ -50,7 +50,7 @@ Never paste a complete environment file, production database, authenticated HTML
 | Code | Meaning | First action |
 |---:|---|---|
 | `0` | Success | No recovery action required |
-| `1` | Complete collection failure, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
+| `1` | Unsafe or completely failed collection, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
 | `2` | Inconclusive availability audit or rejected configuration/command input | Inspect command context; scraping must stop |
 | `3` | Database missing tables or not at migration head | Confirm the configured path and recovery source before upgrading; never initialize missing production history |
 | `4` | Eligible partial collection, not complete success | Inspect quality report, validate, and manually review the proposal |
@@ -275,7 +275,7 @@ Exit code `4` preserves completed search transactions without claiming full succ
 3. Review the labeled `-partial` README proposal and sanitized artifact; merge manually only when correct. No full-registry quality baseline is created.
 4. Review source authorization before the next eligible execution. Do not immediately retry a denial. Denied and skipped searches keep priority through the verified SQLite rotation.
 
-A failed search does not apply absence or closure evidence.
+A failed search does not apply absence or closure evidence. Partial publication permits only HTTP `429` failures and searches skipped after the source stop. Unexpected exceptions, invalid HTML, timeouts, transport or HTTP errors, and other source denials return `1` and block publication, even when other searches completed or a concurrent request was rate-limited.
 
 ### All searches failed
 

@@ -242,7 +242,7 @@ jobs:
           code=$?
           set -e
           if [ "$code" -eq 4 ]; then
-            echo "Validated partial collection: completed searches retained; any source denial stopped subsequent requests. Failed/skipped searches provide no lifecycle evidence. Manual review and merge required."
+            echo "Validated HTTP 429 partial collection: completed searches retained; subsequent source requests stopped. All failures were HTTP 429 denials or searches skipped after the stop. Failed/skipped searches provide no lifecycle evidence. Manual review and merge required."
             echo "collection_outcome=partial" >> "$GITHUB_OUTPUT"
           elif [ "$code" -eq 0 ]; then
             echo "collection_outcome=full" >> "$GITHUB_OUTPUT"

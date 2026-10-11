@@ -82,10 +82,22 @@ class PipelineResult:
     @property
     def publication_outcome(self) -> Literal["full", "partial", "blocked"]:
         """Describe collection eligibility; quality and integrity gates still apply."""
-        denials = [o for o in self.outcomes if o.error_code == "source_blocked"]
-        if not self.successful_searches or any(o.http_status != 429 for o in denials):
+        if not self.successful_searches:
             return "blocked"
-        return "partial" if self.status == RunStatus.PARTIAL else "full"
+        failures = [outcome for outcome in self.outcomes if outcome.result is None]
+        if not failures:
+            return "full" if self.status == RunStatus.SUCCESS else "blocked"
+        rate_limited = any(
+            outcome.error_code == "source_blocked" and outcome.http_status == 429
+            for outcome in failures
+        )
+        if rate_limited and all(
+            outcome.error_code == "source_skipped"
+            or (outcome.error_code == "source_blocked" and outcome.http_status == 429)
+            for outcome in failures
+        ):
+            return "partial"
+        return "blocked"
 
     @property
     def exit_code(self) -> int:
