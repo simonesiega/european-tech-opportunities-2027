@@ -20,8 +20,9 @@ def test_github_alerts_render_as_material_admonitions_without_changing_other_tex
     )
 
 
+@pytest.mark.parametrize("defect", ["image", "anchor"])
 def test_rendered_link_check_detects_missing_images_and_anchors(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, defect: str
 ) -> None:
     # Importing the script does not read production state; override its output root.
     monkeypatch.setattr(check_built_docs, "ROOT", tmp_path)
@@ -29,8 +30,11 @@ def test_rendered_link_check_detects_missing_images_and_anchors(
     icon = tmp_path / check_built_docs.STAGED_ICON
     icon.parent.mkdir(parents=True)
     icon.write_bytes(check_built_docs.SITE_ICON.read_bytes())
+    (tmp_path / "docs" / "image.webp").write_bytes(b"image")
+    anchor = "missing" if defect == "anchor" else "existing"
+    image = "missing.webp" if defect == "image" else "image.webp"
     (tmp_path / "index.html").write_text(
-        '<a href="other.html#missing">guide</a><img src="docs/missing.webp">',
+        f'<a href="other.html#{anchor}">guide</a><img src="docs/{image}">',
         encoding="utf-8",
     )
     (tmp_path / "other.html").write_text('<h1 id="existing">Guide</h1>', encoding="utf-8")

@@ -359,10 +359,9 @@ def test_manual_upsert_preserves_lifecycle_metadata_and_adds_no_provenance(
     assert stored.updated_at == updated_at
 
     delayed = changed.model_copy(update={"title": "Graduate Software Engineer"})
-    repository.upsert_manual_job(delayed, observed_at=observed_at)
-    stored = repository.list_open_jobs()[0]
-    assert stored.last_seen_at == updated_at
-    assert stored.updated_at == updated_at
+    summary = repository.upsert_manual_job(delayed, observed_at=observed_at)
+    assert summary == PersistSummary()
+    assert repository.list_open_jobs() == [stored]
 
     discovered_at = updated_at + timedelta(days=1)
     repository.sync_searches([search], discovered_at)
@@ -678,6 +677,7 @@ def test_data_quality_baseline_rejects_non_integer_schema_versions(
 
     with pytest.raises(ValueError, match="schema_version"):
         repository.record_data_quality_snapshot(payload)
+    assert repository.data_quality_baselines() == ()
 
 
 def test_data_quality_baselines_are_aggregate_bounded_and_newest_first(

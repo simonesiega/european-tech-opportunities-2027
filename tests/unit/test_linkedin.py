@@ -296,7 +296,11 @@ def test_concurrent_searches_share_an_inflight_detail_request(
     scraper = LinkedInScraper()
 
     async def run() -> None:
-        await asyncio.gather(scraper.scrape(first, fetcher), scraper.scrape(second, fetcher))
+        results = await asyncio.gather(
+            scraper.scrape(first, fetcher), scraper.scrape(second, fetcher)
+        )
+        for result in results:
+            assert [job.source_job_id for job in result.positions] == ["1111111111"]
 
     asyncio.run(run())
 
@@ -317,8 +321,13 @@ def test_completed_detail_requests_are_not_retained_between_scrapes(
     scraper = LinkedInScraper()
 
     async def run() -> None:
-        await scraper.scrape(search, fetcher)
-        await scraper.scrape(search, fetcher)
+        first = await scraper.scrape(search, fetcher)
+        assert first.positions[0].company == "Test Technology"
+        fetcher.responses[detail_url] = fixture_html("linkedin_job_detail_1111111111.html").replace(
+            "Test Technology", "Updated Technology"
+        )
+        second = await scraper.scrape(search, fetcher)
+        assert second.positions[0].company == "Updated Technology"
 
     asyncio.run(run())
 
@@ -437,7 +446,10 @@ def test_linkedin_company_filter_is_applied_before_detail_fetch(
         company_names=["Test Technology"],
     )
     responses = {
-        build_search_url(search, start=0): fixture_html("linkedin_search_page_1.html"),
+        # Both cards pass the title prefilter; only company scope can reject the second.
+        build_search_url(search, start=0): fixture_html("linkedin_search_page_1.html").replace(
+            "Senior Product Manager", "Software Engineering Intern 2027"
+        ),
         LINKEDIN_DETAIL_ENDPOINT.format(job_id="1111111111"): fixture_html(
             "linkedin_job_detail_1111111111.html"
         ),
