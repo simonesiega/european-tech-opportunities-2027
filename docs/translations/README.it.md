@@ -69,7 +69,7 @@ Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://
 
 ### Ultime offerte New Grad
 
-Le 5 offerte New Grad scoperte più di recente, su un totale di 377 ancora aperte:
+5 offerte New Grad su 377 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Le 5 offerte New Grad scoperte più di recente, su un totale di 377 ancora apert
 
 ### Ultimi tirocini
 
-I 5 tirocini scoperti più di recente, su un totale di 348 ancora aperti:
+5 tirocini su 348 ancora aperti, ordinati dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|

@@ -69,7 +69,7 @@ Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](h
 
 ### Últimas ofertas New Grad
 
-Las 5 ofertas descubiertas más recientemente entre los 377 puestos New Grad activos:
+5 de 377 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
@@ -81,7 +81,7 @@ Las 5 ofertas descubiertas más recientemente entre los 377 puestos New Grad act
 
 ### Últimas ofertas de prácticas
 
-Las 5 ofertas descubiertas más recientemente entre las 348 prácticas activas:
+5 de 348 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
