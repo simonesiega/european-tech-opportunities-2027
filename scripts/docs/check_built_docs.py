@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[2] / "build" / "docs-site"
 PUBLIC_FILES = {
     "CNAME",
-    "docs/assets/promo/soundtrack.mp3",
     "LICENSE",
     "lychee.toml",
     "search/search_index.json",

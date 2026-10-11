@@ -287,6 +287,8 @@ The website requires read access to the SQLite database, the generated exports, 
 
 Generated-document rendering additionally requires write and execute access to the relevant parent directories. The CLI atomically replaces both the owned README regions and the generated registry-layout block in `docs/maintainers/engineering/search-registry.md`.
 
+When the sibling `docs/translations/` directory exists, rendering also requires read/write access to its five supported README files and write/execute access to that directory for atomic replacement.
+
 A narrow Linux ACL can grant the required access without making the repository broadly writable:
 
 ```bash

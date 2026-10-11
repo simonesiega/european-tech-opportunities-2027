@@ -302,7 +302,7 @@ The README projection includes:
 - latest successful collection time;
 - the public website link;
 - a hidden SHA-256 review seal covering every website-visible open row and the exact latest successful collection timestamp;
-- at most five internships and five New Grad opportunities ordered by immutable first-seen time, then descending ID text. The generated label says “most recently discovered,” but first-seen time can use approximate source posting age.
+- at most five internships and five New Grad opportunities ordered by immutable first-seen time, then descending ID text. First-seen time can use approximate source posting age and does not necessarily describe discovery order.
 
 The generated registry-layout counts in [`search-registry.md`](../engineering/search-registry.md) are refreshed from `configs/searches/` at the same time. The CSV and JSON downloads are generated from all open rows using the fixed public-field allowlist. Their metadata manifest records the schema version, UTC generation time, counts, and SHA-256 hashes.
 

@@ -21,7 +21,7 @@ Run the example commands from the repository root. Python scripts use `uv`; see 
 |---|---|
 | [check_docs.py](docs/check_docs.py) | Checks local links, images, and heading references in maintained docs, including diagram Markdown and the workflow/script inventories. Reports broken references without editing files. Does not check external websites. |
 | [lint_docs.py](docs/lint_docs.py) | Checks Markdown formatting and project terminology with Markdownlint and Vale. Requires Docker and leaves source files unchanged. You can select just one tool with `markdownlint` or `vale`. |
-| [build_docs.py](docs/build_docs.py) | Builds the public documentation into `build/docs-site/`, including redirects from older guide URLs. Rejects unexpected files and symbolic links. Builds locally; it does not publish the site. |
+| [build_docs.py](docs/build_docs.py) | Builds the public documentation into `build/docs-site/`, including redirects from older guide URLs. Rejects unexpected files, standalone audio (including the promotional MP3), and symbolic links. Builds locally; it does not publish the site. |
 | [check_built_docs.py](docs/check_built_docs.py) | Checks links, anchors, images, and videos in the built documentation, along with the files allowed in the published site. Run it after a successful build. |
 | [coverage_docs.py](docs/coverage_docs.py) | Updates the generated coverage table in the testing guide from `quality-reports/coverage.json`. Use `--check` to report stale figures without changing the guide. |
 

@@ -43,7 +43,7 @@
 
 Buscar unas prácticas o un primer empleo en el sector tecnológico europeo no debería implicar revisar cientos de ofertas dispersas, desactualizadas o que no encajan con lo que buscas.
 
-**European Tech Opportunities 2027** reúne en un único directorio las **prácticas** y las **ofertas New Grad** (puestos para recién graduados y perfiles que empiezan su carrera profesional) disponibles en Europa para el ciclo de contratación de 2027. Cada oferta debe cumplir los criterios de selección del proyecto y el directorio se actualiza a diario.
+**European Tech Opportunities 2027** reúne en un único directorio las **prácticas** y las **ofertas New Grad** (puestos para recién graduados y perfiles que empiezan su carrera profesional) disponibles en Europa para el ciclo de contratación de 2027. Cada oferta debe cumplir los criterios de selección del proyecto. La recopilación está programada a diario; las actualizaciones del directorio se despliegan en producción después de su revisión y validación.
 
 Busca por empresa, filtra por país o categoría y descubre las ofertas incorporadas recientemente. También puedes compartir cualquier búsqueda mediante un enlace. No necesitas instalar nada ni registrarte. **Guarda las ofertas que te interesen, marca aquellas a las que ya has presentado tu candidatura, oculta las que no encajen contigo y descubre qué ofertas se han añadido desde tu última visita.** Tus listas se guardan únicamente en el navegador y no se sincronizan entre dispositivos. Marcar una oferta como «candidatura enviada» es solo una forma de llevar el control: no envía ninguna candidatura.
 
@@ -176,7 +176,7 @@ Si detectas una vulnerabilidad, comunícala de forma privada siguiendo la [polí
 
 ## Licencia
 
-El código y la documentación se distribuyen bajo la [licencia MIT](../../LICENSE). Las ofertas externas y los contenidos multimedia de terceros mantienen sus propias condiciones de uso. Los derechos de distribución de la banda sonora y del vídeo promocional que la utiliza aún están pendientes de confirmación; consulta el [aviso sobre derechos de los contenidos multimedia](../assets/README.md#promotional-film).
+El código y la documentación se distribuyen bajo la [licencia MIT](../../LICENSE). Las ofertas externas y los contenidos multimedia de terceros mantienen sus propias condiciones de uso. El vídeo promocional utiliza «Minimal Corporate Atmosphere» de RoyaltyFreeMusicStudio bajo la Pixabay Content License, no bajo la licencia MIT. Consulta el [aviso sobre contenidos multimedia de terceros](../assets/README.md#third-party-media-notice) para conocer los usos permitidos y la atribución opcional; el MP3 original no se distribuye.
 
 ## Colaboradores
 
