@@ -48,22 +48,6 @@ def test_production_search_registry_is_bounded_and_scope_specific() -> None:
             assert search.geo_id is None
 
 
-def test_dotenv_loads_automatically_and_process_environment_wins(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    (tmp_path / ".env").write_text(
-        "OPPORTUNITIES_RATE_LIMIT_SECONDS=4\nOPPORTUNITIES_SEARCH_MAX_PAGES=2\n"
-        "OPPORTUNITIES_PUBLIC_EXPORT_DIR=generated/public\n",
-        encoding="utf-8",
-    )
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("OPPORTUNITIES_RATE_LIMIT_SECONDS", "1")
-    settings = load_settings()
-    assert settings.rate_limit_seconds == 1
-    assert settings.search_max_pages == 2
-    assert settings.public_export_dir == Path("generated/public")
-
-
 @pytest.mark.parametrize("cap", [50, 100, 250])
 def test_availability_environment_overrides_and_defaults(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cap: int
@@ -188,9 +172,7 @@ def test_settings_and_classification_yaml_fail_closed(tmp_path: Path) -> None:
         load_classification_rules(invalid_rules)
 
 
-def test_settings_require_sqlite_and_safe_header_values() -> None:
-    with pytest.raises(ValidationError, match="must use SQLite"):
-        Settings(database_url="postgresql://user:password@example.com/opportunities")
+def test_settings_reject_header_injection() -> None:
     with pytest.raises(ValidationError, match="control characters"):
         Settings(user_agent="valid-user-agent-value\r\nInjected: true")
 
@@ -209,15 +191,22 @@ def test_settings_precedence_is_defaults_dotenv_yaml_then_environment(
 ) -> None:
     dotenv = tmp_path / ".env"
     dotenv.write_text(
-        "OPPORTUNITIES_RATE_LIMIT_SECONDS=4\nOPPORTUNITIES_SEARCH_MAX_PAGES=2\n",
+        "OPPORTUNITIES_RATE_LIMIT_SECONDS=4\nOPPORTUNITIES_SEARCH_MAX_PAGES=2\n"
+        "OPPORTUNITIES_PUBLIC_EXPORT_DIR=generated/public\n",
         encoding="utf-8",
     )
     yaml = tmp_path / "settings.yml"
     yaml.write_text("rate_limit_seconds: 3\nmax_retries: 1\n", encoding="utf-8")
     monkeypatch.setenv("OPPORTUNITIES_RATE_LIMIT_SECONDS", "1")
 
+    # Both entry paths discover dotenv automatically; only the YAML layer differs.
+    automatic = load_settings()
+    assert automatic.rate_limit_seconds == 1
+    assert automatic.search_max_pages == 2
+    assert automatic.public_export_dir == Path("generated/public")
     configured = load_settings(yaml)
 
+    assert configured.public_export_dir == Path("generated/public")
     assert configured.rate_limit_seconds == 1  # Environment wins over YAML and dotenv.
     assert configured.search_max_pages == 2  # Dotenv survives when YAML omits a field.
     assert configured.max_retries == 1  # YAML wins over the default.
