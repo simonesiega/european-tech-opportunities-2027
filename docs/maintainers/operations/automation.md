@@ -313,7 +313,9 @@ Quality checks run after independent search transactions commit, not as a rollba
 
 The availability-only workflow skips collection and its quality checks; the scrape-only workflow skips availability.
 
-HTTP `429` during scraping stops subsequent requests but permits an explicitly partial publication candidate when at least one search completed and every quality, SQLite integrity, projection, and snapshot check passes. Completed empty searches may qualify; zero completed searches never do. All other source denials remain blocking, as does any availability-audit denial. Partial candidates return scrape exit `4`, emit `collection_outcome=partial`, and use manual-review README proposals rather than automatic merging. Failed/skipped searches provide no negative lifecycle evidence or scheduling advancement. Production remains on its previously reviewed release until a matching proposal is reviewed, merged, and separately deployed.
+HTTP `429` during scraping stops subsequent requests. A partial publication candidate requires at least one completed search, only HTTP `429` failures or source-skipped searches, and successful quality, SQLite integrity, projection, and snapshot checks. Completed empty searches may qualify; zero completed searches never do. Any other search failure blocks publication, even alongside HTTP `429`. Any availability-audit denial also blocks publication.
+
+Eligible partial candidates return scrape exit `4`, emit `collection_outcome=partial`, and use README proposals that require manual review and merge. Failed and skipped searches provide no negative lifecycle evidence or scheduling advancement. Production remains on its previously reviewed release until a matching proposal is reviewed, merged, and separately deployed.
 
 The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-jobs --no-render` batch operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the reviewed batch instead of rebuilding state from the VPS database.
 
@@ -352,7 +354,7 @@ The deployment mode and README validation prevent newly collected state from bei
 | CLI exit code | Workflow behavior |
 |---:|---|
 | `0` | Continue after complete success |
-| `1` | Stop because the availability audit encountered any source denial, scraping encountered a denial other than HTTP `429` or no search completed, or the quality gate blocked or could not complete |
+| `1` | Stop after any availability-audit denial, scraping with no completed search or a failure other than HTTP `429` or source-skipped work, or a blocked or incomplete quality gate |
 | `2` | Continue only for inconclusive availability auditing; reject this code from scraping as input/configuration failure |
 | `3` | Stop because schema or state preconditions failed |
 | `4` | Continue after eligible partial scraping, explicitly labeled partial and requiring manual review and merge |
