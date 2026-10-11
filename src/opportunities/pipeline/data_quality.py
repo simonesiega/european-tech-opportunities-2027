@@ -110,7 +110,7 @@ def analyze_collection_quality(
             DataQualityFinding(
                 "source_publication_blocked",
                 "blocking",
-                "A source denial prevents publication of this collection.",
+                "An unsafe search failure prevents publication of this collection.",
                 {},
             )
         )

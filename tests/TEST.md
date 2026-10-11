@@ -50,7 +50,7 @@ Source: [integration/test_cli.py](integration/test_cli.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_scrape_quality_gate_end_to_end` | Full, warning, blocking, timeout-partial, HTTP 429 partial (including completed empty searches and blocking drift), source-denied, failed, and selected-search runs produce distinct exits, sanitized reports, uncontaminated baselines, and safe publication decisions |
+| `test_scrape_quality_gate_end_to_end` | Full, warning, blocking, unsafe partial (timeout, invalid HTML, unexpected exception, or transport failure), HTTP 429 partial (including completed empty searches and blocking drift), source-denied, failed, and selected-search runs produce distinct exits, sanitized reports, uncontaminated baselines, and safe publication decisions |
 | `test_rate_limited_partial_requires_quality_gate` | HTTP 429 completed work cannot render without the mandatory quality report |
 | `test_validation_rejects_foreign_key_inconsistency_without_private_diagnostics` | A synthetic broken run-to-search reference blocks validation without exposing private diagnostic values |
 | `test_requested_quality_gate_fails_closed_on_local_errors` | Baseline read, analysis, report write, and persistence errors stop publication and do not disclose private diagnostics |
@@ -123,7 +123,7 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; diagnostics are sanitized |
+| `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, transport/HTTP failure, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; only HTTP 429 may qualify for partial publication and diagnostics are sanitized |
 | `test_collection_uses_explicit_cycle_when_posting_age_is_missing` | Real parsing/classification persists explicit-cycle roles but rejects yearless roles without date evidence |
 | `test_malformed_detail_does_not_publish_a_current_search_card` | A plausible card cannot substitute for missing detail identity or produce a successful collection |
 | `test_concurrent_search_outcomes_apply_in_observation_order` | Reversed fetched outcomes still persist the newest metadata and both search associations |
@@ -141,6 +141,7 @@ Source: [integration/test_partial_collection.py](integration/test_partial_collec
 |---|---|
 | `test_early_mid_late_source_stop_retains_only_completed_searches` | Early/mid/late search/detail 429, 401, 403, redirect, and challenge responses stop without retries or subsequent requests; only completed searches persist, and only qualifying 429 results are eligible with no baseline |
 | `test_mixed_inflight_denials_never_qualify_for_partial_publication` | Concurrent HTTP 429 cannot mask challenge, authentication, or redirect denials, including failed stream cleanup; completed siblings remain in SQLite but publication and baselines stay blocked without subsequent requests |
+| `test_rate_limit_cannot_mask_an_independent_concurrent_failure` | Concurrent HTTP 429 plus timeout, transport/HTTP failure, invalid HTML, or unexpected exception blocks publication and baselines, preserves the completed empty search, and skips queued work |
 | `test_multi_day_rotation_survives_snapshots_and_discarded_interruptions` | Fourteen daily partial runs cover seven searches fairly across verified snapshots; cancelled disposable executions cannot advance durable rotation |
 | `test_rotation_handles_registry_changes_and_full_recovery` | New/removed/disabled/re-enabled/modified searches and editorial edits compose deterministically with rotation and later full success |
 
@@ -313,6 +314,7 @@ Source: [unit/test_data_quality.py](unit/test_data_quality.py).
 | `test_scraper_warning_frequency_is_bounded_and_sanitized` | Warning thresholds and rates remain bounded and exclude raw warning text |
 | `test_editorial_search_changes_preserve_drift_detection` | Renaming/describing a search cannot reset its substantive quality history |
 | `test_partial_and_failed_searches_do_not_create_baselines_or_fake_zero_metrics` | Failure is not zero discovery; partial populations never compare as complete-registry samples |
+| `test_publication_requires_full_success_or_only_rate_limit_failures` | A completed empty search permits HTTP 429 partial publication only; other denials, timeout, invalid HTML, unexpected/unknown failure, or unaccompanied skipped searches block exits and quality eligibility without creating a baseline |
 | `test_changed_registry_does_not_compare_incompatible_profiles` | Registry geography changes reset incompatible aggregate comparisons |
 | `test_only_recent_nonfuture_baselines_can_block` | Thirty-day boundary, expired history, and future snapshots are handled conservatively |
 | `test_invalid_baselines_cannot_influence_or_leak_into_reports` | Invalid versions, timestamps, counts, categories, countries, shapes, and extra fields fail validation without leaking their contents |

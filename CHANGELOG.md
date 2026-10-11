@@ -16,6 +16,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Block collection publication after unexpected, parsing, or unrelated transport failures, including concurrent failures alongside HTTP 429, while preserving completed search transactions.
+
 ### Removed
 
 ### Security
