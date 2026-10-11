@@ -86,7 +86,7 @@ Source: [integration/test_readme.py](integration/test_readme.py).
 | `test_readme_validation_reports_stale_translation` | Independent count-card and preview drift is reported by localized filename without modifying any file |
 | `test_translation_preflight_failure_preserves_all_projections` | Missing localized files, duplicate/reversed markers, and overlapping regions fail before any English or localized projection changes |
 | `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with localized headers, link labels, and fixed UTC month/date formatting across a year boundary; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
-| `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest rows of each type appear, with truthful full counts |
+| `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest first-seen rows of each type appear, with truthful full counts and explicit ordering labels; later observations cannot promote older rows |
 | `test_review_seal_detects_changes_beyond_preview_and_exact_timestamps` | Off-preview public edits and microsecond changes alter the seal; private lifecycle-only edits do not; malformed seals fail |
 | `test_readme_rejects_reversed_generated_markers` | Invalid region ownership fails before rendering can overwrite the document |
 | `test_empty_database_still_renders_both_table_headers` | An empty projection remains a valid two-section table with zero counts and no invented collection time |
@@ -436,13 +436,13 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
 | `test_rendered_link_check_detects_missing_images_and_anchors` | Rendered anchors/media, favicon fidelity, and private-file leaks fail validation |
-| `test_rendered_soundtrack_links_and_exact_publication_boundary` | Only the cataloged soundtrack path may publish, and missing linked audio still fails |
+| `test_rendered_standalone_audio_is_rejected_and_missing_links_fail` | Standalone MP3s at the former soundtrack path, alternate paths, mixed-case extension, and private authoring path all fail publication; removed audio links also fail |
 | `test_legacy_redirects_require_a_real_canonical_destination` | Redirects cannot be generated without real destination pages and point correctly across directories |
 | `test_legacy_redirects_point_directly_to_current_topic_guides` | Legacy mappings resolve directly to current guides, never redirect chains or overwritten canonical pages |
 | `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
-| `test_public_staging_rejects_unapproved_files` | Databases, environment files, uncataloged audio, and promotional implementation files fail the publication allowlist |
+| `test_public_staging_rejects_unapproved_files` | Databases, environment files, all standalone audio (including the former soundtrack path), and promotional implementation files fail the publication allowlist |
 | `test_public_staging_rejects_symlinked_media` | Allowed extensions cannot smuggle private files through symlinks |
-| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors resolving to every supported language |
+| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors using native language names and resolving to every supported language |
 | `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |
 | `test_readme_translations_participate_in_documentation_checks_and_navigation` | Every supported README participates in curated source/lint discovery and parsed MkDocs language navigation without restricting unrelated Markdown files |
 | `test_renders_table_and_then_passes_check` | Stale check mode does not write; rendering updates measured values and subsequent checking passes without altering unrelated content |

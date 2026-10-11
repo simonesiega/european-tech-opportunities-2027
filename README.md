@@ -43,7 +43,7 @@
 
 Finding the right early-career tech role in Europe shouldn't mean digging through hundreds of scattered, outdated, or irrelevant listings.
 
-**European Tech Opportunities 2027** brings tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Listings are checked against the project's eligibility rules, with the directory updated daily.
+**European Tech Opportunities 2027** brings tech **internships** and **New Grad** roles (graduate and entry-level positions) across Europe into one searchable directory for the 2027 hiring cycle. Listings are checked against the project's eligibility rules. Collection is scheduled daily; directory updates reach production after review and validation.
 
 Find a company you like, pick a country, explore a category, or see what's been added recently. Share any search with a link. No installation needed. No account needed. **Save roles, mark where you've applied, hide the ones that aren't for you, and see what's new since your last visit**. Your lists stay in your browser, with no device sync. Marking a role applied is a reminder; it does not submit an application.
 
@@ -176,7 +176,7 @@ Report vulnerabilities privately through [the security policy](SECURITY.md), not
 
 ## License
 
-Code and docs are [MIT licensed](LICENSE). External listings and third-party media keep their own terms. Distribution rights for the promotional soundtrack and scored film still need confirmation — see the [media rights notice](docs/assets/README.md#promotional-film).
+Code and docs are [MIT licensed](LICENSE). External listings and third-party media keep their own terms. The promotional film uses “Minimal Corporate Atmosphere” by RoyaltyFreeMusicStudio under the Pixabay Content License, not MIT. See the [third-party media notice](docs/assets/README.md#third-party-media-notice) for permissions and optional attribution; the original MP3 is not distributed.
 
 ## Contributors
 

@@ -57,7 +57,7 @@ def test_readme_contains_type_sections_and_escapes_values(tmp_path: Path, filena
     assert "**Last successful collection:** July 15, 2026 at 00:00 UTC" in block
     assert "### Latest New Grad opportunities" in block
     assert "### Latest internships" in block
-    assert "Showing the 1 most recently discovered of 1 open internships" in block
+    assert "Showing 1 of 1 open internships, newest first by first-seen time:" in block
     assert "Category" not in table
     assert "Example \\| Technology" in table
 
@@ -291,12 +291,17 @@ def test_readme_preview_is_bounded_to_five_opportunities_per_type() -> None:
         for index in range(12)
     ]
 
+    # Later observations do not move an older first-seen row into the preview.
+    internships[0] = internships[0].model_copy(
+        update={"last_seen_at": now + timedelta(days=1), "updated_at": now + timedelta(days=1)}
+    )
     block = markdown_block(internships + new_grad, ReadmeMetadata(24, now))
 
-    assert "Showing the 5 most recently discovered of 12 open internships" in block
-    assert "Showing the 5 most recently discovered of 12 open New Grad opportunities" in block
+    assert "Showing 5 of 12 open internships, newest first by first-seen time:" in block
+    assert "Showing 5 of 12 open New Grad opportunities, newest first by first-seen time:" in block
     assert "| Company 11 |" in block
     assert "| Company 111 |" in block
+    assert "| Company 0 |" not in block
     assert "| Company 6 |" not in block
     assert "| Company 106 |" not in block
 

@@ -50,7 +50,8 @@ def test_readme_language_navigation_and_section_hierarchy(readme: Path) -> None:
     assert selector.get("markdown") == "1"
     links = re.findall(r"\[([^\]]+)\]\(([^)]+)\)", selector.get_text())
     assert len(links) == len(READMES)
-    for (_label, target), expected in zip(links, READMES.values(), strict=True):
+    for (label, target), (language, expected) in zip(links, READMES.items(), strict=True):
+        assert label == language
         assert (readme.parent / target).resolve() == expected
 
 

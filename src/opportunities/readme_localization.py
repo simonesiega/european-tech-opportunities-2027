@@ -74,11 +74,12 @@ LOCALES = {
         directory="Browse and filter the complete directory at **[{url}]({url})**.",
         new_grad_heading="Latest New Grad opportunities",
         new_grad_preview=(
-            "Showing the {shown} most recently discovered of {total} open New Grad opportunities:"
+            "Showing {shown} of {total} open New Grad opportunities, "
+            "newest first by first-seen time:"
         ),
         internship_heading="Latest internships",
         internship_preview=(
-            "Showing the {shown} most recently discovered of {total} open internships:"
+            "Showing {shown} of {total} open internships, newest first by first-seen time:"
         ),
         columns=("Company", "Title", "Location", "Listing"),
         view="View",
@@ -111,12 +112,13 @@ LOCALES = {
         directory="Consulta e filtra tutte le offerte su **[{url}]({url})**.",
         new_grad_heading="Ultime offerte New Grad",
         new_grad_preview=(
-            "Le {shown} offerte New Grad scoperte più di recente, su un "
-            "totale di {total} ancora aperte:"
+            "{shown} offerte New Grad su {total} ancora aperte, ordinate dalla data "
+            "di prima rilevazione più recente:"
         ),
         internship_heading="Ultimi tirocini",
         internship_preview=(
-            "I {shown} tirocini scoperti più di recente, su un totale di {total} ancora aperti:"
+            "{shown} tirocini su {total} ancora aperti, ordinati dalla data "
+            "di prima rilevazione più recente:"
         ),
         columns=("Azienda", "Posizione", "Località", "Annuncio"),
         view="Apri",
@@ -148,12 +150,13 @@ LOCALES = {
         directory="Consultez et filtrez l\u2019ensemble des offres sur **[{url}]({url})**.",
         new_grad_heading="Dernières offres New Grad",
         new_grad_preview=(
-            "Les {shown} offres découvertes le plus récemment parmi les "
-            "{total} offres New Grad actives :"
+            "{shown} offres parmi les {total} offres New Grad actives, classées "
+            "par date de première observation, de la plus récente à la plus ancienne :"
         ),
         internship_heading="Derniers stages",
         internship_preview=(
-            "Les {shown} offres découvertes le plus récemment parmi les {total} stages actifs :"
+            "{shown} offres parmi les {total} stages actifs, classées par date de "
+            "première observation, de la plus récente à la plus ancienne :"
         ),
         columns=("Entreprise", "Intitulé du poste", "Localisation", "Annonce"),
         view="Voir l\u2019offre",
@@ -189,11 +192,13 @@ LOCALES = {
         ),
         new_grad_heading="Neueste New-Grad-Stellen",
         new_grad_preview=(
-            "Die {shown} zuletzt entdeckten Stellen unter den {total} offenen New-Grad-Angeboten:"
+            "{shown} von {total} offenen New-Grad-Angeboten, nach dem Zeitpunkt "
+            "der ersten Erfassung sortiert, neueste zuerst:"
         ),
         internship_heading="Neueste Praktika",
         internship_preview=(
-            "Die {shown} zuletzt entdeckten Praktika unter den {total} noch offenen Angeboten:"
+            "{shown} von {total} offenen Praktika, nach dem Zeitpunkt "
+            "der ersten Erfassung sortiert, neueste zuerst:"
         ),
         columns=("Unternehmen", "Position", "Standort", "Anzeige"),
         view="Ansehen",
@@ -226,13 +231,13 @@ LOCALES = {
         directory="Consulta y filtra todas las oportunidades en **[{url}]({url})**.",
         new_grad_heading="Últimas ofertas New Grad",
         new_grad_preview=(
-            "Las {shown} ofertas descubiertas más recientemente entre los "
-            "{total} puestos New Grad activos:"
+            "{shown} de {total} puestos New Grad activos, ordenados por fecha "
+            "del primer registro, del más reciente al más antiguo:"
         ),
         internship_heading="Últimas ofertas de prácticas",
         internship_preview=(
-            "Las {shown} ofertas descubiertas más recientemente entre las "
-            "{total} prácticas activas:"
+            "{shown} de {total} prácticas activas, ordenadas por fecha "
+            "del primer registro, de la más reciente a la más antigua:"
         ),
         columns=("Empresa", "Puesto", "Ubicación", "Anuncio"),
         view="Ver oferta",
@@ -251,9 +256,14 @@ LOCALES = {
         ),
         directory="前往 **[{url}]({url})** 浏览和筛选完整的职位目录。",
         new_grad_heading="最新 New Grad 职位",
-        new_grad_preview="以下为 {total} 个在招 New Grad 职位中最近发现的 {shown} 个\uff1a",
+        new_grad_preview=(
+            "以下展示 {total} 个在招 New Grad 职位中的 {shown} 个\uff0c"
+            "按首次记录时间从新到旧排序\uff1a"
+        ),
         internship_heading="最新实习岗位",
-        internship_preview="以下为 {total} 个在招实习岗位中最近发现的 {shown} 个\uff1a",
+        internship_preview=(
+            "以下展示 {total} 个在招实习岗位中的 {shown} 个\uff0c按首次记录时间从新到旧排序\uff1a"
+        ),
         columns=("公司", "职位名称", "地点", "原始公告"),
         view="查看",
     ),

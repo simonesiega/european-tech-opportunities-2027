@@ -43,7 +43,7 @@
 
 Trouver un stage ou un premier emploi dans la tech en Europe ne devrait pas nécessiter de parcourir des centaines d’annonces éparpillées, obsolètes ou sans rapport avec ce que vous recherchez.
 
-**European Tech Opportunities 2027** réunit au même endroit des **stages** et des **offres New Grad** (postes destinés aux jeunes diplômés et aux personnes en début de carrière) dans toute l’Europe, pour la campagne de recrutement 2027. Les annonces sont sélectionnées selon les critères d’éligibilité du projet, et l’annuaire, doté d’un moteur de recherche, est mis à jour chaque jour.
+**European Tech Opportunities 2027** réunit au même endroit des **stages** et des **offres New Grad** (postes destinés aux jeunes diplômés et aux personnes en début de carrière) dans toute l’Europe, pour la campagne de recrutement 2027. Les annonces sont sélectionnées selon les critères d’éligibilité du projet. La collecte est programmée chaque jour ; les mises à jour de l’annuaire sont déployées en production après examen et validation.
 
 Recherchez une entreprise, choisissez un pays, explorez une catégorie ou découvrez les offres ajoutées récemment. Chaque recherche peut être partagée grâce à un simple lien. Aucune installation, aucune inscription. **Enregistrez les offres qui vous intéressent, indiquez celles auxquelles vous avez postulé, masquez les autres et retrouvez les nouveautés depuis votre dernière visite.** Vos listes restent dans votre navigateur et ne sont pas synchronisées entre vos appareils. Marquer une offre comme « candidature envoyée » permet uniquement de suivre vos démarches : cela n’envoie aucune candidature.
 
@@ -176,7 +176,7 @@ Signalez toute vulnérabilité de manière confidentielle, en suivant la [politi
 
 ## Licence
 
-Le code et la documentation sont distribués sous [licence MIT](../../LICENSE). Les annonces externes et les médias appartenant à des tiers restent soumis à leurs propres conditions. Les droits de diffusion de la bande-son promotionnelle et de la vidéo qui l’utilise doivent encore être confirmés : consultez la [notice relative aux droits des médias](../assets/README.md#promotional-film).
+Le code et la documentation sont distribués sous [licence MIT](../../LICENSE). Les annonces externes et les médias appartenant à des tiers restent soumis à leurs propres conditions. Le film promotionnel utilise « Minimal Corporate Atmosphere » de RoyaltyFreeMusicStudio sous la Pixabay Content License, et non sous licence MIT. Consultez la [notice relative aux médias tiers](../assets/README.md#third-party-media-notice) pour les utilisations autorisées et l’attribution facultative ; le MP3 original n’est pas distribué.
 
 ## Contributeurs et contributrices
 

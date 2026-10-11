@@ -39,7 +39,7 @@ Link to the owner rather than copying procedures. Update `docs/README.md`, the r
 
 User guides address readers who may be new to the project: explain unfamiliar product terms on first use, start with the visible action and expected result, and offer recovery choices without requiring implementation knowledge. Keep optional developer-tool steps clearly labeled; downloading or browsing must not require a local checkout. API and dataset references may include technical examples, but must not require the collection toolchain. Maintainer guides name owners, preconditions, side effects, verification steps, and stop conditions; link to user guides for public behavior instead of repeating them.
 
-Avoid promotional language in runbooks and unexplained internal terminology in browsing guides. Keep public documentation useful beyond the change that produced it. Explain product behavior or a reproducible procedure; put change-specific test results and review notes in the pull request. Retain commands, known limitations, and recovery instructions in the guides.
+Avoid promotional language in runbooks and unexplained internal terminology in browsing guides. Keep public documentation useful beyond the change that produced it. State established facts directly, without narrating editing sessions, maintainer confirmations, or the writer's verification process. Describe relevant uncertainty as a limitation of the system or available sources. Explain product behavior or a reproducible procedure; put change-specific test results and review notes in the pull request. Retain commands, known limitations, and recovery instructions in the guides.
 
 Root policies retain their authoritative wording and the contribution template retains its form structure. Agent instructions remain a technical entry point. Do not reformat generated regions, code examples, legal text, or exact UI labels merely to make them resemble prose.
 
@@ -103,7 +103,7 @@ Markdownlint and Vale run from digest-pinned containers with read-only mounts an
 
 ## Publishing boundary
 
-The build stages only public Markdown, approved root policies, visual asset formats, and the specifically cataloged `docs/assets/promo/soundtrack.mp3` in a temporary directory. Other audio files and the promotional authoring bundle remain outside the publication allowlist. **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
+The build stages only public Markdown, approved root policies, and visual asset formats in a temporary directory. Standalone audio files, including the private promotional soundtrack, and the promotional authoring bundle remain outside the publication allowlist; see the [third-party media notice](../../assets/README.md#third-party-media-notice). **Never set MkDocs `docs_dir` to the repository root**: it contains private runtime state. Symlinks and unexpected files fail the build. The website favicon is copied verbatim; GitHub alerts are translated only in staged Markdown. Build output under `build/docs-site/` is ignored.
 
 The documentation workflow strictly builds and validates pull requests but deploys only from `main`. It has no canonical-state access. [Automation](../operations/automation.md#validation-workflows) owns GitHub Pages/DNS setup, permissions, and artifact publication. No repository setting is changed by the build script.
 

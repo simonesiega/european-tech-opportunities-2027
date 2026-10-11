@@ -16,9 +16,12 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Clarify daily collection versus reviewed production deployment, multilingual README handoffs, and first-seen preview ordering.
 - Block collection publication after unexpected, parsing, or unrelated transport failures, including concurrent failures alongside HTTP 429, while preserving completed search transactions.
 
 ### Removed
+
+- Remove the standalone promotional MP3 from the public tree and documentation allowlists; document Pixabay soundtrack permissions while preserving the scored film.
 
 ### Security
 

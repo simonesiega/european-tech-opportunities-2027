@@ -547,7 +547,7 @@ For a fully successful collection, confirm that:
 - the pull request targets `main`;
 - its head branch is `automated/nightly-full-update`;
 - its title is `data: nightly availability and scrape update`;
-- `README.md` is the only changed file;
+- changes are restricted to `README.md` and the five supported `docs/translations/README.<language>.md` files;
 - `workflow_dispatch` runs exist for all seven validation workflows, including Dependency Review, on the automation branch head SHA;
 - the README mutation job identified those run IDs and waited for each successful conclusion before requesting a merge.
 
