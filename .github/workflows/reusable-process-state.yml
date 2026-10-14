@@ -253,7 +253,7 @@ jobs:
 
       - name: Upload aggregate data-quality report
         if: always() && (steps.scrape.outcome == 'success' || steps.scrape.outcome == 'failure')
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.projection_artifact_name }}-data-quality
           retention-days: 30
@@ -349,7 +349,7 @@ jobs:
           cp README.md "$bundle/README.md"
 
       - name: Upload retained public-projection bundle
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.projection_artifact_name }}
           retention-days: 30
@@ -359,7 +359,7 @@ jobs:
       # Mutation jobs receive only README projections, never the database or VPS credentials.
       - name: Upload README handoff
         if: inputs.readme_artifact_name != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.readme_artifact_name }}
           retention-days: 1
