@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 10, 2026 at 13:52 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-725-2563eb?style=for-the-badge" alt="Total opportunities: 725" />
-  <img src="https://img.shields.io/badge/Internships-348-16a34a?style=for-the-badge" alt="Internships: 348" />
+  <strong>Last successful collection: October 14, 2026 at 22:53 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-727-2563eb?style=for-the-badge" alt="Total opportunities: 727" />
+  <img src="https://img.shields.io/badge/Internships-350-16a34a?style=for-the-badge" alt="Internships: 350" />
   <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New Grad opportunities: 377" />
 </p>
-<!-- Public directory state v1 sha256: 1afce926542853a919c8553df5e35ffc2beda6cbbd405907b89250d83ec17a32 -->
+<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -62,8 +62,8 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 725 (Internships: 348 · New Grad: 377)<br>
-**Last successful collection:** October 10, 2026 at 13:52 UTC
+**Open opportunities:** 727 (Internships: 350 · New Grad: 377)<br>
+**Last successful collection:** October 14, 2026 at 22:53 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
@@ -81,15 +81,15 @@ Showing 5 of 377 open New Grad opportunities, newest first by first-seen time:
 
 ### Latest internships
 
-Showing 5 of 348 open internships, newest first by first-seen time:
+Showing 5 of 350 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [View](<https://www.linkedin.com/jobs/view/4477946355>) |
+| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4476848934>) |
 | Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4476853550>) |
 | SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [View](<https://www.linkedin.com/jobs/view/4475243096>) |
 | Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4475211197>) |
-| Sensirion | Intern Data Engineering in Operations • 100% | Stäfa, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4477652460>) |
-| vialytics | Computer Vision Intern \(m/f/d\) | Stuttgart, Baden-Württemberg, Germany | [View](<https://www.linkedin.com/jobs/view/4475995576>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.

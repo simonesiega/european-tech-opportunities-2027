@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Ultima raccolta completata con successo: 10 ottobre 2026 alle 13:52 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-725-2563eb?style=for-the-badge" alt="Offerte attive: 725" />
-  <img src="https://img.shields.io/badge/Tirocini-348-16a34a?style=for-the-badge" alt="Tirocini: 348" />
+  <strong>Ultima raccolta completata con successo: 14 ottobre 2026 alle 22:53 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offerte%20attive-727-2563eb?style=for-the-badge" alt="Offerte attive: 727" />
+  <img src="https://img.shields.io/badge/Tirocini-350-16a34a?style=for-the-badge" alt="Tirocini: 350" />
   <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Posizioni New Grad: 377" />
 </p>
-<!-- Public directory state v1 sha256: 1afce926542853a919c8553df5e35ffc2beda6cbbd405907b89250d83ec17a32 -->
+<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -62,8 +62,8 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 725 (Tirocini: 348 · New Grad: 377)<br>
-**Ultima raccolta completata con successo:** 10 ottobre 2026 alle 13:52 UTC
+**Offerte aperte:** 727 (Tirocini: 350 · New Grad: 377)<br>
+**Ultima raccolta completata con successo:** 14 ottobre 2026 alle 22:53 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
@@ -81,15 +81,15 @@ Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://
 
 ### Ultimi tirocini
 
-5 tirocini su 348 ancora aperti, ordinati dalla data di prima rilevazione più recente:
+5 tirocini su 350 ancora aperti, ordinati dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
+| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [Apri](<https://www.linkedin.com/jobs/view/4477946355>) |
+| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [Apri](<https://www.linkedin.com/jobs/view/4476848934>) |
 | Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [Apri](<https://www.linkedin.com/jobs/view/4476853550>) |
 | SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [Apri](<https://www.linkedin.com/jobs/view/4475243096>) |
 | Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [Apri](<https://www.linkedin.com/jobs/view/4475211197>) |
-| Sensirion | Intern Data Engineering in Operations • 100% | Stäfa, Zurich, Switzerland | [Apri](<https://www.linkedin.com/jobs/view/4477652460>) |
-| vialytics | Computer Vision Intern \(m/f/d\) | Stuttgart, Baden-Württemberg, Germany | [Apri](<https://www.linkedin.com/jobs/view/4475995576>) |
 <!-- END OPPORTUNITIES -->
 
 Non trovi una posizione pertinente? [Segnalaci un'offerta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Ogni segnalazione viene esaminata prima della pubblicazione.
