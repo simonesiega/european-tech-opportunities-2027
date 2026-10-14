@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 10 de octubre de 2026 a las 13:52 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-725-2563eb?style=for-the-badge" alt="Ofertas activas: 725" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-348-16a34a?style=for-the-badge" alt="Prácticas: 348" />
+  <strong>Última recopilación realizada con éxito: 14 de octubre de 2026 a las 22:53 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-727-2563eb?style=for-the-badge" alt="Ofertas activas: 727" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-350-16a34a?style=for-the-badge" alt="Prácticas: 350" />
   <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Puestos New Grad: 377" />
 </p>
-<!-- Public directory state v1 sha256: 1afce926542853a919c8553df5e35ffc2beda6cbbd405907b89250d83ec17a32 -->
+<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -62,8 +62,8 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 725 (Prácticas: 348 · New Grad: 377)<br>
-**Última recopilación realizada con éxito:** 10 de octubre de 2026 a las 13:52 UTC
+**Ofertas activas:** 727 (Prácticas: 350 · New Grad: 377)<br>
+**Última recopilación realizada con éxito:** 14 de octubre de 2026 a las 22:53 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
@@ -81,15 +81,15 @@ Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](h
 
 ### Últimas ofertas de prácticas
 
-5 de 348 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 350 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
+| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [Ver oferta](<https://www.linkedin.com/jobs/view/4477946355>) |
+| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4476848934>) |
 | Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4476853550>) |
 | SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4475243096>) |
 | Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4475211197>) |
-| Sensirion | Intern Data Engineering in Operations • 100% | Stäfa, Zurich, Switzerland | [Ver oferta](<https://www.linkedin.com/jobs/view/4477652460>) |
-| vialytics | Computer Vision Intern \(m/f/d\) | Stuttgart, Baden-Württemberg, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4475995576>) |
 <!-- END OPPORTUNITIES -->
 
 ¿Conoces una oferta que debería estar aquí? [Propón una nueva oferta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Todas las propuestas se revisan antes de publicarse.

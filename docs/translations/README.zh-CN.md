@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 10 月 10 日 13:52（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-725-2563eb?style=for-the-badge" alt="在招职位总数：725" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-348-16a34a?style=for-the-badge" alt="实习岗位：348" />
+  <strong>最近一次成功采集：2026 年 10 月 14 日 22:53（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-727-2563eb?style=for-the-badge" alt="在招职位总数：727" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-350-16a34a?style=for-the-badge" alt="实习岗位：350" />
   <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-377-9333ea?style=for-the-badge" alt="应届生岗位：377" />
 </p>
-<!-- Public directory state v1 sha256: 1afce926542853a919c8553df5e35ffc2beda6cbbd405907b89250d83ec17a32 -->
+<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -62,8 +62,8 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 725（实习：348 · New Grad：377）<br>
-**最近一次成功采集：** 2026 年 10 月 10 日 13:52（UTC）
+**在招职位：** 727（实习：350 · New Grad：377）<br>
+**最近一次成功采集：** 2026 年 10 月 14 日 22:53（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
@@ -81,15 +81,15 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 ### 最新实习岗位
 
-以下展示 348 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 350 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
+| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [查看](<https://www.linkedin.com/jobs/view/4477946355>) |
+| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [查看](<https://www.linkedin.com/jobs/view/4476848934>) |
 | Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [查看](<https://www.linkedin.com/jobs/view/4476853550>) |
 | SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [查看](<https://www.linkedin.com/jobs/view/4475243096>) |
 | Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [查看](<https://www.linkedin.com/jobs/view/4475211197>) |
-| Sensirion | Intern Data Engineering in Operations • 100% | Stäfa, Zurich, Switzerland | [查看](<https://www.linkedin.com/jobs/view/4477652460>) |
-| vialytics | Computer Vision Intern \(m/f/d\) | Stuttgart, Baden-Württemberg, Germany | [查看](<https://www.linkedin.com/jobs/view/4475995576>) |
 <!-- END OPPORTUNITIES -->
 
 发现尚未收录的合适职位？欢迎 [推荐职位](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml)。提交的职位会在审核后发布。
