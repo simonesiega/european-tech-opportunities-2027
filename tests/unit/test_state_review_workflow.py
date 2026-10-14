@@ -395,10 +395,12 @@ def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
     nightly = yaml.load(
         (WORKFLOWS / "nightly.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
     )
-    assert nightly["on"] == {
-        "workflow_dispatch": "",
-        "schedule": [{"cron": "23 4 * * *"}],
-    }
+    assert nightly["on"]["schedule"] == [{"cron": "23 4 * * *"}]
+    inputs = nightly["on"]["workflow_dispatch"]["inputs"]
+    assert set(inputs) == {"skip_availability"}
+    assert inputs["skip_availability"]["type"] == "boolean"
+    assert inputs["skip_availability"]["default"] == "false"
+    assert inputs["skip_availability"]["required"] == "false"
     assert nightly["concurrency"] == {
         "group": "opportunity-collection",
         "cancel-in-progress": "false",
@@ -406,9 +408,23 @@ def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
     process = nightly["jobs"]["process-state"]
     assert "if" not in process
     assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
-    assert process["with"]["run_availability"] == "true"
+    assert process["with"]["run_availability"] == (
+        "${{ github.event_name != 'workflow_dispatch' || !inputs.skip_availability }}"
+    )
     assert process["with"]["run_scrape"] == "true"
     assert process["with"]["crawl_authorized"] == "${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}"
+    assert process_step("Check due public job pages for closure alerts")["if"] == (
+        "inputs.run_availability"
+    )
+    proposal = nightly["jobs"]["update-readme"]["with"]
+    assert proposal["body"] == (
+        "${{ github.event_name == 'workflow_dispatch' && inputs.skip_availability && "
+        "'Availability audit skipped by manual request; collection ran without the separate "
+        "due-job audit.' || 'A bounded batch of due listings was checked for 404/410 responses "
+        "and explicit closure alerts before collection ran.' }} "
+        "Full collections retain automatic merging after configured requirements pass; "
+        "partial collections require manual review and merge."
+    )
 
 
 @pytest.mark.parametrize("filename", ["nightly.yml", "check-availability.yml"])
@@ -416,7 +432,8 @@ def test_availability_failure_prevents_readme_handoff_to_mutation_job(filename: 
     document = yaml.load((WORKFLOWS / filename).read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
     process = document["jobs"]["process-state"]
     proposal = document["jobs"]["update-readme"]
-    assert process["with"]["run_availability"] == "true"
+    if filename == "check-availability.yml":
+        assert process["with"]["run_availability"] == "true"
     assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
     assert "continue-on-error" not in process
     assert proposal["needs"] == "process-state"

@@ -83,6 +83,7 @@ Schema, link-validation, and metadata helpers keep the public output predictable
 ![Operations map showing serialized protected processing, verified restricted snapshots, a README-only review handoff, and a separate approved versioned-release deployment](svg/automation.svg)
 
 Scheduled and manual workflows serialize canonical updates through a shared one-writer lock.
+The nightly node shows the default audit → scrape sequence. Manual runs can set `skip_availability=true` to select scraping only; scheduled runs always audit. This uses the existing selected-phase boundary without changing the graph's processing or publication handoffs.
 The protected processor restores verified state, migrates, requires its README to match reviewed `main`, and runs selected CLI phases.
 Full and eligible HTTP `429` partial results must pass quality, SQLite integrity, and projection checks before checkpointing and restricted snapshot publication.
 Round-trip snapshot verification must succeed before the README handoff. Search rotation travels with the database, never a separate queue or artifact.

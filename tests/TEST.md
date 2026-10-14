@@ -408,7 +408,7 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
 | `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labeling and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
 | `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
-| `test_nightly_supports_manual_and_scheduled_full_updates` | Scheduled/manual work uses a noncancelling shared lock, audit/collection, and explicit authorization input |
+| `test_nightly_supports_manual_and_scheduled_full_updates` | Boolean `skip_availability` defaults to false; only manual opt-out skips the audit, schedules always audit, collection and authorization remain enabled, the shared lock does not cancel work, and proposal text identifies the selected mode |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent handoff to the README-writing job |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |
 | `test_recovery_mode_guard_precedes_restore_and_forbids_side_effects` | Recovery-mode combinations fail before restore and cannot publish snapshots or bypass validation before handoff |

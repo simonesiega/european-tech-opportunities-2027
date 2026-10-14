@@ -8,6 +8,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Added
 
+- Add a manual `skip_availability` option to the nightly workflow; scheduled runs always audit stored jobs before scraping.
 - Add Italian, French, German, Spanish, and Simplified Chinese READMEs to the documentation site, with reciprocal language navigation and synchronized generated data.
 
 ### Changed
