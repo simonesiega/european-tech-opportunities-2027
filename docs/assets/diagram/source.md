@@ -299,6 +299,8 @@ flowchart TB
 
 ## Automation and deployment
 
+The nightly node shows the default sequence. Manual `skip_availability=true` selects scraping without the separate audit through the existing selected-CLI-phase boundary; scheduled runs always audit. Restore, validation, snapshot, review, and deployment relationships stay the same.
+
 ```mermaid
 flowchart TB
     accTitle: Automation and deployment — protected state, reviewed publication

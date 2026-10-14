@@ -46,7 +46,7 @@ Validation and collection remain separate: normal CI never contacts LinkedIn.
 | `docs-links.yml` | Wednesday 06:41 UTC, manual | Lychee checks root Markdown and documentation Markdown/HTML links without adding external-link failures to pull-request validation |
 | `documentation.yml` | Push to `main`, pull request, manual | Digest-pinned Markdown and prose lint, strict MkDocs Material build, and local rendered-link check; deploy only the allowlisted public documentation artifact from `main` to GitHub Pages |
 | `canonical-state-drill.yml` | Manual | Recover, validate, republish, and round-trip a canonical snapshot without source access; explicit read-only modes propose the first public-state review seal or recover a missing README proposal without publishing a snapshot |
-| `nightly.yml` | 04:23 UTC daily, manual from `main` | Availability audit, scrape-time drift checks and aggregate report artifact, with one narrowly scoped automated README pull request |
+| `nightly.yml` | 04:23 UTC daily, manual from `main` | Availability audit (manually skippable), scrape-time drift checks and aggregate report artifact, with one narrowly scoped automated README pull request |
 | `scrape.yml` | Manual | Scrape-only update with its own review pull request, or deployment-only publication of reviewed state from `main` |
 | `check-availability.yml` | Manual | Bounded availability-only audit with its own review pull request |
 | `add-job.yml` | Manual | Add 1–10 maintainer-reviewed listings to durable canonical state without source access, then open one README-only review pull request |
@@ -101,7 +101,7 @@ Equivalent local commands are documented in the [testing guide](../engineering/t
 
 The operator-facing workflows remain small mode selectors:
 
-- `nightly.yml` selects availability followed by scrape;
+- `nightly.yml` selects availability followed by scrape, or scrape only when a manual run sets `skip_availability=true`;
 - `check-availability.yml` selects availability only;
 - collection mode in `scrape.yml` selects scrape only;
 - deployment mode in `scrape.yml` selects projection regeneration followed by deployment;
@@ -225,13 +225,19 @@ on:
   schedule:
     - cron: "23 4 * * *"
   workflow_dispatch:
+    inputs:
+      skip_availability:
+        description: Skip the stored-job availability audit and only scrape listings.
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: opportunity-collection
   cancel-in-progress: false
 ```
 
-The nominal scheduled time is 04:23 UTC. It completes the availability audit before starting the scrape. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
+The nominal scheduled time is 04:23 UTC. Scheduled runs always complete the availability audit before starting the scrape; `skip_availability` is effectively `false` for schedules. Manual runs default to the same sequence but can skip the separate audit. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
 
 The processor reads request and availability limits from Actions variables and has a 360-minute default timeout. Set the GitHub Actions repository variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for production; the built-in default and workflow fallback remain `50` when no value is configured. Check repository, organization, and selected-environment variables, including copies in `canonical-state` and `production`, for conflicting overrides such as `50` or legacy `250`. Update or remove conflicting overrides so the effective production cap is `100`, and verify it in the audit's selected/deferred log. No workflow changes these variables automatically. Keep `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS=5`, concurrency `1`, and request spacing `10` seconds.
 
@@ -245,11 +251,19 @@ The nightly, scrape-only, availability-only, manual-add, recovery-drill, and dep
 
 Three collection workflows can be run independently from the Actions tab:
 
-- **Nightly full update** completes the availability audit, then collects listings and proposes one combined README update with automated squash merge after validation and configured review requirements.
+- **Nightly full update** completes the availability audit unless manually skipped, then collects listings and proposes one README update with automated squash merge after validation and configured review requirements.
 - **Check job availability** checks a bounded batch of due rows and opens an availability-only pull request.
 - **Scrape jobs or deploy reviewed state** runs only the scrape and opens a scrape-only pull request when deployment mode is disabled.
 
-To run the combined update now, open **Actions → Nightly full update → Run workflow**, select `main`, and confirm **Run workflow**. The manual trigger must be merged into the default branch before GitHub shows this control. No inputs are required. Manual and scheduled full updates use the same source-authorization checks, shared concurrency lock, and reviewed-state safeguards; neither deploys to the VPS.
+To run the combined update now, open **Actions → Nightly full update → Run workflow**, select `main`, leave `skip_availability` unchecked, and confirm **Run workflow**. Check it only to collect without the separate stored-job audit. The input must be merged into the default branch before GitHub shows this control. Manual and scheduled updates use the same source-authorization checks, shared concurrency lock, and reviewed-state safeguards; neither deploys to the VPS.
+
+The nightly workflow input is:
+
+| Input | Default | Effect |
+|---|---:|---|
+| `skip_availability` | `false` | Manual runs only: `true` skips the separate due stored-job availability audit and still scrapes; `false` audits before scraping. Scheduled runs always audit. |
+
+Skipping the audit does not disable scraping's bounded known-job rechecks or change its lifecycle evidence rules. Rows not checked by collection remain unchanged, and the separate audit queue does not advance. The generated README proposal states whether the audit was skipped. Full collections retain the existing automatic-merge policy; partial collections still require manual review and merge.
 
 The scrape workflow inputs are:
 
@@ -307,7 +321,7 @@ one-day README-only handoff artifact
 separate least-privilege README pull-request job
 ```
 
-The nightly workflow runs availability first and collection second, then validates the combined state and opens one narrowly scoped pull request. Every workflow scrape requests an aggregate `data-quality-report.json`; [the CLI reference](cli.md#quality-report) defines its scope, thresholds, and baseline warm-up. Warnings continue. Blocking quality findings or report errors stop projection regeneration, durable snapshot publication, and the README handoff. The report upload runs even after a failed scrape; a missing requested report also fails the job. Earlier setup or authorization failures do not attempt that upload.
+The nightly workflow runs availability first unless a manual run sets `skip_availability=true`, then runs collection, validates the resulting state, and opens one narrowly scoped pull request. Every workflow scrape requests an aggregate `data-quality-report.json`; [the CLI reference](cli.md#quality-report) defines its scope, thresholds, and baseline warm-up. Warnings continue. Blocking quality findings or report errors stop projection regeneration, durable snapshot publication, and the README handoff. The report upload runs even after a failed scrape; a missing requested report also fails the job. Earlier setup or authorization failures do not attempt that upload.
 
 Quality checks run after independent search transactions commit, not as a rollback mechanism. A partial collection preserves successful transactions but does not advance the quality baseline. Failed searches record diagnostics without applying absence or closure evidence.
 
@@ -414,7 +428,7 @@ The private key is written only for restore/publication steps and removed with `
 Each path uses a separate review branch pattern:
 
 ```text
-automated/nightly-full-update  # fully successful availability + scrape
+automated/nightly-full-update  # full collection; audit unless manually skipped
 automated/nightly-full-update-partial # validated partial; manual review
 automated/availability-update  # manually requested availability only
 automated/scrape-update        # fully successful manual scrape

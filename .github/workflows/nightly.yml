@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: "23 4 * * *"
   workflow_dispatch:
+    inputs:
+      skip_availability:
+        description: Skip the stored-job availability audit and only scrape listings.
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: opportunity-collection
@@ -12,7 +18,7 @@ concurrency:
 permissions: {}
 
 jobs:
-  # One shared writer performs availability first, then collection, under the global lock.
+  # Scheduled runs always audit first; manual runs may select collection only.
   process-state:
     name: Audit, collect, and preserve state
     uses: $/.github/workflows/reusable-process-state.yml
@@ -25,7 +31,7 @@ jobs:
       VPS_BACKUP_SSH_PRIVATE_KEY: ${{ secrets.VPS_BACKUP_SSH_PRIVATE_KEY }}
       VPS_SSH_KNOWN_HOSTS: ${{ secrets.VPS_SSH_KNOWN_HOSTS }}
     with:
-      run_availability: true
+      run_availability: ${{ github.event_name != 'workflow_dispatch' || !inputs.skip_availability }}
       run_scrape: true
       crawl_authorized: ${{ vars.LINKEDIN_CRAWL_AUTHORIZED }}
       projection_artifact_name: opportunities-nightly-projections-${{ github.run_id }}
@@ -49,8 +55,10 @@ jobs:
       title: "data: nightly availability and scrape update"
       commit_message: "data: nightly availability and scrape update"
       body: >-
-        Nightly update: a bounded batch of due listings was checked for 404/410 responses
-        and explicit closure alerts before collection ran. Full collections retain automatic
-        merging after configured requirements pass; partial collections require manual review and merge.
+        ${{ github.event_name == 'workflow_dispatch' && inputs.skip_availability &&
+        'Availability audit skipped by manual request; collection ran without the separate due-job audit.' ||
+        'A bounded batch of due listings was checked for 404/410 responses and explicit closure alerts before collection ran.' }}
+        Full collections retain automatic merging after configured requirements pass;
+        partial collections require manual review and merge.
       collection_outcome: ${{ needs.process-state.outputs.collection_outcome }}
       auto_merge: ${{ needs.process-state.outputs.collection_outcome == 'full' }}
