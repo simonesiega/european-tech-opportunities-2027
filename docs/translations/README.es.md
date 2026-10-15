@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 14 de octubre de 2026 a las 22:53 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-727-2563eb?style=for-the-badge" alt="Ofertas activas: 727" />
+  <strong>Última recopilación realizada con éxito: 15 de octubre de 2026 a las 23:37 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-728-2563eb?style=for-the-badge" alt="Ofertas activas: 728" />
   <img src="https://img.shields.io/badge/Pr%C3%A1cticas-350-16a34a?style=for-the-badge" alt="Prácticas: 350" />
-  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Puestos New Grad: 377" />
+  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="Puestos New Grad: 378" />
 </p>
-<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
+<!-- Public directory state v1 sha256: 8da83de30d9d1dbbcd834f76768dde684bcc9056df5965897c5ddc839a3f7f9c -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -62,22 +62,22 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 727 (Prácticas: 350 · New Grad: 377)<br>
-**Última recopilación realizada con éxito:** 14 de octubre de 2026 a las 22:53 UTC
+**Ofertas activas:** 728 (Prácticas: 350 · New Grad: 378)<br>
+**Última recopilación realizada con éxito:** 15 de octubre de 2026 a las 23:37 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 377 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 378 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4477972408>) |
 | HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [Ver oferta](<https://www.linkedin.com/jobs/view/4475611055>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ver oferta](<https://www.linkedin.com/jobs/view/4477857755>) |
 | EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ver oferta](<https://www.linkedin.com/jobs/view/4477838098>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers - Beyond Sports Alkmaar | Alkmaar, North Holland, Netherlands | [Ver oferta](<https://www.linkedin.com/jobs/view/4477693947>) |
-| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4476272008>) |
 
 ### Últimas ofertas de prácticas
 
