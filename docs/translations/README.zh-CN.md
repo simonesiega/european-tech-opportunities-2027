@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>最近一次成功采集：2026 年 10 月 15 日 23:37（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-728-2563eb?style=for-the-badge" alt="在招职位总数：728" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-350-16a34a?style=for-the-badge" alt="实习岗位：350" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-378-9333ea?style=for-the-badge" alt="应届生岗位：378" />
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-725-2563eb?style=for-the-badge" alt="在招职位总数：725" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-348-16a34a?style=for-the-badge" alt="实习岗位：348" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-377-9333ea?style=for-the-badge" alt="应届生岗位：377" />
 </p>
-<!-- Public directory state v1 sha256: 8da83de30d9d1dbbcd834f76768dde684bcc9056df5965897c5ddc839a3f7f9c -->
+<!-- Public directory state v1 sha256: 306c1b26d920683e4b77d17d2bd71b27426d86ee184d54fca8b7cb404d0b7b42 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -57,14 +57,14 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 728（实习：350 · New Grad：378）<br>
+**在招职位：** 725（实习：348 · New Grad：377）<br>
 **最近一次成功采集：** 2026 年 10 月 15 日 23:37（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 378 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 377 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
@@ -76,7 +76,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 ### 最新实习岗位
 
-以下展示 350 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 348 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
