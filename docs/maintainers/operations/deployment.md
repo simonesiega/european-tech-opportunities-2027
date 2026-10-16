@@ -31,7 +31,7 @@ The root `Dockerfile` is the executable source of truth for image versions and p
 | `opportunities` | Python 3.14.7 on Debian 13 slim | CLI commands, migrations, collection, validation, and generated-document rendering |
 | `site` | Node.js 26 on Debian 13 slim with Next.js standalone output | Read-only website server on port `3000` |
 
-Disposable build stages use the digest-pinned `uv` 0.12.23 image, Bun 1.4.2 on Alpine, and Node.js 26 on Alpine. Package-manager binaries are omitted from the final images: the pipeline invokes the installed console script directly, and the website runtime omits npm.
+Disposable build stages use the digest-pinned `uv` 0.13.1 image, Bun 1.4.2 on Alpine, and Node.js 26 on Alpine. Package-manager binaries are omitted from the final images: the pipeline invokes the installed console script directly, and the website runtime omits npm.
 
 Both final images run as an unprivileged user:
 
@@ -42,7 +42,7 @@ GID 10001
 
 The Compose services also drop all Linux capabilities and set `no-new-privileges`.
 
-The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets install exact reviewed security revisions for `gzip`, PCRE2, SQLite, OpenSSL, and Perl until those revisions are incorporated into the pinned base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
+The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets pin security revisions for `gzip`, PCRE2, OpenSSL, and Perl; the Python target also pins SQLite. Keep these revisions until they are incorporated into the base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
 
 ## Build images
 
@@ -298,6 +298,9 @@ sudo setfacl -m u:10001:rx docs
 sudo setfacl -m u:10001:rx docs/maintainers
 sudo setfacl -m u:10001:rwx docs/maintainers/engineering
 sudo setfacl -m u:10001:rw docs/maintainers/engineering/search-registry.md
+sudo setfacl -m u:10001:rwx docs/translations
+sudo setfacl -m u:10001:rw docs/translations/README.it.md docs/translations/README.fr.md \
+  docs/translations/README.de.md docs/translations/README.es.md docs/translations/README.zh-CN.md
 ```
 
 For a production release deployed by automation, the workflow assigns:
