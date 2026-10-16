@@ -4,7 +4,7 @@ on:
   workflow_call:
     outputs:
       collection_outcome:
-        description: Full, validated partial, or no collection; emitted only by successful processing.
+        description: Full collection, validated partial audit or collection, or no collection; emitted only after successful processing.
         value: ${{ jobs.process.outputs.collection_outcome }}
     inputs:
       run_availability:
@@ -119,7 +119,7 @@ jobs:
     # Do not configure repository- or organization-level copies of VPS secrets.
     environment: ${{ inputs.environment_name }}
     outputs:
-      collection_outcome: ${{ steps.scrape.outputs.collection_outcome || 'none' }}
+      collection_outcome: ${{ steps.availability.outputs.collection_outcome || steps.scrape.outputs.collection_outcome || 'none' }}
     env:
       OPPORTUNITIES_LINKEDIN_CRAWL_AUTHORIZED: ${{ inputs.crawl_authorized }}
       OPPORTUNITIES_MAX_CONCURRENCY: ${{ vars.OPPORTUNITIES_MAX_CONCURRENCY }}
@@ -218,6 +218,7 @@ jobs:
           exit 1
 
       - name: Check due public job pages for closure alerts
+        id: availability
         if: inputs.run_availability
         shell: bash
         run: |
@@ -225,7 +226,10 @@ jobs:
           uv run opportunities check-availability
           code=$?
           set -e
-          if [ "$code" -eq 2 ]; then
+          if [ "$code" -eq 4 ]; then
+            echo "Eligible HTTP 429 partial availability audit: completed checks retained; all subsequent source requests and scraping stopped. Validation, manual review, and merge required."
+            echo "collection_outcome=partial" >> "$GITHUB_OUTPUT"
+          elif [ "$code" -eq 2 ]; then
             echo "Partial availability audit: inconclusive responses were preserved."
           elif [ "$code" -ne 0 ]; then
             echo "Collection skipped: availability audit failed (exit $code); no snapshot or projection handoff will be published."
@@ -234,7 +238,7 @@ jobs:
 
       - name: Scrape and persist selected searches
         id: scrape
-        if: inputs.run_scrape
+        if: inputs.run_scrape && steps.availability.outputs.collection_outcome != 'partial'
         shell: bash
         run: |
           set +e

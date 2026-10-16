@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MARKDOWN_FILES = (
     ROOT / "README.md",
+    ROOT / "CHANGELOG.md",
     ROOT / "CONTRIBUTING.md",
     ROOT / "AGENTS.md",
     *sorted((ROOT / ".github").rglob("*.md")),

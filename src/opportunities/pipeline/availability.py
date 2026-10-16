@@ -39,12 +39,25 @@ class AvailabilityAuditResult:
     deferred: int = 0
     blocked: int = 0
     blocked_reason: str | None = None
+    rate_limited: int = 0
+    listing_redirect_ids: tuple[str, ...] = ()
+
+    @property
+    def rate_limited_partial(self) -> bool:
+        """Retain confirmed checks after HTTP 429, tolerating only public-listing 301s."""
+        return (
+            self.source_blocked
+            and self.blocked > 0
+            and self.rate_limited == self.blocked
+            and set(self.inconclusive_ids).issubset(self.listing_redirect_ids)
+            and self.checked > self.blocked + len(self.inconclusive_ids)
+        )
 
     @property
     def exit_code(self) -> int:
-        """Stop follow-on source phases after a denial, not merely report partial success."""
+        """Distinguish publishable partial work from a blocking source denial."""
         if self.source_blocked:
-            return 1
+            return 4 if self.rate_limited_partial else 1
         return 2 if self.inconclusive_ids else 0
 
 
@@ -111,6 +124,9 @@ async def _audit_jobs(
             if has_closed_application_notice(public_html):
                 return job.linkedin_job_id, "unavailable"
 
+            # A source stop also forbids starting details for an in-flight public page.
+            if blocked_reason is not None:
+                return job.linkedin_job_id, "deferred"
             # A public page can be a generic shell, so retain the existing identity
             # check before using the absence of a closure alert as availability proof.
             detail_html = await fetcher.get_text(
@@ -119,10 +135,15 @@ async def _audit_jobs(
             validate_job_detail_page(detail_html)
         except FetchError as exc:
             if exc.code == "source_blocked":
-                blocked_reason = blocked_reason or (
-                    f"HTTP {exc.status_code}" if exc.status_code is not None else "source_blocked"
-                )
-                return job.linkedin_job_id, "blocked"
+                if blocked_reason is None or blocked_reason == "HTTP 429":
+                    blocked_reason = (
+                        f"HTTP {exc.status_code}"
+                        if exc.status_code is not None
+                        else "source_blocked"
+                    )
+                return job.linkedin_job_id, "rate_limited" if exc.status_code == 429 else "blocked"
+            if exc.code == "listing_redirect":
+                return job.linkedin_job_id, "listing_redirect"
             if exc.status_code in {404, 410}:
                 return job.linkedin_job_id, "unavailable"
             return job.linkedin_job_id, "inconclusive"
@@ -134,7 +155,12 @@ async def _audit_jobs(
     outcomes = await map_concurrently(jobs, check, limit=max_concurrency)
     available_ids = tuple(job_id for job_id, state in outcomes if state == "available")
     unavailable_ids = tuple(job_id for job_id, state in outcomes if state == "unavailable")
-    inconclusive_ids = tuple(job_id for job_id, state in outcomes if state == "inconclusive")
+    listing_redirect_ids = tuple(
+        job_id for job_id, state in outcomes if state == "listing_redirect"
+    )
+    inconclusive_ids = tuple(
+        job_id for job_id, state in outcomes if state in {"inconclusive", "listing_redirect"}
+    )
     changes = repository.apply_availability_audit(
         available_ids=available_ids,
         unavailable_ids=unavailable_ids,
@@ -149,6 +175,8 @@ async def _audit_jobs(
         inconclusive_ids=inconclusive_ids,
         source_blocked=blocked_reason is not None,
         deferred=deferred + sum(state == "deferred" for _, state in outcomes),
-        blocked=sum(state == "blocked" for _, state in outcomes),
+        blocked=sum(state in {"blocked", "rate_limited"} for _, state in outcomes),
         blocked_reason=blocked_reason,
+        rate_limited=sum(state == "rate_limited" for _, state in outcomes),
+        listing_redirect_ids=listing_redirect_ids,
     )

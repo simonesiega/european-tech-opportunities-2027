@@ -55,7 +55,9 @@ Overlapping searches share in-flight detail requests by numeric ID. Completed re
 
 Searches fetch within the existing concurrency bound, in oldest-completed order with stable registry ties, then outcomes persist in finish-time order. Each successful search commits independently, including its private scheduling timestamp. Failed and source-skipped searches never advance that timestamp. A failed search records bounded, sanitized diagnostics but does not upsert jobs, apply absence, confirm unavailability, or close rows. A partial batch preserves successful work.
 
-HTTP `429` stops subsequent requests immediately. Partial publication requires at least one completed search and only HTTP `429` failures or source-skipped searches, followed by quality, integrity, projection, and snapshot validation and manual review. Any other search failure blocks publication, even alongside HTTP `429`; any availability-audit denial also blocks publication. No partial or blocked run establishes a full-registry quality baseline.
+HTTP `429` stops all new source requests. Completed searches or confirmed availability checks may qualify for partial publication, but other denials and independent failures block it. The [source-access policy](../../../SECURITY.md#rate-limits-and-partial-updates) defines eligibility. An audit rate limit also prevents nightly scraping from starting.
+
+Partial updates still require integrity, projection, and snapshot validation and manual review. Collection must also pass its quality gate. Neither partial nor blocked runs establish a full-registry quality baseline; audit-only runs produce no collection metrics or report.
 
 Rotation becomes durable only through verified snapshots; the reviewed-state barrier still blocks new mutations while a partial proposal is unmerged. [CLI exit codes](../operations/cli.md#exit-codes) are canonical.
 

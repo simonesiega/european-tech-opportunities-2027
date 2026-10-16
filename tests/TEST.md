@@ -27,8 +27,10 @@ Source: [integration/test_availability.py](integration/test_availability.py).
 | `test_availability_audit_checks_every_row_deletes_only_explicit_unavailability` | Audit open and closed rows; reopen explicit availability, delete explicit absence, preserve inconclusive rows and their provenance |
 | `test_availability_audit_includes_manual_jobs_without_provenance` | Manual listings are audited even without a search association |
 | `test_delayed_audit_cannot_delete_newer_rediscovery` | A delayed audit cannot delete a newer observation or reopen a later closure; stale absence still advances scheduling |
-| `test_availability_distinguishes_public_listing_301s_from_source_stops` | Public 301 is inconclusive and permits unrelated work; detail redirects, denials, and challenges stop subsequent requests without mutating unchecked rows |
-| `test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial` | Already-started 200/404 evidence is preserved while a sibling denial stops queued work |
+| `test_availability_distinguishes_public_listing_301s_from_source_stops` | Public 301 is inconclusive and permits unrelated work; detail redirects, denials, and challenges stop requests; only HTTP 429 with completed checks qualifies for partial publication without mutating denied or unchecked rows |
+| `test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial` | Already-started 200/404 evidence survives sibling 403/429 stops; HTTP 429 alone permits partial publication while 403 blocks it and queued work stays untouched |
+| `test_partial_audit_requires_completed_checks_and_only_rate_limit_failures` | Confirmed work plus HTTP 429 permits partial publication with public 301s, but redirects alone cannot qualify; independent timeouts/transport/HTTP/HTML/unexpected failures, guest redirects, other public redirects, and stronger denials still block, with or without an earlier public 301 |
+| `test_rate_limit_cannot_mask_an_independent_concurrent_audit_failure` | Mocked HTTP exercises independent failures, stronger denials before and after HTTP 429, interrupted backoff/paced retries, and a tolerated in-flight public 301; only confirmed rows change lifecycle state, denied/deferred rows keep audit priority, and no later details or queued requests start |
 | `test_availability_errors_are_not_closure_evidence_except_not_found_or_gone` | At either endpoint, only 404/410 deletes; other statuses and unexpected failures preserve state |
 
 Source: [integration/test_availability_schedule.py](integration/test_availability_schedule.py).
@@ -54,9 +56,9 @@ Source: [integration/test_cli.py](integration/test_cli.py).
 | `test_rate_limited_partial_requires_quality_gate` | HTTP 429 completed work cannot render without the mandatory quality report |
 | `test_validation_rejects_foreign_key_inconsistency_without_private_diagnostics` | A synthetic broken run-to-search reference blocks validation without exposing private diagnostic values |
 | `test_requested_quality_gate_fails_closed_on_local_errors` | Baseline read, analysis, report write, and persistence errors stop publication and do not disclose private diagnostics |
-| `test_availability_source_block_fails_closed_without_rendering` | Source blocks and `--no-render` preserve projections; inconclusive nonblocked audits may render with a partial-success exit |
+| `test_availability_source_block_fails_closed_without_rendering` | Source blocks without eligible completed checks preserve projections, `--no-render` remains honored, and inconclusive nonblocked audits may render with a partial-success exit |
 | `test_availability_public_listing_301_returns_partial_success_and_continues` | Full CLI/transport/repository path preserves the redirected row, continues other checks, sanitizes output, and validates projections |
-| `test_availability_denial_preserves_confirmed_state_but_never_refreshes_existing_projections` | A denial, including failing stream cleanup, preserves earlier confirmed changes but withholds all publication and leaves inconclusive provenance untouched |
+| `test_availability_source_stop_publishes_only_eligible_partial_checks` | Actual CLI/transport/repository execution retains confirmed reopen/deletion evidence after 403/429, with or without an earlier public 301 and even with failing stream cleanup; HTTP 429 partials refresh valid projections while redirected listings remain unchanged, `--no-render` preserves bytes, and denied provenance and collection timestamps stay unchanged |
 | `test_database_render_stats_and_validate_commands` | Unmigrated state is rejected; upgrade/render/export/stats/validate cooperate; stale registry counts and metadata fail validation without silent repair |
 | `test_controlled_insertion_and_removal_require_projection_regeneration` | Repository lifecycle changes make projections stale until the renderer refreshes them |
 | `test_searches_works_without_database` | Configuration discovery is usable without creating SQLite |
@@ -201,6 +203,14 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | `test_linkedin_listing_url_must_match_the_canonical_job_id` | Safe-looking links with another job's ID cannot be persisted as the listing URL |
 | `test_linkedin_job_id_is_extracted_only_from_a_valid_listing_url` | IDs are extracted from actual listing URLs, not arbitrary company paths |
 | `test_find_project_root_is_independent_of_directory_depth` | Resource discovery survives repository renaming and deeper module layouts |
+
+### Search-registry documentation
+
+Source: [unit/test_search_registry_docs.py](unit/test_search_registry_docs.py).
+
+| Test | Behavior protected |
+|---|---|
+| `test_registry_layout_matches_recursive_loader` | Recursive `.yml`/`.yaml` counts match actual discovery inputs, ignore unrelated files, handle missing groups, and round-trip generated documentation without changing authored text |
 
 ### Concurrency and logging
 
@@ -391,6 +401,7 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 
 | Test | Behavior protected |
 |---|---|
+| `test_python_ci_checks_lockfile_before_code_validation` | Frozen installs cannot silently hide a stale Python lockfile from CI |
 | `test_dependency_review_preserves_real_action_and_pull_request_validation` | Dependency review retains read-only permissions, real pinned action, mandatory dispatch input, correct comparison refs, and unsuppressed high-severity failure |
 | `test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit` | Actual scope guard accepts English-only, translations-only, and combined proposals, resolves the PR base, and binds its head to the workflow commit |
 | `test_dependency_dispatch_rejects_untrusted_scope_or_comparison` | Closed/foreign/wrong-base/mismatched-head PRs, mixed documentation, unsupported or suffixed translation paths, null paths, and malformed/injected SHAs fail without output refs |
@@ -404,27 +415,28 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_seal_adoption_still_accepts_only_the_initial_seal` | Initial seal adoption cannot also approve content/date drift |
 | `test_render_failure_cannot_be_recovered` | Recovery/adoption flags cannot convert renderer failure into success |
 | `test_collection_quality_gate_propagates_blocking_failures` | Workflow accepts only scrape exits 0/4 with explicit full/partial outputs; blocking, configuration, and migration exits cannot publish |
-| `test_availability_denial_stops_workflow_before_follow_on_scrape` | Audit exit handling and step dependency stop subsequent collection after denial |
+| `test_availability_source_stop_skips_scrape_and_preserves_only_eligible_handoffs` | Executed audit exit handling preserves blocking failures, emits partial metadata only for exit 4, prevents follow-on scraping, and keeps integrity/snapshot/handoff gates success-dependent |
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
-| `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labeling and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
+| `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labels and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
 | `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
-| `test_nightly_supports_manual_and_scheduled_full_updates` | Boolean `skip_availability` defaults to false; only manual opt-out skips the audit, schedules always audit, collection and authorization remain enabled, the shared lock does not cancel work, and proposal text identifies the selected mode |
-| `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent handoff to the README-writing job |
+| `test_nightly_supports_manual_and_scheduled_full_updates` | Boolean `skip_availability` defaults to false; only manual opt-out skips the audit, schedules always audit, collection and authorization remain enabled, and the shared lock does not cancel work |
+| `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent README handoffs and forward partial outcomes to the independent manual-review proposal guard |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |
 | `test_recovery_mode_guard_precedes_restore_and_forbids_side_effects` | Recovery-mode combinations fail before restore and cannot publish snapshots or bypass validation before handoff |
 | `test_recovery_requires_explicit_dispatch_and_manual_readme_only_review` | Recovery is opt-in, read-only, serialized, without collection/deployment flags or automatic merging |
 
 ### Documentation and public links
 
-Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_readme_translations.py](unit/test_readme_translations.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
+Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_diagrams.py](unit/test_diagrams.py), [unit/test_readme_translations.py](unit/test_readme_translations.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
 
 | Test | Behavior protected |
 |---|---|
 | `test_local_workflow_references_use_self_repository_syntax_and_exist` | Local workflow/action references use the repository's supported syntax and resolve to existing files |
-| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog and script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_diagram_links_and_accessibility_match_source` | All five SVGs retain source-matched titles, descriptions, keyboard-usable native links, real repository targets, and no scripts, HTML labels, event handlers, or external resources |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
 | `test_external_link_scope_keeps_authored_diagram_markdown` | POSIX/Windows paths include authored diagram Markdown while excluding generated media from external-link crawling |
-| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including this inventory and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
+| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
@@ -510,7 +522,8 @@ Sources: [opportunity-feed.test.ts](../site/tests/unit/opportunity-feed.test.ts)
 | `parses only bounded, single type, country, and category filters` | Feed inputs reject unknown/repeated/unsafe/oversized values |
 | `filters exact employment type, country, and category with combined AND semantics` | Feed membership and self-links agree with the requested scope |
 | `renders escaped RSS and Atom with listing dates and canonical links` | Hostile text stays XML text while identities and publication dates remain valid |
-| `removes XML-invalid code points and caps results at the newest 50` | Invalid Unicode cannot break XML and feed size stays bounded |
+| `removes XML-invalid code points and caps results at the newest 50` | Invalid Unicode cannot break XML; reversed input is sorted before the size cap so newer rows cannot be dropped |
+| `%s orders microseconds and numeric ID ties before limiting entries` | RSS and Atom use chronological submillisecond order, normalize offset/SQLite dates, break ties by numeric ID, and leave inputs unchanged |
 | `canonicalizes filter order and returns a valid empty feed` | Equivalent filters serialize identically; empty feeds retain a deterministic timestamp |
 | `uses the latest successful collection timestamp for empty Atom feeds` | An empty selection can still report real dataset freshness |
 | `empty filters preserve every row and its order without mutating the input` | Filtering cannot drop/reorder/alter the unfiltered dataset; allocation identity is deliberately not tested |
@@ -636,6 +649,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | File or test | Purpose and boundary |
 |---|---|
 | [conftest.py](conftest.py) | Temporary settings/home/cwd, HTTPX blocking, exact live opt-in, checked-in fixture loader, deterministic rules/search, and migrated database/session fixtures |
+| `partial_audit_state` in [integration/test_availability.py](integration/test_availability.py) | Four disposable synthetic listings and a fixed UTC observation clock for serial and concurrent audit source-stop cases |
 | `readme_projections` in [integration/test_readme.py](integration/test_readme.py) | Disposable English and five localized templates with synthetic markers and Unicode authored text; no committed preview or canonical database is rendered |
 | [shell_helpers.py](shell_helpers.py) | Environment allowlist and blocking SSH/SCP/SFTP fallbacks for offline shell tests |
 | `__init__.py` files | Python package discovery/import support; no tests or behavior assertions |

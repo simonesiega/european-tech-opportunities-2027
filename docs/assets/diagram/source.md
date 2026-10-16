@@ -11,7 +11,7 @@ The colors, grouped components, directed relationships, and clickable code links
 ```mermaid
 flowchart TB
     accTitle: European Tech Opportunities 2027 — repository overview
-    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, API, exports, and README are read-only projections. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
+    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches or confirmed availability checks can qualify for partial publication only after applicable validation gates and manual review. Other source denials and mixed failures block publication. A rate-limited audit never starts scraping. The website, listing API, RSS and Atom feeds, dataset status, exports, and README are read-only projections. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph CONTROL["Configuration and<br/>entry points"]
         CONFIG["Searches + classification rules<br/>configs/"]
@@ -36,7 +36,7 @@ flowchart TB
     end
 
     subgraph PUBLIC["Read-only publication"]
-        WEB["Next.js directory + v1 API<br/>site/src/"]
+        WEB["Next.js directory + v1 API<br/>RSS / Atom feeds + dataset status<br/>site/src/"]
         EXPORTS["Sanitized CSV / JSON + metadata<br/>public_exports.py · schemas/"]
         PREVIEW["README preview + full-state seal<br/>readme.py"]
         LOCAL["Saved / applied / hidden + visit state<br/>Browser localStorage only"]
@@ -104,7 +104,7 @@ flowchart TB
 ```mermaid
 flowchart TB
     accTitle: Collection and lifecycle — evidence before persistence
-    accDescr: Search YAML selects discovery scope, not publication eligibility. SQLite completion timestamps prioritize never-completed and oldest-completed searches. Authorized bounded HTTP stops all subsequent requests on denial. Successful searches persist independently; failed and skipped searches record diagnostics without lifecycle evidence or scheduling advancement. HTTP 429 can qualify as partial publication only after completed searches and all quality and integrity gates; partial runs never establish full-registry baselines. The separate bounded availability audit preserves inconclusive rows and blocks publication on any source denial.
+    accDescr: Search YAML selects discovery scope, not publication eligibility. SQLite completion timestamps prioritize never-completed and oldest-completed searches. Authorized bounded HTTP stops all subsequent requests on denial. Successful searches persist independently; failed and skipped searches record diagnostics without lifecycle evidence or scheduling advancement. HTTP 429 can qualify as partial publication only after completed searches and all quality and integrity gates; partial runs never establish full-registry baselines. The separate bounded availability audit preserves inconclusive rows. An HTTP 429-only partial audit needs completed confirmed checks and no independent failures; it skips scraping and requires validation and manual review. Other source stops block publication.
 
     subgraph INPUT["What to run"]
         SEARCHES["Discovery YAML<br/>configs/searches/<br/>companies/ · countries/ · roles/"]
@@ -210,7 +210,7 @@ The README node represents the English README and five localized READMEs in `doc
 ```mermaid
 flowchart TB
     accTitle: Website and publication — read-only server, private browser state
-    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
+    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. RSS and Atom use the same read-only open rows. Dataset status separately checks SQLite aggregates against bounded metadata and a streamed JSON download hash. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph DATA["Publication inputs"]
         DB[("Canonical SQLite<br/>Open jobs + last successful collection")]
@@ -220,7 +220,7 @@ flowchart TB
 
     subgraph PYTHON["Python-generated<br/>projections<br/>src/opportunities/"]
         RENDER["Bounded preview + full-state review seal<br/>readme.py"]
-        README["README.md<br/>At most five newest jobs per type"]
+        README["English + five localized READMEs<br/>At most five newest jobs per type"]
         EXPORT["Allowlisted fields + spreadsheet-safe CSV<br/>public_exports.py"]
         FILES["Generated CSV / JSON + metadata<br/>data/exports/ · ignored runtime files"]
         RENDER --> README
@@ -231,11 +231,16 @@ flowchart TB
         QUERY["Shared read-only SQLite query<br/>site/src/lib/opportunities.ts<br/>node:sqlite · readOnly: true"]
         PAGE["Directory page + layout<br/>site/src/app/page.tsx · layout.tsx"]
         API["GET /api/v1/opportunities<br/>app/api/v1/opportunities/route.ts<br/>lib/opportunity-api.ts"]
+        FEEDS["RSS / Atom feeds<br/>app/feed.xml/ · app/atom.xml/<br/>lib/opportunity-feed.ts"]
+        STATUS["GET /api/v1/status<br/>lib/opportunity-status-data.ts<br/>Read-only counts + verified download hash"]
         DOWNLOAD["Fixed CSV / JSON / metadata routes<br/>site/src/lib/public-export.ts"]
         SCHEMAROUTE["GET /schemas/opportunities-v1.schema.json<br/>site/src/app/schemas/"]
         SEO["Metadata + sitemap + robots + JSON-LD<br/>app/ · lib/structured-data.ts<br/>lib/site-url.ts · site-config.ts"]
         QUERY --> PAGE
         QUERY -->|bounded query; explicit public fields| API
+        QUERY -->|newest 50 matching open rows| FEEDS
+        PAGE ~~~ API ~~~ FEEDS ~~~ STATUS
+        DOWNLOAD ~~~ SCHEMAROUTE
         SEO -.-> PAGE
     end
 
@@ -257,6 +262,9 @@ flowchart TB
     DB --> QUERY
     RELEASE -.->|select database| QUERY
     RELEASE -.->|select export directory| DOWNLOAD
+    RELEASE -.->|pin one publication| STATUS
+    DB -->|successful collection time + open count| STATUS
+    FILES -->|bounded metadata + streamed JSON hash| STATUS
     SCHEMA -.->|validate exports| EXPORT
     SCHEMA --> SCHEMAROUTE
     FILES -->|serve existing bytes| DOWNLOAD
@@ -273,6 +281,8 @@ flowchart TB
     click QUERY "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunities.ts"
     click PAGE "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/app/page.tsx"
     click API "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/app/api/v1/opportunities/route.ts"
+    click FEEDS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunity-feed.ts"
+    click STATUS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunity-status-data.ts"
     click DOWNLOAD "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/public-export.ts"
     click SCHEMAROUTE "https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/site/src/app/schemas"
     click SEO "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/structured-data.ts"
@@ -292,30 +302,30 @@ flowchart TB
     class DB,RELEASE amber
     class SCHEMA,SEO indigo
     class RENDER,EXPORT mint
-    class README,FILES,QUERY,PAGE,API,DOWNLOAD,SCHEMAROUTE teal
+    class README,FILES,QUERY,PAGE,API,FEEDS,STATUS,DOWNLOAD,SCHEMAROUTE teal
     class DIRECTORY,HELPERS,UI,LISTS,STORAGE blue
     class ANALYTICS rose
 ```
 
 ## Automation and deployment
 
-The nightly node shows the default sequence. Manual `skip_availability=true` selects scraping without the separate audit through the existing selected-CLI-phase boundary; scheduled runs always audit. Restore, validation, snapshot, review, and deployment relationships stay the same.
+The nightly node shows the default sequence. Manual `skip_availability=true` selects scraping without the separate audit through the existing selected-CLI-phase boundary; scheduled runs always audit. An eligible HTTP `429` partial audit skips scraping and proceeds only through validation and manual-review publication. Restore, snapshot, review, and deployment relationships stay the same.
 
 ```mermaid
 flowchart TB
     accTitle: Automation and deployment — protected state, reviewed publication
-    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, migrates, requires the reviewed README to match, and executes selected CLI phases. Full or eligible partial collection, including HTTP 429 partial results, must pass quality, SQLite integrity, projection, and snapshot checks. Other source denials, all audit denials, and failed validation block publication. Scheduling progress travels only with verified SQLite snapshots. A separate job receives only the README: full nightly collections retain automatic merging after checks, while partial proposals require manual review and merge. Unmerged or rejected state blocks subsequent ordinary mutations and deployment. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
+    accDescr: Scheduled or manual workflows serialize canonical operations through a shared writer lock. The reusable processor restores verified state, migrates, requires the reviewed README to match, and executes selected CLI phases. Full or eligible HTTP 429 partial updates must pass SQLite integrity, projection, and snapshot checks; collection also requires its quality gate. Partial audits need completed confirmed checks, no independent failures, and must skip scraping. Other source denials, mixed failures, and failed validation block publication. Scheduling progress travels only with verified SQLite snapshots. A separate job receives only the README: full nightly collections retain automatic merging after checks, while partial proposals require manual review and merge. Unmerged or rejected state blocks subsequent ordinary mutations and deployment. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph TRIGGERS["Operator-facing<br/>workflows<br/>.github/workflows/"]
-        NIGHTLY["nightly.yml<br/>Availability audit → scrape"]
+        NIGHTLY["nightly.yml<br/>Availability audit → scrape<br/>Audit HTTP 429 → partial; skip scrape"]
         MANUAL["scrape.yml · check-availability.yml<br/>add-job.yml<br/>Explicitly selected dataset updates"]
     end
 
     subgraph PROCESS["Protected canonical<br/>processing<br/>One shared writer lock"]
         RESTORE["Verify + restore durable state<br/>scripts/database/<br/>restore_canonical_state.sh · bootstrap_sqlite.py"]
         PROCESSOR["reusable-process-state.yml<br/>Migrate → require matching reviewed README<br/>Selected CLI phases; source stops on denial"]
-        GATES{"Publication eligibility + validation<br/>Full or partial with completed searches<br/>429 may qualify; other source/audit denials block<br/>Quality + SQLite integrity + projections"}
-        BLOCKED["Blocking failure: no publication<br/>Audit denial; other source denial; no success<br/>Failed quality, integrity, or projection checks"]
+        GATES{"Publication eligibility + validation<br/>429-only partials need completed checks/searches<br/>Other denials or mixed failures block<br/>SQLite integrity + projections<br/>Collection also requires quality checks"}
+        BLOCKED["Blocking failure: no publication<br/>Stronger denial; mixed failure; no completed work<br/>Failed quality, integrity, or projection checks"]
         SNAPSHOTS["Create / publish / round-trip verify<br/>database/snapshots.py<br/>scripts/database/canonical_snapshot.py<br/>canonical_state_store.sh"]
         STORE[("Restricted VPS snapshot store<br/>Immutable SQLite + manifests<br/>Verified latest pointer")]
         RESTORE --> PROCESSOR
@@ -326,7 +336,7 @@ flowchart TB
     end
 
     subgraph REVIEW["GitHub review handoff<br/>No database or<br/>VPS credentials"]
-        HANDOFF["README-only handoff + outcome output<br/>Sanitized exports + aggregate quality report<br/>No SQLite or manifests in artifacts"]
+        HANDOFF["README-only handoff + outcome output<br/>Sanitized exports; quality report if scraped<br/>No SQLite or manifests in artifacts"]
         PR["reusable-readme-pr.yml<br/>README-only pull request<br/>Dispatch and await validation workflows"]
         MERGED["Matching README + full-state seal in main<br/>Full nightly: existing automatic-merge policy<br/>Partial: manual review and merge required"]
         HANDOFF --> PR --> MERGED
@@ -476,7 +486,7 @@ Keep the explicit `<br/>` breaks in group headings: Mermaid's cluster renderer w
 
 Use this shared configuration, a white SVG background, and system fonts. Retain the accessibility titles/descriptions and HTTPS code links. Do not embed scripts, external resources, or HTML labels in the exported SVGs.
 
-Mermaid's strict mode does not activate `click` directives. For the standalone export, use the explicit node-to-URL mappings in each block to wrap each corresponding node in one native SVG link after rendering. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and `tabindex="0"` for explicit keyboard focus. Separate label lines with spaces in the accessible name. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
+Renderer versions differ in how they preserve `click` directives under strict mode. For standalone exports, normalize the explicit node-to-URL mappings in each block to exactly one native SVG link per mapped node, replacing any renderer-created wrapper. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and `tabindex="0"` for explicit keyboard focus. Separate label lines with spaces in the accessible name. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
 
 ```json
 {

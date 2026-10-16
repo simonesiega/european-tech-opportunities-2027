@@ -22,11 +22,6 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions?query=branch%3Amain">
     <img src="https://img.shields.io/github/check-suites/simonesiega/european-tech-opportunities-2027/main?label=CI" alt="main 分支的 CI 总体状态" />
   </a>
-  <!--
-  <a href="https://www.bestpractices.dev/projects/14982">
-    <img src="https://www.bestpractices.dev/projects/14982/badge" alt="OpenSSF 最佳实践认证状态" />
-  </a>
-  -->
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->

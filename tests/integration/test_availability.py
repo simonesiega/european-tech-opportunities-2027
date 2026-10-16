@@ -329,7 +329,9 @@ def test_availability_distinguishes_public_listing_301s_from_source_stops(
         assert result.available == (2 if inconclusive_redirect else 1)
         assert result.deleted == result.reopened == 0
         assert result.inconclusive_ids == (("2",) if inconclusive_redirect else ())
-        assert result.exit_code == (2 if inconclusive_redirect else 1)
+        assert result.listing_redirect_ids == (("2",) if inconclusive_redirect else ())
+        assert result.exit_code == (2 if inconclusive_redirect else 4 if denial == 429 else 1)
+        assert result.rate_limited == int(denial == 429)
         assert result.source_blocked is not inconclusive_redirect
 
     asyncio.run(audit())
@@ -358,9 +360,13 @@ def test_availability_distinguishes_public_listing_301s_from_source_stops(
         assert after["3"] == before["3"]
 
 
+@pytest.mark.parametrize("denial_status", [403, 429])
 @pytest.mark.parametrize("inflight_status", [200, 404])
 def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_denial(
-    session_factory: sessionmaker[Session], settings: Settings, inflight_status: int
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    inflight_status: int,
+    denial_status: int,
 ) -> None:
     repository = Repository(session_factory, settings)
     now = datetime(2026, 7, 20, tzinfo=UTC)
@@ -399,7 +405,7 @@ def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_d
         if request.url.path == "/jobs/view/2":
             await detail_started.wait()
             denial_returned.set()
-            return httpx.Response(403)
+            return httpx.Response(denial_status)
         pytest.fail("unexpected request after source denial")
 
     async def audit() -> None:
@@ -415,7 +421,8 @@ def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_d
                 observed_at=now + timedelta(minutes=1),
             )
         assert result.source_blocked
-        assert result.exit_code == 1
+        assert result.exit_code == (4 if denial_status == 429 else 1)
+        assert result.rate_limited == int(denial_status == 429)
         assert result.checked == 2
         assert result.blocked == result.deferred == 1
         assert result.available == int(inflight_status == 200)
@@ -436,6 +443,304 @@ def test_concurrent_audit_keeps_inflight_evidence_but_stops_new_requests_after_d
         assert after["1"].last_seen_at == now + timedelta(minutes=1)
     else:
         assert "1" not in after
+
+
+@pytest.fixture
+def partial_audit_state(
+    session_factory: sessionmaker[Session], settings: Settings
+) -> tuple[Repository, datetime]:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    repository.upsert_manual_jobs(
+        [
+            DiscoveredJob(
+                linkedin_job_id=job_id,
+                company="Synthetic Technology",
+                title="Software Intern 2027",
+                location="Berlin, Germany",
+                link=f"https://www.linkedin.com/jobs/view/{job_id}",
+                category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                employment_type=EmploymentType.INTERNSHIP,
+            )
+            for job_id in ("1", "2", "3", "4")
+        ],
+        observed_at=now,
+    )
+    return repository, now
+
+
+@pytest.mark.parametrize("public_redirect", [False, True])
+@pytest.mark.parametrize(
+    "scenario",
+    [
+        "429-only",
+        "redirects-only",
+        "redirect-then-unavailable",
+        "rate-limit-first",
+        "timeout",
+        "transport",
+        "invalid-html",
+        "unexpected",
+        "http-status",
+        "public-301",
+        "public-302",
+        "detail-301",
+        "403-first",
+        "challenge-first",
+    ],
+)
+def test_partial_audit_requires_completed_checks_and_only_rate_limit_failures(
+    partial_audit_state: tuple[Repository, datetime],
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    scenario: str,
+    public_redirect: bool,
+) -> None:
+    repository, now = partial_audit_state
+    if public_redirect:
+        repository.upsert_manual_job(
+            DiscoveredJob(
+                linkedin_job_id="0",
+                company="Synthetic Technology",
+                title="Software Intern 2027",
+                location="Berlin, Germany",
+                link="https://www.linkedin.com/jobs/view/0",
+                category=OpportunityCategory.SOFTWARE_ENGINEERING,
+                employment_type=EmploymentType.INTERNSHIP,
+            ),
+            observed_at=now,
+        )
+    before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    requested: list[str] = []
+    identity = (
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+        '<a class="topcard__org-name-link">Synthetic Technology</a>'
+    )
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        job_id = request.url.path.rsplit("/", 1)[1]
+        if job_id == "0" or (
+            job_id == "1" and scenario in {"redirects-only", "redirect-then-unavailable"}
+        ):
+            return httpx.Response(301)
+        if scenario == "rate-limit-first" or job_id == "3":
+            return httpx.Response(429)
+        if job_id == "2":
+            if scenario == "detail-301":
+                return httpx.Response(
+                    301 if "/jobs-guest/" in request.url.path else 200, text=identity
+                )
+            if scenario == "timeout":
+                raise httpx.ReadTimeout("synthetic-private-timeout")
+            if scenario == "transport":
+                raise httpx.ReadError("synthetic-private-transport")
+            if scenario == "unexpected":
+                raise RuntimeError("synthetic-private-unexpected")
+            if scenario == "invalid-html":
+                return httpx.Response(200, text="<html>Generic shell</html>")
+            if scenario == "challenge-first":
+                return httpx.Response(200, text="<html>Security verification challenge-page</html>")
+            status = {
+                "429-only": 410,
+                "redirects-only": 301,
+                "redirect-then-unavailable": 410,
+                "http-status": 503,
+                "public-301": 301,
+                "public-302": 302,
+                "403-first": 403,
+            }
+            return httpx.Response(status[scenario])
+        return httpx.Response(200, text=identity)
+
+    async def audit() -> None:
+        configured = settings.model_copy(update={"max_concurrency": 1, "max_retries": 0})
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(configured, client=client) as fetcher,
+        ):
+            result = await audit_job_availability(
+                settings=configured,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=now + timedelta(minutes=1),
+            )
+        eligible = scenario in {"429-only", "public-301", "redirect-then-unavailable"}
+        assert result.source_blocked
+        assert result.rate_limited_partial == eligible
+        assert result.exit_code == (4 if eligible else 1)
+        assert result.available == int(
+            scenario not in {"rate-limit-first", "redirects-only", "redirect-then-unavailable"}
+        )
+        assert result.deleted == int(scenario in {"429-only", "redirect-then-unavailable"})
+        assert result.rate_limited == int(
+            scenario not in {"403-first", "challenge-first", "public-302", "detail-301"}
+        )
+        redirects: tuple[str, ...] = ("0",) if public_redirect else ()
+        if scenario in {"redirects-only", "redirect-then-unavailable"}:
+            redirects += ("1",)
+        if scenario in {"public-301", "redirects-only"}:
+            redirects += ("2",)
+        assert result.listing_redirect_ids == redirects
+        assert set(redirects).issubset(result.inconclusive_ids)
+
+    asyncio.run(audit())
+    assert requested[-1] == (
+        "/jobs/view/1"
+        if scenario == "rate-limit-first"
+        else "/jobs/view/2"
+        if scenario in {"403-first", "challenge-first", "public-302"}
+        else "/jobs-guest/jobs/api/jobPosting/2"
+        if scenario == "detail-301"
+        else "/jobs/view/3"
+    )
+    after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    assert after["4"] == before["4"]
+    if public_redirect:
+        assert after["0"] == before["0"]
+        assert requested.count("/jobs/view/0") == 1
+        assert "/jobs-guest/jobs/api/jobPosting/0" not in requested
+    with session_factory() as session:
+        if public_redirect:
+            redirected = session.get(JobRow, "0")
+            assert redirected is not None
+            assert redirected.last_availability_checked_at is not None
+            assert ensure_utc(redirected.last_availability_checked_at) == now + timedelta(minutes=1)
+        for job_id in ("3", "4"):
+            row = session.get(JobRow, job_id)
+            assert row is not None
+            assert row.last_availability_checked_at is None
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        "timeout",
+        "transport",
+        "unexpected",
+        "http-status",
+        "invalid-html",
+        "403",
+        "403-before-429",
+        "challenge",
+        "public-shell",
+        "public-301",
+        "retry-backoff",
+        "retry-pacing",
+    ],
+)
+def test_rate_limit_cannot_mask_an_independent_concurrent_audit_failure(
+    partial_audit_state: tuple[Repository, datetime],
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    failure: str,
+) -> None:
+    repository, now = partial_audit_state
+    before = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    requested: list[str] = []
+    failure_started = asyncio.Event()
+    denial_returned = asyncio.Event()
+    rate_limit_started = asyncio.Event()
+    retry_pending = asyncio.Event()
+    identity = (
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+        '<a class="topcard__org-name-link">Synthetic Technology</a>'
+    )
+
+    async def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(request.url.path)
+        if request.url.path == "/jobs/view/1":
+            return httpx.Response(200, text=identity)
+        if request.url.path == "/jobs-guest/jobs/api/jobPosting/1":
+            await denial_returned.wait()
+            return httpx.Response(200, text=identity)
+        if request.url.path == "/jobs/view/3":
+            rate_limit_started.set()
+            await failure_started.wait()
+            denial_returned.set()
+            return httpx.Response(429)
+        if request.url.path == "/jobs/view/2" and failure not in {"public-shell", "public-301"}:
+            return httpx.Response(200, text=identity)
+        if failure == "403-before-429":
+            await rate_limit_started.wait()
+            failure_started.set()
+            return httpx.Response(403)
+        if failure in {"retry-backoff", "retry-pacing"}:
+            await rate_limit_started.wait()
+            retry_pending.set()
+            return httpx.Response(503)
+        failure_started.set()
+        await denial_returned.wait()
+        if failure == "timeout":
+            raise httpx.ReadTimeout("synthetic-private-timeout")
+        if failure == "transport":
+            raise httpx.ReadError("synthetic-private-transport")
+        if failure == "unexpected":
+            raise RuntimeError("synthetic-private-unexpected")
+        if failure == "403":
+            return httpx.Response(403)
+        if failure == "challenge":
+            return httpx.Response(200, text="<html>Security verification challenge-page</html>")
+        if failure == "public-shell":
+            return httpx.Response(200, text=identity)
+        if failure == "public-301":
+            return httpx.Response(301)
+        return httpx.Response(
+            503 if failure == "http-status" else 200, text="<html>Generic shell</html>"
+        )
+
+    async def wait_for_source_stop(delay: float) -> None:
+        if retry_pending.is_set() and (failure == "retry-backoff" or delay > 0):
+            failure_started.set()
+            await denial_returned.wait()
+
+    async def audit() -> None:
+        configured = settings.model_copy(
+            update={
+                "max_concurrency": 3,
+                "max_retries": 2,
+                "rate_limit_seconds": int(failure == "retry-pacing"),
+            }
+        )
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(configured, client=client, sleep=wait_for_source_stop) as fetcher,
+        ):
+            result = await audit_job_availability(
+                settings=configured,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=now + timedelta(minutes=1),
+            )
+        assert result.source_blocked
+        assert result.available == 1
+        assert result.exit_code == (4 if failure in {"public-shell", "public-301"} else 1)
+        assert result.rate_limited_partial == (failure in {"public-shell", "public-301"})
+        assert result.listing_redirect_ids == (("2",) if failure == "public-301" else ())
+        assert result.deleted == 0
+        assert "synthetic-private" not in str(result)
+        if failure in {"403", "403-before-429"}:
+            assert result.blocked_reason == "HTTP 403"
+
+    asyncio.run(asyncio.wait_for(audit(), timeout=5))
+    after = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
+    assert after["1"].last_seen_at == now + timedelta(minutes=1)
+    for job_id in ("2", "3", "4"):
+        assert after[job_id] == before[job_id]
+    with session_factory() as session:
+        for job_id in ("3", "4"):
+            row = session.get(JobRow, job_id)
+            assert row is not None
+            assert row.last_availability_checked_at is None
+        row = session.get(JobRow, "2")
+        assert row is not None
+        assert (row.last_availability_checked_at is None) == (
+            failure in {"403", "403-before-429", "challenge", "public-shell"}
+        )
+    assert "/jobs/view/4" not in requested
+    if failure in {"public-shell", "public-301"}:
+        assert "/jobs-guest/jobs/api/jobPosting/2" not in requested
+    assert requested.count("/jobs-guest/jobs/api/jobPosting/2") <= 1
 
 
 @pytest.mark.parametrize("endpoint", ["public", "detail"])

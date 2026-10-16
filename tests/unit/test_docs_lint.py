@@ -67,6 +67,7 @@ def test_documentation_linters_use_the_same_curated_read_only_inputs(
         assert "docs/assets/promo/maintainers/VIDEO.md" in command
         # Name inventories explicitly so shrinking ROOT_FILES cannot weaken this check.
         assert ".github/WORKFLOWS.md" in command
+        assert "CHANGELOG.md" in command
         assert "scripts/SCRIPT.md" in command
         assert "tests/TEST.md" in command
         assert ".github/ISSUE_TEMPLATE/question.md" in command

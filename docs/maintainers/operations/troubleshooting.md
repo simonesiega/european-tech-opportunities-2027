@@ -50,12 +50,12 @@ Never paste a complete environment file, production database, authenticated HTML
 | Code | Meaning | First action |
 |---:|---|---|
 | `0` | Success | No recovery action required |
-| `1` | Unsafe or completely failed collection, availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
+| `1` | Unsafe or completely failed collection, blocking availability source-access denial, validation mismatch, or a blocked or failed quality gate | Preserve state, review authorization after a denial, and inspect the command output or quality report |
 | `2` | Inconclusive availability audit or rejected configuration/command input | Inspect command context; scraping must stop |
 | `3` | Database missing tables or not at migration head | Confirm the configured path and recovery source before upgrading; never initialize missing production history |
-| `4` | Eligible partial collection, not complete success | Inspect quality report, validate, and manually review the proposal |
+| `4` | Eligible HTTP `429` partial collection or availability audit, not complete success | Review the command summary and any collection-quality report, validate, and manually review the proposal |
 
-Exit code `2` is intentionally overloaded by command context: the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors use it for rejected input. Scrape partial completion uses distinct code `4` so configuration errors cannot be mistaken for publication eligibility. An availability source-access denial returns `1` and skips projection rendering; review authorization before another run.
+Exit code `2` is intentionally overloaded by command context: the availability audit uses it when checks are inconclusive without a source-access denial, and configuration or selection errors use it for rejected input. Scrape partial completion uses distinct code `4` so configuration errors cannot be mistaken for publication eligibility. An availability source-access denial returns `1` and skips projection rendering unless it qualifies for HTTP `429`-only partial publication with code `4`; neither code permits follow-on source requests. Review authorization before another run.
 
 Command-specific behavior is documented in the [CLI reference](cli.md#exit-codes).
 
@@ -276,6 +276,12 @@ Exit code `4` preserves completed search transactions without claiming full succ
 4. Review source authorization before the next eligible execution. Do not immediately retry a denial. Denied and skipped searches keep priority through the verified SQLite rotation.
 
 A failed search does not apply absence or closure evidence. Partial publication permits only HTTP `429` failures and searches skipped after the source stop. Unexpected exceptions, invalid HTML, timeouts, transport or HTTP errors, and other source denials return `1` and block publication, even when other searches completed or a concurrent request was rate-limited.
+
+### Partial availability audit
+
+Exit `4` means completed checks can qualify for publication after an HTTP `429` stop; it does not mean the audit finished. Read the audit summary and confirm that validation and round-trip snapshot verification passed before reviewing its partial README proposal. Nightly scraping must be skipped. Do not restart it to bypass the rate limit, and do not expect a collection-quality report when no scrape ran.
+
+Denied and unprocessed rows remain eligible for a later authorized run. Exit `1` blocks publication; exit `2` means an inconclusive audit without a source denial. Use the [CLI audit result table](cli.md#check-availability) to distinguish them, then follow [README proposal recovery](automation.md#recover-a-missing-readme-state-proposal) if a verified snapshot has no matching proposal.
 
 ### All searches failed
 

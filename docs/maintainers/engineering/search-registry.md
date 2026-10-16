@@ -33,7 +33,7 @@ configs/searches/
 └── countries/   # 33 country partitions
 ```
 
-Generated documentation displays the current YAML-file count for each group. `opportunities render` refreshes the owned layout block, and `opportunities validate` compares those counts with `configs/searches/`.
+Generated documentation counts each group's YAML files recursively, using the same extension patterns as the loader. `opportunities render` refreshes the owned layout block, and `opportunities validate` compares those counts with `configs/searches/`.
 
 Do not edit the generated layout counts manually; change the registry files and run the owning render path instead.
 

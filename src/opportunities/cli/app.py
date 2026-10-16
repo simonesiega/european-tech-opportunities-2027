@@ -217,7 +217,7 @@ def check_availability(
     try:
         _require_migrations(engine)
         result = asyncio.run(audit_job_availability(settings=settings, repository=repository))
-        if not no_render and not result.source_blocked:
+        if not no_render and (not result.source_blocked or result.rate_limited_partial):
             _render_projections(settings, repository)
         console.print(
             f"Checked {result.checked} position(s): {result.available} available, "
@@ -225,7 +225,13 @@ def check_availability(
             f"{len(result.inconclusive_ids)} inconclusive, {result.blocked} blocked; "
             f"{result.deferred} due deferred."
         )
-        if result.source_blocked:
+        if result.rate_limited_partial:
+            console.print(
+                "Partial availability audit after HTTP 429: completed checks retained; "
+                "all subsequent source requests stopped. Collection skipped. "
+                "Publication requires validation and manual review."
+            )
+        elif result.source_blocked:
             error_console.print(
                 "[red]LinkedIn access was blocked; source processing stopped.[/red] "
                 f"Collection skipped: availability audit stopped ({result.blocked_reason}). "

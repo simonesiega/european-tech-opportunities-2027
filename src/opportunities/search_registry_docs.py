@@ -60,14 +60,8 @@ def validate_search_registry_docs(path: Path, search_config_dir: Path) -> list[s
 
 
 def _count_yaml_files(path: Path) -> int:
-    """Count YAML files directly inside a registry group."""
-    if not path.is_dir():
-        return 0
-    return sum(
-        1
-        for item in path.iterdir()
-        if item.is_file() and item.suffix.casefold() in {".yml", ".yaml"}
-    )
+    """Count the same recursive YAML inputs as the registry loader."""
+    return sum(item.is_file() for pattern in ("*.yml", "*.yaml") for item in path.rglob(pattern))
 
 
 def _render_layout_block(content: str, layout: SearchRegistryLayout) -> str:
