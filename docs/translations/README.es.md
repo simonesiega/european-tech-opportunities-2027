@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Última recopilación realizada con éxito: 15 de octubre de 2026 a las 23:37 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-728-2563eb?style=for-the-badge" alt="Ofertas activas: 728" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-350-16a34a?style=for-the-badge" alt="Prácticas: 350" />
-  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="Puestos New Grad: 378" />
+  <img src="https://img.shields.io/badge/Ofertas%20activas-725-2563eb?style=for-the-badge" alt="Ofertas activas: 725" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-348-16a34a?style=for-the-badge" alt="Prácticas: 348" />
+  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Puestos New Grad: 377" />
 </p>
-<!-- Public directory state v1 sha256: 8da83de30d9d1dbbcd834f76768dde684bcc9056df5965897c5ddc839a3f7f9c -->
+<!-- Public directory state v1 sha256: 306c1b26d920683e4b77d17d2bd71b27426d86ee184d54fca8b7cb404d0b7b42 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -57,14 +57,14 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 728 (Prácticas: 350 · New Grad: 378)<br>
+**Ofertas activas:** 725 (Prácticas: 348 · New Grad: 377)<br>
 **Última recopilación realizada con éxito:** 15 de octubre de 2026 a las 23:37 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 378 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 377 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](h
 
 ### Últimas ofertas de prácticas
 
-5 de 350 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 348 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
