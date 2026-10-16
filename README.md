@@ -31,12 +31,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 14, 2026 at 22:53 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-727-2563eb?style=for-the-badge" alt="Total opportunities: 727" />
+  <strong>Last successful collection: October 15, 2026 at 23:37 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-728-2563eb?style=for-the-badge" alt="Total opportunities: 728" />
   <img src="https://img.shields.io/badge/Internships-350-16a34a?style=for-the-badge" alt="Internships: 350" />
-  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New Grad opportunities: 377" />
+  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
 </p>
-<!-- Public directory state v1 sha256: c7e0636b0c23b9a741c876a23aec434dbb35143a2bb5507f9b1842b66302fa40 -->
+<!-- Public directory state v1 sha256: 8da83de30d9d1dbbcd834f76768dde684bcc9056df5965897c5ddc839a3f7f9c -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -62,22 +62,22 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 727 (Internships: 350 · New Grad: 377)<br>
-**Last successful collection:** October 14, 2026 at 22:53 UTC
+**Open opportunities:** 728 (Internships: 350 · New Grad: 378)<br>
+**Last successful collection:** October 15, 2026 at 23:37 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 377 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 378 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4477972408>) |
 | HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4475611055>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477857755>) |
 | EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477838098>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers - Beyond Sports Alkmaar | Alkmaar, North Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4477693947>) |
-| Bending Spoons | Graduate AI software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4476272008>) |
 
 ### Latest internships
 
