@@ -4,8 +4,6 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ## [Unreleased]
 
-### Breaking Changes
-
 ### Added
 
 - Add a manual `skip_availability` option to the nightly workflow; scheduled runs always audit stored jobs before scraping.
@@ -17,14 +15,15 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Keep RSS and Atom ordering consistent with the directory and API, including microsecond timestamps and numeric job-ID ties.
+- Count nested search YAML files in generated registry documentation and check Python lockfile consistency in CI.
+- Include the changelog in documentation checks and show feeds and dataset status in repository maps.
 - Clarify daily collection versus reviewed production deployment, multilingual README handoffs, and first-seen preview ordering.
 - Block collection publication after unexpected, parsing, or unrelated transport failures, including concurrent failures alongside HTTP 429, while preserving completed search transactions.
 
 ### Removed
 
 - Remove the standalone promotional MP3 from the public tree and documentation allowlists; document Pixabay soundtrack permissions while preserving the scored film.
-
-### Security
 
 ## [1.0.0] - 2026-10-07
 

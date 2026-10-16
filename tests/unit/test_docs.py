@@ -30,7 +30,7 @@ def test_local_workflow_references_use_self_repository_syntax_and_exist() -> Non
     assert checked_references > 0
 
 
-@pytest.mark.parametrize("inventory_path", ["scripts/SCRIPT.md", "tests/TEST.md"])
+@pytest.mark.parametrize("inventory_path", ["CHANGELOG.md", "scripts/SCRIPT.md", "tests/TEST.md"])
 def test_source_checker_validates_inventories_and_local_workflow_overview(
     tmp_path: Path,
     inventory_path: str,
@@ -43,6 +43,7 @@ def test_source_checker_validates_inventories_and_local_workflow_overview(
     workflow_dir.mkdir(parents=True)
     for name in (
         "README.md",
+        "CHANGELOG.md",
         "AGENTS.md",
         "CONTRIBUTING.md",
         "SECURITY.md",

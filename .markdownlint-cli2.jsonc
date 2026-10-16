@@ -11,6 +11,14 @@
   },
   "overrides": [
     {
+      "filter": ["CHANGELOG.md"],
+      "config": {
+        // Release categories repeat across versions, but not within one release.
+        "MD024": { "siblings_only": true }
+      },
+      "combine": "merge"
+    },
+    {
       "filter": ["AGENTS.md"],
       "config": {
         // Repository instructions use compact fenced examples and lists.

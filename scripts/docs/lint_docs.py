@@ -15,6 +15,7 @@ ROOT_FILES = (
     "scripts/SCRIPT.md",
     "tests/TEST.md",
     "AGENTS.md",
+    "CHANGELOG.md",
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
     "PRIVACY.md",

@@ -11,7 +11,7 @@ Keep each topic with its canonical owner, use the shared style below, and valida
 - `docs/README.md`: documentation router for both audiences, repository references, and visual maps.
 - `docs/users/README.md`: user router; `browsing/` owns directory use, browser lists, and help; `data/` owns downloads and API usage. No CLI setup or production operations.
 - `docs/maintainers/README.md`: maintainer router; `getting-started/` owns setup and configuration; `engineering/` owns architecture, classification, search definitions, website development, testing, and documentation; `operations/` owns the CLI, automation, database lifecycle, deployment, and recovery.
-- Root policy files: canonical contribution/security/privacy/community/license text. Link rather than duplicate.
+- Root policy files: canonical contribution/security/privacy/community/license text. Link rather than duplicate. `CHANGELOG.md` records notable changes on GitHub and participates in source-link and prose checks without being staged into the documentation site.
 - Root `AGENTS.md`: coding-agent entry point and safety constraints, with links into this handbook.
 - `docs/assets/`: the asset catalog, sanitized visuals, and editable diagram sources; never browser profiles or raw recordings.
 - `.github/WORKFLOWS.md`, `scripts/SCRIPT.md`, and `tests/TEST.md`: source-adjacent workflow, script, and test inventories. Detailed operational procedures remain in the handbook.
@@ -99,7 +99,7 @@ git diff --check
 
 `make docs-site` wraps these checks. Source validation covers maintained root Markdown, agent guidance, workflow/script/test inventories, Markdown templates, and docs, including diagram sources, image links, and heading anchors. Rendered validation checks anchors, local links, image/video references, and the public-file boundary. The scheduled Lychee workflow separately checks external URLs; expired/blocked numeric source listing URLs are excluded, not fetched during ordinary tests.
 
-Markdownlint and Vale run from digest-pinned containers with read-only mounts and no networking. The existing exceptions in `.markdownlint-cli2.jsonc` are scoped to deliberate formatting: unwrapped prose, compact tables, generated HTML, compact agent instructions, and the title-free pull-request template. Do not weaken checks to silence a real failure. Vale checks canonical names and standalone directory labels, not third-party job-title spelling; generated regions and code are excluded.
+Markdownlint and Vale run from digest-pinned containers with read-only mounts and no networking. The existing exceptions in `.markdownlint-cli2.jsonc` are scoped to deliberate formatting: unwrapped prose, compact tables, generated HTML, compact agent instructions, repeated changelog categories under different releases, and the title-free pull-request template. Do not weaken checks to silence a real failure. Vale checks canonical names and standalone directory labels, not third-party job-title spelling; generated regions and code are excluded.
 
 ## Publishing boundary
 

@@ -22,11 +22,6 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions?query=branch%3Amain">
     <img src="https://img.shields.io/github/check-suites/simonesiega/european-tech-opportunities-2027/main?label=CI" alt="Estado general de la integración continua en la rama main" />
   </a>
-  <!--
-  <a href="https://www.bestpractices.dev/projects/14982">
-    <img src="https://www.bestpractices.dev/projects/14982/badge" alt="Distintivo de buenas prácticas de OpenSSF" />
-  </a>
-  -->
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->

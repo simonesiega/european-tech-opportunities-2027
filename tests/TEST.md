@@ -202,6 +202,14 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | `test_linkedin_job_id_is_extracted_only_from_a_valid_listing_url` | IDs are extracted from actual listing URLs, not arbitrary company paths |
 | `test_find_project_root_is_independent_of_directory_depth` | Resource discovery survives repository renaming and deeper module layouts |
 
+### Search-registry documentation
+
+Source: [unit/test_search_registry_docs.py](unit/test_search_registry_docs.py).
+
+| Test | Behavior protected |
+|---|---|
+| `test_registry_layout_matches_recursive_loader` | Recursive `.yml`/`.yaml` counts match actual discovery inputs, ignore unrelated files, handle missing groups, and round-trip generated documentation without changing authored text |
+
 ### Concurrency and logging
 
 Sources: [unit/test_concurrency.py](unit/test_concurrency.py) and [unit/test_logging.py](unit/test_logging.py).
@@ -391,6 +399,7 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 
 | Test | Behavior protected |
 |---|---|
+| `test_python_ci_checks_lockfile_before_code_validation` | Frozen installs cannot silently hide a stale Python lockfile from CI |
 | `test_dependency_review_preserves_real_action_and_pull_request_validation` | Dependency review retains read-only permissions, real pinned action, mandatory dispatch input, correct comparison refs, and unsuppressed high-severity failure |
 | `test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit` | Actual scope guard accepts English-only, translations-only, and combined proposals, resolves the PR base, and binds its head to the workflow commit |
 | `test_dependency_dispatch_rejects_untrusted_scope_or_comparison` | Closed/foreign/wrong-base/mismatched-head PRs, mixed documentation, unsupported or suffixed translation paths, null paths, and malformed/injected SHAs fail without output refs |
@@ -416,15 +425,16 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 
 ### Documentation and public links
 
-Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_readme_translations.py](unit/test_readme_translations.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
+Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/test_docs_lint.py), [unit/test_docs_site.py](unit/test_docs_site.py), [unit/test_diagrams.py](unit/test_diagrams.py), [unit/test_readme_translations.py](unit/test_readme_translations.py), [unit/test_coverage_docs.py](unit/test_coverage_docs.py), and [unit/test_public_domain.py](unit/test_public_domain.py).
 
 | Test | Behavior protected |
 |---|---|
 | `test_local_workflow_references_use_self_repository_syntax_and_exist` | Local workflow/action references use the repository's supported syntax and resolve to existing files |
-| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog and script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_diagram_links_and_accessibility_match_source` | All five SVGs retain source-matched titles, descriptions, keyboard-usable native links, real repository targets, and no scripts, HTML labels, event handlers, or external resources |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
 | `test_external_link_scope_keeps_authored_diagram_markdown` | POSIX/Windows paths include authored diagram Markdown while excluding generated media from external-link crawling |
-| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including this inventory and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
+| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |
@@ -510,7 +520,8 @@ Sources: [opportunity-feed.test.ts](../site/tests/unit/opportunity-feed.test.ts)
 | `parses only bounded, single type, country, and category filters` | Feed inputs reject unknown/repeated/unsafe/oversized values |
 | `filters exact employment type, country, and category with combined AND semantics` | Feed membership and self-links agree with the requested scope |
 | `renders escaped RSS and Atom with listing dates and canonical links` | Hostile text stays XML text while identities and publication dates remain valid |
-| `removes XML-invalid code points and caps results at the newest 50` | Invalid Unicode cannot break XML and feed size stays bounded |
+| `removes XML-invalid code points and caps results at the newest 50` | Invalid Unicode cannot break XML; reversed input is sorted before the size cap so newer rows cannot be dropped |
+| `%s orders microseconds and numeric ID ties before limiting entries` | RSS and Atom use chronological submillisecond order, normalize offset/SQLite dates, break ties by numeric ID, and leave inputs unchanged |
 | `canonicalizes filter order and returns a valid empty feed` | Equivalent filters serialize identically; empty feeds retain a deterministic timestamp |
 | `uses the latest successful collection timestamp for empty Atom feeds` | An empty selection can still report real dataset freshness |
 | `empty filters preserve every row and its order without mutating the input` | Filtering cannot drop/reorder/alter the unfiltered dataset; allocation identity is deliberately not tested |
