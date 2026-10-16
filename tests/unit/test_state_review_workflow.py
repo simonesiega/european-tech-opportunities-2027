@@ -32,6 +32,15 @@ def workflow(name: str) -> dict[str, object]:
     return document
 
 
+def test_python_ci_checks_lockfile_before_code_validation() -> None:
+    document = yaml.load(
+        (WORKFLOWS / "python-ci.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
+    )
+    commands = [step.get("run") for step in document["jobs"]["ruff"]["steps"]]
+    assert "uv lock --check" in commands
+    assert commands.index("uv lock --check") < commands.index("uv run ruff format --check .")
+
+
 def process_steps() -> list[dict[str, object]]:
     document = yaml.load(
         (WORKFLOWS / "reusable-process-state.yml").read_text(encoding="utf-8"),

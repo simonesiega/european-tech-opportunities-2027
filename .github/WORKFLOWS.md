@@ -12,7 +12,7 @@ These checks help catch problems before a change is merged. They use test data r
 
 | Workflow | When it runs | What it checks |
 |---|---|---|
-| [Python CI](workflows/python-ci.yml) | PR, push to `main`, manual | Python code quality, automated tests, test coverage, performance benchmarks, database upgrades, and generated-data validation. Also checks documentation links. |
+| [Python CI](workflows/python-ci.yml) | PR, push to `main`, manual | Lockfile consistency, Python code quality, automated tests, test coverage, performance benchmarks, database upgrades, and generated-data validation. Also checks documentation links. |
 | [Site CI](workflows/site-ci.yml) | PR, push to `main`, manual | Website code quality, the production build, browser behavior, accessibility, and Lighthouse scores. |
 | [Docker CI](workflows/docker-ci.yml) | PR, push to `main`, manual | Workflow and container configuration, production-image builds, SPDX SBOMs and build evidence, and high/critical vulnerabilities with available fixes. Uploads evidence for 30 days and attests those files on `main`. Also tests database access, downloads, redirects, and security headers. |
 | [CodeQL](workflows/codeql.yml) | PR, push to `main`, Monday 05:31, manual | Potential security problems in Python and TypeScript. Results appear in GitHub code scanning. |
