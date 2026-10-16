@@ -11,7 +11,7 @@ The colors, grouped components, directed relationships, and clickable code links
 ```mermaid
 flowchart TB
     accTitle: European Tech Opportunities 2027 — repository overview
-    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, API, exports, and README are read-only projections. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
+    accDescr: Configuration and the CLI drive permission-gated collection with persistent oldest-completed search rotation and a separate bounded availability audit. Repository is the only application writer to canonical SQLite. HTTP 429 stops source requests; completed searches can publish only after quality and integrity gates and manual review. Other source denials and all audit denials block publication. The website, listing API, RSS and Atom feeds, dataset status, exports, and README are read-only projections. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph CONTROL["Configuration and<br/>entry points"]
         CONFIG["Searches + classification rules<br/>configs/"]
@@ -36,7 +36,7 @@ flowchart TB
     end
 
     subgraph PUBLIC["Read-only publication"]
-        WEB["Next.js directory + v1 API<br/>site/src/"]
+        WEB["Next.js directory + v1 API<br/>RSS / Atom feeds + dataset status<br/>site/src/"]
         EXPORTS["Sanitized CSV / JSON + metadata<br/>public_exports.py · schemas/"]
         PREVIEW["README preview + full-state seal<br/>readme.py"]
         LOCAL["Saved / applied / hidden + visit state<br/>Browser localStorage only"]
@@ -210,7 +210,7 @@ The README node represents the English README and five localized READMEs in `doc
 ```mermaid
 flowchart TB
     accTitle: Website and publication — read-only server, private browser state
-    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
+    accDescr: SQLite supplies open rows to Python projection renderers and to a server-only Next.js query shared by the page and public API. RSS and Atom use the same read-only open rows. Dataset status separately checks SQLite aggregates against bounded metadata and a streamed JSON download hash. The website serves fixed generated download files; it does not create them. Browser-local lists never enter the database, URLs, API, or analytics. In versioned deployment mode each server operation resolves the release pointer once. README projections include English and five translations with localized presentation of identical canonical data; only English controls the reviewed-state barrier.
 
     subgraph DATA["Publication inputs"]
         DB[("Canonical SQLite<br/>Open jobs + last successful collection")]
@@ -220,7 +220,7 @@ flowchart TB
 
     subgraph PYTHON["Python-generated<br/>projections<br/>src/opportunities/"]
         RENDER["Bounded preview + full-state review seal<br/>readme.py"]
-        README["README.md<br/>At most five newest jobs per type"]
+        README["English + five localized READMEs<br/>At most five newest jobs per type"]
         EXPORT["Allowlisted fields + spreadsheet-safe CSV<br/>public_exports.py"]
         FILES["Generated CSV / JSON + metadata<br/>data/exports/ · ignored runtime files"]
         RENDER --> README
@@ -231,11 +231,16 @@ flowchart TB
         QUERY["Shared read-only SQLite query<br/>site/src/lib/opportunities.ts<br/>node:sqlite · readOnly: true"]
         PAGE["Directory page + layout<br/>site/src/app/page.tsx · layout.tsx"]
         API["GET /api/v1/opportunities<br/>app/api/v1/opportunities/route.ts<br/>lib/opportunity-api.ts"]
+        FEEDS["RSS / Atom feeds<br/>app/feed.xml/ · app/atom.xml/<br/>lib/opportunity-feed.ts"]
+        STATUS["GET /api/v1/status<br/>lib/opportunity-status-data.ts<br/>Read-only counts + verified download hash"]
         DOWNLOAD["Fixed CSV / JSON / metadata routes<br/>site/src/lib/public-export.ts"]
         SCHEMAROUTE["GET /schemas/opportunities-v1.schema.json<br/>site/src/app/schemas/"]
         SEO["Metadata + sitemap + robots + JSON-LD<br/>app/ · lib/structured-data.ts<br/>lib/site-url.ts · site-config.ts"]
         QUERY --> PAGE
         QUERY -->|bounded query; explicit public fields| API
+        QUERY -->|newest 50 matching open rows| FEEDS
+        PAGE ~~~ API ~~~ FEEDS ~~~ STATUS
+        DOWNLOAD ~~~ SCHEMAROUTE
         SEO -.-> PAGE
     end
 
@@ -257,6 +262,9 @@ flowchart TB
     DB --> QUERY
     RELEASE -.->|select database| QUERY
     RELEASE -.->|select export directory| DOWNLOAD
+    RELEASE -.->|pin one publication| STATUS
+    DB -->|successful collection time + open count| STATUS
+    FILES -->|bounded metadata + streamed JSON hash| STATUS
     SCHEMA -.->|validate exports| EXPORT
     SCHEMA --> SCHEMAROUTE
     FILES -->|serve existing bytes| DOWNLOAD
@@ -273,6 +281,8 @@ flowchart TB
     click QUERY "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunities.ts"
     click PAGE "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/app/page.tsx"
     click API "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/app/api/v1/opportunities/route.ts"
+    click FEEDS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunity-feed.ts"
+    click STATUS "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/opportunity-status-data.ts"
     click DOWNLOAD "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/public-export.ts"
     click SCHEMAROUTE "https://github.com/simonesiega/european-tech-opportunities-2027/tree/main/site/src/app/schemas"
     click SEO "https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/site/src/lib/structured-data.ts"
@@ -292,7 +302,7 @@ flowchart TB
     class DB,RELEASE amber
     class SCHEMA,SEO indigo
     class RENDER,EXPORT mint
-    class README,FILES,QUERY,PAGE,API,DOWNLOAD,SCHEMAROUTE teal
+    class README,FILES,QUERY,PAGE,API,FEEDS,STATUS,DOWNLOAD,SCHEMAROUTE teal
     class DIRECTORY,HELPERS,UI,LISTS,STORAGE blue
     class ANALYTICS rose
 ```
@@ -476,7 +486,7 @@ Keep the explicit `<br/>` breaks in group headings: Mermaid's cluster renderer w
 
 Use this shared configuration, a white SVG background, and system fonts. Retain the accessibility titles/descriptions and HTTPS code links. Do not embed scripts, external resources, or HTML labels in the exported SVGs.
 
-Mermaid's strict mode does not activate `click` directives. For the standalone export, use the explicit node-to-URL mappings in each block to wrap each corresponding node in one native SVG link after rendering. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and `tabindex="0"` for explicit keyboard focus. Separate label lines with spaces in the accessible name. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
+Renderer versions differ in how they preserve `click` directives under strict mode. For standalone exports, normalize the explicit node-to-URL mappings in each block to exactly one native SVG link per mapped node, replacing any renderer-created wrapper. Keep `securityLevel: "strict"`; do not enable JavaScript callbacks or a looser rendering mode to restore links. Each link needs its HTTPS `href`, `target="_blank"`, `rel="noopener noreferrer"`, an accessible name, and `tabindex="0"` for explicit keyboard focus. Separate label lines with spaces in the accessible name. Check for nested anchors, unexpected URLs, scripts, and network requests when opening the exported file.
 
 ```json
 {

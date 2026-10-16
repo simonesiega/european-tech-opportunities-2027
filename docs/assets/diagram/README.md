@@ -65,11 +65,12 @@ Reviewed offline additions reuse acceptance checks and repository transactions, 
 
 [Open the publication map](svg/website.svg) · [Website contract](../../maintainers/engineering/website.md) · [Public data](../../users/data/data.md)
 
-![Publication map separating Python-generated README and downloads, server-only read-only SQLite queries and API routes, React directory controls, metadata, and private browser localStorage](svg/website.svg)
+![Publication map separating Python-generated READMEs and downloads, read-only SQLite queries, listing API, feeds, dataset status, React directory controls, and private browser localStorage](svg/website.svg)
 
 SQLite feeds two publication paths: Python-generated files and server-only website queries.
 Python owns the README preview, full-state review seal, sanitized CSV/JSON, and dataset metadata. The README projection node includes English and the five localized READMEs in `docs/translations/`: all six share canonical counts, seals, and bounded listing data, with localized presentation labels and UTC date displays. The renderer preserves authored text and reciprocal language selectors outside those regions.
-The Next.js page and v1 API share a read-only query; download routes only serve existing export files.
+The Next.js page, v1 listing API, and RSS/Atom feeds share a read-only query; download routes only serve existing export files.
+The status endpoint separately reads successful-collection time and open counts, then verifies bounded metadata against the streamed JSON download hash.
 In versioned mode, each server operation selects one release before opening its database or downloads.
 
 React components handle search, filters, sorting, pagination, and theme without changing canonical data.
