@@ -148,14 +148,19 @@ class HttpFetcher:
                 "LinkedIn crawling is disabled until express permission is configured",
             )
         attempt = 0
+        previous_failure: FetchError | None = None
         while True:
-            self._raise_if_blocked()
+            self._raise_if_blocked(previous_failure)
             try:
-                return await self._request_once(url)
+                return await self._request_once(url, previous_failure=previous_failure)
             except FetchError as exc:
-                if not exc.retryable or attempt >= self.settings.max_retries:
+                if (
+                    not exc.retryable
+                    or attempt >= self.settings.max_retries
+                    or self._blocked_status is not None
+                    or self._blocked_challenge
+                ):
                     raise
-                self._raise_if_blocked()
                 backoff = self.settings.retry_backoff_seconds * (2**attempt)
                 delay = min(
                     max(backoff, exc.retry_after_seconds or 0.0),
@@ -169,26 +174,26 @@ class HttpFetcher:
                         "delay_seconds": delay,
                     },
                 )
+                previous_failure = exc
                 await self._sleep(delay)
                 attempt += 1
 
-    async def _request_once(self, url: str) -> str:
+    async def _request_once(self, url: str, *, previous_failure: FetchError | None = None) -> str:
         """Perform one HTTP request and classify its response."""
         host = urlsplit(url).hostname
         if not host:
             raise FetchError("invalid_url", "request URL has no hostname")
         await self._wait_for_host(host.casefold())
         # Another request may have hit a denial while this one waited for pacing.
-        self._raise_if_blocked()
+        self._raise_if_blocked(previous_failure)
         retry_after: float | None = None
         listing_redirect: FetchError | None = None
-        response_status: int | None = None
+        source_denied = False
         transient_status: int
         try:
             async with self._client.stream(
                 "GET", url, follow_redirects=False, headers={"Accept-Encoding": "identity"}
             ) as response:
-                response_status = response.status_code
                 if response.status_code == 301 and _LINKEDIN_PUBLIC_PATH_RE.fullmatch(
                     urlsplit(url).path
                 ):
@@ -205,6 +210,7 @@ class HttpFetcher:
                     403,
                     429,
                 }:
+                    source_denied = True
                     # In-flight rate limits must never downgrade a stronger source denial.
                     if self._blocked_status is None or self._blocked_status == 429:
                         self._blocked_status = response.status_code
@@ -219,20 +225,22 @@ class HttpFetcher:
                     transient_status = response.status_code
                     retry_after = _retry_after_seconds(response.headers.get("Retry-After"))
                 else:
-                    return await self._read_text(response)
-        except FetchError as exc:
+                    try:
+                        return await self._read_text(response)
+                    except FetchError as exc:
+                        source_denied = exc.code == "source_blocked"
+                        raise
+        except FetchError:
             if listing_redirect is not None:
                 raise listing_redirect from None
-            # Preserve explicit in-flight absence, but never a cleanup error masking denial.
-            if not (
-                exc.code == "http_status"
-                and exc.status_code in {404, 410}
-                and exc.status_code == response_status
-            ):
+            if source_denied:
                 self._raise_if_blocked()
             raise
         except Exception as exc:
-            self._raise_if_blocked()
+            # Cleanup cannot hide this request's denial. A sibling's stop must not
+            # relabel an independent failure as HTTP 429 and authorize partial output.
+            if source_denied:
+                self._raise_if_blocked()
             if listing_redirect is not None:
                 # Cleanup cannot turn a recognized redirect into a retryable failure.
                 raise listing_redirect from exc
@@ -250,8 +258,12 @@ class HttpFetcher:
             retry_after_seconds=retry_after,
         )
 
-    def _raise_if_blocked(self) -> None:
-        """Stop queued requests after an access denial or rate limit."""
+    def _raise_if_blocked(self, previous_failure: FetchError | None = None) -> None:
+        """Stop queued requests without disguising an interrupted retry's failure."""
+        if previous_failure is not None and (
+            self._blocked_challenge or self._blocked_status is not None
+        ):
+            raise previous_failure
         # Challenges remain blocking even when an in-flight response also returns 429.
         if self._blocked_challenge:
             raise FetchError(

@@ -101,7 +101,7 @@ Equivalent local commands are documented in the [testing guide](../engineering/t
 
 The operator-facing workflows remain small mode selectors:
 
-- `nightly.yml` selects availability followed by scrape, or scrape only when a manual run sets `skip_availability=true`;
+- `nightly.yml` selects availability followed by scrape unless the audit stops source access, or scrape only when a manual run sets `skip_availability=true`;
 - `check-availability.yml` selects availability only;
 - collection mode in `scrape.yml` selects scrape only;
 - deployment mode in `scrape.yml` selects projection regeneration followed by deployment;
@@ -237,7 +237,7 @@ concurrency:
   cancel-in-progress: false
 ```
 
-The nominal scheduled time is 04:23 UTC. Scheduled runs always complete the availability audit before starting the scrape; `skip_availability` is effectively `false` for schedules. Manual runs default to the same sequence but can skip the separate audit. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
+The nominal scheduled time is 04:23 UTC. Scheduled runs always attempt the availability audit first; `skip_availability` is effectively `false` for schedules. An eligible HTTP `429` partial audit skips scraping and proceeds only through validation and manual-review publication. Manual runs default to the same sequence but can skip the separate audit. GitHub Actions may start scheduled jobs later than the configured time. A manual run does not enable, disable, or reset the schedule; the next scheduled run still targets 04:23 UTC.
 
 The processor reads request and availability limits from Actions variables and has a 360-minute default timeout. Set the GitHub Actions repository variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for production; the built-in default and workflow fallback remain `50` when no value is configured. Check repository, organization, and selected-environment variables, including copies in `canonical-state` and `production`, for conflicting overrides such as `50` or legacy `250`. Update or remove conflicting overrides so the effective production cap is `100`, and verify it in the audit's selected/deferred log. No workflow changes these variables automatically. Keep `OPPORTUNITIES_AVAILABILITY_INTERVAL_DAYS=5`, concurrency `1`, and request spacing `10` seconds.
 
@@ -251,7 +251,7 @@ The nightly, scrape-only, availability-only, manual-add, recovery-drill, and dep
 
 Three collection workflows can be run independently from the Actions tab:
 
-- **Nightly full update** completes the availability audit unless manually skipped, then collects listings and proposes one README update with automated squash merge after validation and configured review requirements.
+- **Nightly full update** audits unless manually skipped, then collects only while source access remains available. Fully successful collections can request a squash merge after validation and configured review requirements; eligible HTTP `429` partial audits skip collection and require manual review and merge.
 - **Check job availability** checks a bounded batch of due rows and opens an availability-only pull request.
 - **Scrape jobs or deploy reviewed state** runs only the scrape and opens a scrape-only pull request when deployment mode is disabled.
 
@@ -271,7 +271,7 @@ The scrape workflow inputs are:
 |---|---:|---|
 | `deploy_to_vps` | `false` | Skip collection and deploy reviewed durable SQLite state through locked, checksum-verified versioned release publication after validation against `main` |
 
-The availability workflow has no inputs and always proposes changes in its own pull request. Scrape-only collection also always opens a README proposal when public state changes; it cannot advance the snapshot without a review handoff. None of the manual workflows permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
+The availability workflow has no inputs. Availability-only and scrape-only updates open their own README proposals when public state changes; both retain the review handoff after snapshot verification. None of the manual workflows permits an automatic state rebuild: migration or canonical-state validation failures stop the run. VPS deployment is allowed only from `main` when a manual scrape-workflow run explicitly sets `deploy_to_vps=true`; scheduled runs preserve state and update the combined pull request but do not deploy.
 
 ## Manual job addition
 
@@ -302,9 +302,9 @@ database migration
 ↓
 availability audit, when selected
 ↓
-bounded collection + classification, when selected
+bounded collection + classification, when selected and the audit did not stop source access
 ↓
-isolated transactional persistence + aggregate drift checks
+isolated transactional persistence + aggregate drift checks when scraping
 ↓
 quality warnings continue; blocking drift stops publication and still retains its report
 ↓
@@ -321,23 +321,19 @@ one-day README-only handoff artifact
 separate least-privilege README pull-request job
 ```
 
-The nightly workflow runs availability first unless a manual run sets `skip_availability=true`, then runs collection, validates the resulting state, and opens one narrowly scoped pull request. Every workflow scrape requests an aggregate `data-quality-report.json`; [the CLI reference](cli.md#quality-report) defines its scope, thresholds, and baseline warm-up. Warnings continue. Blocking quality findings or report errors stop projection regeneration, durable snapshot publication, and the README handoff. The report upload runs even after a failed scrape; a missing requested report also fails the job. Earlier setup or authorization failures do not attempt that upload.
+Nightly runs audit first unless a manual run sets `skip_availability=true`. An audit source stop prevents scraping. Availability-only runs never scrape; scrape-only runs never audit. Manual additions replace both source phases with the [reviewed batch operation](#manual-job-addition).
 
-Quality checks run after independent search transactions commit, not as a rollback mechanism. A partial collection preserves successful transactions but does not advance the quality baseline. Failed searches record diagnostics without applying absence or closure evidence.
+Every scrape requests `data-quality-report.json`; the [CLI reference](cli.md#quality-report) defines its thresholds and baseline rules. Warnings continue. Blocking findings or report errors stop projection rendering, snapshots, and the README handoff. The upload retains a report even after a failed scrape; a missing requested report fails the job. If scraping never starts, there is no collection-quality artifact.
 
-The availability-only workflow skips collection and its quality checks; the scrape-only workflow skips availability.
+Quality checks run after individual search commits and do not roll back successful transactions. Failed searches supply diagnostics, not absence or closure evidence. Partial collections do not advance the quality baseline.
 
-HTTP `429` during scraping stops subsequent requests. A partial publication candidate requires at least one completed search, only HTTP `429` failures or source-skipped searches, and successful quality, SQLite integrity, projection, and snapshot checks. Completed empty searches may qualify; zero completed searches never do. Any other search failure blocks publication, even alongside HTTP `429`. Any availability-audit denial also blocks publication.
+HTTP `429`-only partial updates follow the [source-access policy](../../../SECURITY.md#rate-limits-and-partial-updates). Eligible audits or collections return `4` and emit `collection_outcome=partial`. An audit partial skips scraping, but still passes SQLite integrity, projection, and round-trip snapshot checks. Collection also requires its quality gate. Other source denials or failures mixed with HTTP `429` block publication.
 
-Eligible partial candidates return scrape exit `4`, emit `collection_outcome=partial`, and use README proposals that require manual review and merge. Failed and skipped searches provide no negative lifecycle evidence or scheduling advancement. Production remains on its previously reviewed release until a matching proposal is reviewed, merged, and separately deployed.
+Partial README proposals require manual review and merge. Production continues serving its reviewed release until the matching proposal is merged and separately deployed.
 
-The manual-add workflow uses the same path but replaces all source phases with one repository-backed `add-jobs --no-render` batch operation followed by normal projection rendering. Its published snapshot advances the same `latest.json` pointer consumed by deployment, so a later deployment restores the reviewed batch instead of rebuilding state from the VPS database.
+Before mutation or deployment, the processor renders the restored snapshot and requires exact agreement with the reviewed English README on `main`. Its seal covers every public row and exact first-seen and collection timestamps, not just the visible preview. Unmerged or rejected proposals block further ordinary runs. Use [seal adoption](#first-public-state-review-seal) only for an otherwise matching legacy README, or [proposal recovery](#recover-a-missing-readme-state-proposal) when the matching proposal is missing or closed. Those modes validate and propose state without collecting, publishing a snapshot, or deploying.
 
-Before any canonical-state workflow performs a new mutation or deployment, the reusable processor renders the restored snapshot and requires its README projection to match the checked-out `main` README exactly. The generated seal covers the full website-visible state, including rows outside the bounded preview and exact first-seen and collection timestamps. This reviewed-state barrier prevents nightly, scrape-only, availability-only, another manual add, recovery, or deployment from consuming a snapshot whose public-state proposal has not yet been merged. The explicit one-time adoption mode accepts only the seal addition to an otherwise matching legacy README. The separate [README recovery mode](#recover-a-missing-readme-state-proposal) can propose a differing restored projection for manual review when its original proposal is missing or closed. Both modes validate the projections and create a review PR without collecting, publishing a snapshot, or deploying. If a proposal is rejected or closed without merging, ordinary canonical-state workflows still fail closed until the reviewed state and durable snapshot are reconciled.
-
-The availability pass visits a bounded batch of due public listings, including closed and manually added rows. See [audit scheduling](database.md#bounded-availability-audit) for persistent queue and retry semantics. A successful public page without a closure alert is then followed by guest detail validation. Successful validation keeps or reopens the row. An explicit HTTP `404` or `410` from either request, or a scoped public-page “No longer accepting applications” alert, deletes the row and its search provenance. Authentication failures, rate limits, server errors, malformed responses, and transport failures are inconclusive: the workflow reports them but preserves those rows. An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves only that row as inconclusive; its destination is never followed or used as evidence. Without a source-wide denial, the audit returns `2`, the workflow reports a partial availability audit, and scraping continues. A transport-detected access denial, any other redirect, or challenge instead fails the availability step, stopping the nightly workflow before a new scraper can reset the transport's stop condition. No snapshot or README handoff is published after that stop.
-
-Successful runs retain audit timestamps in the verified canonical snapshot; blocked or interrupted runs do not publish their working-copy progress. A fresh run restores the last verified snapshot rather than a partial audit. Review authorization before another run. All requests remain behind the LinkedIn authorization interlock and existing pacing limits.
+Availability evidence and queue rotation are defined in [Database lifecycle](database.md#bounded-availability-audit). An inconclusive audit without a source denial returns `2` and permits scraping; a source denial never does. Confirmed audit results can become durable only through the validated snapshot path above. Blocked and interrupted working copies are not recovery sources: the next run restores the last verified snapshot. Review authorization before another source-access run.
 
 ### Deployment-only path
 
@@ -368,10 +364,10 @@ The deployment mode and README validation prevent newly collected state from bei
 | CLI exit code | Workflow behavior |
 |---:|---|
 | `0` | Continue after complete success |
-| `1` | Stop after any availability-audit denial, scraping with no completed search or a failure other than HTTP `429` or source-skipped work, or a blocked or incomplete quality gate |
+| `1` | Stop after a nonqualifying audit source stop, mixed audit failures, scraping with no completed search or a failure other than HTTP `429` or source-skipped work, or a blocked or incomplete quality gate |
 | `2` | Continue only for inconclusive availability auditing; reject this code from scraping as input/configuration failure |
 | `3` | Stop because schema or state preconditions failed |
-| `4` | Continue after eligible partial scraping, explicitly labeled partial and requiring manual review and merge |
+| `4` | Validate and preserve eligible HTTP `429` partial scraping or auditing, explicitly labeled partial and requiring manual review and merge; an audit partial skips scraping |
 
 Validation must pass after complete or partial success.
 
@@ -431,6 +427,7 @@ Each path uses a separate review branch pattern:
 automated/nightly-full-update  # full collection; audit unless manually skipped
 automated/nightly-full-update-partial # validated partial; manual review
 automated/availability-update  # manually requested availability only
+automated/availability-update-partial # validated partial audit; manual review
 automated/scrape-update        # fully successful manual scrape
 automated/scrape-update-partial # validated partial manual scrape
 automated/manual-jobs-YYYY-MM-DD # manually reviewed job batch
@@ -442,9 +439,9 @@ Dataset proposals include only `README.md` and the five `docs/translations/READM
 
 The generated preview remains bounded to five open opportunities per employment type, ordered by immutable first-seen time and then descending ID text, regardless of database size. First-seen time can reflect approximate source posting age rather than exact discovery order. The seal makes every public-directory change produce a README diff, even when all changed rows are outside that preview. Review the sanitized public CSV/JSON artifact linked from the pull-request body before merging a seal-only diff. Those downloads exclude first-seen timestamps, and the displayed collection time has minute precision; if the artifact does not explain the seal change, inspect the relevant values in protected canonical state before approving. The hash alone does not show which rows changed.
 
-A fully successful nightly collection creates or updates its fixed branch and requests a squash merge. Partial collections use the `-partial` branch suffix, a partial/manual-review title and body, and never request a merge. The reusable proposal helper independently disables automatic merging for partial outcomes and cancels any existing auto-merge on a matching partial proposal before updating it. Both paths dispatch and await the same seven validation workflows.
+A fully successful nightly collection creates or updates its fixed branch and requests a squash merge. Partial collections and audits use the `-partial` branch suffix, a partial-update/manual-review title and body, and never request a merge. The reusable proposal helper independently disables automatic merging for partial outcomes and cancels any existing auto-merge on a matching partial proposal before updating it. Both paths dispatch and await the same seven validation workflows.
 
-The aggregate quality report is the generated operational metadata for full/partial/blocked outcomes; public download and status schemas and snapshot manifest formats do not change.
+The `collection_outcome` output identifies `full`, `partial`, or `none`; `partial` can describe an audit or a collection. Review audit-only results in the command summary. Scraping also produces an aggregate quality report; auditing does not.
 
 Before mutating an existing proposal, the reusable proposal helper verifies the exact base branch, same-repository head branch, title, and changed-file list; the pull request must target `main` and modify only paths in the explicit six-README allowlist. Translation-only refreshes are permitted, but the root English README remains the reviewed-state barrier. After pushing, it checks that scope and the expected head SHA before dispatching validation. It retries the post-push GitHub scope read briefly to tolerate API propagation, but never relaxes the expected scope. It waits for the exact Python, site, Docker, CodeQL, Gitleaks, documentation, and dependency-review dispatch runs on that head SHA to succeed, then repeats the scope check and supplies the SHA to the merge request so a later head change cannot use stale validation. If generated state already matches `main`, a matching stale automation pull request is closed rather than left eligible to merge.
 
@@ -457,8 +454,8 @@ Scheduled runs do not deploy to the VPS. After the nightly pull request merges�
 Use this sequence after each scheduled collection. Do not deploy merely because the scheduled job started; deployment is permitted only after the matching README projection reaches `main`.
 
 1. Open the **Nightly full update** run and confirm **Audit, collect, and preserve state** succeeded. Read the command summaries for partial availability or partial collection. A reported partial result is intentionally preserved and may proceed only because final validation and snapshot verification passed.
-2. Confirm the run published both 30-day artifacts: `opportunities-nightly-projections-<run-id>` and `opportunities-nightly-projections-<run-id>-data-quality`. Review the aggregate quality report for warnings and confirm the run completed round-trip snapshot verification. Neither artifact may contain SQLite or a snapshot manifest. A blocking quality report means no README proposal or durable snapshot should have been published.
-3. Inspect `automated/nightly-full-update`, or `automated/nightly-full-update-partial` for a partial collection. It must target `main`, have the matching full or partial/manual-review title, and change only paths in the explicit allowlist: `README.md` and `docs/translations/README.{it,fr,de,es,zh-CN}.md`. The one-day multilingual README handoff is separate from the 30-day public-projection artifact, which contains only the root README, sanitized CSV/JSON, and dataset metadata. Partial proposals require explicit human review and manual merge; do not enable auto-merge on them.
+2. Confirm the run retained the 30-day `opportunities-nightly-projections-<run-id>` artifact and completed round-trip snapshot verification. If scraping ran, also require `opportunities-nightly-projections-<run-id>-data-quality` and review its warnings. An audit-only HTTP `429` partial instead reports that collection was skipped and creates no collection-quality artifact. No artifact may contain SQLite or a snapshot manifest. A blocking quality report means no README proposal or durable snapshot should have been published.
+3. Inspect `automated/nightly-full-update`, or `automated/nightly-full-update-partial` for a partial collection or audit. It must target `main`, have the matching full or partial/manual-review title, and change only paths in the explicit allowlist: `README.md` and `docs/translations/README.{it,fr,de,es,zh-CN}.md`. The one-day multilingual README handoff is separate from the 30-day public-projection artifact, which contains only the root README, sanitized CSV/JSON, and dataset metadata. Partial proposals require explicit human review and manual merge; do not enable auto-merge on them.
 4. Confirm the README mutation job identified and awaited the explicitly dispatched Python, site, Docker, CodeQL, Gitleaks, documentation, and dependency-review runs on the pull-request head SHA. Do not bypass, re-label, or manually broaden the automation pull request to make the merge proceed.
 5. Confirm the pull request squash-merged and that `main` now contains its generated count, timestamp, and preview. If branch protection requires review, inspect the README-only diff and approve it first. If it remains open afterward, diagnose the failed or missing required check before deployment.
 6. From the Actions tab, run **Scrape jobs or deploy reviewed state** on `main` with `deploy_to_vps=true`.

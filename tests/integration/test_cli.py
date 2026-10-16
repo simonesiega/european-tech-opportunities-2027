@@ -432,12 +432,16 @@ def test_availability_public_listing_301_returns_partial_success_and_continues(
         engine.dispose()
 
 
+@pytest.mark.parametrize("no_render", [False, True])
+@pytest.mark.parametrize("denial_status", [403, 429])
 @pytest.mark.parametrize("cleanup_failure", [False, True])
-def test_availability_denial_preserves_confirmed_state_but_never_refreshes_existing_projections(
+def test_availability_source_stop_publishes_only_eligible_partial_checks(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     search: LinkedInSearchConfig,
     cleanup_failure: bool,
+    denial_status: int,
+    no_render: bool,
 ) -> None:
     environment = cli_env(tmp_path)
     environment["OPPORTUNITIES_MAX_CONCURRENCY"] = "1"
@@ -459,7 +463,9 @@ def test_availability_denial_preserves_confirmed_state_but_never_refreshes_exist
         if request.url.path.endswith("/2"):
             return httpx.Response(404)
         if request.url.path.endswith("/3"):
-            return httpx.Response(403, stream=DeniedStream(b"synthetic-private-denial-body"))
+            return httpx.Response(
+                denial_status, stream=DeniedStream(b"synthetic-private-denial-body")
+            )
         return httpx.Response(
             200,
             text='<h1 class="top-card-layout__title">Software Intern 2027</h1>'
@@ -509,15 +515,21 @@ def test_availability_denial_preserves_confirmed_state_but_never_refreshes_exist
             )
         }
 
-        result = runner.invoke(app, ["check-availability"], env=environment)
+        args = ["check-availability", *(["--no-render"] if no_render else [])]
+        result = runner.invoke(app, args, env=environment)
 
-        assert result.exit_code == 1, result.output
-        assert "source processing stopped" in result.output
+        assert result.exit_code == (4 if denial_status == 429 else 1), result.output
+        if denial_status == 429:
+            assert "Partial availability audit after HTTP 429" in result.output
+            assert "manual review" in result.output
+            assert "Collection skipped" in result.output
+        else:
+            assert "source processing stopped" in result.output
+            assert "Collection skipped: availability audit stopped (HTTP 403)" in " ".join(
+                result.output.split()
+            )
         assert "1 available, 1 deleted, 1 reopened" in result.output
         assert "0 inconclusive, 1 blocked" in " ".join(result.output.split())
-        assert "Collection skipped: availability audit stopped (HTTP 403)" in " ".join(
-            result.output.split()
-        )
         assert "synthetic-private" not in result.output
         assert client.is_closed
         assert requested == [
@@ -526,7 +538,11 @@ def test_availability_denial_preserves_confirmed_state_but_never_refreshes_exist
             "/jobs/view/2",
             "/jobs/view/3",
         ]
-        assert {path: path.read_bytes() for path in before_files} == before_files
+        if denial_status == 429 and not no_render:
+            assert runner.invoke(app, ["validate"], env=environment).exit_code == 0
+            assert (tmp_path / "README.md").read_bytes() != before_files[tmp_path / "README.md"]
+        else:
+            assert {path: path.read_bytes() for path in before_files} == before_files
         current = {job.linkedin_job_id: job for job in repository.list_all_jobs()}
         assert set(current) == {"1", "3"}
         assert current["1"].last_seen_at == checked_at

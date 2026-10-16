@@ -214,9 +214,9 @@ anything else                                          → preserve the job as i
 
 The auditor collects batch outcomes before applying confirmed changes and scheduling metadata in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
 
-An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) leaves that row unchanged and inconclusive without stopping unrelated checks. Its destination is never followed or used as evidence.
+An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) preserves the listing's public fields and lifecycle. It counts as an inconclusive audit attempt for scheduling, but does not stop unrelated checks. Its destination is never followed or used as evidence.
 
-The README is regenerated after the transaction unless source access was blocked. A transport-detected denial, any other redirect, rate limit, or challenge preserves inconclusive rows and stops follow-on source processing and publication; any earlier confirmed results remain in the working database. See [CLI exit codes](cli.md#exit-codes). The nightly workflow includes the audit result in its combined, README-only pull request, dispatches and awaits validation on that generated commit, and requests auto-merge only after the exact-scope check and successful runs. A manual availability-only run uses a separate validated, manual-review pull request. SQLite remains the runtime source of truth and is not committed to Git.
+A source denial stops new requests, including details not yet started for an in-flight public page. Confirmed results remain in the working database; denied and deferred rows keep their audit priority. An HTTP `429`-only partial audit may retain completed results through integrity, projection, and round-trip snapshot checks, followed by a labeled manual-review proposal. Other denials or mixed failures block publication. See the [CLI audit results](cli.md#check-availability) for eligibility, exit codes, and rendering behavior, and [Automation](automation.md#collection-and-deployment-flow) for durable publication and review.
 
 ## Timestamp invariants
 

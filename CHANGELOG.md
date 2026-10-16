@@ -11,10 +11,12 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Allow HTTP 429-only partial availability audits to retain completed checks through validated, manual-review publication while skipping all subsequent source requests and nightly scraping.
 - Refresh localized README counts, review seals, and opportunity previews alongside English in dataset automation, preserving localized presentation and authored text.
 
 ### Fixed
 
+- Preserve independent in-flight and interrupted-retry failures after a sibling source stop so HTTP 429 cannot incorrectly authorize partial publication; retain denial classification when response cleanup fails.
 - Keep RSS and Atom ordering consistent with the directory and API, including microsecond timestamps and numeric job-ID ties.
 - Count nested search YAML files in generated registry documentation and check Python lockfile consistency in CI.
 - Include the changelog in documentation checks and show feeds and dataset status in repository maps.

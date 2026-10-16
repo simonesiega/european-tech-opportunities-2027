@@ -284,7 +284,18 @@ The audit requests the public listing first; a successful public page without a 
 - a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
-The command exits with code `2` when one or more checks are inconclusive without a source-access denial. This includes an [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects): the affected row stays unchanged, its destination is never followed or used as evidence, and other checks continue. Confirmed results remain committed, and the default path refreshes the owned README, registry documentation, and all public exports. Any other redirect, authentication failure, rate limit, or access challenge detected by the transport instead returns code `1` and skips projection rendering. Already confirmed results remain in the working database, but automation stops before starting a new scraper or publishing a snapshot. Review source authorization before another run; do not automatically retry a denial.
+An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) is inconclusive: the destination is ignored, the listing's lifecycle is unchanged, and unrelated checks continue. Completed inconclusive attempts advance only audit scheduling. Denied and unprocessed listings keep their priority.
+
+| Exit | Audit result | Default projection handling |
+|---:|---|---|
+| `0` | All selected checks confirmed, or no jobs due | Refresh |
+| `2` | Inconclusive checks without a source denial | Refresh confirmed results |
+| `4` | HTTP `429`-only stop with at least one confirmed check and no independent inconclusive or failed check | Refresh completed results |
+| `1` | Other source denial, mixed failures alongside HTTP `429`, or a rate limit before any confirmed check | Preserve existing files |
+
+`--no-render` preserves projections in every case. Confirmed database changes remain committed even when publication is blocked. Other errors, such as missing migrations or failed rendering, retain their normal [exit codes](#exit-codes).
+
+No source denial permits further requests or retries. Nightly scraping is skipped after an audit rate limit, even when the partial results qualify for publication. Eligible partials still need integrity, projection, and verified-snapshot checks and manual review. Audit-only runs create no collection report or quality baseline. Review authorization before another run; see the [partial-update policy](../../../SECURITY.md#rate-limits-and-partial-updates).
 
 For scheduled and manual workflow sequencing, see [Automation](automation.md#collection-and-deployment-flow).
 
@@ -377,7 +388,7 @@ For diagnosis, use [Troubleshooting](troubleshooting.md).
 | `1` | No search completed, a search failure other than HTTP `429` or source-skipped work occurred, a source denial blocked availability, validation found an inconsistency, or the quality gate blocked or could not complete |
 | `2` | Availability audit with inconclusive checks, or rejected command/configuration input; never accepted as scrape success |
 | `3` | Required database tables are missing or the schema is not at migration head |
-| `4` | Eligible partial collection, not full success; required publication checks and manual review remain |
+| `4` | Eligible HTTP `429` partial collection or availability audit, not full success; required publication checks and manual review remain |
 
 After a partial scrape with exit code `4`:
 
@@ -386,6 +397,8 @@ After a partial scrape with exit code `4`:
 - failed searches do not mutate lifecycle state;
 - quality, integrity, projection, and snapshot validation must pass before publication;
 - manual review and merge are required before a partial dataset can be deployed.
+
+An availability audit returning `4` likewise preserves only completed confirmed work and requires validation and manual review. Its denied and unprocessed rows keep their audit priority, and no follow-on scrape runs in that workflow execution.
 
 GitHub Actions handling of these codes is documented in [Automation](automation.md#exit-code-handling).
 
@@ -402,7 +415,7 @@ GitHub Actions handling of these codes is documented in [Automation](automation.
 | `add-job --no-render` | No | Yes | No |
 | `add-jobs` | No | Yes, one transaction | README + registry docs + public exports |
 | `add-jobs --no-render` | No | Yes, one transaction | No |
-| `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports unless source access is blocked |
+| `check-availability` | Yes, after authorization gate | Yes | README + registry docs + public exports after a nonblocked audit or eligible HTTP `429` partial audit |
 | `check-availability --no-render` | Yes, after authorization gate | Yes | No |
 | `render` | No | No | README + registry docs + public exports |
 | `export-public` | No | No | Public exports only |

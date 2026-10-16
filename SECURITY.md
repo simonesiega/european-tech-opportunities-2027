@@ -72,13 +72,28 @@ Never weaken or default-enable an authorization gate. An upstream block or chall
 
 ### Public-listing redirects
 
-HTTP `301` returned directly by an approved `https://www.linkedin.com/jobs/view/<numeric-id>` request preserves that listing as inconclusive without stopping unrelated checks. The stored row remains unchanged.
+HTTP `301` returned directly by an approved `https://www.linkedin.com/jobs/view/<numeric-id>` request preserves that listing as inconclusive without stopping unrelated checks. Its public fields and lifecycle remain unchanged; a completed availability attempt can advance only its audit schedule.
 
 The destination is ignored, even when missing, malformed, or untrusted. The transport never follows it, reads the redirect response body, retries the listing, or uses the redirect as availability or closure evidence. Authorization and original-request endpoint validation remain unchanged.
 
 All redirects from search or guest-detail endpoints, every other redirect status (including `302`, `307`, and `308`), authentication denials (`401` and `403`), rate limits (`429`), and access or verification pages still stop source requests.
 
-HTTP `429` during scraping alone may permit publication of independently completed searches after the required quality, integrity, projection, and snapshot checks. It never permits another source request, retry, or bypass within that execution. At least one search must have completed; failed and skipped searches provide no negative lifecycle evidence. Partial proposals require manual review and merge, and cannot establish full-registry quality baselines. Partial publication requires every failed search to be an HTTP `429` denial or a search skipped after the source stop. Unexpected exceptions, invalid HTML, timeouts, transport or HTTP errors, and all other source denials withhold publication, even alongside HTTP `429`. Any availability-audit denial also withholds publication. Review authorization before any subsequent eligible execution. Public download/status schemas remain unchanged; aggregate operational quality reports identify partial outcomes without exposing listing content.
+### Rate limits and partial updates
+
+HTTP `429` stops all new source requests, including retries. If it occurs during the availability audit, nightly scraping does not start. Requests already in flight may finish.
+
+Completed work can qualify for partial publication under these conditions:
+
+| Operation | Required completed work | Permitted incomplete work |
+|---|---|---|
+| Collection | At least one successful search, including an empty search | HTTP `429` failures and searches skipped after the stop |
+| Availability audit | At least one confirmed available or unavailable listing | HTTP `429` denials and unprocessed listings; no independent inconclusive or failed check |
+
+Other denials, invalid HTML, timeouts, transport or HTTP errors, and unexpected failures block partial publication, even alongside HTTP `429`. With no qualifying completed work, publication is also blocked. Failed and skipped work supplies no closure evidence; denied and unprocessed rows keep their scheduling priority.
+
+Eligible commands return `4`. Integrity, projection, and verified-snapshot checks must still pass, followed by manual review and merge. Collection also requires its quality gate. Partial updates never establish a full-registry quality baseline, and audit-only updates produce no collection-quality report. Other audit source stops return `1`; inconclusive audits without a source denial retain exit `2`.
+
+Review authorization before any later execution. Partial publication never permits another source phase, retry, or bypass in the stopped execution.
 
 ### Data and website boundary
 

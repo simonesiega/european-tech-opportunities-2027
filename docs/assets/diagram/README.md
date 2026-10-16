@@ -32,7 +32,7 @@ Search definitions and acceptance rules tell the CLI where to look and what evid
 The Python pipeline rotates searches by persistent completion time, fetches permitted guest HTML, and applies deterministic acceptance checks.
 Only `Repository` writes application state, keeping lifecycle evidence, search rotation, and aggregate quality baselines in SQLite.
 
-HTTP `429` stops subsequent source requests. Independently completed searches may qualify for partial publication only after every required gate passes; the resulting proposal requires manual review and merge.
+HTTP `429` stops subsequent source requests. Independently completed searches or confirmed availability checks may qualify for HTTP `429`-only partial publication only after every required gate passes; the resulting proposal requires manual review and merge.
 
 The website, API, downloads, and bounded README present that state; production readers use verified releases.
 Browser-local lists sit beside the public data flow and never write back to the database.
@@ -57,7 +57,7 @@ Only successful, nonblocking full-registry collections establish quality baselin
 Missing cards cannot close jobs. Known-ID rechecks require repeated explicit `404`/`410` confirmations; closure occurs only after no active search association remains.
 The collection map shows the built-in availability default: at most 50 due jobs, with a five-day minimum interval.
 [Production automation](../../maintainers/operations/automation.md#schedule-and-concurrency) recommends the Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for daily audits; the software default remains unchanged.
-It keeps or reopens valid listings, deletes explicitly unavailable ones, and preserves inconclusive rows; any audit denial blocks publication.
+It keeps or reopens valid listings, deletes explicitly unavailable ones, and preserves inconclusive rows. An HTTP `429`-only partial audit requires completed confirmed checks and no independent failures, skips scraping, and passes validation for manual review. Other audit source stops block publication.
 
 Reviewed offline additions reuse acceptance checks and repository transactions, without invented provenance or manual reopening.
 
@@ -84,9 +84,9 @@ Schema, link-validation, and metadata helpers keep the public output predictable
 ![Operations map showing serialized protected processing, verified restricted snapshots, a README-only review handoff, and a separate approved versioned-release deployment](svg/automation.svg)
 
 Scheduled and manual workflows serialize canonical updates through a shared one-writer lock.
-The nightly node shows the default audit → scrape sequence. Manual runs can set `skip_availability=true` to select scraping only; scheduled runs always audit. This uses the existing selected-phase boundary without changing the graph's processing or publication handoffs.
+The nightly node shows the default audit → scrape sequence. Manual runs can set `skip_availability=true` to select scraping only; scheduled runs always audit. An eligible HTTP `429` partial audit skips scraping and proceeds only through validation and manual-review handoff.
 The protected processor restores verified state, migrates, requires its README to match reviewed `main`, and runs selected CLI phases.
-Full and eligible HTTP `429` partial results must pass quality, SQLite integrity, and projection checks before checkpointing and restricted snapshot publication.
+Full and eligible HTTP `429` partial results must pass SQLite integrity and projection checks before checkpointing and restricted snapshot publication. Collection also requires its aggregate quality gate; audit-only partials never fabricate collection metrics or reports.
 Round-trip snapshot verification must succeed before the README handoff. Search rotation travels with the database, never a separate queue or artifact.
 
 A separate job receives only the six public README projections and outcome output, opens a pull request restricted to their explicit path allowlist, and waits for validation. Only the English README controls the reviewed-state barrier; localized projections cannot approve mismatched canonical state.

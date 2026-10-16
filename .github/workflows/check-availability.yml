@@ -46,6 +46,7 @@ jobs:
       branch: automated/availability-update
       title: "data: remove unavailable positions"
       commit_message: "data: remove unavailable positions"
+      collection_outcome: ${{ needs.process-state.outputs.collection_outcome }}
       body: >-
         Manual bounded availability audit of due listings. Explicit 404/410 listings and pages showing
         'No longer accepting applications' were removed; merge remains manual.

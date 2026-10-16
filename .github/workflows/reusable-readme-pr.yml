@@ -29,7 +29,7 @@ on:
         required: true
         type: string
       collection_outcome:
-        description: Collection outcome from the validated processor; partial always requires manual merge.
+        description: Source-update outcome from the validated processor; partial audits or collections always require manual merge.
         required: false
         default: none
         type: string
@@ -93,8 +93,8 @@ jobs:
             partial)
               UPDATE_AUTO_MERGE=false
               UPDATE_BRANCH+="-partial"
-              UPDATE_TITLE+=" (partial collection; manual review)"
-              UPDATE_BODY+=$'\n\nValidated partial collection, not a complete registry update. Review the aggregate quality report and public projections. Manual review and merge required.'
+              UPDATE_TITLE+=" (partial update; manual review)"
+              UPDATE_BODY+=$'\n\nValidated partial source update, not a complete collection or availability audit. Review the command summaries, any aggregate collection-quality report, and public projections. Manual review and merge required.'
               ;;
             *) echo "Invalid collection outcome; refusing proposal."; exit 1 ;;
           esac

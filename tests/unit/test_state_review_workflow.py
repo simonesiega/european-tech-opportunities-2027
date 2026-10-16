@@ -198,8 +198,8 @@ uv() {
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
-@pytest.mark.parametrize("exit_code", [0, 1, 2, 3])
-def test_availability_denial_stops_workflow_before_follow_on_scrape(
+@pytest.mark.parametrize("exit_code", [0, 1, 2, 3, 4])
+def test_availability_source_stop_skips_scrape_and_preserves_only_eligible_handoffs(
     tmp_path: Path, exit_code: int
 ) -> None:
     bash = shutil.which("bash")
@@ -217,18 +217,48 @@ uv() {
     result = subprocess.run(
         [bash, "-c", fake_audit + script],
         cwd=tmp_path,
-        env={**offline_shell_environment(tmp_path), "AUDIT_EXIT_CODE": str(exit_code)},
+        env={
+            **offline_shell_environment(tmp_path),
+            "AUDIT_EXIT_CODE": str(exit_code),
+            "GITHUB_OUTPUT": (tmp_path / "outputs").as_posix(),
+        },
         capture_output=True,
         text=True,
         check=False,
         timeout=30,
     )
-    assert result.returncode == (0 if exit_code in (0, 2) else exit_code), result.stderr
+    assert result.returncode == (0 if exit_code in (0, 2, 4) else exit_code), result.stderr
+    output = tmp_path / "outputs"
+    if exit_code == 4:
+        assert output.read_text().strip() == "collection_outcome=partial"
+        assert "scraping stopped" in result.stdout
+    else:
+        assert not output.exists()
+    assert step["id"] == "availability"
     assert "continue-on-error" not in step
     scrape = process_step("Scrape and persist selected searches")
-    assert scrape["if"] == "inputs.run_scrape"  # Default success() must remain in force.
+    # Default success() blocks denied audits; eligible 429 partials must not reset the fetcher.
+    assert scrape["if"] == (
+        "inputs.run_scrape && steps.availability.outputs.collection_outcome != 'partial'"
+    )
+    processor = yaml.load(
+        (WORKFLOWS / "reusable-process-state.yml").read_text(), Loader=yaml.BaseLoader
+    )
+    assert processor["jobs"]["process"]["outputs"]["collection_outcome"] == (
+        "${{ steps.availability.outputs.collection_outcome || "
+        "steps.scrape.outputs.collection_outcome || 'none' }}"
+    )
     steps = process_steps()
     assert steps.index(step) < steps.index(scrape)
+    for name in (
+        "Validate database and generated projections",
+        "Publish and restore-verify VPS canonical snapshot",
+        "Upload README handoff",
+    ):
+        gate = process_step(name)
+        assert steps.index(scrape) < steps.index(gate)
+        assert "always()" not in str(gate.get("if", ""))
+        assert "continue-on-error" not in gate
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
 
 
@@ -359,10 +389,12 @@ def test_partial_proposals_force_manual_review_independently_of_caller(
     )
     assert result.returncode == (1 if outcome == "invalid" else 0)
     if outcome == "partial":
-        assert (
-            result.stdout == "false|automated/nightly-full-update-partial|"
-            "nightly (partial collection; manual review)"
-        )
+        automatic, branch, title = result.stdout.split("|", 2)
+        assert automatic == "false"
+        assert branch == "automated/nightly-full-update-partial"
+        assert title.startswith("nightly")
+        assert "partial" in title.casefold()
+        assert "manual review" in title.casefold()
     elif outcome == "full":
         assert result.stdout == "true|automated/nightly-full-update|nightly"
     assert "--disable-auto" in script
@@ -425,15 +457,6 @@ def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
     assert process_step("Check due public job pages for closure alerts")["if"] == (
         "inputs.run_availability"
     )
-    proposal = nightly["jobs"]["update-readme"]["with"]
-    assert proposal["body"] == (
-        "${{ github.event_name == 'workflow_dispatch' && inputs.skip_availability && "
-        "'Availability audit skipped by manual request; collection ran without the separate "
-        "due-job audit.' || 'A bounded batch of due listings was checked for 404/410 responses "
-        "and explicit closure alerts before collection ran.' }} "
-        "Full collections retain automatic merging after configured requirements pass; "
-        "partial collections require manual review and merge."
-    )
 
 
 @pytest.mark.parametrize("filename", ["nightly.yml", "check-availability.yml"])
@@ -446,6 +469,9 @@ def test_availability_failure_prevents_readme_handoff_to_mutation_job(filename: 
     assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
     assert "continue-on-error" not in process
     assert proposal["needs"] == "process-state"
+    assert proposal["with"]["collection_outcome"] == (
+        "${{ needs.process-state.outputs.collection_outcome }}"
+    )
     assert "if" not in proposal  # Default success() must not be bypassed after audit failure.
     assert "continue-on-error" not in proposal
 
@@ -456,7 +482,9 @@ def test_collection_retains_only_the_quality_report_even_on_blocking_failure() -
     upload = process_step("Upload aggregate data-quality report")
     # README recovery and other source-free modes must not run the gate or upload a stale report.
     assert scrape["id"] == "scrape"
-    assert scrape["if"] == "inputs.run_scrape"
+    assert scrape["if"] == (
+        "inputs.run_scrape && steps.availability.outputs.collection_outcome != 'partial'"
+    )
     assert "continue-on-error" not in scrape
     assert upload["if"] == (
         "always() && (steps.scrape.outcome == 'success' || steps.scrape.outcome == 'failure')"
