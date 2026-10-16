@@ -107,18 +107,37 @@ describe("public opportunity feeds", () => {
 
   test("removes XML-invalid code points and caps results at the newest 50", () => {
     expect(xmlEscape("a\u0000b\ud800c & d")).toBe("abc &amp; d");
-    // Mirror the database's newest-first order; the renderer preserves input order.
     const rows = Array.from({length: FEED_ITEM_LIMIT + 1}, (_, index) =>
       row(String(index + 1), {
         firstSeenAt: new Date(Date.UTC(2026, 6, 31 - index, 12)).toISOString(),
       })
-    );
+    ).reverse();
     const xml = renderOpportunityFeed("rss", rows, null, defaultFilters, origin);
 
     expect(xml.match(/<item>/g)).toHaveLength(FEED_ITEM_LIMIT);
     expect(xml).toContain('<guid isPermaLink="true">https://www.linkedin.com/jobs/view/1</guid>');
     expect(xml).not.toContain("https://www.linkedin.com/jobs/view/51</guid>");
   });
+
+  test.each(["rss", "atom"] as const)(
+    "%s orders microseconds and numeric ID ties before limiting entries",
+    (format) => {
+      const rows = [
+        row("9", {firstSeenAt: "2026-07-17 12:00:00.000001"}),
+        row("100", {firstSeenAt: "2026-07-17T14:00:00.000001+02:00"}),
+        row("10", {firstSeenAt: "2026-07-17T12:00:00.000001Z"}),
+        row("1", {firstSeenAt: "2026-07-17T12:00:00.000002Z"}),
+      ];
+      const original = structuredClone(rows);
+      const xml = renderOpportunityFeed(format, rows, null, defaultFilters, origin);
+      const pattern =
+        format === "rss"
+          ? /<guid isPermaLink="true">https:\/\/www\.linkedin\.com\/jobs\/view\/(\d+)<\/guid>/g
+          : /<id>urn:linkedin:job:(\d+)<\/id>/g;
+      expect([...xml.matchAll(pattern)].map((match) => match[1])).toEqual(["1", "100", "10", "9"]);
+      expect(rows).toEqual(original);
+    }
+  );
 
   test("canonicalizes filter order and returns a valid empty feed", () => {
     const filters = parseFeedQuery("?type=new-grad&category=software-engineering&country=Ireland");

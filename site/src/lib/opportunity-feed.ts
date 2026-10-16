@@ -1,5 +1,6 @@
 import {filterOpportunities} from "@/lib/opportunity-filter";
 import {formatCategory, parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
+import {sortOpportunities} from "@/lib/opportunity-sort";
 import {siteConfig} from "@/lib/site-config";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -58,8 +59,7 @@ export function renderOpportunityFeed(
   filters: FeedFilters,
   siteOrigin: URL
 ): string {
-  // The shared database query supplies newest-first rows; filtering preserves that order.
-  const matches = filterOpportunities(
+  const filtered = filterOpportunities(
     opportunities,
     {
       q: "",
@@ -70,7 +70,8 @@ export function renderOpportunityFeed(
       firstSeen: "",
     },
     0
-  ).slice(0, FEED_ITEM_LIMIT);
+  );
+  const matches = sortOpportunities(filtered, "first-seen-desc").slice(0, FEED_ITEM_LIMIT);
   const selfUrl = getFeedUrl(format, filters, siteOrigin);
   const homeUrl = new URL("/", siteOrigin).toString();
   const updatedAt = getUpdatedAt(opportunities, lastUpdatedAt);
@@ -131,7 +132,7 @@ function getFeedDescription(filters: FeedFilters): string {
     filters.category ? formatCategory(filters.category) : "",
   ].filter(Boolean);
   const scope = labels.length ? ` matching ${labels.join(", ")}` : "";
-  return `The ${FEED_ITEM_LIMIT} most recently discovered currently open 2027 technology opportunities${scope} across Europe.`;
+  return `Up to ${FEED_ITEM_LIMIT} currently open 2027 technology opportunities${scope} across Europe, newest first by first-seen time.`;
 }
 
 function getUpdatedAt(opportunities: Opportunity[], lastUpdatedAt: string | null): Date {
