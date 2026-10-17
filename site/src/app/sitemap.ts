@@ -7,7 +7,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: new URL("/", siteUrl).toString(),
-      changeFrequency: "daily",
       priority: 1,
     },
   ];

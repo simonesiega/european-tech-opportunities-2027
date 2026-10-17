@@ -1,6 +1,7 @@
 name: Nightly full update
 
 on:
+  # Cron checks daily; the UTC gate keeps three-day intervals across month boundaries.
   schedule:
     - cron: "23 4 * * *"
   workflow_dispatch:
@@ -18,9 +19,33 @@ concurrency:
 permissions: {}
 
 jobs:
+  cadence:
+    name: Check three-day UTC cadence
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      run_update: ${{ steps.cadence.outputs.run_update }}
+    steps:
+      - name: Select scheduled or manual update
+        id: cadence
+        shell: bash
+        run: |
+          run_update=true
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
+            now=$(date -u +%s)
+            anchor=$(date -u -d '2026-10-17' +%s)
+            utc_days=$((now / 86400 - anchor / 86400))
+            if [ "$((utc_days % 3))" -ne 0 ]; then
+              run_update=false
+            fi
+          fi
+          echo "run_update=$run_update" >> "$GITHUB_OUTPUT"
+
   # Scheduled runs always audit first; manual runs may select collection only.
   process-state:
     name: Audit, collect, and preserve state
+    needs: cadence
+    if: needs.cadence.outputs.run_update == 'true'
     uses: $/.github/workflows/reusable-process-state.yml
     permissions:
       contents: read

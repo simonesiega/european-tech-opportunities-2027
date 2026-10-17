@@ -42,8 +42,8 @@ export function buildStructuredData(siteUrl: URL, lastUpdatedAt: string | null) 
         publisher: {"@id": siteConfig.maintainer.id},
         maintainer: {"@id": siteConfig.maintainer.id},
         "dcterms:accrualPeriodicity": {
-          "@id": "http://purl.org/cld/freq/daily",
-          name: "Daily",
+          "@type": "dcterms:Frequency",
+          name: "Every three days",
         },
         ...(Number.isFinite(updated) ? {dateModified: new Date(updated).toISOString()} : {}),
         distribution: [

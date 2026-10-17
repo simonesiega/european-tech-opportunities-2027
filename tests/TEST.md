@@ -422,7 +422,8 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
 | `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labels and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
 | `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
-| `test_nightly_supports_manual_and_scheduled_full_updates` | Boolean `skip_availability` defaults to false; only manual opt-out skips the audit, schedules always audit, collection and authorization remain enabled, and the shared lock does not cancel work |
+| `test_nightly_supports_manual_and_scheduled_full_updates` | A credential-free cadence output gates processing; manual audit opt-out, source authorization, and the shared noncanceling lock remain intact |
+| `test_nightly_cadence_preserves_three_day_gaps_and_manual_runs` | The actual workflow script keeps three-day UTC gaps across month and leap-year boundaries; off-days skip processing and manual runs bypass the date gate without source access |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent README handoffs and forward partial outcomes to the independent manual-review proposal guard |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |
 | `test_recovery_mode_guard_precedes_restore_and_forbids_side_effects` | Recovery-mode combinations fail before restore and cannot publish snapshots or bypass validation before handoff |
@@ -587,7 +588,7 @@ Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts).
 | `falls back safely for unsupported directory view parameters` | Browser inputs constrain invalid recency/sort/page/page-size values rather than applying API-style rejection |
 | `search, reset, keyboard focus, and sorting remain interactive` | Search shortcut works; reset preserves unrelated query/sort/page-size state; sort direction changes actual row order |
 | `defaults to latest first seen and paginates results` | Newest-first rows, next-page links, and page-size changes expose the expected data |
-| `publishes canonical SEO and crawler metadata` | Filtered pages are nonindexable with canonical URL, safe JSON-LD and download metadata; image/manifest/robots/sitemap routes work and local analytics stays absent |
+| `publishes canonical SEO and crawler metadata` | Filtered pages are nonindexable with canonical URL, safe JSON-LD including the three-day dataset schedule, and download metadata; image/manifest/robots/sitemap routes work and local analytics stays absent |
 | `legacy host permanently redirects paths and queries without serving alternate content` | Retired-host requests preserve path/query through a 308 canonical-origin redirect |
 | `crawler can follow unfiltered pages without JavaScript` | SSR pagination has real links, visible rows, and valid page-specific canonical/indexing metadata |
 | `does not index out-of-range or alternate directory pages` | Invalid/alternate views are nonindexable while unrelated tracking parameters do not break valid page indexing |

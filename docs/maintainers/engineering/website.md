@@ -69,7 +69,7 @@ Automated axe scans cover normal, filtered, empty, dark, and open-menu states. T
 
 The unfiltered default `/` and valid `/?page=N` views self-canonicalize and are indexable. Search/filter/alternate sort or page-size/out-of-range views use `noindex, follow` and `/` as canonical. The site emits title/description, Open Graph, a generated 1200×630 image, large-card metadata, robots, sitemap, manifest, and escaped JSON-LD.
 
-JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, maintainer, daily collection schedule, latest successful collection and both download distributions. The daily frequency is a schedule, not a guarantee of daily production publication; reviewed deployment remains separate. It does not claim complete individual `JobPosting` markup. Serialization must escape `<` so hostile listing-like text cannot end the script element.
+JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, maintainer, three-day collection schedule, latest successful collection and both download distributions. Collection frequency is not a production-publication guarantee; reviewed deployment remains separate. The sitemap omits a change-frequency hint because publication has no fixed cadence. It does not claim complete individual `JobPosting` markup. Serialization must escape `<` so hostile listing-like text cannot end the script element.
 
 `SITE_URL` is a validated origin; production requires exact `https://techopportunities.eu`. Robots and sitemap resolve it at request time, even if built with localhost. The former hostname redirects with permanent 308 while preserving path/query; [Deployment](../operations/deployment.md#dokploy-deployment) owns routing.
 

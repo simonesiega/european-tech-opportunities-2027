@@ -281,7 +281,7 @@ A failed search does not apply absence or closure evidence. Partial publication 
 
 Exit `4` means completed checks can qualify for publication after an HTTP `429` stop; it does not mean the audit finished. Read the audit summary and confirm that validation and round-trip snapshot verification passed before reviewing its partial README proposal. Nightly scraping must be skipped. Do not restart it to bypass the rate limit, and do not expect a collection-quality report when no scrape ran.
 
-Denied and unprocessed rows remain eligible for a later authorized run. Exit `1` blocks publication; exit `2` means an inconclusive audit without a source denial. Use the [CLI audit result table](cli.md#check-availability) to distinguish them, then follow [README proposal recovery](automation.md#recover-a-missing-readme-state-proposal) if a verified snapshot has no matching proposal.
+Denied and unprocessed rows remain eligible for a later authorized run. HTTP `429` before any confirmed available or unavailable listing returns `1` and blocks publication; a public-page `200` alone is not confirmation without validated detail evidence. Exit `2` means an inconclusive audit without a source denial. Use the [CLI audit result table](cli.md#check-availability) to distinguish them, then follow [README proposal recovery](automation.md#recover-a-missing-readme-state-proposal) if a verified snapshot has no matching proposal.
 
 ### All searches failed
 

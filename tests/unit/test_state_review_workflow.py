@@ -446,8 +446,13 @@ def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
         "group": "opportunity-collection",
         "cancel-in-progress": "false",
     }
+    assert nightly["permissions"] == {}
+    cadence = nightly["jobs"]["cadence"]
+    assert "secrets" not in cadence
+    assert cadence["outputs"]["run_update"] == "${{ steps.cadence.outputs.run_update }}"
     process = nightly["jobs"]["process-state"]
-    assert "if" not in process
+    assert process["needs"] == "cadence"
+    assert process["if"] == "needs.cadence.outputs.run_update == 'true'"
     assert process["uses"] == "$/.github/workflows/reusable-process-state.yml"
     assert process["with"]["run_availability"] == (
         "${{ github.event_name != 'workflow_dispatch' || !inputs.skip_availability }}"
@@ -457,6 +462,57 @@ def test_nightly_supports_manual_and_scheduled_full_updates() -> None:
     assert process_step("Check due public job pages for closure alerts")["if"] == (
         "inputs.run_availability"
     )
+
+
+@pytest.mark.parametrize(
+    ("day", "event", "expected"),
+    [
+        ("2026-10-29", "schedule", True),
+        ("2026-10-31", "schedule", False),
+        ("2026-11-01", "schedule", True),
+        ("2028-02-27", "schedule", True),
+        ("2028-02-29", "schedule", False),
+        ("2028-03-01", "schedule", True),
+        ("2026-10-31", "workflow_dispatch", True),
+    ],
+)
+def test_nightly_cadence_preserves_three_day_gaps_and_manual_runs(
+    tmp_path: Path, day: str, event: str, expected: bool
+) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("Nightly cadence tests require Bash")
+    nightly = yaml.load((WORKFLOWS / "nightly.yml").read_text(), Loader=yaml.BaseLoader)
+    script = nightly["jobs"]["cadence"]["steps"][0]["run"]
+    assert isinstance(script, str)
+    clock = """
+date() {
+  if [ "$*" = "-u +%s" ]; then
+    printf '%s\\n' "$SCHEDULE_TIMESTAMP"
+  else
+    command date "$@"
+  fi
+}
+"""
+    output = tmp_path / "outputs"
+    timestamp = int(datetime.fromisoformat(f"{day}T04:23:00+00:00").timestamp())
+    result = subprocess.run(
+        [bash, "-e", "-o", "pipefail", "-c", clock + script],
+        cwd=tmp_path,
+        env={
+            **offline_shell_environment(tmp_path),
+            "GITHUB_EVENT_NAME": event,
+            "GITHUB_OUTPUT": output.as_posix(),
+            "SCHEDULE_TIMESTAMP": str(timestamp),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+    assert output.read_text().strip() == f"run_update={str(expected).lower()}"
+    assert not (tmp_path / "blocked-network.log").exists()
 
 
 @pytest.mark.parametrize("filename", ["nightly.yml", "check-availability.yml"])

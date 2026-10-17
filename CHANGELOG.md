@@ -11,6 +11,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Run scheduled full updates every three UTC days with a fixed cadence across month boundaries; retain additional manual updates for busy hiring periods and keep source-access safeguards unchanged.
 - Allow HTTP 429-only partial availability audits to retain completed checks through validated, manual-review publication while skipping all subsequent source requests and nightly scraping.
 - Refresh localized README counts, review seals, and opportunity previews alongside English in dataset automation, preserving localized presentation and authored text.
 
@@ -24,7 +25,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 - Keep RSS and Atom ordering consistent with the directory and API, including microsecond timestamps and numeric job-ID ties.
 - Count nested search YAML files in generated registry documentation and check Python lockfile consistency in CI.
 - Include the changelog in documentation checks and show feeds and dataset status in repository maps.
-- Clarify daily collection versus reviewed production deployment, multilingual README handoffs, and first-seen preview ordering.
+- Clarify scheduled collection versus reviewed production deployment, multilingual README handoffs, and first-seen preview ordering.
 - Block collection publication after unexpected, parsing, or unrelated transport failures, including concurrent failures alongside HTTP 429, while preserving completed search transactions.
 
 ### Removed

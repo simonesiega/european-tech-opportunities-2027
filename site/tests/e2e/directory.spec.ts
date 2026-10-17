@@ -241,6 +241,7 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   expect(dataset).not.toHaveProperty("isPartOf");
   expect(dataset).toMatchObject({
     "@id": "http://127.0.0.1:3100/#dataset",
+    "dcterms:accrualPeriodicity": {"@type": "dcterms:Frequency", name: "Every three days"},
     dateModified: "2026-07-17T12:00:00.000Z",
     distribution: [
       {contentUrl: "http://127.0.0.1:3100/open-opportunities.csv"},
