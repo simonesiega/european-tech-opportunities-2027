@@ -1,0 +1,205 @@
+[
+  {
+    "location": "London",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "Greater London Metropolitan Area",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "London, GB",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "London, UK",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "London, United Kingdom",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "London (United Kingdom)",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "UK Remote",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "Remote — United Kingdom",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "Remote, U.K.",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "London, GB (ON-SITE)",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "Belfast, Northern Ireland",
+    "codes": ["GB"],
+    "countries": ["United Kingdom"],
+    "include": true
+  },
+  {
+    "location": "Paris, FR",
+    "codes": ["FR"],
+    "countries": ["France"],
+    "include": true
+  },
+  {
+    "location": "Prague, Czech Republic",
+    "codes": ["CZ"],
+    "countries": ["Czechia"],
+    "include": true
+  },
+  {
+    "location": "Hamburg, DE",
+    "codes": ["DE"],
+    "countries": ["Germany"],
+    "include": true
+  },
+  {
+    "location": "Zürich",
+    "codes": ["CH"],
+    "countries": ["Switzerland"],
+    "include": true
+  },
+  {
+    "location": "Madrid, Spain; Lisbon, Portugal; Porto, Portugal",
+    "codes": ["ES", "PT"],
+    "countries": ["Spain", "Portugal"],
+    "include": true
+  },
+  {
+    "location": "DE; US",
+    "codes": ["DE"],
+    "countries": ["Germany"],
+    "include": true
+  },
+  {
+    "location": "EMEA; Berlin, Germany",
+    "codes": ["DE"],
+    "countries": ["Germany"],
+    "include": true
+  },
+  {
+    "location": "Berlin, Germany; US",
+    "codes": ["DE"],
+    "countries": ["Germany"],
+    "include": true
+  },
+  {
+    "location": "Remote — Europe",
+    "codes": [],
+    "countries": ["Europe"],
+    "include": true
+  },
+  {
+    "location": "European Union (Remote)",
+    "codes": [],
+    "countries": ["Europe"],
+    "include": true
+  },
+  {
+    "location": "European Economic Area",
+    "codes": [],
+    "countries": ["Europe"],
+    "include": true
+  },
+  {
+    "location": "London, South Africa",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Paris, China",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "London, 中国",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Paris, FR, 中国",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {"location": "Berlin, MA", "codes": [], "countries": [], "include": false},
+  {
+    "location": "Paris, Unknown Region",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Paris, FR, China",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "London, Ontario, Canada",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Wilmington, DE, United States",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Portland, ME, USA",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Remote, non-European",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {
+    "location": "Outside Europe",
+    "codes": [],
+    "countries": [],
+    "include": false
+  },
+  {"location": "Remote", "codes": [], "countries": [], "include": false},
+  {"location": "EMEA", "codes": [], "countries": [], "include": false},
+  {"location": "constructor", "codes": [], "countries": [], "include": false},
+  {"location": "__proto__", "codes": [], "countries": [], "include": false}
+]

@@ -3,183 +3,55 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
+from pathlib import Path
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from opportunities.utils.text import clean_text, contains_normalized_phrase, normalized_key
 
-EUROPEAN_COUNTRY_CODES = frozenset(
-    {
-        "AD",
-        "AL",
-        "AT",
-        "BA",
-        "BE",
-        "BG",
-        "CH",
-        "CY",
-        "CZ",
-        "DE",
-        "DK",
-        "EE",
-        "ES",
-        "FI",
-        "FR",
-        "GB",
-        "GR",
-        "HR",
-        "HU",
-        "IE",
-        "IS",
-        "IT",
-        "LI",
-        "LT",
-        "LU",
-        "LV",
-        "MC",
-        "MD",
-        "ME",
-        "MK",
-        "MT",
-        "NL",
-        "NO",
-        "PL",
-        "PT",
-        "RO",
-        "RS",
-        "SE",
-        "SI",
-        "SK",
-        "SM",
-        "UA",
-        "VA",
-        "XK",
-    }
-)
 
-_COUNTRY_ALIASES: dict[str, str] = {
-    "albania": "AL",
-    "andorra": "AD",
-    "austria": "AT",
-    "belgium": "BE",
-    "bosnia": "BA",
-    "bosnia and herzegovina": "BA",
-    "bulgaria": "BG",
-    "croatia": "HR",
-    "cyprus": "CY",
-    "czech republic": "CZ",
-    "czechia": "CZ",
-    "denmark": "DK",
-    "england": "GB",
-    "estonia": "EE",
-    "finland": "FI",
-    "france": "FR",
-    "germany": "DE",
-    "greece": "GR",
-    "hungary": "HU",
-    "iceland": "IS",
-    "ireland": "IE",
-    "italy": "IT",
-    "kosovo": "XK",
-    "latvia": "LV",
-    "liechtenstein": "LI",
-    "lithuania": "LT",
-    "luxembourg": "LU",
-    "malta": "MT",
-    "moldova": "MD",
-    "monaco": "MC",
-    "montenegro": "ME",
-    "netherlands": "NL",
-    "north macedonia": "MK",
-    "northern ireland": "GB",
-    "norway": "NO",
-    "poland": "PL",
-    "portugal": "PT",
-    "romania": "RO",
-    "san marino": "SM",
-    "scotland": "GB",
-    "serbia": "RS",
-    "slovakia": "SK",
-    "slovenia": "SI",
-    "spain": "ES",
-    "sweden": "SE",
-    "switzerland": "CH",
-    "uk": "GB",
-    "u k": "GB",
-    "united kingdom": "GB",
-    "ukraine": "UA",
-    "vatican city": "VA",
-    "wales": "GB",
+class _Country(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    name: str
+    aliases: tuple[str, ...]
+
+
+class _Geography(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    countries: dict[str, _Country]
+    cities: dict[str, str]
+    modifiers: tuple[str, ...]
+    regions: tuple[str, ...]
+    non_european_markers: tuple[str, ...] = Field(alias="nonEuropeanMarkers")
+
+
+# The website uses this same vocabulary to label countries without changing job data.
+_GEOGRAPHY = _Geography.model_validate_json(
+    Path(__file__).with_name("geography.json").read_text(encoding="utf-8")
+)
+EUROPEAN_COUNTRY_CODES = frozenset(_GEOGRAPHY.countries)
+_COUNTRY_ALIASES = {
+    normalized_key(alias): code
+    for code, country in _GEOGRAPHY.countries.items()
+    for alias in (country.name, *country.aliases)
 }
+_MODIFIERS_RE = re.compile(r"\b(?:" + "|".join(_GEOGRAPHY.modifiers) + r")\b")
+_COMPONENTS_RE = re.compile(r",|[()|]|\s+[\u2014\u2013-]\s+")
 
-_CITY_COUNTRIES: dict[str, str] = {
-    "amsterdam": "NL",
-    "athens": "GR",
-    "barcelona": "ES",
-    "belgrade": "RS",
-    "berlin": "DE",
-    "bratislava": "SK",
-    "brussels": "BE",
-    "bucharest": "RO",
-    "budapest": "HU",
-    "copenhagen": "DK",
-    "dublin": "IE",
-    "edinburgh": "GB",
-    "helsinki": "FI",
-    "krakow": "PL",
-    "lisbon": "PT",
-    "ljubljana": "SI",
-    "london": "GB",
-    "luxembourg": "LU",
-    "madrid": "ES",
-    "manchester": "GB",
-    "milan": "IT",
-    "munich": "DE",
-    "oslo": "NO",
-    "paris": "FR",
-    "prague": "CZ",
-    "riga": "LV",
-    "rome": "IT",
-    "sofia": "BG",
-    "stockholm": "SE",
-    "tallinn": "EE",
-    "vilnius": "LT",
-    "vienna": "AT",
-    "warsaw": "PL",
-    "zagreb": "HR",
-    "zurich": "CH",
-}
 
-# Include common country abbreviations as well as namesake-city region codes.
-# A location such as "Paris, US" must not fall back to the European city map.
-_NON_EUROPEAN_REGION_CODES = frozenset(
-    {"AU", "CA", "GA", "IN", "NH", "NZ", "OH", "ON", "SG", "TX", "US"}
-)
+def _geographic_key(value: str) -> str:
+    """Remove known modifiers without erasing unsupported geographic words."""
+    decomposed = unicodedata.normalize("NFKD", clean_text(value))
+    unaccented = "".join(char for char in decomposed if not unicodedata.combining(char))
+    key = re.sub(r"[\W_]+", " ", unaccented.lower())
+    return clean_text(_MODIFIERS_RE.sub(" ", key))
 
-_NON_EUROPEAN_MARKERS = frozenset(
-    {
-        "australia",
-        "austin",
-        "brazil",
-        "canada",
-        "georgia",
-        "india",
-        "new hampshire",
-        "new york",
-        "non europe",
-        "non european",
-        "ohio",
-        "ontario",
-        "outside europe",
-        "outside of europe",
-        "san francisco",
-        "seattle",
-        "singapore",
-        "texas",
-        "united states",
-        "us remote",
-        "usa",
-    }
-)
+
+_REGION_KEYS = frozenset(map(_geographic_key, _GEOGRAPHY.regions))
 
 
 @dataclass(frozen=True, slots=True)
@@ -193,40 +65,52 @@ class LocationResult:
 
 
 def normalize_locations(values: list[str]) -> LocationResult:
-    """Normalize locations and determine European eligibility."""
+    """Normalize independent locations and determine European eligibility."""
     locations: list[str] = []
     codes: set[str] = set()
     europe_signal = False
     non_europe_signal = False
 
-    for raw_value in values:
+    for raw_value in (entry for value in values for entry in value.split(";")):
         location = _normalize_display_location(raw_value)
         if location and location not in locations:
             locations.append(location)
         key = normalized_key(raw_value)
-        uppercase_codes = set(re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", raw_value))
-        has_non_european_marker = bool(uppercase_codes & _NON_EUROPEAN_REGION_CODES) or any(
-            contains_normalized_phrase(key, marker) for marker in _NON_EUROPEAN_MARKERS
+        without_workplace = re.sub(
+            r"\b(?:remote|hybrid|on[- ]?site)\b", "", raw_value, flags=re.IGNORECASE
         )
-        for alias, country_code in _COUNTRY_ALIASES.items():
-            if contains_normalized_phrase(key, alias):
-                codes.add(country_code)
-        # City-only inference is a fallback. A clear non-European country or market
-        # qualifier prevents namesakes such as London, Ontario from becoming UK evidence.
-        if not has_non_european_marker:
-            for city, country_code in _CITY_COUNTRIES.items():
-                if contains_normalized_phrase(key, city):
-                    codes.add(country_code)
-            # Non-European qualifiers make codes ambiguous (DE/US may mean Delaware).
-            # Named European countries still support explicit mixed locations above.
-            codes.update(uppercase_codes & EUROPEAN_COUNTRY_CODES)
-        # EMEA alone is too broad; require Europe wording or country/city evidence.
-        if any(contains_normalized_phrase(key, marker) for marker in ("europe", "european")):
+        uppercase_codes = set(re.findall(r"(?<![A-Za-z])([A-Z]{2})(?![A-Za-z])", without_workplace))
+        # Unknown country/state codes cannot be treated as European city qualifiers.
+        unknown_codes = {
+            code
+            for code in uppercase_codes - EUROPEAN_COUNTRY_CODES - {"EU"}
+            if code.lower() not in _COUNTRY_ALIASES
+        }
+        has_non_european_marker = bool(unknown_codes) or any(
+            contains_normalized_phrase(key, marker) for marker in _GEOGRAPHY.non_european_markers
+        )
+        components = [
+            component
+            for value in _COMPONENTS_RE.split(raw_value)
+            if (component := _geographic_key(value))
+        ]
+        named_countries = {
+            _COUNTRY_ALIASES[component] for component in components if component in _COUNTRY_ALIASES
+        }
+        codes.update(named_countries)
+        if not named_countries and not has_non_european_marker:
+            # A country code must be the final geographic component, not a US state
+            # before an unknown country. Unrecognized qualifiers also prevent city fallback.
+            terminal_code = components[-1].upper() if components else ""
+            if terminal_code in uppercase_codes & EUROPEAN_COUNTRY_CODES:
+                codes.add(terminal_code)
+            elif city_country := _GEOGRAPHY.cities.get(_geographic_key(raw_value)):
+                codes.add(city_country)
+        if any(component in _REGION_KEYS for component in components):
             europe_signal = True
-        if has_non_european_marker:
-            non_europe_signal = True
+        non_europe_signal |= has_non_european_marker
 
-    if codes & EUROPEAN_COUNTRY_CODES:
+    if codes:
         europe_signal = True
     return LocationResult(
         locations=locations,

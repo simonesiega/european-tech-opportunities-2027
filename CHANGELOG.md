@@ -16,6 +16,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Reject namesake cities with unrecognized geographic qualifiers and require technical evidence for generic research roles; exclude nontechnical roles despite software keywords.
 - Keep approved public-listing HTTP 301 responses from blocking validated HTTP 429 partial availability publication, without treating redirects as confirmed checks or masking independent failures.
 - Preserve independent in-flight and interrupted-retry failures after a sibling source stop so HTTP 429 cannot incorrectly authorize partial publication; retain denial classification when response cleanup fails.
 - Keep RSS and Atom ordering consistent with the directory and API, including microsecond timestamps and numeric job-ID ties.

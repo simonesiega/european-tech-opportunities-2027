@@ -28,6 +28,18 @@ excluded_role_keywords:
   - director
   - head of
   - vice president
+non_technical_role_keywords:
+  - account executive
+  - business developer
+  - business development
+  - clinical research
+  - human resources
+  - market research
+  - marketing
+  - recruitment
+  - recruiting
+  - sales
+  - talent acquisition
 # Category order breaks ties within each title or description matching pass.
 categories:
   cybersecurity:
@@ -75,10 +87,13 @@ categories:
     - ml engineer
     - natural language processing
   research-engineering:
+    - ai research
+    - computer science research
+    - computing research
+    - ml research
     - research engineer
-    - research intern
-    - research internship
-    - research scientist
+    - research engineering
+    - research software
   software-engineering:
     - backend
     - developer tools

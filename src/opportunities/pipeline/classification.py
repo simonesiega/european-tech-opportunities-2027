@@ -13,45 +13,41 @@ from opportunities.normalization.location import EUROPEAN_COUNTRY_CODES, Locatio
 from opportunities.utils.text import contains_normalized_phrase, normalized_key
 from opportunities.utils.time import ensure_utc
 
-# Include past/future conflicts and the entire configurable cycle range. A
-# conflicting year must never disappear into the recent-posting-date fallback.
+# Recognize past and future conflicts before falling back to posting dates.
 _YEAR_RE = re.compile(r"\b(?:19|20|21)\d{2}\b")
 _OPPORTUNITY_CONTEXT_RE = re.compile(
     r"\b(?:internship|intern|summer|placement|programme|program|cycle|graduate|"
     r"new\s+grad|early\s+career|entry\s+level)\b"
 )
-_TITLE_SCOPE_NOISE = frozenset(
+_GENERIC_TECH_TITLE_WORDS = frozenset(
     {
+        "ai",
         "career",
         "co",
+        "computer",
         "coop",
+        "data",
+        "developer",
         "early",
+        "engineering",
         "entry",
         "grad",
         "graduate",
         "intern",
         "internship",
         "level",
+        "ml",
         "new",
         "placement",
-        "student",
-        "summer",
-        "university",
-    }
-)
-_DESCRIPTION_CATEGORY_TITLE_WORDS = frozenset(
-    {
-        "ai",
-        "computer",
-        "data",
-        "developer",
-        "engineering",
-        "ml",
         "research",
         "science",
+        "scientist",
         "software",
+        "student",
+        "summer",
         "technical",
         "technology",
+        "university",
     }
 )
 _OTHER_TECH_KEYWORDS = (
@@ -78,11 +74,11 @@ class Classifier:
 
     def __init__(self, rules: ClassificationRules, target_cycle: int) -> None:
         self.target_cycle = target_cycle
-        # Rules are normalized during configuration validation; copy the category
-        # mapping so later mutation of nested model values cannot affect this classifier.
+        # Copy nested categories so later configuration edits cannot change this instance.
         self._internship_keywords = rules.internship_keywords
         self._new_grad_keywords = rules.new_grad_keywords
         self._excluded_role_keywords = rules.excluded_role_keywords
+        self._non_technical_role_keywords = rules.non_technical_role_keywords
         self._categories = dict(rules.categories)
 
     def classify(
@@ -104,12 +100,13 @@ class Classifier:
             )
         if self._contains_any(title_key, self._excluded_role_keywords):
             return self._exclude("title contains excluded seniority terminology")
+        if self._contains_any(title_key, self._non_technical_role_keywords):
+            return self._exclude("title identifies a non-technology role")
 
         category = self.classify_category(title_key)
-        # Description fallback is deliberately narrow: generic technology titles may
-        # use it, but an unrelated explicit title cannot be reclassified by body text.
-        if category == OpportunityCategory.UNKNOWN and self._description_can_define_category(
-            title_key
+        # Unrelated titles cannot be rescued by technical description keywords.
+        if category == OpportunityCategory.UNKNOWN and all(
+            word.isdigit() or word in _GENERIC_TECH_TITLE_WORDS for word in title_key.split()
         ):
             category = self.classify_category("", description_key)
         if category == OpportunityCategory.UNKNOWN:
@@ -134,7 +131,7 @@ class Classifier:
                     "date is not eligible",
                 )
 
-        explicit_europe = bool(set(location.country_codes) & EUROPEAN_COUNTRY_CODES)
+        explicit_europe = not EUROPEAN_COUNTRY_CODES.isdisjoint(location.country_codes)
         # An explicit European country overrides broad text such as a global or mixed
         # location description; otherwise a clear non-European signal is rejected.
         if location.non_europe_signal and not explicit_europe:
@@ -178,38 +175,24 @@ class Classifier:
             or not _is_eligibility_year(title_key, match.start())
         ]
         target = str(self.target_cycle)
-        # Title evidence has priority over description context; accepting a body year
-        # first could misclassify an explicitly advertised internship cycle.
-        conflicting_title_year = next((year for year in title_years if year != target), None)
-        if conflicting_title_year is not None:
-            return conflicting_title_year
-        if target in title_years:
-            return target
+        # Title years take precedence over description context.
+        if title_years:
+            return next((year for year in title_years if year != target), target)
         contextual_years = _contextual_years(
             description_key,
             ignore_eligibility=employment_type == EmploymentType.INTERNSHIP,
         )
-        conflicting_contextual_year = next(
-            (year for year in contextual_years if year != target), None
+        return next(
+            (year for year in contextual_years if year != target),
+            target if contextual_years else "unknown",
         )
-        if conflicting_contextual_year is not None:
-            return conflicting_contextual_year
-        return target if target in contextual_years else "unknown"
-
-    @staticmethod
-    def _description_can_define_category(title_key: str) -> bool:
-        """Check whether description fallback is allowed for the title."""
-        words = {word for word in set(title_key.split()) - _TITLE_SCOPE_NOISE if not word.isdigit()}
-        return not words or words <= _DESCRIPTION_CATEGORY_TITLE_WORDS
 
     @staticmethod
     def _contains_any(text: str, keywords: tuple[str, ...]) -> bool:
-        """Check whether text contains any normalized configured phrase."""
         return any(contains_normalized_phrase(text, keyword) for keyword in keywords)
 
     @staticmethod
     def _exclude(reason: str) -> ClassificationDecision:
-        """Build an excluded classification decision."""
         return ClassificationDecision(
             include=False,
             category=OpportunityCategory.UNKNOWN,

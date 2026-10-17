@@ -164,16 +164,19 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 | `test_title_with_both_types_is_categorized_as_internship` | Internship evidence takes precedence over the word graduate |
 | `test_senior_opportunity_title_is_excluded` | Explicit seniority disqualifies both internship and New Grad titles |
 | `test_non_technology_title_cannot_be_rescued_by_technical_description` | Technical team mentions cannot reclassify an explicitly unrelated finance title |
+| `test_non_technical_roles_cannot_be_rescued_by_technology_keywords` | Commercial, recruitment, clinical, and market-research titles remain excluded despite technical title or description keywords |
+| `test_generic_research_titles_require_technology_evidence` | Generic research and research-scientist titles cannot establish a technology category without technical evidence |
+| `test_technical_roles_remain_eligible_next_to_non_technical_exclusions` | Technical research, narrowly supported description fallback, software engineering, and whole-word boundaries remain eligible |
 | `test_employment_type_requires_whole_word_evidence` | “International” and “Internal” do not count as “intern” |
 | `test_explicit_non_european_locations_prevent_city_fallback` | Country names/codes, regional abbreviations, city namesakes, and explicit non-European remote evidence defeat European-city fallback |
-| `test_explicit_european_locations_remain_eligible` | European codes, recognized cities, and explicit European entries within mixed/EMEA locations remain eligible |
 | `test_description_can_classify_generic_technical_internship` | A generic technical title may use explicit description evidence for its category |
-| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Both evidence paths recognize 19xx, 20xx, and 21xx conflicts, including the former 2020/2049 limits; paired cases cover each path/type without Cartesian duplication; 2026 title, programme, eligibility, and conflicting-year inputs preserve their distinct semantics and the rejected role's category/type despite recent posting |
+| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Title and description evidence reject 19xx–21xx conflicts, mixed cycles, and New Grad eligibility-year conflicts despite recent posting, preserving the rejected role's category and type |
 | `test_title_precedence_and_internship_eligibility_remain_distinct` | Target-cycle titles beat historical body mentions; distant eligibility years do not override valid internship evidence |
-| `test_supported_target_cycles_need_no_posting_date` | Supported minimum 2020, former upper-limit crossing 2050, and maximum 2100 need no posting evidence; intermediate values add no separate boundary |
+| `test_supported_target_cycles_need_no_posting_date` | Explicit supported cycles at 2020, 2050, and 2100 need no posting-date evidence |
 | `test_posting_floor_uses_the_utc_instant` | Both types respect the exact UTC cutoff, including equivalent positive/negative offsets and adjacent microseconds; date-based acceptance preserves the correct type and technical category |
+| `test_shared_location_cases_do_not_invent_european_evidence` | Shared Python/website cases cover aliases, codes, accented cities, remote locations, European regions, mixed entries, unknown qualifiers including non-Latin words, namesakes, and unsupported values |
 | `test_explicit_separate_european_location_survives_a_mixed_country_list` | Separate European and non-European locations do not incorrectly qualify each other |
-| `test_missing_or_ambiguous_geography_is_not_assumed_european` | Empty locations, Remote, and EMEA alone fail with the stable ambiguity reason |
+| `test_missing_or_ambiguous_geography_is_not_assumed_european` | Empty locations, Remote, and EMEA remain ambiguous rather than outside Europe, with the stable exclusion reason |
 
 ### Configuration and domain inputs
 
@@ -653,6 +656,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `readme_projections` in [integration/test_readme.py](integration/test_readme.py) | Disposable English and five localized templates with synthetic markers and Unicode authored text; no committed preview or canonical database is rendered |
 | [shell_helpers.py](shell_helpers.py) | Environment allowlist and blocking SSH/SCP/SFTP fallbacks for offline shell tests |
 | `__init__.py` files | Python package discovery/import support; no tests or behavior assertions |
+| [european_locations.json](../site/tests/fixtures/european_locations.json) | Shared classifier and website country-normalization cases; aliases, accented cities, European regions, namesakes, non-Latin/unknown qualifiers, and independent mixed locations |
 | [linkedin_search_page_1.html](fixtures/linkedin_search_page_1.html) | One eligible internship plus an unrelated senior role exercises stable IDs and prefiltering |
 | [linkedin_search_page_2.html](fixtures/linkedin_search_page_2.html) | Overlapping identity plus a second technical role exercises pagination/deduplication |
 | [linkedin_job_detail_1111111111.html](fixtures/linkedin_job_detail_1111111111.html) | Explicit identity, relative posting age, start-cycle prose, and structured industry evidence |
