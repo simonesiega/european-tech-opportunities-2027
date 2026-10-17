@@ -75,7 +75,7 @@ JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, 
 
 ## Browser integrations and security headers
 
-Production sends CSP and HSTS in addition to content-type, referrer, framing, cross-origin, and permissions headers. `next.config.ts` is executable policy; Docker smoke tests cover production headers.
+`next.config.ts` supplies production CSP, HSTS, content-type, referrer, framing, cross-origin, and permissions headers. `src/proxy.ts` replaces caller-supplied nonce/CSP headers with a fresh nonce for framework, theme, analytics, and JSON-LD scripts. The script policy uses `strict-dynamic` and blocks untrusted inline scripts, event handlers, and eval. Inline styles support the theme and floating action menu. Dynamically rendered HTML must not be cached across different nonces. Production browser tests exercise script blocking and hydration; Docker smoke tests verify the response policy.
 
 Umami loads only in production with canonical `SITE_URL`: script origin `https://cloud.umami.is`, event origin `https://gateway.umami.is`. Local tests/demo use loopback and block external browser requests. Local-list IDs and visit timestamps must not enter analytics payloads. Theme storage uses the separate `opportunities-theme` key.
 

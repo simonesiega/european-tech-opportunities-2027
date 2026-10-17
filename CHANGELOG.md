@@ -32,6 +32,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Replace inline-script CSP permission with per-request nonces while preserving theme, analytics, and directory hydration.
 - Exclude local logs, uv caches, and Lighthouse reports from container build contexts.
 
 ## [1.0.0] - 2026-10-07

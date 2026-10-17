@@ -127,6 +127,78 @@ test("production status reads the selected dataset without modifying SQLite", as
   expect(readFileSync(databasePath)).toEqual(before);
 });
 
+test("production CSP uses fresh nonces and blocks injected scripts without breaking hydration", async ({
+  browser,
+}) => {
+  const first = await client.get("/", {
+    headers: {"x-nonce": "untrusted", "Content-Security-Policy": "script-src 'unsafe-inline'"},
+  });
+  expect(first.status()).toBe(200);
+  const policy = first.headers()["content-security-policy"];
+  const nonce = /'nonce-([A-Za-z0-9+/]+=*)'/.exec(policy)?.[1];
+  expect(nonce).toBeTruthy();
+  expect(policy).toContain("frame-ancestors 'none'");
+  expect(policy).toContain("object-src 'none'");
+  const html = await first.text();
+  for (const script of html.matchAll(/<script\b([^>]*)>/g)) {
+    expect(script[1]).toContain(`nonce="${nonce}"`);
+  }
+  const second = await client.get("/");
+  expect(second.headers()["content-security-policy"]).not.toContain(`'nonce-${nonce}'`);
+  expect(first.headers()["cache-control"]).toContain("no-store");
+
+  const context = await browser.newContext({
+    baseURL: "http://127.0.0.1:3101",
+    colorScheme: "light",
+  });
+  try {
+    await context.route("https://**/*", (route) => route.abort());
+    // Inject parser-inserted markup, not a script created by Playwright's trusted evaluator.
+    await context.route("http://127.0.0.1:3101/", async (route) => {
+      const response = await route.fetch();
+      const currentNonce = /'nonce-([A-Za-z0-9+/]+=*)'/.exec(
+        response.headers()["content-security-policy"]
+      )?.[1];
+      const body = (await response.text())
+        .replace(
+          "</head>",
+          `<script nonce="${nonce}">document.documentElement.dataset.cspBypass = 'yes'</script>` +
+            `<script nonce="${currentNonce}">try { eval("document.documentElement.dataset.cspEval = 'yes'") } catch {}</script></head>`
+        )
+        .replace("<h1 ", `<h1 onclick="document.documentElement.dataset.cspHandler = 'yes'" `);
+      await route.fulfill({response, body});
+    });
+    await context.addInitScript(() => {
+      const violations: string[] = [];
+      Object.assign(window, {cspViolations: violations});
+      window.addEventListener("securitypolicyviolation", (event) => {
+        violations.push(event.effectiveDirective);
+      });
+    });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("heading", {level: 1}).click();
+    const save = page.getByRole("button", {name: /^Save /}).first();
+    await expect(save).toBeEnabled();
+    await save.click();
+    await expect(page.getByRole("button", {name: /^Unsave /}).first()).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(() => (window as Window & {cspViolations?: string[]}).cspViolations ?? [])
+      )
+      .toEqual(expect.arrayContaining(["script-src-elem", "script-src-attr", "script-src"]));
+    for (const attribute of ["data-csp-bypass", "data-csp-handler", "data-csp-eval"]) {
+      await expect(page.locator("html")).not.toHaveAttribute(attribute);
+    }
+  } finally {
+    await context.close();
+  }
+});
+
 for (const failure of [
   "database missing",
   "database invalid",

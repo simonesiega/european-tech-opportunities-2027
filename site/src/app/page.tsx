@@ -1,4 +1,5 @@
 import type {Metadata} from "next";
+import {headers} from "next/headers";
 import {SiteFooter} from "@/components/layout/site-footer";
 import {SiteHeader} from "@/components/layout/site-header";
 import {OpportunityDirectory} from "@/components/opportunities/opportunity-directory";
@@ -50,7 +51,8 @@ export async function generateMetadata({
   };
 }
 
-export default function Home() {
+export default async function Home() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   const {opportunities, lastUpdatedAt} = getDirectoryData();
   const referenceTime = new Date().toISOString();
   const structuredData = buildStructuredData(siteUrl, lastUpdatedAt);
@@ -59,6 +61,7 @@ export default function Home() {
     <div className="mx-auto flex min-h-svh w-[min(calc(100%_-_40px),1376px)] flex-col pt-18 max-[760px]:w-[min(calc(100%_-_28px),1376px)] max-[639px]:pt-22">
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{__html: serializeStructuredData(structuredData)}}
       />
       <SiteHeader />

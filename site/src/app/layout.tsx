@@ -1,4 +1,5 @@
 import type {Metadata} from "next";
+import {headers} from "next/headers";
 import {ThemeProvider} from "next-themes";
 import type {ReactNode} from "react";
 import {siteConfig} from "@/lib/site-config";
@@ -35,13 +36,15 @@ export const metadata: Metadata = {
   robots: {index: true, follow: true},
 };
 
-export default function RootLayout({children}: Readonly<{children: ReactNode}>) {
+export default async function RootLayout({children}: Readonly<{children: ReactNode}>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang={siteConfig.language} suppressHydrationWarning>
       <head>
         {analyticsEnabled ? (
           <script
             defer
+            nonce={nonce}
             src="https://cloud.umami.is/script.js"
             data-domains={siteConfig.analyticsDomain}
             data-website-id="e3733fba-21a0-4663-9e54-9e6adab3e0d5"
@@ -51,6 +54,7 @@ export default function RootLayout({children}: Readonly<{children: ReactNode}>) 
       <body>
         <ThemeProvider
           attribute="data-theme"
+          nonce={nonce}
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
