@@ -10,7 +10,6 @@ import {
   renameSync,
   rmSync,
   symlinkSync,
-  statSync,
   truncateSync,
   unlinkSync,
   writeFileSync,
@@ -110,8 +109,8 @@ async function withRestoredFixture(action: () => Promise<void>) {
     await action();
   } finally {
     for (const {filename, bytes} of originals) {
-      if (existsSync(filename) && !statSync(filename).isFile()) rmSync(filename, {recursive: true});
-      writeFileSync(filename, bytes);
+      rmSync(filename, {recursive: true, force: true});
+      writeFileSync(filename, bytes, {flag: "wx"});
     }
   }
 }
@@ -144,9 +143,6 @@ test("production CSP uses fresh nonces and blocks injected scripts without break
   expect(policy).toContain("frame-ancestors 'none'");
   expect(policy).toContain("object-src 'none'");
   const html = await first.text();
-  for (const script of html.matchAll(/<script\b([^>]*)>/g)) {
-    expect(script[1]).toContain(`nonce="${nonce}"`);
-  }
   const second = await client.get("/");
   expect(second.headers()["content-security-policy"]).not.toContain(`'nonce-${nonce}'`);
   expect(first.headers()["cache-control"]).toContain("no-store");
@@ -180,6 +176,16 @@ test("production CSP uses fresh nonces and blocks injected scripts without break
       });
     });
     const page = await context.newPage();
+    const scriptNonces = await page.evaluate(
+      (markup) =>
+        Array.from(
+          new DOMParser().parseFromString(markup, "text/html").scripts,
+          (script) => script.nonce
+        ),
+      html
+    );
+    expect(scriptNonces).not.toHaveLength(0);
+    for (const scriptNonce of scriptNonces) expect(scriptNonce).toBe(nonce);
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await page.getByRole("heading", {level: 1}).click();
