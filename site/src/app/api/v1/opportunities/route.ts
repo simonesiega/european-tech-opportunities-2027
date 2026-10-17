@@ -1,11 +1,14 @@
 import {contentEtag, matchesIfNoneMatch, REVALIDATE_CACHE_CONTROL} from "@/lib/http-cache";
 import {getDirectoryData} from "@/lib/opportunities";
 import {InvalidApiQuery, apiPayload, parseApiQuery} from "@/lib/opportunity-api";
-import {
-  API_JSON_HEADERS,
-  apiErrorResponse,
-  apiMethodNotAllowed,
-  apiOptionsResponse,
+import {API_JSON_HEADERS, apiErrorResponse} from "@/lib/api-response";
+
+export {
+  apiOptionsResponse as OPTIONS,
+  apiMethodNotAllowed as POST,
+  apiMethodNotAllowed as PUT,
+  apiMethodNotAllowed as PATCH,
+  apiMethodNotAllowed as DELETE,
 } from "@/lib/api-response";
 
 export const dynamic = "force-dynamic";
@@ -38,25 +41,4 @@ export function GET(request: Request): Response {
 export function HEAD(request: Request): Response {
   const response = GET(request);
   return new Response(null, {status: response.status, headers: response.headers});
-}
-
-export function OPTIONS(request: Request): Response {
-  return apiOptionsResponse(request);
-}
-
-// Explicit 405 handlers guarantee the documented Allow header; none mutates state.
-export function POST(): Response {
-  return apiMethodNotAllowed();
-}
-
-export function PUT(): Response {
-  return apiMethodNotAllowed();
-}
-
-export function PATCH(): Response {
-  return apiMethodNotAllowed();
-}
-
-export function DELETE(): Response {
-  return apiMethodNotAllowed();
 }

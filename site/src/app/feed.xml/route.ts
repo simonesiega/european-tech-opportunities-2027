@@ -1,7 +1,10 @@
-import {
-  feedMethodNotAllowed,
-  getFeedHeadResponse,
-  getFeedResponse,
+import {getFeedHeadResponse, getFeedResponse} from "@/lib/opportunity-feed-response";
+
+export {
+  feedMethodNotAllowed as POST,
+  feedMethodNotAllowed as PUT,
+  feedMethodNotAllowed as PATCH,
+  feedMethodNotAllowed as DELETE,
 } from "@/lib/opportunity-feed-response";
 
 export const dynamic = "force-dynamic";
@@ -12,20 +15,4 @@ export function GET(request: Request): Response {
 
 export function HEAD(request: Request): Response {
   return getFeedHeadResponse(request, "rss");
-}
-
-export function POST(): Response {
-  return feedMethodNotAllowed();
-}
-
-export function PUT(): Response {
-  return feedMethodNotAllowed();
-}
-
-export function PATCH(): Response {
-  return feedMethodNotAllowed();
-}
-
-export function DELETE(): Response {
-  return feedMethodNotAllowed();
 }

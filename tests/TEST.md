@@ -148,7 +148,7 @@ Source: [integration/test_partial_collection.py](integration/test_partial_collec
 
 ## Python unit and tooling tests
 
-Some historically named `unit/` files exercise real files, migrations, or shell processes. Their scope remains the named subsystem, not necessarily an in-memory unit.
+Tooling tests include real files, migrations, and shell processes alongside in-memory units.
 
 ### Classification
 

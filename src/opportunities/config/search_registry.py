@@ -66,10 +66,11 @@ def select_searches(
     searches: Iterable[LinkedInSearchConfig], *, search_slug: str | None = None
 ) -> list[LinkedInSearchConfig]:
     """Select enabled LinkedIn searches by optional slug."""
-    selected = [search for search in searches if search.enabled]
-    if search_slug:
-        selected = [search for search in selected if search.slug == search_slug.lower()]
-    return sorted(selected, key=lambda search: search.slug)
+    slug = search_slug.lower() if search_slug else None
+    return sorted(
+        (search for search in searches if search.enabled and (slug is None or search.slug == slug)),
+        key=lambda search: search.slug,
+    )
 
 
 def _duplicates(values: Iterable[str]) -> set[str]:

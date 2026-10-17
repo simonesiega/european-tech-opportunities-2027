@@ -43,10 +43,13 @@ def render_public_exports(directory: Path, jobs: list[StoredJob]) -> None:
     json_content = _json_content(rows)
     atomic_write_text(directory / CSV_FILENAME, csv_content)
     atomic_write_text(directory / JSON_FILENAME, json_content)
-    atomic_write_text(
-        directory / METADATA_FILENAME,
-        _metadata_content(rows, csv_content.encode("utf-8"), json_content.encode("utf-8")),
+    metadata = _metadata(
+        rows,
+        csv_content.encode("utf-8"),
+        json_content.encode("utf-8"),
+        generated_at=utc_now().isoformat(timespec="seconds"),
     )
+    atomic_write_text(directory / METADATA_FILENAME, json.dumps(metadata, indent=2) + "\n")
 
 
 def validate_public_exports(directory: Path, jobs: list[StoredJob]) -> list[str]:
@@ -159,20 +162,6 @@ def _metadata(
         "json_sha256": hashlib.sha256(json_bytes).hexdigest(),
         "csv_sha256": hashlib.sha256(csv_bytes).hexdigest(),
     }
-
-
-def _metadata_content(
-    rows: Sequence[Mapping[str, str | None]], csv_bytes: bytes, json_bytes: bytes
-) -> str:
-    return (
-        json.dumps(
-            _metadata(
-                rows, csv_bytes, json_bytes, generated_at=utc_now().isoformat(timespec="seconds")
-            ),
-            indent=2,
-        )
-        + "\n"
-    )
 
 
 def _public_rows(jobs: list[StoredJob]) -> list[dict[str, str | None]]:

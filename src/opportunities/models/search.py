@@ -39,9 +39,7 @@ class LinkedInSearchConfig(BaseModel):
     @classmethod
     def normalize_text(cls, value: object) -> object:
         """Normalize whitespace in search text, including optional notes."""
-        if isinstance(value, str):
-            return clean_text(value)
-        return value
+        return clean_text(value) if isinstance(value, str) else value
 
     @field_validator("company_names", mode="before")
     @classmethod
