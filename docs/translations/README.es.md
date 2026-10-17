@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Ver el vídeo](../assets/promo/european-tech-opportunities-2027.mp4) · [Transcripción](../assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Vista general en imágenes](../assets/promo/storyboard.webp)
 
-Lo que empezó como un pequeño proyecto de código abierto ha llegado a personas de toda Europa y de otros continentes. Una medición anterior del tráfico agregado registró **más de 19.000 visualizaciones de páginas**, **más de 3.800 usuarios** y **más de 9.300 visitas procedentes de más de 70 países**. El proyecto se descubrió a través de **más de 25 fuentes distintas**, entre ellas Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram y Facebook.
+Lo que empezó como un pequeño proyecto de código abierto ha llegado a personas de toda Europa y de otros continentes. Una medición anterior del tráfico agregado registró **más de 21.000 visualizaciones de páginas**, **más de 4.900 usuarios** y **más de 9.300 visitas procedentes de más de 70 países**. El proyecto se descubrió a través de **más de 25 fuentes distintas**, entre ellas Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram y Facebook.
 
 ## Últimas oportunidades
 

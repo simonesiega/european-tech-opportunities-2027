@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [观看视频](../assets/promo/european-tech-opportunities-2027.mp4) · [视频文字稿](../assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [静态概览](../assets/promo/storyboard.webp)
 
-这个最初规模不大的开源项目，如今已触达欧洲及世界其他地区的用户。此前的一次汇总流量统计记录了 **超过 1.9 万次页面浏览**、**超过 3,800 名用户**，以及来自 **70 多个国家的 9,300 多次访问**。用户通过 **25 个以上的来源** 发现了项目，包括 Google、GitHub、ChatGPT、DuckDuckGo、Claude、Perplexity、Instagram、Telegram 和 Facebook。
+这个最初规模不大的开源项目，如今已触达欧洲及世界其他地区的用户。此前的一次汇总流量统计记录了 **超过 2.1 万次页面浏览**、**超过 4,900 名用户**，以及来自 **70 多个国家的 9,300 多次访问**。用户通过 **25 个以上的来源** 发现了项目，包括 Google、GitHub、ChatGPT、DuckDuckGo、Claude、Perplexity、Instagram、Telegram 和 Facebook。
 
 ## 最新机会
 

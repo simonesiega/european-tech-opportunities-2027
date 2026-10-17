@@ -52,7 +52,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Video ansehen](../assets/promo/european-tech-opportunities-2027.mp4) · [Transkript](../assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Statische Übersicht](../assets/promo/storyboard.webp)
 
-Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Europa und darüber hinaus. Eine frühere Momentaufnahme der aggregierten Nutzungszahlen verzeichnete **über 19.000 Seitenaufrufe**, **über 3.800 Nutzer** und **über 9.300 Besuche aus mehr als 70 Ländern**. Das Projekt wurde über **mehr als 25 verschiedene Quellen** entdeckt, darunter Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram und Facebook.
+Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Europa und darüber hinaus. Eine frühere Momentaufnahme der aggregierten Nutzungszahlen verzeichnete **über 21.000 Seitenaufrufe**, **über 4.900 Nutzer** und **über 9.300 Besuche aus mehr als 70 Ländern**. Das Projekt wurde über **mehr als 25 verschiedene Quellen** entdeckt, darunter Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram und Facebook.
 
 ## Neueste Stellenangebote
 
