@@ -20,9 +20,9 @@ RSS (`/feed.xml`) and Atom (`/atom.xml`) routes also reuse the read-only open-ro
 
 ## Production status
 
-`opportunity-status-data.ts` owns the reads for `/api/v1/status`. It selects `publicationPaths` once, runs `readDirectorySummary` in one SQLite statement, and closes the read-only connection before awaiting export I/O. Both aggregates share a database snapshot; immutable release paths keep metadata and JSON reads on that same publication. Failed searches cannot advance the timestamp, but successful searches within a partial batch can.
+`opportunity-status-data.ts` pins one publication, reads both SQLite aggregates in one statement, and closes the read-only connection before reading exports. Shared file reads reject nonregular files without waiting for pipe writers and bound regular-file sizes and streamed bytes; metadata is strictly decoded and the actual JSON download is hashed. Four concurrent reads per server process are permitted; excess requests receive a sanitized `503` without queueing or cached results.
 
-The reader bounds metadata bytes, decodes UTF-8 strictly, and streams the JSON hash rather than trusting the manifest alone. `opportunity-status.ts` validates the count/hash agreement and timestamps, then projects an explicit field allowlist. Release identifiers contain only digits and a hyphen; invalid versioned paths never fall back to legacy state. Preserve the runtime-file tracing directives so builds do not bundle operator data.
+`opportunity-status.ts` checks count/hash agreement and timestamps before projecting the public allowlist. Only successful searches advance collection time, including successful searches in a partial batch. Release identifiers contain digits and a hyphen; invalid versioned pointers never fall back to legacy state. Preserve runtime-file tracing directives to keep operator data out of builds.
 
 The [public status contract](../../users/data/api.md#check-production-freshness) owns fields, byte limits, HTTP methods, cache policy, and error responses. Status does not verify every SQLite field or CSV contents, contact GitHub or LinkedIn, or replace publication validation. [Testing](testing.md#website-validation) owns fixture isolation and standalone-server checks; [Automation](../operations/automation.md#verify-the-deployed-dataset) owns comparison with reviewed state.
 

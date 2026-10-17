@@ -1,4 +1,4 @@
-import {spawn, type ChildProcess} from "node:child_process";
+import {execFileSync, spawn, type ChildProcess} from "node:child_process";
 import {once} from "node:events";
 import {createHash} from "node:crypto";
 import {
@@ -10,6 +10,7 @@ import {
   renameSync,
   rmSync,
   symlinkSync,
+  statSync,
   truncateSync,
   unlinkSync,
   writeFileSync,
@@ -108,7 +109,10 @@ async function withRestoredFixture(action: () => Promise<void>) {
   try {
     await action();
   } finally {
-    for (const {filename, bytes} of originals) writeFileSync(filename, bytes);
+    for (const {filename, bytes} of originals) {
+      if (existsSync(filename) && !statSync(filename).isFile()) rmSync(filename, {recursive: true});
+      writeFileSync(filename, bytes);
+    }
   }
 }
 
@@ -212,8 +216,15 @@ for (const failure of [
   "download missing",
   "download changed",
   "download oversized",
+  "metadata directory",
+  "download directory",
+  "download FIFO",
 ]) {
   test(`production status fails closed without leaking details: ${failure}`, async () => {
+    test.skip(
+      failure === "download FIFO" && process.platform === "win32",
+      "Named pipes require POSIX"
+    );
     await withRestoredFixture(async () => {
       if (failure === "database missing") unlinkSync(databasePath);
       if (failure === "database invalid") writeFileSync(databasePath, "not a SQLite database");
@@ -235,14 +246,23 @@ for (const failure of [
       if (failure === "download missing") unlinkSync(jsonPath);
       if (failure === "download changed") writeFileSync(jsonPath, "[]\n");
       if (failure === "download oversized") truncateSync(jsonPath, 64 * 1024 * 1024 + 1);
-      const response = await client.get(endpoint);
+      if (failure === "metadata directory" || failure === "download directory") {
+        const filename = failure === "metadata directory" ? metadataPath : jsonPath;
+        unlinkSync(filename);
+        mkdirSync(filename);
+      }
+      if (failure === "download FIFO") {
+        unlinkSync(jsonPath);
+        execFileSync("mkfifo", [jsonPath], {timeout: 5000});
+      }
+      const response = await client.get(endpoint, {timeout: 5000});
       expect(response.status()).toBe(503);
       expect(response.headers()["cache-control"]).toBe("no-store");
       expect(await response.json()).toEqual({
         version: "v1",
         error: {code: "unavailable", message: "Status unavailable"},
       });
-      const head = await client.head(endpoint);
+      const head = await client.head(endpoint, {timeout: 5000});
       expect(head.status()).toBe(503);
       expect(await head.text()).toBe("");
       if (databaseBefore === null) expect(existsSync(databasePath)).toBe(false);

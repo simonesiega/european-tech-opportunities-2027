@@ -514,7 +514,7 @@ Source: [opportunity-api.test.ts](../site/tests/unit/opportunity-api.test.ts).
 | `invalid snapshot timestamps cannot turn recency results into a successful empty list` | Bad first-seen or collection dates fail rather than silently filtering every row out |
 | `stable explicit public field allowlist` | Extra lifecycle/path fields on incoming rows cannot leak through the API envelope |
 | `bounded property fuzzing preserves encoded queries and rejects duplicate keys` | Seeded encoded-query cases round-trip within bounds, remain order-independent, and reject duplicate keys |
-| `rejects malformed, duplicate, unknown and excessive input` | Empty invalid filters, unsupported enums, invalid page numbers, controls, encodings, duplicates, and length limits fail closed |
+| `rejects malformed, duplicate, unknown and excessive input` | Empty invalid filters, unsupported enums, invalid page numbers, C0/C1 controls, encodings, duplicates, and length limits fail closed |
 
 ### Feeds, filtering, and presentation
 
@@ -552,10 +552,12 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `publishes only explicit public fields with UTC timestamps and no private metadata` | Status strips unknown metadata and exposes only the five approved fields |
 | `an empty, never-collected legacy dataset is valid but not invented on errors` | Genuine empty state is distinct from missing metadata |
 | `preserves generation microseconds from %s independently of collection time` | Export and collection clocks remain distinct and precise |
-| `rejects metadata: %s` | Invalid root/version/counts/timestamps/hashes fail rather than reporting misleading health |
+| `rejects metadata: %s` | Invalid roots, versions, counts, timestamps, and hash formats fail; count and format cases cannot pass solely through a separate checksum or employment-count mismatch |
 | `rejects a different download hash, invalid database aggregates, and unsafe release IDs` | Content mismatch, impossible aggregates, invalid collection time, and path-like release identifiers cannot publish |
 | `the shared schema validates status and rejects extra fields or invalid values` | Status schema enforces allowlists, nullability, counts, hashes, UTC timestamps, and opaque release identifiers |
 | `always rereads status without caching or conditional 304 responses` | Repeated conditional requests still read current state and return no-store responses |
+| `bounds concurrent status work without queueing and recovers after failed reads` | Four in-flight reads bound hashing work; excess GET/HEAD requests receive sanitized no-store 503s without new reads, and completed or failed reads release capacity |
+| `synchronous status failures do not exhaust reader capacity` | Failures before asynchronous I/O release their slot so later requests still attempt a fresh read |
 | `sanitizes %s errors and rejects queries before reading state` | GET/HEAD reject query input before I/O and sanitize failed reads with correct empty HEAD bodies |
 | `legacy publication paths preserve defaults and explicit overrides without inventing a release` | Fixed-path mode keeps configured paths and returns no fictitious release ID |
 | `an invalid release root never falls back to legacy database or export paths` | A configured but broken versioned publication fails closed |
@@ -647,7 +649,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `status supports HEAD and CORS but rejects queries and mutation methods` | Public status HTTP methods, query rejection, preflight restrictions, and no-store behavior are wired correctly |
 | `production status reads the selected dataset without modifying SQLite` | Built standalone status uses the configured release/fixed paths, emits production headers, and preserves database bytes |
 | `production CSP uses fresh nonces and blocks injected scripts without breaking hydration` | Caller headers cannot override fresh nonces; the browser blocks stale-nonce scripts, inline handlers, and eval while theme and local-list hydration remain usable; framing and object policies remain restricted |
-| `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads return safe 503 GET/HEAD responses without repairing state; each restored fixture recovers |
+| `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads or nonregular files return safe 503 GET/HEAD responses without repairing state; POSIX named pipes cannot stall readers, and each restored fixture recovers |
 | `production status preserves SQLite and metadata microseconds independently` | Real production reads retain both clocks' independent microseconds |
 | `production status counts only open rows and represents a never-collected empty dataset` | Closed rows and missing success history yield a genuine empty/null response, not fake freshness |
 | `production status follows release cutovers and rejects a missing pointer without legacy fallback` | Linux standalone requests follow immutable publication switches, reject missing current pointers, and recover after restoration |
@@ -673,4 +675,4 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `test_classification_performance` in [benchmarks/test_parsing_classification.py](benchmarks/test_parsing_classification.py) | Offline full classification hot-path trend with fixed evidence; not duplicate functional coverage |
 | `test_public_linkedin_search_and_detail_are_reachable` in [integration/test_live_smoke.py](integration/test_live_smoke.py) | Optional bounded adapter compatibility smoke test, excluded from normal validation and never run without exact live selection plus explicit permission/opt-in |
 
-Linux-only recovery/release checks and Bash/`jq` workflow checks are not replaced by Windows skips. Symlink tests need platform permission. A skipped test is not a pass. This inventory describes intended coverage, not a claim that every platform or optional live check has run.
+Linux-only recovery/release checks, POSIX named-pipe checks, and Bash/`jq` workflow checks are not replaced by Windows skips. Symlink tests need platform permission. A skipped test is not a pass. This inventory describes intended coverage, not a claim that every platform or optional live check has run.

@@ -159,7 +159,7 @@ When `release` is not `null`, the response reads one dataset release even if a n
 
 Responses use **`Cache-Control: no-store`**, with no ETag or `304` response. `HEAD` performs the same checks without returning a body. CORS, preflight, mutation-method rejection, and error envelopes follow the rules above. Any query parameters return `400`.
 
-Missing or unreadable required files, invalid required metadata fields or collection timestamps, and count/hash mismatches return `503` with code `unavailable` and message `Status unavailable`. A failure is not an empty dataset, and errors expose no internal diagnostics. Metadata reads are limited to 4 KiB and JSON hashing to 64 MiB; exceeding either limit also returns `503`. Poll conservatively: each successful `GET` or `HEAD` reads and hashes the JSON download.
+Metadata is limited to 4 KiB and JSON hashing to 64 MiB, with four concurrent status reads per server process and no request queue. Missing or unreadable files, invalid metadata or timestamps, count/hash mismatches, size-limit violations, and busy readers return `503` with code `unavailable` and message `Status unavailable`. Errors expose no internal diagnostics and must not be treated as an empty dataset. Poll conservatively: each successful `GET` or `HEAD` reads and hashes the JSON download.
 
 Export regeneration can change `dataset_generated_at` without changing listings. `dataset_sha256` identifies only the public JSON bytes, which omit first-seen and collection timestamps; it is not the README review seal, a database checksum, or an application Git SHA.
 

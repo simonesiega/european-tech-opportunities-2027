@@ -52,6 +52,22 @@ export function statusPayload(
   };
 }
 
+// Bound file-hashing work without caching health assertions or queueing requests.
+export function limitStatusReads(
+  readStatus: () => Promise<OpportunityStatus>
+): () => Promise<OpportunityStatus> {
+  let active = 0;
+  return async () => {
+    if (active >= 4) throw new Error("Status reader is busy");
+    active++;
+    try {
+      return await readStatus();
+    } finally {
+      active--;
+    }
+  };
+}
+
 export async function statusResponse(
   request: Request,
   readStatus: () => Promise<OpportunityStatus>

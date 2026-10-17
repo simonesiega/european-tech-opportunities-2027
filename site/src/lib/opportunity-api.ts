@@ -35,7 +35,7 @@ export function parseApiQuery(rawSearch: string) {
     if (!PARAMETERS.includes(key) || params.getAll(key).length !== 1) {
       throw new InvalidApiQuery("Unknown or repeated parameter");
     }
-    if (value.length > 200 || /[\u0000-\u001f\u007f\ufffd]/u.test(value)) {
+    if (value.length > 200 || /[\p{Cc}\uFFFD]/u.test(value)) {
       throw new InvalidApiQuery(`Invalid value for ${key}`);
     }
   }

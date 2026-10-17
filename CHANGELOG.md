@@ -18,6 +18,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 - Reject namesake cities with unrecognized geographic qualifiers and require technical evidence for generic research roles; exclude nontechnical roles despite software keywords.
 - Normalize country names, codes, and city-only or remote aliases across directory, API, and feed filters without broadening multi-location queries; resolve the shared vocabulary in development builds.
+- Reject C0/C1 control characters in listing API queries.
 - Keep approved public-listing HTTP 301 responses from blocking validated HTTP 429 partial availability publication, without treating redirects as confirmed checks or masking independent failures.
 - Preserve independent in-flight and interrupted-retry failures after a sibling source stop so HTTP 429 cannot incorrectly authorize partial publication; retain denial classification when response cleanup fails.
 - Keep RSS and Atom ordering consistent with the directory and API, including microsecond timestamps and numeric job-ID ties.
@@ -33,6 +34,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 ### Security
 
 - Replace inline-script CSP permission with per-request nonces while preserving theme, analytics, and directory hydration.
+- Bound concurrent dataset-status reads and reject oversized or nonregular files before hashing, without blocking on named pipes or caching health assertions.
 - Exclude local logs, uv caches, and Lighthouse reports from container build contexts.
 
 ## [1.0.0] - 2026-10-07

@@ -235,6 +235,7 @@ describe("public API contract", () => {
       "?page=1&page=2",
       "?unknown=1",
       "?q=%00",
+      "?q=%C2%85",
       "?q=%ZZ",
       `?q=${"x".repeat(201)}`,
     ])
