@@ -3,10 +3,12 @@
 .agents
 .context
 .venv
+.uv-cache
 .vscode
 .idea
 __pycache__
 *.py[cod]
+*.log
 *.db
 *.db-*
 *.sqlite
@@ -26,6 +28,7 @@ htmlcov
 quality-reports
 site/.next
 site/.next-e2e
+site/.lighthouseci
 site/node_modules
 site/*.tsbuildinfo
 site/next-env.d.ts

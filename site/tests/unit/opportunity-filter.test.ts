@@ -53,6 +53,36 @@ describe("shared opportunity filtering", () => {
     ).toEqual([]);
   });
 
+  test("country aliases select normalized rows without foreign namesakes", () => {
+    const rows = [
+      "London",
+      "London, GB",
+      "London, United Kingdom",
+      "Remote — United Kingdom",
+      "Berlin, Germany",
+      "London, South Africa",
+    ].map((location, index) => ({...opportunity, linkedinJobId: String(index), location}));
+    expect(
+      filterOpportunities(rows, {...filters, country: "GB"}, referenceTimestamp).map(
+        (item) => item.linkedinJobId
+      )
+    ).toEqual(["0", "1", "2", "3"]);
+  });
+
+  test("unrecognized and multiple country filters do not broaden a query", () => {
+    for (const country of [
+      "Unknown",
+      "constructor",
+      "__proto__",
+      "Germany; France",
+      "Germany; US",
+    ]) {
+      expect(filterOpportunities([opportunity], {...filters, country}, referenceTimestamp)).toEqual(
+        []
+      );
+    }
+  });
+
   test("recency includes both boundaries and excludes old, future, and invalid timestamps", () => {
     const rows = [
       {...opportunity, firstSeenAt: "2026-07-16T12:00:00Z"},

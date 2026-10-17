@@ -79,6 +79,16 @@ test("restores filters from a shared URL and browser history", async ({page}) =>
   await expectResultCount(page, 1);
 });
 
+test("restores a country alias without broadening the directory", async ({page}) => {
+  await openDirectory(page, "/?country=FR");
+  await expect(page.getByLabel("Location")).toHaveValue("France");
+  await expectResultCount(page, 1);
+  await expect(
+    page.getByRole("link", {name: "Graduate Data Analyst 2027", exact: true})
+  ).toBeVisible();
+  await expect(page).toHaveURL("/?country=FR");
+});
+
 test("composes search, country, category, first-seen filtering, and company sorting", async ({
   page,
 }) => {

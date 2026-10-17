@@ -4,6 +4,7 @@ import {filterOpportunities} from "@/lib/opportunity-filter";
 import {
   ALL_FILTER_VALUE,
   getCountries,
+  normalizeCountryFilter,
   parseOpportunityTimestamp,
 } from "@/lib/opportunity-presentation";
 import {
@@ -62,7 +63,10 @@ export function useOpportunityDirectory(
 
   const query = searchParams.get(FILTER_PARAMETERS.query) ?? "";
   const company = validOption(searchParams.get(FILTER_PARAMETERS.company), options.companies);
-  const location = validOption(searchParams.get(FILTER_PARAMETERS.location), options.locations);
+  const location = validOption(
+    normalizeCountryFilter(searchParams.get(FILTER_PARAMETERS.location) ?? ""),
+    options.locations
+  );
   const category = validOption(searchParams.get(FILTER_PARAMETERS.category), options.categories);
   const employmentType = validOption(
     searchParams.get(FILTER_PARAMETERS.employmentType),

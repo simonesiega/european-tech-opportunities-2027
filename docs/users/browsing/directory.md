@@ -7,7 +7,7 @@ Find technology internships and **New Grad** roles (graduate and entry-level pos
 ## Find a role
 
 - **Search** matches company, role, location, category, industries, and employment type. It ignores letter case. Press **Ctrl+K** or **⌘K** to focus the search box.
-- **Location** selects a country from the listed locations. A role with more than one location can match more than one country.
+- **Location** selects a country from the listed locations. Supported country codes, aliases, and city-only locations share one country label. A role with more than one location can match more than one country.
 - **Company** and **Category** narrow the results further.
 - **Employment type** selects **Internship** or **New Grad**.
 - **First seen** limits results to the last 24 hours, 7 days, or 30 days.
@@ -64,7 +64,7 @@ To follow only some roles, use the filtered example below. If you want to build 
 | Parameter | Values |
 |---|---|
 | `type` | `internship` or `new-grad` |
-| `country` | Exact country name from the listing location |
+| `country` | Country name or supported alias/code, as in the directory |
 | `category` | Exact category identifier, such as `software-engineering` |
 
 For example, paste this [feed for software internships in Ireland](https://techopportunities.eu/feed.xml?type=internship&country=Ireland&category=software-engineering) into your reader. The same filters work with the Atom URL. If a feed fails to load, check the parameter names and values and use each parameter only once. A valid filter with no matches produces an empty feed. These feeds use public opportunity data only: browser-saved, applied, and hidden lists are not included.

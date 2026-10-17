@@ -1,4 +1,8 @@
-import {getCountries, parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
+import {
+  getCountries,
+  normalizeCountryFilter,
+  parseOpportunityTimestamp,
+} from "@/lib/opportunity-presentation";
 import {FIRST_SEEN_OPTIONS} from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -18,6 +22,7 @@ export function filterOpportunities(
   referenceTimestamp: number
 ): Opportunity[] {
   const query = filters.q.trim().toLowerCase();
+  const country = normalizeCountryFilter(filters.country);
   const period = FIRST_SEEN_OPTIONS.find((option) => option.value === filters.firstSeen);
   const cutoff = period ? referenceTimestamp - period.durationMs : null;
 
@@ -26,7 +31,7 @@ export function filterOpportunities(
       (filters.company && opportunity.company !== filters.company) ||
       (filters.category && opportunity.category !== filters.category) ||
       (filters.type && opportunity.employmentType !== filters.type) ||
-      (filters.country && !getCountries(opportunity.location).includes(filters.country))
+      (country && !getCountries(opportunity.location).includes(country))
     ) {
       return false;
     }

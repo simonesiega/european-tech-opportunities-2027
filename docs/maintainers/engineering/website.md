@@ -44,11 +44,14 @@ Browser lists are explicitly supported; **server-stored** applications, authenti
 
 | Parameter | Directory meaning |
 |---|---|
-| `q`, `company`, `country`, `category`, `type` | Search and exact filter selections |
+| `q`, `company`, `category`, `type` | Search and exact filter selections |
+| `country` | Canonical country label, supported code, or alias |
 | `first-seen` | `24-hours`, `7-days`, `30-days`, relative to directory request time |
 | `sort` | Company, role, location, first-seen; `-asc` / `-desc` |
 | `page-size` | 10, 20, 30, 50, 100 |
 | `page` | Positive one-based page, constrained to displayed results |
+
+`opportunity-country.ts` resolves country names, codes, and supported city-only or remote values through the collector's shared geography vocabulary. A filter selects one country; multi-location roles can match each supported country independently. This normalizes presentation without reclassifying listings. Turbopack resolves development imports from the repository root; production retains website-rooted standalone output.
 
 Defaults are omitted. Search typing replaces history; other controls push history. Filter/sort/page-size changes reset to page one. Reset clears public filters and page, preserving sort, page size, and unrelated parameters. Local-list changes constrain the displayed page without rewriting the public URL.
 

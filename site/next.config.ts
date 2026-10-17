@@ -42,7 +42,8 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "standalone",
   turbopack: {
-    root: path.resolve(__dirname),
+    // Dev imports shared geography; production keeps its website-rooted standalone layout.
+    root: path.resolve(__dirname, isProduction ? "." : ".."),
   },
   async headers() {
     return [{source: "/:path*", headers: securityHeaders}];

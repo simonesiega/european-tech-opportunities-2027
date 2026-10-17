@@ -66,13 +66,14 @@ RUN bun install --frozen-lockfile
 
 
 FROM node:26-alpine@sha256:ef24c5053d50fdc3e4e56eb4e7ddb7861874ab0fdc797046ba897581deb8e868 AS site-builder
-WORKDIR /app
+WORKDIR /app/site
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG SITE_URL=https://techopportunities.eu
 ENV SITE_URL=$SITE_URL
 COPY --from=site-deps /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=site-deps /app/node_modules ./node_modules
 COPY site ./
+COPY src/opportunities/normalization/geography.json /app/src/opportunities/normalization/geography.json
 RUN bun run build
 
 
@@ -106,8 +107,8 @@ RUN apt-get update \
     && mkdir -p /app/data \
     && chown nextjs:nodejs /app/data
 
-COPY --from=site-builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=site-builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=site-builder --chown=nextjs:nodejs /app/site/.next/standalone ./
+COPY --from=site-builder --chown=nextjs:nodejs /app/site/.next/static ./.next/static
 COPY --chown=nextjs:nodejs schemas/opportunities-v1.schema.json ./schemas/opportunities-v1.schema.json
 
 EXPOSE 3000

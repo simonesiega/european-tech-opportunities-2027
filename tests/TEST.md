@@ -531,8 +531,11 @@ Sources: [opportunity-feed.test.ts](../site/tests/unit/opportunity-feed.test.ts)
 | `uses the latest successful collection timestamp for empty Atom feeds` | An empty selection can still report real dataset freshness |
 | `empty filters preserve every row and its order without mutating the input` | Filtering cannot drop/reorder/alter the unfiltered dataset; allocation identity is deliberately not tested |
 | `search spans nonempty fields with normalized case and surrounding whitespace` | Search includes category/type/optional industries and handles absent values |
+| `country aliases select normalized rows without foreign namesakes` | A country-code query selects canonical, city-only, and remote rows without including other countries or foreign namesakes |
+| `unrecognized and multiple country filters do not broaden a query` | Unknown, prototype-like, and multi-location values cannot bypass the exact filter by discarding unsupported entries |
 | `recency includes both boundaries and excludes old, future, and invalid timestamps` | Recency's inclusive bounds reject future/invalid evidence without hiding rows when no recency filter is set |
 | `extracts every unique country from a multi-location value` | Multi-country roles remain discoverable under each country without duplicate options |
+| `normalizes countries without inventing geography for %s` | Shared Python/website fixtures normalize aliases, codes, accented city names, remote locations, and European regions without erasing conflicting or unknown geographic words |
 | `rejects invalid calendar or out-of-range UTC evidence: %s` | Month/day/leap-year/time/UTC-range failures cannot normalize into a different valid instant |
 | `normalizes valid leap days, UTC offsets and fractional seconds` | Legitimate boundary dates and fractions survive normalization |
 | `formats offset and SQLite timestamps consistently in UTC` | Visible dates follow UTC even when an offset crosses midnight |
@@ -576,6 +579,7 @@ Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts).
 | `filters one employment type at a time` | Switching type replaces rather than combines mutually exclusive selections |
 | `filters opportunities by when they were first seen` | Each recency window changes counts correctly and Reset clears it |
 | `restores filters from a shared URL and browser history` | Deep-linked search/type/country/recency and browser Back restore the same results |
+| `restores a country alias without broadening the directory` | A country-code URL selects the canonical country control and the matching row without rewriting the shared URL |
 | `composes search, country, category, first-seen filtering, and company sorting` | Combined filters and sorting agree on visible row order |
 | `restores sorting, page, and page size from a shared URL` | Deep-linked pagination survives history; a sort change resets to page one |
 | `falls back safely for unsupported directory view parameters` | Browser inputs constrain invalid recency/sort/page/page-size values rather than applying API-style rejection |

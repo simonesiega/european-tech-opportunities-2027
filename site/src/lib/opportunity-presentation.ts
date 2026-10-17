@@ -7,16 +7,7 @@ const OPPORTUNITY_DATE_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   timeZone: "UTC",
 });
 
-export function getCountries(location: string): string[] {
-  return [
-    ...new Set(
-      location
-        .split(";")
-        .map((item) => item.split(",").at(-1)?.trim() || item.trim())
-        .filter(Boolean)
-    ),
-  ];
-}
+export {getCountries, normalizeCountryFilter} from "@/lib/opportunity-country";
 
 export function formatCategory(category: string): string {
   return category
