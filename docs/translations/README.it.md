@@ -38,7 +38,7 @@
 
 Trovare un tirocinio o il primo lavoro nel settore tecnologico in Europa non dovrebbe significare passare ore a cercare tra centinaia di annunci sparsi, non aggiornati o poco pertinenti.
 
-**European Tech Opportunities 2027** raccoglie in un'unica directory consultabile **tirocini** e **posizioni New Grad** (per neolaureati e profili entry-level) in tutta Europa, dedicati al ciclo di assunzioni 2027. Le offerte vengono selezionate in base ai criteri di ammissibilità del progetto. La raccolta è programmata ogni giorno; gli aggiornamenti della directory vengono pubblicati in produzione dopo revisione e validazione.
+**European Tech Opportunities 2027** raccoglie in un'unica directory consultabile **tirocini** e **posizioni New Grad** (per neolaureati e profili entry-level) in tutta Europa, dedicati al ciclo di assunzioni 2027. Le offerte vengono selezionate in base ai criteri di ammissibilità del progetto. La raccolta è programmata ogni tre giorni. I maintainer avviano aggiornamenti aggiuntivi quando compaiono molte nuove offerte o ci sono sviluppi significativi nel mercato del lavoro. Gli aggiornamenti della directory vengono pubblicati in produzione dopo revisione e validazione.
 
 Cerca un'azienda, filtra per Paese o categoria oppure scopri le offerte aggiunte di recente. Puoi anche condividere qualsiasi ricerca tramite un link. Non devi installare nulla né creare un account. **Salva le offerte che ti interessano, tieni traccia delle candidature inviate, nascondi quelle che non fanno per te e scopri le novità dall'ultima visita.** Tutte queste informazioni restano nel tuo browser, senza sincronizzazione tra dispositivi. Contrassegnare un'offerta come «candidatura inviata» serve soltanto a organizzarti: non invia alcuna candidatura.
 

@@ -75,8 +75,15 @@ export function renderOpportunityFeed(
   const selfUrl = getFeedUrl(format, filters, siteOrigin);
   const homeUrl = new URL("/", siteOrigin).toString();
   const updatedAt = getUpdatedAt(opportunities, lastUpdatedAt);
-  const title = getFeedTitle(filters);
-  const description = getFeedDescription(filters);
+  const typeLabel = filters.type ? (filters.type === "internship" ? "Internship" : "New Grad") : "";
+  const labels = [filters.country, filters.category ? formatCategory(filters.category) : ""].filter(
+    Boolean
+  );
+  const title = [siteConfig.name, typeLabel, ...labels].filter(Boolean).join(" — ");
+  const scope = [filters.type === "internship" ? "internship" : typeLabel, ...labels]
+    .filter(Boolean)
+    .join(", ");
+  const description = `Up to ${FEED_ITEM_LIMIT} currently open 2027 technology opportunities${scope ? ` matching ${scope}` : ""} across Europe, newest first by first-seen time.`;
 
   return format === "rss"
     ? renderRssFeed(matches, selfUrl, homeUrl, updatedAt, title, description)
@@ -114,25 +121,6 @@ function getFeedUrl(format: FeedFormat, filters: FeedFilters, siteOrigin: URL): 
   if (filters.type) params.set("type", filters.type);
   url.search = params.toString();
   return url.toString();
-}
-
-function getFeedTitle(filters: FeedFilters): string {
-  const labels = [
-    filters.type ? (filters.type === "internship" ? "Internship" : "New Grad") : "",
-    filters.country,
-    filters.category ? formatCategory(filters.category) : "",
-  ].filter(Boolean);
-  return [siteConfig.name, ...labels].join(" — ");
-}
-
-function getFeedDescription(filters: FeedFilters): string {
-  const labels = [
-    filters.type ? (filters.type === "internship" ? "internship" : "New Grad") : "",
-    filters.country,
-    filters.category ? formatCategory(filters.category) : "",
-  ].filter(Boolean);
-  const scope = labels.length ? ` matching ${labels.join(", ")}` : "";
-  return `Up to ${FEED_ITEM_LIMIT} currently open 2027 technology opportunities${scope} across Europe, newest first by first-seen time.`;
 }
 
 function getUpdatedAt(opportunities: Opportunity[], lastUpdatedAt: string | null): Date {

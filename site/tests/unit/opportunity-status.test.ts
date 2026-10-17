@@ -2,7 +2,12 @@ import {describe, expect, test} from "bun:test";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import Ajv2020 from "ajv/dist/2020.js";
-import {statusPayload, statusResponse} from "@/lib/opportunity-status";
+import {
+  limitStatusReads,
+  statusPayload,
+  statusResponse,
+  type OpportunityStatus,
+} from "@/lib/opportunity-status";
 
 const metadata = {
   schema_version: "v1",
@@ -63,7 +68,7 @@ describe("production status contract", () => {
     ["array", []],
     ["missing fields", {}],
     ["unsupported version", {...metadata, schema_version: "v2"}],
-    ["total differs from SQLite", {...metadata, total: 3}],
+    ["total differs from SQLite", {...metadata, total: 3, internship_count: 2}],
     ["string total", {...metadata, total: "2"}],
     ["negative total", {...metadata, total: -1}],
     ["employment counts do not sum to total", {...metadata, internship_count: 0}],
@@ -77,7 +82,12 @@ describe("production status contract", () => {
     ["malformed JSON hash", {...metadata, json_sha256: "invalid"}],
     ["missing CSV hash", {...metadata, csv_sha256: null}],
   ])("rejects metadata: %s", (_reason, value) => {
-    expect(() => statusPayload(summary, value, metadata.json_sha256, "123-1")).toThrow();
+    // Invalid hash formats must fail independently of checksum agreement.
+    const hash =
+      value && typeof value === "object" && "json_sha256" in value
+        ? String(value.json_sha256)
+        : metadata.json_sha256;
+    expect(() => statusPayload(summary, value, hash, "123-1")).toThrow();
   });
 
   test("rejects a different download hash, invalid database aggregates, and unsafe release IDs", () => {
@@ -147,6 +157,56 @@ describe("status HTTP responses", () => {
       expect(response.headers.get("access-control-allow-origin")).toBe("*");
       expect(await response.json()).toEqual({...payload(), release: `${count}-1`});
     }
+  });
+
+  test("bounds concurrent status work without queueing and recovers after failed reads", async () => {
+    const pending: Array<{
+      resolve: (value: OpportunityStatus) => void;
+      reject: (reason: Error) => void;
+    }> = [];
+    const read = limitStatusReads(
+      () => new Promise<OpportunityStatus>((resolve, reject) => pending.push({resolve, reject}))
+    );
+    const running = Promise.allSettled(Array.from({length: 4}, () => read()));
+    for (const method of ["GET", "HEAD"]) {
+      const response = await statusResponse(
+        new Request("https://example.test/api/v1/status", {method}),
+        read
+      );
+      expect(response.status).toBe(503);
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      if (method === "HEAD") expect(await response.text()).toBe("");
+      else
+        expect(await response.json()).toEqual({
+          version: "v1",
+          error: {code: "unavailable", message: "Status unavailable"},
+        });
+    }
+    expect(pending).toHaveLength(4);
+    pending[0].reject(new Error("/private/path"));
+    for (const item of pending.slice(1)) item.resolve(payload());
+    expect((await running).map((result) => result.status)).toEqual([
+      "rejected",
+      "fulfilled",
+      "fulfilled",
+      "fulfilled",
+    ]);
+    const next = read();
+    expect(pending).toHaveLength(5);
+    pending[4].resolve(payload());
+    expect(await next).toEqual(payload());
+  });
+
+  test("synchronous status failures do not exhaust reader capacity", async () => {
+    let reads = 0;
+    const read = limitStatusReads(() => {
+      reads++;
+      throw new Error("Synthetic read failure");
+    });
+    for (let count = 0; count < 8; count++) {
+      await expect(read()).rejects.toThrow("Synthetic read failure");
+    }
+    expect(reads).toBe(8);
   });
 
   test.each(["GET", "HEAD"])(

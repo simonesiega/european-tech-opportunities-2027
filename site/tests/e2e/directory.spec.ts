@@ -79,6 +79,16 @@ test("restores filters from a shared URL and browser history", async ({page}) =>
   await expectResultCount(page, 1);
 });
 
+test("restores a country alias without broadening the directory", async ({page}) => {
+  await openDirectory(page, "/?country=FR");
+  await expect(page.getByLabel("Location")).toHaveValue("France");
+  await expectResultCount(page, 1);
+  await expect(
+    page.getByRole("link", {name: "Graduate Data Analyst 2027", exact: true})
+  ).toBeVisible();
+  await expect(page).toHaveURL("/?country=FR");
+});
+
 test("composes search, country, category, first-seen filtering, and company sorting", async ({
   page,
 }) => {
@@ -231,6 +241,7 @@ test("publishes canonical SEO and crawler metadata", async ({page, request}) => 
   expect(dataset).not.toHaveProperty("isPartOf");
   expect(dataset).toMatchObject({
     "@id": "http://127.0.0.1:3100/#dataset",
+    "dcterms:accrualPeriodicity": {"@type": "dcterms:Frequency", name: "Every three days"},
     dateModified: "2026-07-17T12:00:00.000Z",
     distribution: [
       {contentUrl: "http://127.0.0.1:3100/open-opportunities.csv"},

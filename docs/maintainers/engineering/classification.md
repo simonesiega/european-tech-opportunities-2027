@@ -10,7 +10,7 @@ Classification is deterministic and conservative. Discovery candidates are not a
 |---|---|
 | Employment type | The normalized title explicitly identifies Internship or New Grad; internship terminology wins when both occur |
 | Seniority | No configured senior/management exclusion in the title |
-| Technology | A configured category in the title, or narrowly permitted description fallback |
+| Technology | No configured nontechnical role in the title; a supported category in the title, or narrowly permitted description fallback |
 | Cycle / posting date | Explicit target cycle, or no conflicting cycle with posting evidence on/after May 1, 2026 |
 | Geography | Explicit European evidence after conservative normalization |
 
@@ -28,9 +28,9 @@ Changing `OPPORTUNITIES_TARGET_CYCLE` alone does **not** roll the product forwar
 
 ## Category and geography
 
-Configured categories are checked in stable configuration order, title before description. A description fallback is allowed only for generic technology titles; an unrelated explicit title cannot be converted into a tech role by incidental body keywords.
+Categories are checked in configuration order, title before description. Only generic technology titles can use description evidence; generic research titles alone are insufficient. The `non_technical_role_keywords` list excludes commercial, recruitment, and nontechnical research roles regardless of incidental software mentions.
 
-Location normalization recognizes supported countries, uppercase country tokens, and a conservative city fallback. Clear non-European qualifiers prevent namesake cities such as London, Ontario from becoming European evidence. `EMEA` alone is insufficient. Explicit European country evidence may support a mixed-location role; generic remote/global language alone is insufficient.
+Location normalization uses `src/opportunities/normalization/geography.json`, shared with the website's country filters, and assesses semicolon-separated locations independently. Named European countries or terminal uppercase country codes provide country evidence. Known cities qualify only without unrecognized geographic qualifiers: `London` is supported, but `London, South Africa` is not. Workplace and city-area modifiers do not change the country. Explicit European countries can support mixed-location roles; `EMEA`, unspecified remote work, and global language alone cannot establish European eligibility.
 
 Optional industries come from structured criteria, not arbitrary description keywords. Start date requires an explicit month/season plus year in the title or a narrow start-date context. Missing optional metadata is not filled by guessing.
 

@@ -4,6 +4,7 @@ import {filterOpportunities} from "@/lib/opportunity-filter";
 import {
   ALL_FILTER_VALUE,
   getCountries,
+  normalizeCountryFilter,
   parseOpportunityTimestamp,
 } from "@/lib/opportunity-presentation";
 import {
@@ -62,7 +63,10 @@ export function useOpportunityDirectory(
 
   const query = searchParams.get(FILTER_PARAMETERS.query) ?? "";
   const company = validOption(searchParams.get(FILTER_PARAMETERS.company), options.companies);
-  const location = validOption(searchParams.get(FILTER_PARAMETERS.location), options.locations);
+  const location = validOption(
+    normalizeCountryFilter(searchParams.get(FILTER_PARAMETERS.location) ?? ""),
+    options.locations
+  );
   const category = validOption(searchParams.get(FILTER_PARAMETERS.category), options.categories);
   const employmentType = validOption(
     searchParams.get(FILTER_PARAMETERS.employmentType),
@@ -99,9 +103,13 @@ export function useOpportunityDirectory(
     ]
   );
 
-  const sort = validSort(searchParams.get(VIEW_PARAMETERS.sort));
-  const pageSize = validPageSize(searchParams.get(VIEW_PARAMETERS.pageSize));
-  const requestedPage = validPage(searchParams.get(VIEW_PARAMETERS.page));
+  const requestedSort = searchParams.get(VIEW_PARAMETERS.sort);
+  const sort = DIRECTORY_SORTS.find((sort) => sort === requestedSort) ?? DEFAULT_SORT;
+  const requestedPageSize = Number(searchParams.get(VIEW_PARAMETERS.pageSize));
+  const pageSize =
+    DIRECTORY_PAGE_SIZES.find((size) => size === requestedPageSize) ?? DEFAULT_DIRECTORY_PAGE_SIZE;
+  const parsedPage = Number(searchParams.get(VIEW_PARAMETERS.page));
+  const requestedPage = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const pageCount = Math.max(Math.ceil(filteredOpportunities.length / pageSize), 1);
   // Local lists can shrink the view without leaking that private choice into the URL.
   const page = Math.min(requestedPage, pageCount);
@@ -204,20 +212,4 @@ export function useOpportunityDirectory(
 
 function validOption(requested: string | null, options: readonly string[]): string {
   return requested && options.includes(requested) ? requested : ALL_FILTER_VALUE;
-}
-
-function validSort(requested: string | null): DirectorySort {
-  return DIRECTORY_SORTS.find((sort) => sort === requested) ?? DEFAULT_SORT;
-}
-
-function validPageSize(requested: string | null): DirectoryPageSize {
-  const parsed = Number(requested);
-  return (
-    DIRECTORY_PAGE_SIZES.find((pageSize) => pageSize === parsed) ?? DEFAULT_DIRECTORY_PAGE_SIZE
-  );
-}
-
-function validPage(requested: string | null): number {
-  const parsed = Number(requested);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
 }

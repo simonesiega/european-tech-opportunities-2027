@@ -287,6 +287,7 @@ jobs:
             legacyRequest("/?country=Germany&type=internship"),
           ]);
           const csp = page.headers.get("content-security-policy") ?? "";
+          const nonce = /'nonce-([A-Za-z0-9+/]+=*)'/.exec(csp)?.[1];
           const hsts = page.headers.get("strict-transport-security") ?? "";
           const csvDisposition = csv.headers.get("content-disposition") ?? "";
           const jsonDisposition = json.headers.get("content-disposition") ?? "";
@@ -316,7 +317,10 @@ jobs:
             robots.ok &&
             sitemap.ok &&
             csp.includes("default-src 'self'") &&
-            csp.includes("script-src 'self' 'unsafe-inline' https://cloud.umami.is") &&
+            Boolean(nonce) &&
+            csp.includes("'strict-dynamic' https://cloud.umami.is") &&
+            !/script-src [^;]*'unsafe-inline'/.test(csp) &&
+            pageHtml.includes(`nonce="${nonce}"`) &&
             csp.includes("connect-src 'self' https://gateway.umami.is") &&
             hsts.includes("max-age=63072000") &&
             csvDisposition.includes("open-opportunities.csv") &&

@@ -1,4 +1,5 @@
 import {describe, expect, test} from "bun:test";
+import locations from "../fixtures/european_locations.json";
 import {
   formatOpportunityDate,
   getCountries,
@@ -13,6 +14,13 @@ describe("opportunity presentation", () => {
       "Portugal",
     ]);
   });
+
+  test.each(locations.map(({location, countries}) => [location, countries] as const))(
+    "normalizes countries without inventing geography for %s",
+    (location, countries) => {
+      expect(getCountries(location)).toEqual(countries);
+    }
+  );
 
   // Date can normalize impossible dates or accept years outside the publication range.
   test.each([

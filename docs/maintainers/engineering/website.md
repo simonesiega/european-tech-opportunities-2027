@@ -20,9 +20,9 @@ RSS (`/feed.xml`) and Atom (`/atom.xml`) routes also reuse the read-only open-ro
 
 ## Production status
 
-`opportunity-status-data.ts` owns the reads for `/api/v1/status`. It selects `publicationPaths` once, runs `readDirectorySummary` in one SQLite statement, and closes the read-only connection before awaiting export I/O. Both aggregates share a database snapshot; immutable release paths keep metadata and JSON reads on that same publication. Failed searches cannot advance the timestamp, but successful searches within a partial batch can.
+`opportunity-status-data.ts` pins one publication, reads both SQLite aggregates in one statement, and closes the read-only connection before reading exports. Shared file reads reject nonregular files without waiting for pipe writers and bound regular-file sizes and streamed bytes; metadata is strictly decoded and the actual JSON download is hashed. Four concurrent reads per server process are permitted; excess requests receive a sanitized `503` without queueing or cached results.
 
-The reader bounds metadata bytes, decodes UTF-8 strictly, and streams the JSON hash rather than trusting the manifest alone. `opportunity-status.ts` validates the count/hash agreement and timestamps, then projects an explicit field allowlist. Release identifiers contain only digits and a hyphen; invalid versioned paths never fall back to legacy state. Preserve the runtime-file tracing directives so builds do not bundle operator data.
+`opportunity-status.ts` checks count/hash agreement and timestamps before projecting the public allowlist. Only successful searches advance collection time, including successful searches in a partial batch. Release identifiers contain digits and a hyphen; invalid versioned pointers never fall back to legacy state. Preserve runtime-file tracing directives to keep operator data out of builds.
 
 The [public status contract](../../users/data/api.md#check-production-freshness) owns fields, byte limits, HTTP methods, cache policy, and error responses. Status does not verify every SQLite field or CSV contents, contact GitHub or LinkedIn, or replace publication validation. [Testing](testing.md#website-validation) owns fixture isolation and standalone-server checks; [Automation](../operations/automation.md#verify-the-deployed-dataset) owns comparison with reviewed state.
 
@@ -44,11 +44,14 @@ Browser lists are explicitly supported; **server-stored** applications, authenti
 
 | Parameter | Directory meaning |
 |---|---|
-| `q`, `company`, `country`, `category`, `type` | Search and exact filter selections |
+| `q`, `company`, `category`, `type` | Search and exact filter selections |
+| `country` | Canonical country label, supported code, or alias |
 | `first-seen` | `24-hours`, `7-days`, `30-days`, relative to directory request time |
 | `sort` | Company, role, location, first-seen; `-asc` / `-desc` |
 | `page-size` | 10, 20, 30, 50, 100 |
 | `page` | Positive one-based page, constrained to displayed results |
+
+`opportunity-country.ts` resolves country names, codes, and supported city-only or remote values through the collector's shared geography vocabulary. A filter selects one country; multi-location roles can match each supported country independently. This normalizes presentation without reclassifying listings. Turbopack resolves development imports from the repository root; production retains website-rooted standalone output.
 
 Defaults are omitted. Search typing replaces history; other controls push history. Filter/sort/page-size changes reset to page one. Reset clears public filters and page, preserving sort, page size, and unrelated parameters. Local-list changes constrain the displayed page without rewriting the public URL.
 
@@ -66,13 +69,13 @@ Automated axe scans cover normal, filtered, empty, dark, and open-menu states. T
 
 The unfiltered default `/` and valid `/?page=N` views self-canonicalize and are indexable. Search/filter/alternate sort or page-size/out-of-range views use `noindex, follow` and `/` as canonical. The site emits title/description, Open Graph, a generated 1200×630 image, large-card metadata, robots, sitemap, manifest, and escaped JSON-LD.
 
-JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, maintainer, daily collection schedule, latest successful collection and both download distributions. The daily frequency is a schedule, not a guarantee of daily production publication; reviewed deployment remains separate. It does not claim complete individual `JobPosting` markup. Serialization must escape `<` so hostile listing-like text cannot end the script element.
+JSON-LD describes the `WebSite` and `Dataset`, Europe, cycle 2027, MIT license, maintainer, three-day collection schedule, latest successful collection and both download distributions. Collection frequency is not a production-publication guarantee; reviewed deployment remains separate. The sitemap omits a change-frequency hint because publication has no fixed cadence. It does not claim complete individual `JobPosting` markup. Serialization must escape `<` so hostile listing-like text cannot end the script element.
 
 `SITE_URL` is a validated origin; production requires exact `https://techopportunities.eu`. Robots and sitemap resolve it at request time, even if built with localhost. The former hostname redirects with permanent 308 while preserving path/query; [Deployment](../operations/deployment.md#dokploy-deployment) owns routing.
 
 ## Browser integrations and security headers
 
-Production sends CSP and HSTS in addition to content-type, referrer, framing, cross-origin, and permissions headers. `next.config.ts` is executable policy; Docker smoke tests cover production headers.
+`next.config.ts` supplies production CSP, HSTS, content-type, referrer, framing, cross-origin, and permissions headers. `src/proxy.ts` replaces caller-supplied nonce/CSP headers with a fresh nonce for framework, theme, analytics, and JSON-LD scripts. The script policy uses `strict-dynamic` and blocks untrusted inline scripts, event handlers, and eval. Inline styles support the theme and floating action menu. Dynamically rendered HTML must not be cached across different nonces. Production browser tests exercise script blocking and hydration; Docker smoke tests verify the response policy.
 
 Umami loads only in production with canonical `SITE_URL`: script origin `https://cloud.umami.is`, event origin `https://gateway.umami.is`. Local tests/demo use loopback and block external browser requests. Local-list IDs and visit timestamps must not enter analytics payloads. Theme storage uses the separate `opportunities-theme` key.
 

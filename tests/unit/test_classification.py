@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -116,6 +118,77 @@ def test_non_technology_title_cannot_be_rescued_by_technical_description(
 
 
 @pytest.mark.parametrize(
+    "title",
+    [
+        "Market Research Intern 2027",
+        "Clinical Research Intern 2027",
+        "Software Sales Intern 2027",
+        "Software Marketing Intern 2027",
+        "Software Recruitment Intern 2027",
+        "Business Developer Intern 2027",
+        "Graduate Software Sales 2027",
+    ],
+)
+def test_non_technical_roles_cannot_be_rescued_by_technology_keywords(
+    rules: ClassificationRules, title: str
+) -> None:
+    result = classify(
+        rules,
+        title=title,
+        description="Software engineering and machine learning research in a technology team.",
+    )
+    assert not result.include
+    assert result.exclusion_reason == "title identifies a non-technology role"
+
+
+@pytest.mark.parametrize(
+    "title",
+    ["Research Intern 2027", "Research Scientist Intern 2027", "Biology Research Internship 2027"],
+)
+def test_generic_research_titles_require_technology_evidence(
+    rules: ClassificationRules, title: str
+) -> None:
+    result = classify(rules, title=title)
+    assert not result.include
+    assert result.exclusion_reason == "title has no technology-role signal"
+
+
+@pytest.mark.parametrize(
+    ("title", "description", "category"),
+    [
+        ("Research Engineer Intern 2027", "", OpportunityCategory.RESEARCH_ENGINEERING),
+        ("AI Research Intern 2027", "", OpportunityCategory.RESEARCH_ENGINEERING),
+        (
+            "Research Scientist Intern 2027",
+            "Machine learning research on computer vision.",
+            OpportunityCategory.MACHINE_LEARNING,
+        ),
+        (
+            "Research Intern 2027",
+            "Computer science research on compilers.",
+            OpportunityCategory.RESEARCH_ENGINEERING,
+        ),
+        (
+            "Salesforce Software Engineering Intern 2027",
+            "",
+            OpportunityCategory.SOFTWARE_ENGINEERING,
+        ),
+        ("Software Engineering Intern 2027", "", OpportunityCategory.SOFTWARE_ENGINEERING),
+    ],
+)
+def test_technical_roles_remain_eligible_next_to_non_technical_exclusions(
+    rules: ClassificationRules,
+    title: str,
+    description: str,
+    category: OpportunityCategory,
+) -> None:
+    result = classify(rules, title=title, description=description)
+    assert result.include
+    assert result.category == category
+    assert result.employment_type == EmploymentType.INTERNSHIP
+
+
+@pytest.mark.parametrize(
     "title", ["International Software Engineer 2027", "Internal Software Engineer 2027"]
 )
 def test_employment_type_requires_whole_word_evidence(
@@ -159,23 +232,6 @@ def test_explicit_non_european_locations_prevent_city_fallback(
     result = classify(rules, title="Software Intern 2027", locations=[location])
     assert not result.include
     assert result.exclusion_reason == "location is outside Europe"
-
-
-@pytest.mark.parametrize(
-    "location",
-    [
-        "Paris, FR",
-        "Berlin, DE",
-        "London, GB",
-        "London",
-        "Berlin, Germany; US",
-        "EMEA; Berlin, Germany",
-    ],
-)
-def test_explicit_european_locations_remain_eligible(
-    rules: ClassificationRules, location: str
-) -> None:
-    assert classify(rules, title="Software Intern 2027", locations=[location]).include
 
 
 def test_description_can_classify_generic_technical_internship(
@@ -293,6 +349,30 @@ def test_posting_floor_uses_the_utc_instant(
         assert result.exclusion_reason == (
             "opportunity cycle is not explicitly 2027 and posting date is not eligible"
         )
+
+
+@pytest.mark.parametrize(
+    ("location", "codes", "include"),
+    [
+        (case["location"], case["codes"], case["include"])
+        for case in json.loads(
+            (
+                Path(__file__).parents[2]
+                / "site"
+                / "tests"
+                / "fixtures"
+                / "european_locations.json"
+            ).read_text(encoding="utf-8")
+        )
+    ],
+)
+def test_shared_location_cases_do_not_invent_european_evidence(
+    rules: ClassificationRules, location: str, codes: list[str], include: bool
+) -> None:
+    normalized = normalize_locations([location])
+    assert normalized.country_codes == codes
+    result = classify(rules, title="Software Intern 2027", locations=[location])
+    assert result.include is include
 
 
 def test_explicit_separate_european_location_survives_a_mixed_country_list(

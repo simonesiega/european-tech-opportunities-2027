@@ -197,6 +197,7 @@ def markdown_table(jobs: list[StoredJob], *, locale: ReadmeLocale = LOCALES["en"
     """Localize table labels without translating or altering supplied listing values."""
     lines = [locale.table_header.rstrip("\n")]
     for job in jobs:
+        link = job.link.replace("<", "%3C").replace(">", "%3E")
         lines.append(
             "| "
             + " | ".join(
@@ -204,7 +205,7 @@ def markdown_table(jobs: list[StoredJob], *, locale: ReadmeLocale = LOCALES["en"
                     _escape(job.company),
                     _escape(job.title),
                     _escape(job.location),
-                    f"[{locale.view}](<{_safe_url(job.link)}>)",
+                    f"[{locale.view}](<{link}>)",
                 )
             )
             + " |"
@@ -277,11 +278,6 @@ def _escape(value: str) -> str:
     for character in ("\\", "|", "[", "]", "(", ")", "`", "*", "_"):
         escaped = escaped.replace(character, f"\\{character}")
     return escaped
-
-
-def _safe_url(value: str) -> str:
-    """Escape angle brackets in a Markdown link target."""
-    return value.replace("<", "%3C").replace(">", "%3E")
 
 
 def _marker_bounds(

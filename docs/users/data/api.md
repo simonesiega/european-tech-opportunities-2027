@@ -84,7 +84,7 @@ All parameters are optional and may appear only once.
 | Parameter | Values | Default |
 |---|---|---|
 | `q` | Case-insensitive substring across company, title, category, industries, type, and location | All |
-| `country` | Exact country token; multi-location roles may match several countries | All |
+| `country` | One canonical country name or supported alias/code; multi-location roles may match several countries | All |
 | `company` | Exact company name | All |
 | `category` | Exact category identifier, such as `software-engineering` | All |
 | `type` | `internship`, `new-grad` | Both |
@@ -93,7 +93,7 @@ All parameters are optional and may appear only once.
 | `page` | Integer 1–10000 | `1` |
 | `page-size` | Integer 1–100 | `10` |
 
-Use a complete sort value such as `company-asc`, not the abbreviated `asc/desc` notation above. A role must match every supplied filter. Exact filters and parameter names are case-sensitive. A valid but unmatched filter returns an empty result, not an error. Sort ties use descending numeric LinkedIn ID.
+A role must match every supplied filter. Company, category, type, and parameter names are case-sensitive. Country names, supported aliases, uppercase codes such as `GB`, and known city-only or remote values resolve to canonical country labels; semicolon-separated selections do not match. A valid but unmatched filter returns an empty result, not an error. Use a complete sort value such as `company-asc`; ties use descending numeric LinkedIn ID.
 
 Text values are limited to 200 characters. Exact filters must be nonempty and have no surrounding whitespace; `q` ignores surrounding whitespace. URL-encode values. Unknown/repeated keys, invalid values or encoding, control characters, and query strings longer than 2048 characters return `400`.
 
@@ -159,7 +159,7 @@ When `release` is not `null`, the response reads one dataset release even if a n
 
 Responses use **`Cache-Control: no-store`**, with no ETag or `304` response. `HEAD` performs the same checks without returning a body. CORS, preflight, mutation-method rejection, and error envelopes follow the rules above. Any query parameters return `400`.
 
-Missing or unreadable required files, invalid required metadata fields or collection timestamps, and count/hash mismatches return `503` with code `unavailable` and message `Status unavailable`. A failure is not an empty dataset, and errors expose no internal diagnostics. Metadata reads are limited to 4 KiB and JSON hashing to 64 MiB; exceeding either limit also returns `503`. Poll conservatively: each successful `GET` or `HEAD` reads and hashes the JSON download.
+Metadata is limited to 4 KiB and JSON hashing to 64 MiB, with four concurrent status reads per server process and no request queue. Missing or unreadable files, invalid metadata or timestamps, count/hash mismatches, size-limit violations, and busy readers return `503` with code `unavailable` and message `Status unavailable`. Errors expose no internal diagnostics and must not be treated as an empty dataset. Poll conservatively: each successful `GET` or `HEAD` reads and hashes the JSON download.
 
 Export regeneration can change `dataset_generated_at` without changing listings. `dataset_sha256` identifies only the public JSON bytes, which omit first-seen and collection timestamps; it is not the README review seal, a database checksum, or an application Git SHA.
 

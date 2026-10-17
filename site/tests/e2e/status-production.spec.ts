@@ -1,4 +1,4 @@
-import {spawn, type ChildProcess} from "node:child_process";
+import {execFileSync, spawn, type ChildProcess} from "node:child_process";
 import {once} from "node:events";
 import {createHash} from "node:crypto";
 import {
@@ -108,7 +108,10 @@ async function withRestoredFixture(action: () => Promise<void>) {
   try {
     await action();
   } finally {
-    for (const {filename, bytes} of originals) writeFileSync(filename, bytes);
+    for (const {filename, bytes} of originals) {
+      rmSync(filename, {recursive: true, force: true});
+      writeFileSync(filename, bytes, {flag: "wx"});
+    }
   }
 }
 
@@ -127,6 +130,85 @@ test("production status reads the selected dataset without modifying SQLite", as
   expect(readFileSync(databasePath)).toEqual(before);
 });
 
+test("production CSP uses fresh nonces and blocks injected scripts without breaking hydration", async ({
+  browser,
+}) => {
+  const first = await client.get("/", {
+    headers: {"x-nonce": "untrusted", "Content-Security-Policy": "script-src 'unsafe-inline'"},
+  });
+  expect(first.status()).toBe(200);
+  const policy = first.headers()["content-security-policy"];
+  const nonce = /'nonce-([A-Za-z0-9+/]+=*)'/.exec(policy)?.[1];
+  expect(nonce).toBeTruthy();
+  expect(policy).toContain("frame-ancestors 'none'");
+  expect(policy).toContain("object-src 'none'");
+  const html = await first.text();
+  const second = await client.get("/");
+  expect(second.headers()["content-security-policy"]).not.toContain(`'nonce-${nonce}'`);
+  expect(first.headers()["cache-control"]).toContain("no-store");
+
+  const context = await browser.newContext({
+    baseURL: "http://127.0.0.1:3101",
+    colorScheme: "light",
+  });
+  try {
+    await context.route("https://**/*", (route) => route.abort());
+    // Inject parser-inserted markup, not a script created by Playwright's trusted evaluator.
+    await context.route("http://127.0.0.1:3101/", async (route) => {
+      const response = await route.fetch();
+      const currentNonce = /'nonce-([A-Za-z0-9+/]+=*)'/.exec(
+        response.headers()["content-security-policy"]
+      )?.[1];
+      const body = (await response.text())
+        .replace(
+          "</head>",
+          `<script nonce="${nonce}">document.documentElement.dataset.cspBypass = 'yes'</script>` +
+            `<script nonce="${currentNonce}">try { eval("document.documentElement.dataset.cspEval = 'yes'") } catch {}</script></head>`
+        )
+        .replace("<h1 ", `<h1 onclick="document.documentElement.dataset.cspHandler = 'yes'" `);
+      await route.fulfill({response, body});
+    });
+    await context.addInitScript(() => {
+      const violations: string[] = [];
+      Object.assign(window, {cspViolations: violations});
+      window.addEventListener("securitypolicyviolation", (event) => {
+        violations.push(event.effectiveDirective);
+      });
+    });
+    const page = await context.newPage();
+    const scriptNonces = await page.evaluate(
+      (markup) =>
+        Array.from(
+          new DOMParser().parseFromString(markup, "text/html").scripts,
+          (script) => script.nonce
+        ),
+      html
+    );
+    expect(scriptNonces).not.toHaveLength(0);
+    for (const scriptNonce of scriptNonces) expect(scriptNonce).toBe(nonce);
+    await page.goto("/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await page.getByRole("heading", {level: 1}).click();
+    const save = page.getByRole("button", {name: /^Save /}).first();
+    await expect(save).toBeEnabled();
+    await save.click();
+    await expect(page.getByRole("button", {name: /^Unsave /}).first()).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(() => (window as Window & {cspViolations?: string[]}).cspViolations ?? [])
+      )
+      .toEqual(expect.arrayContaining(["script-src-elem", "script-src-attr", "script-src"]));
+    for (const attribute of ["data-csp-bypass", "data-csp-handler", "data-csp-eval"]) {
+      await expect(page.locator("html")).not.toHaveAttribute(attribute);
+    }
+  } finally {
+    await context.close();
+  }
+});
+
 for (const failure of [
   "database missing",
   "database invalid",
@@ -140,8 +222,15 @@ for (const failure of [
   "download missing",
   "download changed",
   "download oversized",
+  "metadata directory",
+  "download directory",
+  "download FIFO",
 ]) {
   test(`production status fails closed without leaking details: ${failure}`, async () => {
+    test.skip(
+      failure === "download FIFO" && process.platform === "win32",
+      "Named pipes require POSIX"
+    );
     await withRestoredFixture(async () => {
       if (failure === "database missing") unlinkSync(databasePath);
       if (failure === "database invalid") writeFileSync(databasePath, "not a SQLite database");
@@ -163,14 +252,23 @@ for (const failure of [
       if (failure === "download missing") unlinkSync(jsonPath);
       if (failure === "download changed") writeFileSync(jsonPath, "[]\n");
       if (failure === "download oversized") truncateSync(jsonPath, 64 * 1024 * 1024 + 1);
-      const response = await client.get(endpoint);
+      if (failure === "metadata directory" || failure === "download directory") {
+        const filename = failure === "metadata directory" ? metadataPath : jsonPath;
+        unlinkSync(filename);
+        mkdirSync(filename);
+      }
+      if (failure === "download FIFO") {
+        unlinkSync(jsonPath);
+        execFileSync("mkfifo", [jsonPath], {timeout: 5000});
+      }
+      const response = await client.get(endpoint, {timeout: 5000});
       expect(response.status()).toBe(503);
       expect(response.headers()["cache-control"]).toBe("no-store");
       expect(await response.json()).toEqual({
         version: "v1",
         error: {code: "unavailable", message: "Status unavailable"},
       });
-      const head = await client.head(endpoint);
+      const head = await client.head(endpoint, {timeout: 5000});
       expect(head.status()).toBe(503);
       expect(await head.text()).toBe("");
       if (databaseBefore === null) expect(existsSync(databasePath)).toBe(false);

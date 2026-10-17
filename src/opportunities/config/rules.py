@@ -21,10 +21,15 @@ class ClassificationRules(BaseModel):
     internship_keywords: tuple[str, ...] = Field(min_length=1)
     new_grad_keywords: tuple[str, ...] = Field(min_length=1)
     excluded_role_keywords: tuple[str, ...] = Field(min_length=1)
+    non_technical_role_keywords: tuple[str, ...] = ()
     categories: dict[OpportunityCategory, tuple[str, ...]] = Field(min_length=1)
 
     @field_validator(
-        "internship_keywords", "new_grad_keywords", "excluded_role_keywords", mode="before"
+        "internship_keywords",
+        "new_grad_keywords",
+        "excluded_role_keywords",
+        "non_technical_role_keywords",
+        mode="before",
     )
     @classmethod
     def normalize_keywords(cls, value: object) -> object:

@@ -56,7 +56,7 @@ Only successful, nonblocking full-registry collections establish quality baselin
 
 Missing cards cannot close jobs. Known-ID rechecks require repeated explicit `404`/`410` confirmations; closure occurs only after no active search association remains.
 The collection map shows the built-in availability default: at most 50 due jobs, with a five-day minimum interval.
-[Production automation](../../maintainers/operations/automation.md#schedule-and-concurrency) recommends the Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for daily audits; the software default remains unchanged.
+[Production automation](../../maintainers/operations/automation.md#schedule-and-concurrency) recommends the Actions variable `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for scheduled audits; the software default remains unchanged.
 It keeps or reopens valid listings, deletes explicitly unavailable ones, and preserves inconclusive rows. An HTTP `429`-only partial audit requires completed confirmed checks and no independent failures, skips scraping, and passes validation for manual review. Other audit source stops block publication.
 
 Reviewed offline additions reuse acceptance checks and repository transactions, without invented provenance or manual reopening.

@@ -148,7 +148,7 @@ Source: [integration/test_partial_collection.py](integration/test_partial_collec
 
 ## Python unit and tooling tests
 
-Some historically named `unit/` files exercise real files, migrations, or shell processes. Their scope remains the named subsystem, not necessarily an in-memory unit.
+Tooling tests include real files, migrations, and shell processes alongside in-memory units.
 
 ### Classification
 
@@ -164,16 +164,19 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 | `test_title_with_both_types_is_categorized_as_internship` | Internship evidence takes precedence over the word graduate |
 | `test_senior_opportunity_title_is_excluded` | Explicit seniority disqualifies both internship and New Grad titles |
 | `test_non_technology_title_cannot_be_rescued_by_technical_description` | Technical team mentions cannot reclassify an explicitly unrelated finance title |
+| `test_non_technical_roles_cannot_be_rescued_by_technology_keywords` | Commercial, recruitment, clinical, and market-research titles remain excluded despite technical title or description keywords |
+| `test_generic_research_titles_require_technology_evidence` | Generic research and research-scientist titles cannot establish a technology category without technical evidence |
+| `test_technical_roles_remain_eligible_next_to_non_technical_exclusions` | Technical research, narrowly supported description fallback, software engineering, and whole-word boundaries remain eligible |
 | `test_employment_type_requires_whole_word_evidence` | “International” and “Internal” do not count as “intern” |
 | `test_explicit_non_european_locations_prevent_city_fallback` | Country names/codes, regional abbreviations, city namesakes, and explicit non-European remote evidence defeat European-city fallback |
-| `test_explicit_european_locations_remain_eligible` | European codes, recognized cities, and explicit European entries within mixed/EMEA locations remain eligible |
 | `test_description_can_classify_generic_technical_internship` | A generic technical title may use explicit description evidence for its category |
-| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Both evidence paths recognize 19xx, 20xx, and 21xx conflicts, including the former 2020/2049 limits; paired cases cover each path/type without Cartesian duplication; 2026 title, programme, eligibility, and conflicting-year inputs preserve their distinct semantics and the rejected role's category/type despite recent posting |
+| `test_conflicting_years_cannot_fall_back_to_recent_posting_dates` | Title and description evidence reject 19xx–21xx conflicts, mixed cycles, and New Grad eligibility-year conflicts despite recent posting, preserving the rejected role's category and type |
 | `test_title_precedence_and_internship_eligibility_remain_distinct` | Target-cycle titles beat historical body mentions; distant eligibility years do not override valid internship evidence |
-| `test_supported_target_cycles_need_no_posting_date` | Supported minimum 2020, former upper-limit crossing 2050, and maximum 2100 need no posting evidence; intermediate values add no separate boundary |
+| `test_supported_target_cycles_need_no_posting_date` | Explicit supported cycles at 2020, 2050, and 2100 need no posting-date evidence |
 | `test_posting_floor_uses_the_utc_instant` | Both types respect the exact UTC cutoff, including equivalent positive/negative offsets and adjacent microseconds; date-based acceptance preserves the correct type and technical category |
+| `test_shared_location_cases_do_not_invent_european_evidence` | Shared Python/website cases cover aliases, codes, accented cities, remote locations, European regions, mixed entries, unknown qualifiers including non-Latin words, namesakes, and unsupported values |
 | `test_explicit_separate_european_location_survives_a_mixed_country_list` | Separate European and non-European locations do not incorrectly qualify each other |
-| `test_missing_or_ambiguous_geography_is_not_assumed_european` | Empty locations, Remote, and EMEA alone fail with the stable ambiguity reason |
+| `test_missing_or_ambiguous_geography_is_not_assumed_european` | Empty locations, Remote, and EMEA remain ambiguous rather than outside Europe, with the stable exclusion reason |
 
 ### Configuration and domain inputs
 
@@ -419,7 +422,8 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | `test_readme_merge_respects_repository_policy_and_validated_head` | Merge uses the validated head, respects auto-merge policy/manual mode, rechecks scope, and fails closed on policy or merge errors |
 | `test_partial_proposals_force_manual_review_independently_of_caller` | Executed proposal guard forces partial/manual labels and disables merging even when the caller asks for auto-merge; invalid outcomes fail closed |
 | `test_processor_uses_repository_request_and_availability_settings` | Request pacing, concurrency, and interval come from Actions variables; the cap preserves overrides with a 50-job fallback; bounded timeout and authorization remain intact |
-| `test_nightly_supports_manual_and_scheduled_full_updates` | Boolean `skip_availability` defaults to false; only manual opt-out skips the audit, schedules always audit, collection and authorization remain enabled, and the shared lock does not cancel work |
+| `test_nightly_supports_manual_and_scheduled_full_updates` | A credential-free cadence output gates processing; manual audit opt-out, source authorization, and the shared noncanceling lock remain intact |
+| `test_nightly_cadence_preserves_three_day_gaps_and_manual_runs` | The actual workflow script keeps three-day UTC gaps across month and leap-year boundaries; off-days skip processing and manual runs bypass the date gate without source access |
 | `test_availability_failure_prevents_readme_handoff_to_mutation_job` | Both audit workflows retain success-dependent README handoffs and forward partial outcomes to the independent manual-review proposal guard |
 | `test_collection_retains_only_the_quality_report_even_on_blocking_failure` | Failed quality checks retain aggregate evidence, not publication artifacts; source-free recovery cannot upload stale reports |
 | `test_recovery_mode_guard_precedes_restore_and_forbids_side_effects` | Recovery-mode combinations fail before restore and cannot publish snapshots or bypass validation before handoff |
@@ -511,7 +515,7 @@ Source: [opportunity-api.test.ts](../site/tests/unit/opportunity-api.test.ts).
 | `invalid snapshot timestamps cannot turn recency results into a successful empty list` | Bad first-seen or collection dates fail rather than silently filtering every row out |
 | `stable explicit public field allowlist` | Extra lifecycle/path fields on incoming rows cannot leak through the API envelope |
 | `bounded property fuzzing preserves encoded queries and rejects duplicate keys` | Seeded encoded-query cases round-trip within bounds, remain order-independent, and reject duplicate keys |
-| `rejects malformed, duplicate, unknown and excessive input` | Empty invalid filters, unsupported enums, invalid page numbers, controls, encodings, duplicates, and length limits fail closed |
+| `rejects malformed, duplicate, unknown and excessive input` | Empty invalid filters, unsupported enums, invalid page numbers, C0/C1 controls, encodings, duplicates, and length limits fail closed |
 
 ### Feeds, filtering, and presentation
 
@@ -528,8 +532,11 @@ Sources: [opportunity-feed.test.ts](../site/tests/unit/opportunity-feed.test.ts)
 | `uses the latest successful collection timestamp for empty Atom feeds` | An empty selection can still report real dataset freshness |
 | `empty filters preserve every row and its order without mutating the input` | Filtering cannot drop/reorder/alter the unfiltered dataset; allocation identity is deliberately not tested |
 | `search spans nonempty fields with normalized case and surrounding whitespace` | Search includes category/type/optional industries and handles absent values |
+| `country aliases select normalized rows without foreign namesakes` | A country-code query selects canonical, city-only, and remote rows without including other countries or foreign namesakes |
+| `unrecognized and multiple country filters do not broaden a query` | Unknown, prototype-like, and multi-location values cannot bypass the exact filter by discarding unsupported entries |
 | `recency includes both boundaries and excludes old, future, and invalid timestamps` | Recency's inclusive bounds reject future/invalid evidence without hiding rows when no recency filter is set |
 | `extracts every unique country from a multi-location value` | Multi-country roles remain discoverable under each country without duplicate options |
+| `normalizes countries without inventing geography for %s` | Shared Python/website fixtures normalize aliases, codes, accented city names, remote locations, and European regions without erasing conflicting or unknown geographic words |
 | `rejects invalid calendar or out-of-range UTC evidence: %s` | Month/day/leap-year/time/UTC-range failures cannot normalize into a different valid instant |
 | `normalizes valid leap days, UTC offsets and fractional seconds` | Legitimate boundary dates and fractions survive normalization |
 | `formats offset and SQLite timestamps consistently in UTC` | Visible dates follow UTC even when an offset crosses midnight |
@@ -546,10 +553,12 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `publishes only explicit public fields with UTC timestamps and no private metadata` | Status strips unknown metadata and exposes only the five approved fields |
 | `an empty, never-collected legacy dataset is valid but not invented on errors` | Genuine empty state is distinct from missing metadata |
 | `preserves generation microseconds from %s independently of collection time` | Export and collection clocks remain distinct and precise |
-| `rejects metadata: %s` | Invalid root/version/counts/timestamps/hashes fail rather than reporting misleading health |
+| `rejects metadata: %s` | Invalid roots, versions, counts, timestamps, and hash formats fail; count and format cases cannot pass solely through a separate checksum or employment-count mismatch |
 | `rejects a different download hash, invalid database aggregates, and unsafe release IDs` | Content mismatch, impossible aggregates, invalid collection time, and path-like release identifiers cannot publish |
 | `the shared schema validates status and rejects extra fields or invalid values` | Status schema enforces allowlists, nullability, counts, hashes, UTC timestamps, and opaque release identifiers |
 | `always rereads status without caching or conditional 304 responses` | Repeated conditional requests still read current state and return no-store responses |
+| `bounds concurrent status work without queueing and recovers after failed reads` | Four in-flight reads bound hashing work; excess GET/HEAD requests receive sanitized no-store 503s without new reads, and completed or failed reads release capacity |
+| `synchronous status failures do not exhaust reader capacity` | Failures before asynchronous I/O release their slot so later requests still attempt a fresh read |
 | `sanitizes %s errors and rejects queries before reading state` | GET/HEAD reject query input before I/O and sanitize failed reads with correct empty HEAD bodies |
 | `legacy publication paths preserve defaults and explicit overrides without inventing a release` | Fixed-path mode keeps configured paths and returns no fictitious release ID |
 | `an invalid release root never falls back to legacy database or export paths` | A configured but broken versioned publication fails closed |
@@ -573,12 +582,13 @@ Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts).
 | `filters one employment type at a time` | Switching type replaces rather than combines mutually exclusive selections |
 | `filters opportunities by when they were first seen` | Each recency window changes counts correctly and Reset clears it |
 | `restores filters from a shared URL and browser history` | Deep-linked search/type/country/recency and browser Back restore the same results |
+| `restores a country alias without broadening the directory` | A country-code URL selects the canonical country control and the matching row without rewriting the shared URL |
 | `composes search, country, category, first-seen filtering, and company sorting` | Combined filters and sorting agree on visible row order |
 | `restores sorting, page, and page size from a shared URL` | Deep-linked pagination survives history; a sort change resets to page one |
 | `falls back safely for unsupported directory view parameters` | Browser inputs constrain invalid recency/sort/page/page-size values rather than applying API-style rejection |
 | `search, reset, keyboard focus, and sorting remain interactive` | Search shortcut works; reset preserves unrelated query/sort/page-size state; sort direction changes actual row order |
 | `defaults to latest first seen and paginates results` | Newest-first rows, next-page links, and page-size changes expose the expected data |
-| `publishes canonical SEO and crawler metadata` | Filtered pages are nonindexable with canonical URL, safe JSON-LD and download metadata; image/manifest/robots/sitemap routes work and local analytics stays absent |
+| `publishes canonical SEO and crawler metadata` | Filtered pages are nonindexable with canonical URL, safe JSON-LD including the three-day dataset schedule, and download metadata; image/manifest/robots/sitemap routes work and local analytics stays absent |
 | `legacy host permanently redirects paths and queries without serving alternate content` | Retired-host requests preserve path/query through a 308 canonical-origin redirect |
 | `crawler can follow unfiltered pages without JavaScript` | SSR pagination has real links, visible rows, and valid page-specific canonical/indexing metadata |
 | `does not index out-of-range or alternate directory pages` | Invalid/alternate views are nonindexable while unrelated tracking parameters do not break valid page indexing |
@@ -639,7 +649,8 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `status reports the served dataset, not a newer failed collection or a runtime path` | Status agrees with API/download counts, metadata and content hashes, reports only successful collection time, disables caching, and leaves SQLite bytes unchanged |
 | `status supports HEAD and CORS but rejects queries and mutation methods` | Public status HTTP methods, query rejection, preflight restrictions, and no-store behavior are wired correctly |
 | `production status reads the selected dataset without modifying SQLite` | Built standalone status uses the configured release/fixed paths, emits production headers, and preserves database bytes |
-| `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads return safe 503 GET/HEAD responses without repairing state; each restored fixture recovers |
+| `production CSP uses fresh nonces and blocks injected scripts without breaking hydration` | Parsed HTML must contain scripts sharing the fresh response nonce, unaffected by caller headers; the browser blocks stale-nonce scripts, inline handlers, and eval while theme and local-list hydration remain usable; framing and object policies remain restricted |
+| `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads or nonregular files return safe 503 GET/HEAD responses without repairing state; POSIX named pipes cannot stall readers, and each restored fixture recovers |
 | `production status preserves SQLite and metadata microseconds independently` | Real production reads retain both clocks' independent microseconds |
 | `production status counts only open rows and represents a never-collected empty dataset` | Closed rows and missing success history yield a genuine empty/null response, not fake freshness |
 | `production status follows release cutovers and rejects a missing pointer without legacy fallback` | Linux standalone requests follow immutable publication switches, reject missing current pointers, and recover after restoration |
@@ -653,6 +664,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `readme_projections` in [integration/test_readme.py](integration/test_readme.py) | Disposable English and five localized templates with synthetic markers and Unicode authored text; no committed preview or canonical database is rendered |
 | [shell_helpers.py](shell_helpers.py) | Environment allowlist and blocking SSH/SCP/SFTP fallbacks for offline shell tests |
 | `__init__.py` files | Python package discovery/import support; no tests or behavior assertions |
+| [european_locations.json](../site/tests/fixtures/european_locations.json) | Shared classifier and website country-normalization cases; aliases, accented cities, European regions, namesakes, non-Latin/unknown qualifiers, and independent mixed locations |
 | [linkedin_search_page_1.html](fixtures/linkedin_search_page_1.html) | One eligible internship plus an unrelated senior role exercises stable IDs and prefiltering |
 | [linkedin_search_page_2.html](fixtures/linkedin_search_page_2.html) | Overlapping identity plus a second technical role exercises pagination/deduplication |
 | [linkedin_job_detail_1111111111.html](fixtures/linkedin_job_detail_1111111111.html) | Explicit identity, relative posting age, start-cycle prose, and structured industry evidence |
@@ -664,4 +676,4 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `test_classification_performance` in [benchmarks/test_parsing_classification.py](benchmarks/test_parsing_classification.py) | Offline full classification hot-path trend with fixed evidence; not duplicate functional coverage |
 | `test_public_linkedin_search_and_detail_are_reachable` in [integration/test_live_smoke.py](integration/test_live_smoke.py) | Optional bounded adapter compatibility smoke test, excluded from normal validation and never run without exact live selection plus explicit permission/opt-in |
 
-Linux-only recovery/release checks and Bash/`jq` workflow checks are not replaced by Windows skips. Symlink tests need platform permission. A skipped test is not a pass. This inventory describes intended coverage, not a claim that every platform or optional live check has run.
+Linux-only recovery/release checks, POSIX named-pipe checks, and Bash/`jq` workflow checks are not replaced by Windows skips. Symlink tests need platform permission. A skipped test is not a pass. This inventory describes intended coverage, not a claim that every platform or optional live check has run.

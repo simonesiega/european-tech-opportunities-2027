@@ -1,20 +1,8 @@
 import path from "node:path";
 import type {NextConfig} from "next";
+import {contentSecurityPolicy} from "./src/lib/content-security-policy";
 
 const isProduction = process.env.NODE_ENV === "production";
-
-export const contentSecurityPolicy = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "connect-src 'self' https://gateway.umami.is",
-  "font-src 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "img-src 'self' data: blob:",
-  "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' https://cloud.umami.is",
-  "style-src 'self' 'unsafe-inline'",
-].join("; ");
 
 const securityHeaders = [
   {key: "X-Content-Type-Options", value: "nosniff"},
@@ -27,7 +15,7 @@ const securityHeaders = [
     ? [
         {
           key: "Content-Security-Policy",
-          value: contentSecurityPolicy,
+          value: contentSecurityPolicy(),
         },
         {
           key: "Strict-Transport-Security",
@@ -42,7 +30,8 @@ const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
   output: "standalone",
   turbopack: {
-    root: path.resolve(__dirname),
+    // Dev imports shared geography; production keeps its website-rooted standalone layout.
+    root: path.resolve(__dirname, isProduction ? "." : ".."),
   },
   async headers() {
     return [{source: "/:path*", headers: securityHeaders}];

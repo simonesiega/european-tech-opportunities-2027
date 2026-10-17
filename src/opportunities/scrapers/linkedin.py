@@ -377,7 +377,7 @@ class LinkedInScraper:
             page_cards = [
                 card
                 for card in parsed.cards
-                if _company_allowed(card.company, allowed_companies)
+                if (not allowed_companies or normalized_key(card.company) in allowed_companies)
                 and _title_allowed(card.title, self._opportunity_title_terms)
             ]
             for card in page_cards:
@@ -498,11 +498,6 @@ def _title_allowed(title: str, terms: tuple[str, ...]) -> bool:
     """Check whether a search-card title has a supported opportunity term."""
     key = normalized_key(title)
     return any(contains_normalized_phrase(key, term) for term in terms)
-
-
-def _company_allowed(company: str, allowed_companies: frozenset[str]) -> bool:
-    """Check whether a card company matches the normalized allowlist."""
-    return not allowed_companies or normalized_key(company) in allowed_companies
 
 
 def _reject_blocked_document(html: str) -> None:
