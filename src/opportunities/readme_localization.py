@@ -11,7 +11,7 @@ from opportunities.utils.time import ensure_utc
 
 @dataclass(frozen=True, slots=True)
 class ReadmeLocale:
-    """Localize presentation only; listing values and state seals remain unchanged."""
+    """README labels and date formats; listing values and state seals are not translated."""
 
     months: tuple[str, ...]
     timestamp: str

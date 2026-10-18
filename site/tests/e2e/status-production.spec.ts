@@ -44,7 +44,11 @@ test.beforeAll(async ({playwright}) => {
   metadataPath = path.join(exports, "dataset-metadata.json");
   jsonPath = path.join(exports, "open-opportunities.json");
   copyFileSync(path.resolve("tests/e2e/.tmp/opportunities.db"), databasePath);
-  for (const filename of ["dataset-metadata.json", "open-opportunities.json"]) {
+  for (const filename of [
+    "dataset-metadata.json",
+    "open-opportunities.csv",
+    "open-opportunities.json",
+  ]) {
     copyFileSync(path.resolve("tests/e2e/.tmp", filename), path.join(exports, filename));
   }
   if (versioned) symlinkSync("releases/1-1", path.join(root, "current"), "dir");
@@ -101,7 +105,12 @@ test.afterAll(async () => {
 });
 
 async function withRestoredFixture(action: () => Promise<void>) {
-  const originals = [databasePath, metadataPath, jsonPath].map((filename) => ({
+  const originals = [
+    databasePath,
+    metadataPath,
+    jsonPath,
+    path.join(path.dirname(jsonPath), "open-opportunities.csv"),
+  ].map((filename) => ({
     filename,
     bytes: readFileSync(filename),
   }));
@@ -276,6 +285,32 @@ for (const failure of [
     });
     expect((await client.get(endpoint)).status()).toBe(200);
   });
+}
+
+for (const format of ["csv", "json", "metadata"]) {
+  for (const defect of ["missing", "directory", "FIFO"]) {
+    test(`production downloads reject ${defect} ${format} files without stalling or leaking details`, async () => {
+      test.skip(defect === "FIFO" && process.platform === "win32", "Named pipes require POSIX");
+      const filename =
+        format === "metadata" ? "dataset-metadata.json" : `open-opportunities.${format}`;
+      const target = path.join(path.dirname(jsonPath), filename);
+      await withRestoredFixture(async () => {
+        unlinkSync(target);
+        if (defect === "directory") mkdirSync(target);
+        if (defect === "FIFO") execFileSync("mkfifo", [target], {timeout: 5000});
+        const response = await client.get(`/${filename}`, {timeout: 5000});
+        expect(response.status()).toBe(503);
+        expect(response.headers()["cache-control"]).toBe("no-store");
+        expect(await response.text()).toBe("Public export is currently unavailable.\n");
+        const head = await client.head(`/${filename}`, {timeout: 5000});
+        expect(head.status()).toBe(503);
+        expect(await head.text()).toBe("");
+      });
+      const restored = await client.get(`/${filename}`);
+      expect(restored.status()).toBe(200);
+      expect(await restored.body()).toEqual(readFileSync(target));
+    });
+  }
 }
 
 test("production status preserves SQLite and metadata microseconds independently", async () => {

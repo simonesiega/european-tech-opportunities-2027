@@ -16,8 +16,7 @@ from typing import cast
 from opportunities.utils.files import atomic_write_text
 from opportunities.utils.paths import find_project_root
 
-# Resolve defaults from the checkout rather than the caller's working directory. Explicit
-# paths remain available for tests and controlled tooling integrations.
+# Defaults must work when invoked outside the checkout.
 _ROOT = find_project_root(Path(__file__))
 
 # Exact marker counts prevent partially or ambiguously rewriting authored documentation.
@@ -26,14 +25,12 @@ _TABLE_PATTERN = re.compile(
     re.DOTALL,
 )
 
-# coverage.py uses platform-native separators in JSON file keys. Comparisons normalize
-# them so the same report renderer works in local Windows runs and Linux CI.
 _CLASSIFIER_PATH = "src/opportunities/pipeline/classification.py"
 
 
 @dataclass(frozen=True, slots=True)
 class CoverageMetrics:
-    """Hold display-ready coverage values."""
+    """Coverage percentages formatted for the generated table."""
 
     combined: str
     branches: str
@@ -179,8 +176,7 @@ def _display_percentage(
     if not isinstance(display, str) or not re.fullmatch(r"\d+(?:\.\d+)?", display):
         raise ValueError(f"{display_key} must be a numeric display string")
 
-    # Reject internally inconsistent reports instead of publishing a display field that
-    # does not represent its numeric coverage.py value at the reported precision.
+    # The display string must agree with the numeric value at its stated precision.
     decimals = len(display.partition(".")[2])
     tolerance = 0.5 * 10**-decimals + 1e-9
     if not 0 <= float(display) <= 100 or abs(float(display) - numeric) > tolerance:
@@ -190,6 +186,7 @@ def _display_percentage(
 
 def _classifier_summary(files: Mapping[str, object]) -> Mapping[str, object]:
     for path, value in files.items():
+        # coverage.py uses native path separators on Windows and POSIX.
         normalized = path.replace("\\", "/").removeprefix("./")
         if normalized == _CLASSIFIER_PATH:
             file_report = _mapping(value, name="classifier coverage")

@@ -20,7 +20,7 @@ RSS (`/feed.xml`) and Atom (`/atom.xml`) routes also reuse the read-only open-ro
 
 ## Production status
 
-`opportunity-status-data.ts` pins one publication, reads both SQLite aggregates in one statement, and closes the read-only connection before reading exports. Shared file reads reject nonregular files without waiting for pipe writers and bound regular-file sizes and streamed bytes; metadata is strictly decoded and the actual JSON download is hashed. Four concurrent reads per server process are permitted; excess requests receive a sanitized `503` without queueing or cached results.
+`opportunity-status-data.ts` pins one publication, reads both SQLite aggregates in one statement, and closes the read-only connection before reading exports. Status and fixed-download readers use nonblocking opens to reject nonregular files without waiting for pipe writers. Status additionally bounds regular-file sizes and streamed bytes, strictly decodes metadata, and hashes the actual JSON download. Four concurrent reads per server process are permitted; excess requests receive a sanitized `503` without queueing or cached results.
 
 `opportunity-status.ts` checks count/hash agreement and timestamps before projecting the public allowlist. Only successful searches advance collection time, including successful searches in a partial batch. Release identifiers contain digits and a hyphen; invalid versioned pointers never fall back to legacy state. Preserve runtime-file tracing directives to keep operator data out of builds.
 

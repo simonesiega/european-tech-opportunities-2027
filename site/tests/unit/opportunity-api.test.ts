@@ -131,6 +131,32 @@ describe("public API contract", () => {
     expect(items.map((item) => item.linkedinJobId)).toEqual(["9", "10", "11", "12"]);
   });
 
+  test("orders a large tied population exactly, including long IDs and leading-zero ties", () => {
+    const ids = [
+      "9",
+      "10",
+      "00010",
+      "010000000000000000001",
+      ...Array.from({length: 1000}, (_, index) =>
+        String(BigInt("10000000000000000000") + BigInt(index))
+      ),
+    ];
+    const items = ids.map((id) => row(id));
+    const expected = [...ids].sort((left, right) => {
+      const leftId = BigInt(left);
+      const rightId = BigInt(right);
+      return leftId === rightId ? right.localeCompare(left, "en") : leftId < rightId ? 1 : -1;
+    });
+    const actual: string[] = [];
+    for (let page = 1; page <= Math.ceil(ids.length / 100); page++) {
+      actual.push(
+        ...payload(`?page-size=100&page=${page}`, items).data.map((item) => item.linkedinJobId)
+      );
+    }
+    expect(actual).toEqual(expected);
+    expect(items.map((item) => item.linkedinJobId)).toEqual(ids);
+  });
+
   test("publishes UTC RFC 3339 first-seen timestamps without losing microseconds", () => {
     const examples = [
       ["2026-07-17 12:00:00.123456", "2026-07-17T12:00:00.123456+00:00"],

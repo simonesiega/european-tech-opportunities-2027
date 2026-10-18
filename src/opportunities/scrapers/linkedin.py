@@ -88,7 +88,7 @@ class LinkedInPayloadError(ValueError):
 
 
 class TextFetcher(Protocol):
-    """Define the text-fetching interface for LinkedIn collection and availability checks."""
+    """Validated HTML transport used by collection and availability checks."""
 
     async def get_text(self, url: str) -> str:
         """Fetch one URL and return validated text."""
@@ -97,18 +97,17 @@ class TextFetcher(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class LinkedInSearchCard:
-    """Hold a parsed LinkedIn search-result card."""
+    """Listing identity and display fields parsed from a search card."""
 
     job_id: str
     title: str
     company: str
     location: str
-    application_url: str
 
 
 @dataclass(frozen=True, slots=True)
 class SearchPageResult:
-    """Hold parsed cards and page-level warnings."""
+    """Parsed search cards and malformed-card warnings for one page."""
 
     cards: tuple[LinkedInSearchCard, ...]
     warnings: tuple[str, ...] = ()
@@ -116,7 +115,7 @@ class SearchPageResult:
 
 @dataclass(frozen=True, slots=True)
 class LinkedInScrapeResult:
-    """Summarize one complete LinkedIn search."""
+    """Parsed listings, warnings, and unavailability evidence from one search."""
 
     positions: list[RawJob]
     warnings: tuple[str, ...]
@@ -181,7 +180,6 @@ def parse_search_page(html: str) -> SearchPageResult:
                     title=title,
                     company=company,
                     location=location,
-                    application_url=LINKEDIN_PUBLIC_JOB_URL.format(job_id=job_id),
                 )
             )
         except ValueError:
@@ -193,8 +191,9 @@ def parse_search_page(html: str) -> SearchPageResult:
 
 def parse_job_detail(
     html: str,
-    card: LinkedInSearchCard,
     *,
+    job_id: str,
+    fallback_location: str = "",
     observed_at: datetime | None = None,
 ) -> RawJob:
     """Parse a detail page that independently establishes listing identity."""
@@ -212,7 +211,7 @@ def parse_job_detail(
             ".top-card-layout__second-subline .topcard__flavor-row:first-of-type "
             ".topcard__flavor--bullet",
         )
-        or card.location
+        or fallback_location
     )
     if len(title) > 500 or len(company) > 200 or len(location) > 500:
         raise LinkedInPayloadError("LinkedIn detail page fields exceed safe limits")
@@ -226,11 +225,11 @@ def parse_job_detail(
         raise LinkedInPayloadError("LinkedIn detail page description exceeds the safe limit")
     try:
         return RawJob(
-            source_job_id=card.job_id,
+            source_job_id=job_id,
             company=company,
             title=title,
             locations=[location] if location else [],
-            application_url=card.application_url,
+            application_url=LINKEDIN_PUBLIC_JOB_URL.format(job_id=job_id),
             description=description,
             industries=_extract_criterion(soup, "industries"),
             start_date=_extract_start_date(title, description),
@@ -270,11 +269,9 @@ def _extract_posted_at(soup: BeautifulSoup, observed_at: datetime) -> datetime |
     value = _optional_text(soup, ".posted-time-ago__text")
     if not value:
         return None
-    # `normalized_key` removes punctuation, so reject lower-bound ages before
-    # normalization rather than accidentally treating `30+ days` as exactly 30.
-    if "+" in value:
-        return None
-    normalized = normalized_key(value)
+    # Preserve signs and punctuation: stripping them invents exact age evidence
+    # from malformed or lower-bound values such as "-5 days" or "30+ days".
+    normalized = value.casefold()
     if normalized in {"just now", "today"}:
         return ensure_utc(observed_at)
     match = _RELATIVE_POSTED_RE.fullmatch(normalized)
@@ -323,7 +320,7 @@ def _extract_start_date(title: str, description: str | None) -> str | None:
 
 
 class LinkedInScraper:
-    """Collect paginated cards and details through one provider-specific path."""
+    """Bounded guest-HTML collector with shared in-flight detail requests."""
 
     def __init__(
         self,
@@ -392,7 +389,12 @@ class LinkedInScraper:
         for card in selected_cards:
             try:
                 html = await self._detail(card.job_id, fetcher)
-                job = parse_job_detail(html, card, observed_at=observed_at)
+                job = parse_job_detail(
+                    html,
+                    job_id=card.job_id,
+                    fallback_location=card.location,
+                    observed_at=observed_at,
+                )
                 # Missing posting age is not a parser rejection: explicit cycle evidence
                 # may still satisfy the classifier.
                 positions.append(job)
@@ -419,13 +421,6 @@ class LinkedInScraper:
             key=lambda job: job.source_job_id,
         )[: search.max_rechecks]
         for known in absent_known:
-            fallback = LinkedInSearchCard(
-                job_id=known.source_job_id,
-                title=known.title,
-                company=known.company,
-                location=known.locations[0] if known.locations else "",
-                application_url=known.application_url,
-            )
             try:
                 html = await self._detail(known.source_job_id, fetcher)
                 # Stored location can fill missing display metadata, but listing
@@ -433,7 +428,8 @@ class LinkedInScraper:
                 positions.append(
                     parse_job_detail(
                         html,
-                        fallback,
+                        job_id=known.source_job_id,
+                        fallback_location=known.locations[0] if known.locations else "",
                         observed_at=observed_at,
                     )
                 )

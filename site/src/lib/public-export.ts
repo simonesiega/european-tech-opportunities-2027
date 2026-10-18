@@ -1,5 +1,6 @@
 import "server-only";
 
+import {constants} from "node:fs";
 import {open} from "node:fs/promises";
 import path from "node:path";
 import {Readable} from "node:stream";
@@ -28,12 +29,16 @@ export async function getPublicExport(format: PublicExportFormat, head = false):
     const {exportDirectory} = publicationPaths();
     // Deployment supplies these files at runtime; do not trace them into the build output.
     const exportPath = path.join(/* turbopackIgnore: true */ exportDirectory, filename);
-    const file = await open(/* turbopackIgnore: true */ exportPath, "r");
+    // Open before sending headers so missing files return 503. Nonblocking mode
+    // lets named pipes reach the regular-file check without waiting for a writer.
+    const file = await open(
+      /* turbopackIgnore: true */ exportPath,
+      constants.O_RDONLY | (constants.O_NONBLOCK ?? 0)
+    );
     try {
       if (!(await file.stat()).isFile()) throw new Error("Public export is not a regular file");
-      // Opening before responding preserves sanitized 503s and pins the file across
-      // atomic replacements. Streaming bounds memory and closes the descriptor on cancel.
-      // Bridge Node/DOM declarations for the same native Web Stream implementation.
+      // The open descriptor survives atomic replacement; the stream closes it on cancellation.
+      // Node and DOM types describe the same native Web Stream.
       const body = head
         ? null
         : (Readable.toWeb(file.createReadStream(), {

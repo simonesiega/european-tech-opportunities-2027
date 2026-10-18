@@ -156,11 +156,24 @@ def test_pipeline_filters_persists_and_isolates_failed_searches(
         assert "synthetic-private-payload" not in (diagnostic.error_message or "")
 
 
-def test_collection_uses_explicit_cycle_when_posting_age_is_missing(
+@pytest.mark.parametrize(
+    ("posted_age", "accept_yearless"),
+    [
+        ("", False),
+        ("30+ days ago", False),
+        ("-5 days ago", False),
+        ("\u22125 days ago", False),
+        ("5-days ago", False),
+        ("5 days ago", True),
+    ],
+)
+def test_collection_requires_cycle_or_usable_posting_age(
     session_factory: sessionmaker[Session],
     settings: Settings,
     rules: ClassificationRules,
     search: LinkedInSearchConfig,
+    posted_age: str,
+    accept_yearless: bool,
 ) -> None:
     observed = datetime(2026, 7, 20, tzinfo=UTC)
     first_id, second_id = "1111111111", "2222222222"
@@ -180,6 +193,7 @@ def test_collection_uses_explicit_cycle_when_posting_age_is_missing(
             LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): (
                 f'<h1 class="top-card-layout__title">{title}</h1>'
                 '<a class="topcard__org-name-link">Test Technology</a>'
+                f'<span class="posted-time-ago__text">{posted_age}</span>'
             )
             for job_id, title in (
                 (first_id, "Software Engineering Intern 2027"),
@@ -203,9 +217,10 @@ def test_collection_uses_explicit_cycle_when_posting_age_is_missing(
         ).run([search], fetcher=OfflineFetcher())
     )
 
-    assert result.accepted == 1
-    assert result.excluded == 1
-    assert [job.linkedin_job_id for job in repository.list_open_jobs()] == [first_id]
+    assert result.accepted == (2 if accept_yearless else 1)
+    assert result.excluded == (0 if accept_yearless else 1)
+    expected_ids = {first_id, second_id} if accept_yearless else {first_id}
+    assert {job.linkedin_job_id for job in repository.list_open_jobs()} == expected_ids
 
 
 def test_malformed_detail_does_not_publish_a_current_search_card(

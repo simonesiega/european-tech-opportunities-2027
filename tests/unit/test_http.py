@@ -15,7 +15,7 @@ from opportunities.scrapers.http import LINKEDIN_SEARCH_ENDPOINT, FetchError, Ht
 
 
 class ChunkedStream(httpx.AsyncByteStream):
-    """Expose read progress so response-bound behavior can be asserted."""
+    """Synthetic response stream that records chunk reads and closure."""
 
     def __init__(self, chunks: tuple[bytes, ...]) -> None:
         self.chunks = chunks

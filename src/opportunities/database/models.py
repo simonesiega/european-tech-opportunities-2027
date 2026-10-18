@@ -11,7 +11,7 @@ from opportunities.database.base import Base
 
 
 class SearchRow(Base):
-    """Map a configured search to its database row."""
+    """Search configuration and persistent collection progress."""
 
     __tablename__ = "searches"
 
@@ -26,7 +26,7 @@ class SearchRow(Base):
 
 
 class SearchRunRow(Base):
-    """Map one search execution to its database row."""
+    """Outcome and diagnostics for one search execution."""
 
     __tablename__ = "search_runs"
 
@@ -57,7 +57,7 @@ class SearchRunRow(Base):
 
 
 class JobRow(Base):
-    """Map a discovered job to its database row."""
+    """Canonical listing fields and lifecycle timestamps."""
 
     __tablename__ = "jobs"
 
@@ -89,7 +89,7 @@ class JobRow(Base):
 
 
 class DataQualitySnapshotRow(Base):
-    """Store bounded aggregate-only observations for drift baselines."""
+    """Aggregate observations retained for drift comparisons."""
 
     __tablename__ = "data_quality_snapshots"
 
@@ -101,7 +101,7 @@ class DataQualitySnapshotRow(Base):
 
 
 class JobSearchRow(Base):
-    """Map job-to-search provenance to its database row."""
+    """Per-search listing provenance and unavailability evidence."""
 
     __tablename__ = "job_searches"
 

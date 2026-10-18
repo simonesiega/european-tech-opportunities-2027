@@ -2,6 +2,43 @@ import {expect, test} from "bun:test";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 
+test("Lighthouse resolves compatible Puppeteer imports without extract-zip", () => {
+  // Exercise Node's loaders, not Bun's interop; Lighthouse runs under Node in CI.
+  const result = spawnSync(
+    "node",
+    [
+      "--input-type=module",
+      "--eval",
+      String.raw`
+        import assert from "node:assert/strict";
+        import {createRequire} from "node:module";
+        import {pathToFileURL} from "node:url";
+        const require = createRequire(import.meta.url);
+        const fromLighthouse = createRequire(require.resolve("lighthouse"));
+        const entry = fromLighthouse.resolve("puppeteer-core");
+        const esm = await import(pathToFileURL(entry).href);
+        const fromCli = createRequire(require.resolve("@lhci/cli/package.json"));
+        const cjs = fromCli("puppeteer-core");
+        for (const api of [esm.default, cjs]) {
+          assert.equal(typeof api.connect, "function");
+          assert.equal(typeof api.launch, "function");
+        }
+        assert.equal(fromCli.resolve("puppeteer-core"), entry);
+        const fromPuppeteer = createRequire(entry);
+        const fromBrowsers = createRequire(fromPuppeteer.resolve("@puppeteer/browsers"));
+        assert.throws(() => fromBrowsers.resolve("extract-zip"), {code: "MODULE_NOT_FOUND"});
+      `,
+    ],
+    {
+      cwd: fileURLToPath(new URL("../..", import.meta.url)),
+      encoding: "utf8",
+      timeout: 10_000,
+    }
+  );
+  expect(result.error).toBeUndefined();
+  expect(result.status, result.stderr).toBe(0);
+}, 15_000);
+
 test("Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing", () => {
   // Isolate the parser so a vulnerable transitive version cannot hang the test runner.
   // Only synthetic strings are parsed; no FTP connection is opened.

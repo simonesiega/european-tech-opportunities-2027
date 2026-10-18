@@ -11,12 +11,17 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Make default Compose pipeline startup show help instead of upgrading SQLite; migrations remain explicit maintenance commands.
 - Run scheduled full updates every three UTC days with a fixed cadence across month boundaries; retain additional manual updates for busy hiring periods and keep source-access safeguards unchanged.
 - Allow HTTP 429-only partial availability audits to retain completed checks through validated, manual-review publication while skipping all subsequent source requests and nightly scraping.
 - Refresh localized README counts, review seals, and opportunity previews alongside English in dataset automation, preserving localized presentation and authored text.
 
 ### Fixed
 
+- Reject malformed signed or punctuated posting ages instead of normalizing them into trusted recency evidence; preserve explicit-cycle acceptance without posting metadata.
+- Document the GitHub-only operating loop, ongoing maintenance, and statistics ownership; align database auditing guidance with the three-day update cadence.
+- Correct the privacy notice's README image-provider disclosure.
+- Reuse fixed-locale sort collators, normalize distinct locations once, and avoid repeating unfiltered hydration sorting to reduce large-directory rendering work.
 - Reject namesake cities with unrecognized geographic qualifiers and require technical evidence for generic research roles; exclude nontechnical roles despite software keywords.
 - Normalize country names, codes, and city-only or remote aliases across directory, API, and feed filters without broadening multi-location queries; resolve the shared vocabulary in development builds.
 - Reject C0/C1 control characters in listing API queries.
@@ -30,10 +35,14 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Removed
 
+- Remove unused stored title/company and URL fallback plumbing from detail rechecks; require fresh detail identity and construct canonical links from numeric job IDs.
 - Remove the standalone promotional MP3 from the public tree and documentation allowlists; document Pixabay soundtrack permissions while preserving the scored film.
 
 ### Security
 
+- Remove Lighthouse's vulnerable `extract-zip` dependency through a pinned upstream Puppeteer upgrade, retaining the performance gate and dependency alerts.
+- Reject nonregular public downloads without blocking on named pipes, preserving sanitized GET and HEAD failures.
+- Preserve pre-existing snapshot-replacement staging, aliases, and sidecars before storage access; create final local staging exclusively.
 - Replace inline-script CSP permission with per-request nonces while preserving theme, analytics, and directory hydration.
 - Bound concurrent dataset-status reads and reject oversized or nonregular files before hashing, without blocking on named pipes or caching health assertions.
 - Exclude local logs, uv caches, and Lighthouse reports from container build contexts.

@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import gc
 from collections.abc import Callable, Mapping
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import pytest
@@ -56,7 +56,6 @@ def test_linkedin_search_page_parser_extracts_stable_cards(
     assert not result.warnings
     assert [card.job_id for card in result.cards] == ["1111111111", "2222222222"]
     assert result.cards[0].company == "Test Technology"
-    assert result.cards[0].application_url == ("https://www.linkedin.com/jobs/view/1111111111")
 
 
 @pytest.mark.parametrize("html", ["", " \n\t", "<!doctype html>", "<!-- empty -->"])
@@ -117,9 +116,11 @@ def test_linkedin_job_detail_parser_extracts_description(
     card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
     job = parse_job_detail(
         fixture_html("linkedin_job_detail_1111111111.html"),
-        card,
+        job_id=card.job_id,
+        fallback_location=card.location,
     )
     assert job.source_job_id == "1111111111"
+    assert job.application_url == "https://www.linkedin.com/jobs/view/1111111111"
     assert job.company == "Test Technology"
     assert job.description is not None
     assert "Summer 2027" in job.description
@@ -143,22 +144,33 @@ def test_current_search_card_cannot_supply_missing_detail_identity(
     card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
 
     with pytest.raises(LinkedInPayloadError, match="identity"):
-        parse_job_detail(html, card)
+        parse_job_detail(html, job_id=card.job_id, fallback_location=card.location)
 
 
+@pytest.mark.parametrize(
+    ("age", "elapsed"),
+    [
+        ("5 days ago", timedelta(days=5)),
+        ("Reposted 2 HOURS ago", timedelta(hours=2)),
+        ("  today  ", timedelta()),
+        ("just now", timedelta()),
+        ("5\n days ago", timedelta(days=5)),
+    ],
+)
 def test_linkedin_job_detail_infers_posted_at_from_relative_age(
-    fixture_html: Callable[[str], str],
+    fixture_html: Callable[[str], str], age: str, elapsed: timedelta
 ) -> None:
     card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
     observed_at = datetime(2026, 7, 18, 12, 30, tzinfo=UTC)
 
     job = parse_job_detail(
-        fixture_html("linkedin_job_detail_1111111111.html"),
-        card,
+        fixture_html("linkedin_job_detail_1111111111.html").replace("5 days ago", age),
+        job_id=card.job_id,
+        fallback_location=card.location,
         observed_at=observed_at,
     )
 
-    assert job.posted_at == datetime(2026, 7, 13, 12, 30, tzinfo=UTC)
+    assert job.posted_at == observed_at - elapsed
 
 
 def test_lower_bound_posting_age_is_not_treated_as_exact_recency(
@@ -173,8 +185,28 @@ def test_lower_bound_posting_age_is_not_treated_as_exact_recency(
 
     job = parse_job_detail(
         html,
-        card,
+        job_id=card.job_id,
+        fallback_location=card.location,
         observed_at=datetime(2026, 7, 18, 12, 30, tzinfo=UTC),
+    )
+
+    assert job.posted_at is None
+
+
+@pytest.mark.parametrize("age", ["-5 days ago", "\u22125 days ago", "5-days ago"])
+def test_malformed_posting_age_is_not_normalized_into_recency(
+    fixture_html: Callable[[str], str], age: str
+) -> None:
+    card = parse_search_page(fixture_html("linkedin_search_page_1.html")).cards[0]
+    html = f"""<h1 class="top-card-layout__title">Software Engineering Intern</h1>
+    <a class="topcard__org-name-link">Test Technology</a>
+    <span class="posted-time-ago__text">{age}</span>"""
+
+    job = parse_job_detail(
+        html,
+        job_id=card.job_id,
+        fallback_location=card.location,
+        observed_at=datetime(2026, 7, 18, tzinfo=UTC),
     )
 
     assert job.posted_at is None
@@ -190,7 +222,7 @@ def test_unbounded_relative_posting_age_is_not_treated_as_exact_evidence(
     <span class="posted-time-ago__text">999999999999999999 years ago</span>
     """
 
-    job = parse_job_detail(html, card)
+    job = parse_job_detail(html, job_id=card.job_id, fallback_location=card.location)
 
     assert job.posted_at is None
 
@@ -208,7 +240,7 @@ def test_linkedin_job_detail_extracts_criteria_without_linkedin_classes(
     </ul>
     """
 
-    job = parse_job_detail(html, card)
+    job = parse_job_detail(html, job_id=card.job_id, fallback_location=card.location)
 
     assert job.industries == "Software Development"
 
@@ -223,7 +255,7 @@ def test_linkedin_job_detail_does_not_infer_industries_from_description(
     <div class="show-more-less-html__markup">We follow a hybrid working model.</div>
     """
 
-    job = parse_job_detail(html, card)
+    job = parse_job_detail(html, job_id=card.job_id, fallback_location=card.location)
 
     assert job.industries is None
 
@@ -238,7 +270,7 @@ def test_linkedin_job_detail_does_not_treat_graduation_date_as_start_date(
     <div class="show-more-less-html__markup">Applicants must graduate in June 2027.</div>
     """
 
-    job = parse_job_detail(html, card)
+    job = parse_job_detail(html, job_id=card.job_id, fallback_location=card.location)
 
     assert job.start_date is None
 
@@ -475,10 +507,7 @@ def test_stale_search_card_detail_404_confirms_known_job_unavailability(
     )
     known = KnownJob(
         source_job_id=job_id,
-        company="Test Technology",
-        title="Software Engineering Intern 2027",
         locations=("London, UK",),
-        application_url=f"https://www.linkedin.com/jobs/view/{job_id}",
     )
 
     result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
@@ -486,21 +515,27 @@ def test_stale_search_card_detail_404_confirms_known_job_unavailability(
     assert result.confirmed_unavailable_ids == (job_id,)
 
 
-def test_known_job_recheck_requires_identity_in_the_detail_response() -> None:
+@pytest.mark.parametrize(
+    "html",
+    [
+        "",
+        "<html><body></body></html>",
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>',
+        '<a class="topcard__org-name-link">Test Technology</a>',
+    ],
+)
+def test_known_job_recheck_requires_identity_in_the_detail_response(html: str) -> None:
     search = configured_search(max_pages=1, max_results=25, max_rechecks=1)
     job_id = "9999999999"
     fetcher = FixtureFetcher(
         {
             build_search_url(search, start=0): "<!doctype html>",
-            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): "<html><body></body></html>",
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): html,
         }
     )
     known = KnownJob(
         source_job_id=job_id,
-        company="Known Technology",
-        title="Software Intern 2027",
         locations=("Berlin, Germany",),
-        application_url=f"https://www.linkedin.com/jobs/view/{job_id}",
     )
 
     result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
@@ -508,6 +543,44 @@ def test_known_job_recheck_requires_identity_in_the_detail_response() -> None:
     assert result.positions == []
     assert result.confirmed_unavailable_ids == ()
     assert result.warnings == ("Known LinkedIn job recheck skipped: malformed HTML",)
+
+
+@pytest.mark.parametrize(
+    ("locations", "detail_location", "expected_locations"),
+    [
+        (("Berlin, Germany",), "", ["Berlin, Germany"]),
+        (("Berlin, Germany",), "Paris, France", ["Paris, France"]),
+        ((), "", []),
+    ],
+)
+def test_known_job_recheck_uses_fresh_identity_and_only_falls_back_for_location(
+    locations: tuple[str, ...], detail_location: str, expected_locations: list[str]
+) -> None:
+    search = configured_search(max_pages=1, max_results=25, max_rechecks=1)
+    job_id = "9999999999"
+    detail = f"""<h1 class="top-card-layout__title">Software Intern 2027</h1>
+    <a class="topcard__org-name-link">Current Technology</a>
+    <div class="top-card-layout__second-subline"><div class="topcard__flavor-row">
+      <span class="topcard__flavor--bullet">{detail_location}</span></div></div>"""
+    fetcher = FixtureFetcher(
+        {
+            build_search_url(search, start=0): "<!doctype html>",
+            LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id): detail,
+        }
+    )
+    known = KnownJob(source_job_id=job_id, locations=locations)
+
+    result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
+
+    assert len(result.positions) == 1
+    job = result.positions[0]
+    assert job.source_job_id == job_id
+    assert job.title == "Software Intern 2027"
+    assert job.company == "Current Technology"
+    assert job.locations == expected_locations
+    assert job.application_url == f"https://www.linkedin.com/jobs/view/{job_id}"
+    assert result.confirmed_unavailable_ids == ()
+    assert result.warnings == ()
 
 
 def test_known_job_404_is_reported_as_confirmed_unavailable() -> None:
@@ -523,10 +596,7 @@ def test_known_job_404_is_reported_as_confirmed_unavailable() -> None:
     )
     known = KnownJob(
         source_job_id=job_id,
-        company="Known Technology",
-        title="Software Intern 2027",
         locations=("Berlin, Germany",),
-        application_url=f"https://www.linkedin.com/jobs/view/{job_id}",
     )
     result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
     assert result.confirmed_unavailable_ids == (job_id,)

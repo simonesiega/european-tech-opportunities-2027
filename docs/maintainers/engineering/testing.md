@@ -119,9 +119,13 @@ CodeQL, Gitleaks, Dependency Review and Scorecard have distinct roles in [Automa
 
 Lighthouse's transitive `basic-ftp` is pinned to `6.2.1` to fix [GHSA-c475-qrg2-pj4r](https://github.com/advisories/GHSA-c475-qrg2-pj4r), a directory-listing parser denial of service. It retains the CommonJS API used by `get-uri` and adopts v6's safer default of rejecting separate transfer hosts. An offline subprocess test checks the client API surface and bounds malformed-listing parsing without opening an FTP connection. Remove the override once upstream selects a patched version and the audit and Lighthouse checks pass.
 
-Lighthouse's development-only `extract-zip` dependency currently has two unpatched high-severity symlink traversal advisories: [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3). Local/CI audits use an already installed Chromium via `CHROME_PATH`; never download/extract untrusted browser archives. These packages are not standalone website runtime dependencies, but the findings remain open and must not be suppressed as fixed.
+Lighthouse's `puppeteer-core` is pinned to `25.14.0`, whose official browser-management dependency no longer includes `extract-zip`. This removes the dependency affected by the unpatched symlink traversal advisories [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3), rather than suppressing them.
 
-ESLint's development-only `braces` dependency also has an unpatched high-severity stack-exhaustion advisory, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), affecting versions through `3.0.3`. Do not feed untrusted nested glob patterns to this tooling or treat a clean production build as a clean dependency audit. Retain the finding until an upstream fix is available and validated.
+This is a major-version override: validate Node's ESM/CommonJS imports and the complete Lighthouse gate on the minimum supported Node version before changing it. Keep using installed Chromium through `CHROME_PATH`; the configured audits do not use LHCI's optional `puppeteerScript` executable-path discovery, which assumes the older synchronous `executablePath` API. Review that integration before enabling it. Remove the override only when Lighthouse selects a safe compatible dependency chain itself.
+
+For an existing checkout, recreate only `site/node_modules` with a frozen install if old installation artifacts leave the removed extractor resolvable; the dependency regression intentionally detects that residue.
+
+ESLint's development-only `braces` dependency has an unpatched high-severity stack-exhaustion advisory, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), affecting versions through `3.0.3`. Do not feed untrusted nested glob patterns to this tooling or treat a clean production build as a clean dependency audit. Retain the finding until an upstream fix is available and validated.
 
 ### Benchmarks
 

@@ -55,7 +55,7 @@ export function useLocalOpportunities(opportunities: Opportunity[]) {
           ids,
           new Date().toISOString()
         );
-        // No write on receipt: synchronization is not visitor activity or a feedback loop.
+        // Do not write back; synchronization must not extend the visit or notify other tabs.
         currentState.current = next;
         setState(next);
       } catch {

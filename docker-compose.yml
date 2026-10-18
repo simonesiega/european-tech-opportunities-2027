@@ -23,7 +23,7 @@ services:
       - ./configs:/app/configs:ro
       - ./:/workspace
 
-    command: ["db-upgrade"]
+    command: ["--help"]
     init: true
     cap_drop:
       - ALL

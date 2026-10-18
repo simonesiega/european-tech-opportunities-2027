@@ -56,7 +56,7 @@ _REGION_KEYS = frozenset(map(_geographic_key, _GEOGRAPHY.regions))
 
 @dataclass(frozen=True, slots=True)
 class LocationResult:
-    """Hold normalized location text and its Europe decision."""
+    """Normalized locations and the evidence for European eligibility."""
 
     locations: list[str]
     country_codes: list[str]

@@ -233,6 +233,15 @@ restore_state() {
 
 publish_state() {
   reject_sidecars
+  local canonical_copy="${CANONICAL_STATE_DATABASE}.snapshot-copy"
+  local candidate
+  for candidate in "$canonical_copy" "${canonical_copy}-wal" \
+    "${canonical_copy}-shm" "${canonical_copy}-journal"; do
+    if [[ -e "$candidate" || -L "$candidate" ]]; then
+      echo "Canonical replacement staging exists; preserve it for investigation." >&2
+      return 1
+    fi
+  done
   : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required for snapshot publication}"
   : "${GITHUB_RUN_ID:?GITHUB_RUN_ID is required for snapshot publication}"
   : "${GITHUB_RUN_ATTEMPT:?GITHUB_RUN_ATTEMPT is required for snapshot publication}"
@@ -339,9 +348,22 @@ with sqlite3.connect(Path(sys.argv[1]).resolve().as_uri() + "?mode=ro", uri=True
     exit 1
   fi
 
-  # Keep the canonical working copy byte-identical to the verified snapshot.
-  local canonical_copy="${CANONICAL_STATE_DATABASE}.snapshot-copy"
-  cp "$verified_database" "$canonical_copy"
+  # Exclusive creation also preserves staging claimed after the preflight.
+  # Keep the private working copy byte-identical to the verified snapshot.
+  if ! uv run python - "$verified_database" "$canonical_copy" 2>/dev/null <<'PY'
+import os
+import shutil
+import sys
+
+with open(sys.argv[1], "rb") as source:
+    descriptor = os.open(sys.argv[2], os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "wb") as destination:
+        shutil.copyfileobj(source, destination)
+PY
+  then
+    echo "Cannot create canonical replacement staging; preserve local state and reconcile the published snapshot." >&2
+    return 1
+  fi
   mv -f "$canonical_copy" "$CANONICAL_STATE_DATABASE"
 
   cp "$verified_manifest" "$latest_manifest"

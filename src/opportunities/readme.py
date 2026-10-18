@@ -31,7 +31,7 @@ STATE_SEAL_PATTERN = re.compile(r"<!-- Public directory state v1 sha256: [0-9a-f
 
 @dataclass(frozen=True, slots=True)
 class ReadmeMetadata:
-    """Hold generated README counters and timestamps."""
+    """Open-listing count and collection time for README projections."""
 
     open_positions: int
     last_successful_collection: datetime | None

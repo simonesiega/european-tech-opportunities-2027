@@ -125,7 +125,7 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 | Test | Behavior protected |
 |---|---|
 | `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, transport/HTTP failure, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; only HTTP 429 may qualify for partial publication and diagnostics are sanitized |
-| `test_collection_uses_explicit_cycle_when_posting_age_is_missing` | Real parsing/classification persists explicit-cycle roles but rejects yearless roles without date evidence |
+| `test_collection_requires_cycle_or_usable_posting_age` | Real parsing/classification persists explicit-cycle roles despite missing, lower-bound, or malformed ages; yearless roles require usable posting evidence |
 | `test_malformed_detail_does_not_publish_a_current_search_card` | A plausible card cannot substitute for missing detail identity or produce a successful collection |
 | `test_concurrent_search_outcomes_apply_in_observation_order` | Reversed fetched outcomes still persist the newest metadata and both search associations |
 | `test_equal_finish_times_keep_configured_search_order` | Equal timestamps are deterministic by configured order, not random run IDs |
@@ -262,17 +262,18 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_linkedin_search_page_parser_extracts_stable_cards` | Guest cards yield numeric identities, company evidence, and canonical links |
+| `test_linkedin_search_page_parser_extracts_stable_cards` | Guest cards yield numeric identities and company evidence; canonical links are constructed by detail parsing |
 | `test_search_page_accepts_empty_guest_fragments` | Legitimate empty fragments are distinguished from malformed nonempty responses |
 | `test_search_page_rejects_unrecognized_nonempty_documents` | Sign-in/generic documents cannot masquerade as successful empty searches |
 | `test_linkedin_search_page_rejects_more_than_one_page_of_cards` | An oversized page cannot evade the 25-card bound |
 | `test_closed_application_notice_uses_semantic_alert_instead_of_hashed_classes` | Explicit semantic closure alerts survive unstable source class names |
 | `test_closed_application_notice_supports_guest_page_markup` | Guest closure markup remains recognized independently of the public-page form |
 | `test_closed_application_words_outside_an_alert_do_not_close_job` | Description text mentioning closure is not closure evidence |
-| `test_linkedin_job_detail_parser_extracts_description` | Detail identity, description, start date, and explicit industries survive parsing |
+| `test_linkedin_job_detail_parser_extracts_description` | Detail identity, canonical listing URL, description, start date, and explicit industries survive parsing |
 | `test_current_search_card_cannot_supply_missing_detail_identity` | Empty/partial detail pages cannot borrow title or company from a current card |
-| `test_linkedin_job_detail_infers_posted_at_from_relative_age` | Relative posting age is anchored to the injected observation clock |
+| `test_linkedin_job_detail_infers_posted_at_from_relative_age` | Plain/reposted ages, case and whitespace variants, today, and just-now evidence stay anchored to the injected observation clock |
 | `test_lower_bound_posting_age_is_not_treated_as_exact_recency` | “30+ days” cannot invent a precise eligible date |
+| `test_malformed_posting_age_is_not_normalized_into_recency` | ASCII/Unicode negative signs and hyphenated ages cannot become exact posting evidence through punctuation stripping |
 | `test_unbounded_relative_posting_age_is_not_treated_as_exact_evidence` | Huge relative ages cannot overflow or become trusted dates |
 | `test_linkedin_job_detail_extracts_criteria_without_linkedin_classes` | Semantic criteria labels work without source-specific CSS classes |
 | `test_linkedin_job_detail_does_not_infer_industries_from_description` | Unstructured prose cannot invent structured industry metadata |
@@ -286,7 +287,8 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 | `test_linkedin_scraper_leaves_cycle_and_posting_evidence_to_classifier` | The scraper forwards candidates on both sides of the posting floor instead of duplicating acceptance policy |
 | `test_linkedin_company_filter_is_applied_before_detail_fetch` | Company scope rejects a title-eligible out-of-scope card before requesting its detail |
 | `test_stale_search_card_detail_404_confirms_known_job_unavailability` | A stale visible card does not negate explicit known-job absence |
-| `test_known_job_recheck_requires_identity_in_the_detail_response` | Malformed rechecks remain inconclusive and cannot synthesize availability from stored identity |
+| `test_known_job_recheck_requires_identity_in_the_detail_response` | Empty, generic, title-only, and company-only rechecks remain inconclusive and cannot synthesize availability from stored identity |
+| `test_known_job_recheck_uses_fresh_identity_and_only_falls_back_for_location` | Rechecks use current detail title/company and canonical ID links; detail location overrides stored location, which remains an optional fallback |
 | `test_known_job_404_is_reported_as_confirmed_unavailable` | Bounded rechecks report explicit absence even when the job is not on the search page |
 | `test_linkedin_access_challenge_is_rejected` | Parser-level challenge detection cannot become valid search results |
 | `test_detail_challenge_stops_later_details_and_searches` | A real fetcher/parser combination propagates a detail challenge across the remaining source work |
@@ -395,8 +397,9 @@ Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/t
 | `test_snapshot_store_preserves_a_mismatched_local_database` | Durable/local mismatch stops before downloading over unsnapshotted state |
 | `test_snapshot_store_rejects_sidecars_before_transfer` | Restore and publish both reject live sidecars without transfer or deletion |
 | `test_snapshot_absence_requires_successful_listing` | Only proven empty/missing stores permit absence; listing failures, malformed stores, missing pointers, and failed/empty manifest downloads stop |
+| `test_publication_preserves_preexisting_replacement_staging` | Files, directories, symlinks, dangling symlinks, and SQLite sidecars at final local replacement staging stop publication before transport and remain untouched with canonical and unrelated state |
 | `test_publication_reconciles_transport` | Immutable objects and the latest pointer resume after disconnects before, during, or after upload, after rename, and during download; reruns do not repeat completed writes, retries are bounded, and permission errors, conflicting bytes, or unexpected pointer changes fail closed |
-| `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum and statistics failures stop without transport retries |
+| `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum/statistics failures stop without retries, and late local replacement files or POSIX named pipes remain untouched without blocking even after pointer promotion |
 
 ### Workflow safety
 
@@ -511,6 +514,7 @@ Source: [opportunity-api.test.ts](../site/tests/unit/opportunity-api.test.ts).
 | `filters combined search and exact country/company/category/type and snapshot recency` | Six one-predicate near-misses prove every API filter participates independently in AND semantics; query normalization, snapshot recency, and nonmutating input remain covered |
 | `stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages` | Company pagination and role sorting have different expected ID orders, so a default comparator cannot satisfy both; empty/out-of-range envelopes remain truthful; first-seen numeric ties belong to the microsecond matrix |
 | `orders distinct microseconds chronologically before applying numeric ID ties` | Submillisecond differences and equivalent offset/SQLite instants sort correctly without mutating inputs |
+| `orders a large tied population exactly, including long IDs and leading-zero ties` | More than 1,000 equal-time rows paginate in exact numeric-ID order beyond JavaScript's safe integer range, with stable textual ties and unchanged inputs |
 | `publishes UTC RFC 3339 first-seen timestamps without losing microseconds` | API serialization normalizes valid storage timestamps and rejects unreadable values |
 | `invalid snapshot timestamps cannot turn recency results into a successful empty list` | Bad first-seen or collection dates fail rather than silently filtering every row out |
 | `stable explicit public field allowlist` | Extra lifecycle/path fields on incoming rows cannot leak through the API envelope |
@@ -566,6 +570,7 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `fails closed for missing, invalid, and escaping pointers` | Linux release resolution rejects traversal, missing pointers, and symlink escapes |
 | `does not expose a non-public directory name through a release alias` | A numeric alias cannot leak a private resolved directory name |
 | `standalone startup preserves %s data paths after Next changes directory` | Default/relative/absolute runtime paths remain correct after standalone chdir and static assets remain available |
+| `Lighthouse resolves compatible Puppeteer imports without extract-zip` | Node resolves the same Puppeteer for Lighthouse's ESM and LHCI's CommonJS consumers, preserves connect/launch APIs, and cannot resolve the vulnerable archive extractor from the browser-management dependency |
 | `Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing` | The pinned security override stays compatible and rejects pathological synthetic listings within a subprocess timeout, without FTP access |
 
 ## Website HTTP and browser tests
@@ -651,6 +656,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `production status reads the selected dataset without modifying SQLite` | Built standalone status uses the configured release/fixed paths, emits production headers, and preserves database bytes |
 | `production CSP uses fresh nonces and blocks injected scripts without breaking hydration` | Parsed HTML must contain scripts sharing the fresh response nonce, unaffected by caller headers; the browser blocks stale-nonce scripts, inline handlers, and eval while theme and local-list hydration remain usable; framing and object policies remain restricted |
 | `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads or nonregular files return safe 503 GET/HEAD responses without repairing state; POSIX named pipes cannot stall readers, and each restored fixture recovers |
+| `production downloads reject ${defect} ${format} files without stalling or leaking details` | CSV, JSON, and metadata downloads reject missing files, directories, and POSIX named pipes with sanitized GET/HEAD errors, then recover after fixture restoration |
 | `production status preserves SQLite and metadata microseconds independently` | Real production reads retain both clocks' independent microseconds |
 | `production status counts only open rows and represents a never-collected empty dataset` | Closed rows and missing success history yield a genuine empty/null response, not fake freshness |
 | `production status follows release cutovers and rejects a missing pointer without legacy fallback` | Linux standalone requests follow immutable publication switches, reject missing current pointers, and recover after restoration |

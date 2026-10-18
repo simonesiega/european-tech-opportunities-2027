@@ -50,16 +50,16 @@ export function useOpportunityDirectory(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const options = useMemo(
-    () => ({
+  const options = useMemo(() => {
+    const locations = [...new Set(opportunities.map((item) => item.location))];
+    return {
       companies: [...new Set(opportunities.map((item) => item.company))].sort(),
-      locations: [...new Set(opportunities.flatMap((item) => getCountries(item.location)))].sort(),
+      locations: [...new Set(locations.flatMap(getCountries))].sort(),
       categories: [...new Set(opportunities.map((item) => item.category))].sort(),
       employmentTypes: EMPLOYMENT_TYPE_OPTIONS,
       firstSeenPeriods: FIRST_SEEN_VALUES,
-    }),
-    [opportunities]
-  );
+    };
+  }, [opportunities]);
 
   const query = searchParams.get(FILTER_PARAMETERS.query) ?? "";
   const company = validOption(searchParams.get(FILTER_PARAMETERS.company), options.companies);

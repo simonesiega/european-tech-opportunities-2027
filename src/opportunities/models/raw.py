@@ -16,13 +16,10 @@ MAX_DESCRIPTION_CHARS = 200_000
 
 @dataclass(frozen=True, slots=True)
 class KnownJob:
-    """Describe an active job eligible for availability rechecks."""
+    """Stored listing ID and location fallback for bounded detail rechecks."""
 
     source_job_id: str
-    company: str
-    title: str
     locations: tuple[str, ...]
-    application_url: str
 
 
 class RawJob(BaseModel):

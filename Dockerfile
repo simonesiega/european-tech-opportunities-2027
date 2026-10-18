@@ -15,8 +15,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Pin reviewed Debian security revisions; refresh these versions when fixing a
-# vulnerability in the pinned base image.
+# Apply security fixes not yet included in the pinned base image.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
         gzip=1.13-1+deb13u1 \
@@ -58,7 +57,7 @@ ENTRYPOINT ["/app/.venv/bin/opportunities"]
 CMD ["--help"]
 
 
-# Bun installs locked dependencies in a disposable stage; only build output reaches runtime.
+# Keep Bun and development dependencies out of the runtime image.
 FROM oven/bun:1.4.2-alpine@sha256:d888c0ae6c86d7866ff10c5aafdd9077b36aee6455b33dd270fb93c0dd5cef6f AS site-deps
 WORKDIR /app
 COPY site/package.json site/bun.lock ./
@@ -89,8 +88,8 @@ ENV NODE_ENV=production \
     OPPORTUNITIES_PUBLIC_EXPORT_DIR=/app/data/exports \
     OPPORTUNITIES_SCHEMA_PATH=/app/schemas/opportunities-v1.schema.json
 
-# Install exact security revisions until they are incorporated into the pinned
-# base image, then omit npm because the standalone server does not use it.
+# Apply security fixes not yet included in the pinned base image.
+# The standalone server does not need npm.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
         gzip=1.13-1+deb13u1 \

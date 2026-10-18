@@ -119,8 +119,12 @@ publication_file "$local_source" /state/final /state/final.upload-1-1 "$mutable"
         assert "rename" not in operations
 
 
-@pytest.mark.parametrize("gate", ["success", "checksum", "stats"])
+@pytest.mark.parametrize(
+    "gate", ["success", "checksum", "stats", "replacement", "replacement-fifo"]
+)
 def test_latest_requires_round_trip_validation(tmp_path: Path, gate: str) -> None:
+    if gate == "replacement-fifo" and sys.platform == "win32":
+        pytest.skip("Named pipes require POSIX")
     store = (ROOT / "scripts/database/canonical_state_store.sh").read_text()
     publish = store[
         store.index("publish_state() {") : store.rindex('if [[ "$operation" == "restore" ]]; then')
@@ -145,7 +149,16 @@ latest_manifest="$work_dir/latest.json"
 reject_sidecars() {{ :; }}
 set_output() {{ :; }}
 publication_directories() {{ :; }}
-publication_file() {{ echo "promote $2"; }}
+publication_file() {{
+  echo "promote $2"
+  if [[ "$2" == "$remote_latest" ]]; then
+    if [[ "{gate}" == replacement ]]; then
+      printf '%s' 'preserve late staging' >"${{CANONICAL_STATE_DATABASE}}.snapshot-copy"
+    elif [[ "{gate}" == replacement-fifo ]]; then
+      mkfifo "${{CANONICAL_STATE_DATABASE}}.snapshot-copy"
+    fi
+  fi
+}}
 publication_download() {{
   case "$1" in
     *.db) cp "$work_dir/publish/opportunities.snapshot.db" "$2" ;;
@@ -164,7 +177,13 @@ snapshot_tool() {{
     return 1
   fi
 }}
-uv() {{ [[ "{gate}" != stats ]]; }}
+uv() {{
+  if [[ "$2" == opportunities ]]; then
+    [[ "{gate}" != stats ]]
+  else
+    "{Path(sys.executable).as_posix()}" "${{@:3}}"
+  fi
+}}
 {publish}
 publish_state
 '''
@@ -183,5 +202,17 @@ publish_state
     )
     assert not (tmp_path / "blocked-network.log").exists(), result.stderr
     assert (result.returncode == 0) == (gate == "success"), result.stderr
-    assert ("promote /state/canonical-state/latest.json" in result.stdout) == (gate == "success")
+    assert ("promote /state/canonical-state/latest.json" in result.stdout) == (
+        gate in {"success", "replacement", "replacement-fifo"}
+    )
+    assert database.read_text() == "synthetic"
+    staging = Path(f"{database}.snapshot-copy")
+    if gate == "replacement":
+        assert staging.read_text() == "preserve late staging"
+    elif gate == "replacement-fifo":
+        assert staging.is_fifo()
+    else:
+        assert not staging.exists()
+    if gate.startswith("replacement"):
+        assert "Cannot create canonical replacement staging" in result.stderr
     assert "retry" not in result.stderr

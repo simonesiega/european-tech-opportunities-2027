@@ -61,7 +61,7 @@ _OTHER_TECH_KEYWORDS = (
 
 @dataclass(frozen=True, slots=True)
 class ClassificationDecision:
-    """Describe the acceptance decision for one job."""
+    """Acceptance result and exclusion reason for one listing."""
 
     include: bool
     category: OpportunityCategory
@@ -70,11 +70,10 @@ class ClassificationDecision:
 
 
 class Classifier:
-    """Accept only title-explicit internships or new-grad roles in scope."""
+    """Strict classifier for title-explicit internships and new-grad roles."""
 
     def __init__(self, rules: ClassificationRules, target_cycle: int) -> None:
         self.target_cycle = target_cycle
-        # Copy nested categories so later configuration edits cannot change this instance.
         self._internship_keywords = rules.internship_keywords
         self._new_grad_keywords = rules.new_grad_keywords
         self._excluded_role_keywords = rules.excluded_role_keywords
