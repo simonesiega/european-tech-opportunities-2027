@@ -395,8 +395,9 @@ Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/t
 | `test_snapshot_store_preserves_a_mismatched_local_database` | Durable/local mismatch stops before downloading over unsnapshotted state |
 | `test_snapshot_store_rejects_sidecars_before_transfer` | Restore and publish both reject live sidecars without transfer or deletion |
 | `test_snapshot_absence_requires_successful_listing` | Only proven empty/missing stores permit absence; listing failures, malformed stores, missing pointers, and failed/empty manifest downloads stop |
+| `test_publication_preserves_preexisting_replacement_staging` | Files, directories, symlinks, dangling symlinks, and SQLite sidecars at final local replacement staging stop publication before transport and remain untouched with canonical and unrelated state |
 | `test_publication_reconciles_transport` | Immutable objects and the latest pointer resume after disconnects before, during, or after upload, after rename, and during download; reruns do not repeat completed writes, retries are bounded, and permission errors, conflicting bytes, or unexpected pointer changes fail closed |
-| `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum and statistics failures stop without transport retries |
+| `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum/statistics failures stop without retries, and late local replacement files or POSIX named pipes remain untouched without blocking even after pointer promotion |
 
 ### Workflow safety
 
@@ -511,6 +512,7 @@ Source: [opportunity-api.test.ts](../site/tests/unit/opportunity-api.test.ts).
 | `filters combined search and exact country/company/category/type and snapshot recency` | Six one-predicate near-misses prove every API filter participates independently in AND semantics; query normalization, snapshot recency, and nonmutating input remain covered |
 | `stable sorting, numeric ID ties, bounded pagination and empty/out-of-range pages` | Company pagination and role sorting have different expected ID orders, so a default comparator cannot satisfy both; empty/out-of-range envelopes remain truthful; first-seen numeric ties belong to the microsecond matrix |
 | `orders distinct microseconds chronologically before applying numeric ID ties` | Submillisecond differences and equivalent offset/SQLite instants sort correctly without mutating inputs |
+| `orders a large tied population exactly, including long IDs and leading-zero ties` | More than 1,000 equal-time rows paginate in exact numeric-ID order beyond JavaScript's safe integer range, with stable textual ties and unchanged inputs |
 | `publishes UTC RFC 3339 first-seen timestamps without losing microseconds` | API serialization normalizes valid storage timestamps and rejects unreadable values |
 | `invalid snapshot timestamps cannot turn recency results into a successful empty list` | Bad first-seen or collection dates fail rather than silently filtering every row out |
 | `stable explicit public field allowlist` | Extra lifecycle/path fields on incoming rows cannot leak through the API envelope |
@@ -566,6 +568,7 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `fails closed for missing, invalid, and escaping pointers` | Linux release resolution rejects traversal, missing pointers, and symlink escapes |
 | `does not expose a non-public directory name through a release alias` | A numeric alias cannot leak a private resolved directory name |
 | `standalone startup preserves %s data paths after Next changes directory` | Default/relative/absolute runtime paths remain correct after standalone chdir and static assets remain available |
+| `Lighthouse resolves compatible Puppeteer imports without extract-zip` | Node resolves the same Puppeteer for Lighthouse's ESM and LHCI's CommonJS consumers, preserves connect/launch APIs, and cannot resolve the vulnerable archive extractor from the browser-management dependency |
 | `Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing` | The pinned security override stays compatible and rejects pathological synthetic listings within a subprocess timeout, without FTP access |
 
 ## Website HTTP and browser tests
@@ -651,6 +654,7 @@ Sources: [status.spec.ts](../site/tests/e2e/status.spec.ts) and [status-producti
 | `production status reads the selected dataset without modifying SQLite` | Built standalone status uses the configured release/fixed paths, emits production headers, and preserves database bytes |
 | `production CSP uses fresh nonces and blocks injected scripts without breaking hydration` | Parsed HTML must contain scripts sharing the fresh response nonce, unaffected by caller headers; the browser blocks stale-nonce scripts, inline handlers, and eval while theme and local-list hydration remain usable; framing and object policies remain restricted |
 | `production status fails closed without leaking details: ${failure}` | Missing/invalid/unmigrated databases; missing/invalid/non-UTF-8/oversized/mismatched metadata; and missing/changed/oversized downloads or nonregular files return safe 503 GET/HEAD responses without repairing state; POSIX named pipes cannot stall readers, and each restored fixture recovers |
+| `production downloads reject ${defect} ${format} files without stalling or leaking details` | CSV, JSON, and metadata downloads reject missing files, directories, and POSIX named pipes with sanitized GET/HEAD errors, then recover after fixture restoration |
 | `production status preserves SQLite and metadata microseconds independently` | Real production reads retain both clocks' independent microseconds |
 | `production status counts only open rows and represents a never-collected empty dataset` | Closed rows and missing success history yield a genuine empty/null response, not fake freshness |
 | `production status follows release cutovers and rejects a missing pointer without legacy fallback` | Linux standalone requests follow immutable publication switches, reject missing current pointers, and recover after restoration |

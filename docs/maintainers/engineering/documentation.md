@@ -48,6 +48,7 @@ Root policies retain their authoritative wording and the contribution template r
 Comment intent, constraints, or a non-obvious tradeoff—not what a clear name or statement already says. Prefer one or two lines immediately above the relevant logic, using sentence case, complete sentences, and the surrounding language's comment syntax. Keep longer explanations in the canonical guide and link only when the local rationale is insufficient.
 
 - Explain evidence precedence, concurrency or cancellation behavior, trust boundaries, and compatibility workarounds where they are easy to misread.
+- Use noun phrases for class summaries and imperative sentences for function contracts. Avoid summaries that merely repeat the identifier.
 - Use docstrings to state a function's contract, including important side effects or input assumptions. Check the implementation before strengthening a claim such as “atomic,” “read-only,” or “bounded.”
 - Remove obsolete explanations and commented-out code, but preserve shebangs, tool directives, licenses, generated markers, and useful configuration examples.
 - Do not add comments to every function, test, component, or configuration entry. Clear code and descriptive test names need no narration.
@@ -88,6 +89,20 @@ When the configured file is named `README.md` and its sibling `docs/translations
 When adding or changing localized presentation, verify it against reviewed state or disposable synthetic fixtures; never generate committed previews from empty local state. Identify traffic figures as historical snapshots, not current metrics. Dataset automation hands off the root README and all five translations together, with an explicit six-path PR allowlist. English remains the canonical reviewed-state barrier; translation updates cannot approve mismatched SQLite state.
 
 Source discovery, linting, and MkDocs navigation include the supported translations. Keep the language index, audience entry points, and `mkdocs.yml` navigation consistent. Run the source, lint, strict build, and rendered checks below, along with `uv run pytest tests/unit/test_readme_translations.py -q` for structure, reciprocal language navigation, and synchronized generated data. Review the language itself as well: structural tests do not establish translation quality.
+
+## Statistics and historical claims
+
+Keep three kinds of statistics separate:
+
+| Statistic | Owner and update path |
+|---|---|
+| Opportunity counts, collection time, and directory seal | Dataset workflows and the README renderer; never edit generated regions manually |
+| Python coverage | `scripts/docs/coverage_docs.py`, after a complete current offline coverage run; no production database is needed |
+| Traffic, users, visits, countries, and referral sources | Authored historical claims in English and all five README translations; not an Actions-generated counter |
+
+To refresh traffic figures, obtain an aggregate report from the authorized analytics dashboard, record its observation date and reporting period, and update the six authored README paragraphs through an ordinary documentation pull request. Distinguish page views, visitors, and visits rather than treating them as interchangeable. Keep figures approximate when the source is approximate; never invent missing totals or describe an old snapshot as live.
+
+Do not publish credentials, raw events, visitor identifiers, or private dashboard links. Do not add analytics credentials to collection workflows or use dataset rendering to update prose. Run the [documentation gates](#source-and-rendered-checks) and [localization checks](#readme-localization); a statistics-only documentation change does not deploy a dataset or require LinkedIn access.
 
 ## Source and rendered checks
 

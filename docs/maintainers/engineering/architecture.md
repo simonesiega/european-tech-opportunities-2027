@@ -43,6 +43,18 @@ These are contracts, not suggestions. Review [SECURITY.md](../../../SECURITY.md)
 | Website | `site/src/lib/`, `site/src/components/` | Server-only read-only queries; client-only interaction |
 | Operations | `scripts/`, `.github/workflows/` | Verified recovery, validation, review handoff and release-pointer deployment |
 
+## Read one listing through the code
+
+For a first code review, follow one listing rather than reading every module in directory order:
+
+1. Start with `CollectionPipeline.run` in `src/opportunities/pipeline/runner.py`. It connects search scheduling, fetching, classification, and per-search persistence. The CLI in `src/opportunities/cli/app.py` adds command preconditions and publication gates; it is not the place to start learning the classification rules.
+2. Follow `LinkedInScraper.scrape` in `src/opportunities/scrapers/linkedin.py` into `parse_search_page` and `parse_job_detail`. Then read `HttpFetcher.get_text` in `scrapers/http.py` for the separate authorization, pacing, retry, and source-stop policy.
+3. Read `Classifier.classify` alongside `normalize_locations`. Trace an accepted role and a rejected one through `tests/unit/test_classification.py`; the tests distinguish discovery hints from sufficient publication evidence.
+4. Follow `Repository.persist_success` in `src/opportunities/database/repository.py`. Read the stale-observation and failed-transaction cases in `tests/integration/test_repository.py` before changing lifecycle behavior. `tests/integration/test_runner.py` connects these boundaries with mocked collection and a real disposable database.
+5. Follow an open row into `public_exports.py` and `readme.py`, then into `site/src/lib/opportunities.ts`. The website does not rerun classification. Its directory component delegates URL state to `use-opportunity-directory.ts` and private browser state to `use-local-opportunities.ts`.
+
+For an offline end-to-end example, read `scripts/testing/create_site_fixture.py`: it creates synthetic listings through real migrations, repository methods, and exporters. Run it only through the [documented fixture setup](../getting-started/setup.md#run-the-website), never against production state. Use the [test inventory](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) to find the failure cases for a particular boundary.
+
 ## Discovery is not acceptance
 
 Search YAML controls **where to look**, not what may be published. Search cards undergo company/title prefilters before bounded detail fetching. Detail responses must independently contain title and company identity; a current card cannot make a generic HTTP-success page valid. Detail location may fall back to card location.

@@ -58,6 +58,7 @@ Set up a development environment, understand how listings are validated, or oper
 | Task | Guide |
 |---|---|
 | Inspect commands and their side effects | [CLI reference](maintainers/operations/cli.md) |
+| Run routine updates without a local checkout | [Operate from GitHub](maintainers/operations/automation.md#routine-operation-from-github) |
 | Configure workflows and protected environments | [Automation and operations](maintainers/operations/automation.md) |
 | Preserve, migrate, or recover canonical state | [Database and lifecycle](maintainers/operations/database.md) |
 | Build containers and release the application | [Containers and deployment](maintainers/operations/deployment.md) |

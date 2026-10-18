@@ -4,6 +4,10 @@
 
 This handbook covers development, system contracts, validation, and production operations. Use disposable databases with synthetic listings for development. Before production work, confirm the required approval, a verified recovery source, and exclusive writer access. If you want to browse roles or download listings, start with the [user guides](../users/README.md).
 
+## Operate from GitHub
+
+For routine maintenance without a local checkout, start with [routine operation from GitHub](operations/automation.md#routine-operation-from-github): collect, review the README proposal, deploy reviewed data separately, and verify production. The same guide identifies recovery choices and the security, dependency, and backup work that automation cannot eliminate. First-time operators must complete [production activation](operations/automation.md#first-production-activation) before relying on schedules.
+
 ## Develop offline
 
 1. Follow [local setup](getting-started/setup.md); do not use production SQLite or enable collection.
@@ -22,7 +26,7 @@ This handbook covers development, system contracts, validation, and production o
 
 | Area | Guide |
 |---|---|
-| Ownership, dependency direction, and generated projections | [Architecture and invariants](engineering/architecture.md) |
+| Ownership, dependency direction, and generated projections | [Architecture and invariants](engineering/architecture.md) · [Code-reading path](engineering/architecture.md#read-one-listing-through-the-code) |
 | Visual subsystem maps and implementation links | [Repository maps](../assets/diagram/README.md) · [Diagram source](../assets/diagram/source.md) |
 | Acceptance and rejection evidence | [Classification](engineering/classification.md) |
 | Discovery YAML, query identities, and request tiers | [Search registry](engineering/search-registry.md) |
