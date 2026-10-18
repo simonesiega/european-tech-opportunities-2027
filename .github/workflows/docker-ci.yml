@@ -198,8 +198,10 @@ jobs:
               image --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 "$image"
           done
 
-      - name: Check CLI image
-        run: docker compose run --rm opportunities --help
+      - name: Check default CLI startup does not initialize state
+        run: |
+          docker compose run --rm opportunities
+          test ! -e /srv/european-tech-opportunities-2027/data/opportunities.db
 
       - name: Check migration, site database access, public exports, and production headers
         run: |

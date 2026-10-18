@@ -118,7 +118,7 @@ The pipeline service uses:
 
 The website service mounts only the same host state directory in read-only mode. With `OPPORTUNITIES_RELEASE_ROOT=/app/data` it reads the database and exports from one selected `current` release per server operation; without it, it continues to use the legacy fixed paths. Switch only after the coordinated rollout in [Automation](automation.md#coordinated-first-rollout-and-rollback).
 
-Starting the website does **not** run a migration or initialize canonical state. In production, restore verified state and follow the [protected processing procedure](automation.md#collection-and-deployment-flow) for migration and export generation; the same commands may be run locally only against a disposable development database. A missing or unmigrated production database is an operational failure, not a reason to create an empty history. Do not run a migration concurrently with the canonical-state workflow.
+Default Compose startup shows CLI help and starts the read-only website; it does **not** run a migration or initialize canonical state. Database upgrades require an explicit `docker compose run --rm opportunities db-upgrade` maintenance command. In production, restore verified state and follow the [protected processing procedure](automation.md#collection-and-deployment-flow) for migration and export generation; the same commands may be run locally only against a disposable development database. A missing or unmigrated production database is an operational failure, not a reason to create an empty history. Do not run a migration concurrently with the canonical-state workflow.
 
 Expected container paths:
 
