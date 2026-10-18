@@ -28,18 +28,16 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
     () => newOpportunityIds(opportunities, previousVisit),
     [opportunities, previousVisit]
   );
-  const visibleOpportunities = useMemo(
-    () =>
-      opportunities.filter((item) => {
-        if (!state) return true;
-        const id = item.linkedinJobId;
-        if (localView === "hidden") return state.hidden.includes(id);
-        if (state.hidden.includes(id)) return false;
-        if (localView === "new") return newIds.has(id);
-        return localView === "all" || state[localView].includes(id);
-      }),
-    [opportunities, state, localView, newIds]
-  );
+  const visibleOpportunities = useMemo(() => {
+    if (!state || (localView === "all" && state.hidden.length === 0)) return opportunities;
+    return opportunities.filter((item) => {
+      const id = item.linkedinJobId;
+      if (localView === "hidden") return state.hidden.includes(id);
+      if (state.hidden.includes(id)) return false;
+      if (localView === "new") return newIds.has(id);
+      return localView === "all" || state[localView].includes(id);
+    });
+  }, [opportunities, state, localView, newIds]);
   const newCount = [...newIds].filter((id) => !state?.hidden.includes(id)).length;
   const isInteractive = state !== null;
   const {
@@ -83,7 +81,7 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
           <p className="mt-[7px] text-sm text-[var(--text-soft)] max-[600px]:max-w-[300px] max-[600px]:text-[13px] max-[600px]:leading-normal">
             {siteConfig.description}
           </p>
-          {/* Reserve summary space without publishing fabricated browser-local state. */}
+          {/* Reserve summary space until browser-local state is restored. */}
           <div className="mt-[7px] min-h-[calc(3lh+7px)] text-sm text-[var(--text-soft)] tabular-nums max-[600px]:min-h-[calc(5lh+7px)] max-[600px]:text-[13px] max-[600px]:leading-normal">
             <div className="space-y-[7px]">
               {state ? (

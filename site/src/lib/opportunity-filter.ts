@@ -25,6 +25,9 @@ export function filterOpportunities(
   const country = normalizeCountryFilter(filters.country);
   const period = FIRST_SEEN_OPTIONS.find((option) => option.value === filters.firstSeen);
   const cutoff = period ? referenceTimestamp - period.durationMs : null;
+  if (!query && !filters.company && !filters.category && !filters.type && !country && !period) {
+    return opportunities;
+  }
 
   return opportunities.filter((opportunity) => {
     if (

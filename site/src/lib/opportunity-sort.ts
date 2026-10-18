@@ -2,6 +2,9 @@ import {normalizeOpportunityTimestamp} from "@/lib/opportunity-presentation";
 import type {DirectorySort} from "@/types/directory";
 import type {Opportunity} from "@/types/opportunity";
 
+const TEXT_ORDER = new Intl.Collator("en");
+const NUMERIC_ID_ORDER = new Intl.Collator("en", {numeric: true});
+
 // Use the same ordering in the directory and API, without mutating their input rows.
 export function sortOpportunities(
   opportunities: Opportunity[],
@@ -31,13 +34,11 @@ export function sortOpportunities(
             : left.value > right.value
               ? 1
               : 0
-          : left.value.localeCompare(right.value, "en");
+          : TEXT_ORDER.compare(left.value, right.value);
       return (
         (descending ? -order : order) ||
-        right.opportunity.linkedinJobId.localeCompare(left.opportunity.linkedinJobId, "en", {
-          numeric: true,
-        }) ||
-        right.opportunity.linkedinJobId.localeCompare(left.opportunity.linkedinJobId, "en")
+        NUMERIC_ID_ORDER.compare(right.opportunity.linkedinJobId, left.opportunity.linkedinJobId) ||
+        TEXT_ORDER.compare(right.opportunity.linkedinJobId, left.opportunity.linkedinJobId)
       );
     })
     .map(({opportunity}) => opportunity);
