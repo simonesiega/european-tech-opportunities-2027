@@ -19,6 +19,70 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.mark.parametrize(
+    ("suffix", "kind"),
+    [
+        ("", "file"),
+        ("", "directory"),
+        ("", "symlink"),
+        ("", "dangling-symlink"),
+        ("-wal", "file"),
+        ("-shm", "file"),
+        ("-journal", "file"),
+    ],
+)
+def test_publication_preserves_preexisting_replacement_staging(
+    tmp_path: Path, suffix: str, kind: str
+) -> None:
+    database = tmp_path / "opportunities.db"
+    database.write_bytes(b"synthetic canonical state")
+    staging = Path(f"{database}.snapshot-copy{suffix}")
+    unrelated = tmp_path / "unrelated.db"
+    unrelated.write_bytes(b"another operation owns this state")
+    if kind == "directory":
+        staging.mkdir()
+        (staging / "evidence").write_bytes(b"preserve this directory")
+    elif kind in {"symlink", "dangling-symlink"}:
+        staging.symlink_to(unrelated if kind == "symlink" else tmp_path / "missing.db")
+    else:
+        staging.write_bytes(b"preserve this staging")
+    key = tmp_path / "key"
+    hosts = tmp_path / "known_hosts"
+    key.write_text("placeholder", encoding="utf-8")
+    hosts.write_text("placeholder", encoding="utf-8")
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts/database/canonical_state_store.sh"), "publish"],
+        cwd=tmp_path,
+        env={
+            **offline_shell_environment(tmp_path),
+            "VPS_BACKUP_HOST": "test.invalid",
+            "VPS_BACKUP_SSH_KEY": str(key),
+            "VPS_BACKUP_KNOWN_HOSTS": str(hosts),
+            "CANONICAL_STATE_DATABASE": str(database),
+            "CANONICAL_STATE_WORK_DIR": str(tmp_path / "work"),
+            "GITHUB_REPOSITORY": "example/opportunities",
+            "GITHUB_RUN_ID": "123",
+            "GITHUB_RUN_ATTEMPT": "1",
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode != 0
+    assert "replacement staging" in result.stderr
+    assert not (tmp_path / "blocked-network.log").exists(), result.stderr
+    assert database.read_bytes() == b"synthetic canonical state"
+    assert unrelated.read_bytes() == b"another operation owns this state"
+    if kind == "directory":
+        assert (staging / "evidence").read_bytes() == b"preserve this directory"
+    elif kind in {"symlink", "dangling-symlink"}:
+        assert staging.is_symlink()
+        assert staging.readlink() == (unrelated if kind == "symlink" else tmp_path / "missing.db")
+    else:
+        assert staging.read_bytes() == b"preserve this staging"
+
+
+@pytest.mark.parametrize(
     ("mode", "success"),
     [
         ("missing-store", True),
