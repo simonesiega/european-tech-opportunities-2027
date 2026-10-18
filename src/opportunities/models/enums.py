@@ -1,4 +1,4 @@
-"""Small finite-value types used by the focused LinkedIn pipeline."""
+"""Shared categories, employment types, and lifecycle statuses."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from enum import StrEnum
 
 
 class OpportunityCategory(StrEnum):
-    """Enumerate supported technology opportunity categories."""
+    """Technology categories recognized by the classifier."""
 
     ARTIFICIAL_INTELLIGENCE = "artificial-intelligence"
     CLOUD_DEVOPS_INFRASTRUCTURE = "cloud-devops-infrastructure"
@@ -40,21 +40,21 @@ class OpportunityCategory(StrEnum):
 
 
 class EmploymentType(StrEnum):
-    """Enumerate the two opportunity types published by the directory."""
+    """Opportunity types published by the directory."""
 
     INTERNSHIP = "internship"
     NEW_GRAD = "new-grad"
 
 
 class JobStatus(StrEnum):
-    """Enumerate job lifecycle states."""
+    """Open and closed listing states."""
 
     OPEN = "open"
     CLOSED = "closed"
 
 
 class RunStatus(StrEnum):
-    """Enumerate search-run outcomes."""
+    """Collection outcomes, including partially successful batches."""
 
     SUCCESS = "success"
     PARTIAL = "partial"

@@ -20,7 +20,7 @@ _LAYOUT_PATTERN = re.compile(
 
 @dataclass(frozen=True, slots=True)
 class SearchRegistryLayout:
-    """Hold generated counts for each registry group."""
+    """Search counts for the generated registry directory map."""
 
     roles: int
     companies: int
@@ -73,7 +73,6 @@ def _render_layout_block(content: str, layout: SearchRegistryLayout) -> str:
 
 
 def _layout_block(layout: SearchRegistryLayout) -> str:
-    """Build the registry layout documentation block."""
     return (
         "```text\n"
         "configs/searches/\n"

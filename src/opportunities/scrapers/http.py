@@ -62,7 +62,7 @@ class FetchError(RuntimeError):
 
 
 class HttpFetcher:
-    """Fetch public HTML with retries, host pacing, and response-size limits."""
+    """Public HTML client with bounded retries, host pacing, and response sizes."""
 
     def __init__(
         self,
@@ -112,11 +112,10 @@ class HttpFetcher:
         self._blocked_challenge = False
 
     async def __aenter__(self) -> HttpFetcher:
-        """Open the asynchronous HTTP client context."""
         return self
 
     async def __aexit__(self, *_args: object) -> None:
-        """Close the asynchronous HTTP client context."""
+        """Close an owned client, leaving injected clients to their callers."""
         if self._owns_client:
             await self._client.aclose()
 

@@ -26,7 +26,7 @@ _DEFAULT_CONFIG_DIR = _PACKAGED_CONFIG_DIR if _PACKAGED_CONFIG_DIR.is_dir() else
 
 
 class Settings(BaseModel):
-    """Define validated application settings."""
+    """Validated application settings with source access disabled by default."""
 
     # CLI validation errors must not echo environment values or credentials from
     # a rejected database URL. Field names and validation reasons remain visible.

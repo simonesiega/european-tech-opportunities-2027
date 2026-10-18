@@ -33,7 +33,7 @@ class SnapshotError(ValueError):
 
 @dataclass(frozen=True)
 class PreviousSnapshot:
-    """Reference the previous immutable database and manifest."""
+    """Object keys for the previous immutable database and manifest."""
 
     database_key: str
     manifest_key: str
@@ -41,7 +41,7 @@ class PreviousSnapshot:
 
 @dataclass(frozen=True)
 class Retention:
-    """Describe snapshot retention metadata for restricted storage."""
+    """Storage policy and retention deadline for a snapshot."""
 
     policy: str
     days: int
@@ -50,7 +50,7 @@ class Retention:
 
 @dataclass(frozen=True)
 class SnapshotSource:
-    """Identify the workflow execution that produced a snapshot."""
+    """Repository, workflow run, and attempt that produced a snapshot."""
 
     repository: str
     run_id: str

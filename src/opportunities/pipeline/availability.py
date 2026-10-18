@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class AvailabilityAuditResult:
-    """Summarize a bounded pass and the remaining due backlog."""
+    """Availability outcomes, source stops, and deferred backlog for one batch."""
 
     checked: int
     available: int

@@ -27,7 +27,7 @@ CountryCode = Annotated[str, Field(pattern=r"^[A-Z]{2}$")]
 
 
 class SearchQualityCounts(BaseModel):
-    """Keep discovery counts separate from classified details, which include rechecks."""
+    """Discovery and classified-detail counts, with rechecks counted only as details."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -44,7 +44,7 @@ class SearchQualityCounts(BaseModel):
 
 
 class DataQualitySnapshot(BaseModel):
-    """Allow only validated aggregate observations, never listing or diagnostic text."""
+    """Validated aggregate observations without listing or diagnostic text."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

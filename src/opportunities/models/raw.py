@@ -16,7 +16,7 @@ MAX_DESCRIPTION_CHARS = 200_000
 
 @dataclass(frozen=True, slots=True)
 class KnownJob:
-    """Describe an active job eligible for availability rechecks."""
+    """Stored listing identity and display fields for availability rechecks."""
 
     source_job_id: str
     company: str

@@ -30,7 +30,7 @@ Clock = Callable[[], datetime]
 
 
 class Scraper(Protocol):
-    """Define the scraper interface used by the pipeline."""
+    """Scraper contract for collecting one search and its known listings."""
 
     async def scrape(
         self,
@@ -45,7 +45,7 @@ class Scraper(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class SearchOutcome:
-    """Describe the outcome of one configured search."""
+    """Timing, collection result, and diagnostics for one search."""
 
     search: LinkedInSearchConfig
     run_id: str
@@ -62,7 +62,7 @@ class SearchOutcome:
 
 @dataclass(frozen=True, slots=True)
 class PipelineResult:
-    """Summarize all outcomes from a pipeline run."""
+    """Combined search outcomes and persistence counts for one run."""
 
     status: RunStatus
     successful_searches: int
@@ -106,7 +106,7 @@ class PipelineResult:
 
 
 class CollectionPipeline:
-    """Coordinate collection, classification, and persistence."""
+    """Collection orchestrator with per-search persistence and failure isolation."""
 
     def __init__(
         self,
@@ -222,8 +222,7 @@ class CollectionPipeline:
         return result, jobs, excluded
 
     def _classify(self, result: LinkedInScrapeResult) -> tuple[list[DiscoveredJob], int]:
-        """Classify scraped jobs and collect accepted records."""
-        # Duplicate cards or rechecks must not produce multiple records for one job ID.
+        """Deduplicate accepted jobs by source ID and count exclusions."""
         jobs: dict[str, DiscoveredJob] = {}
         excluded = 0
         for raw in result.positions:
@@ -262,12 +261,11 @@ class CollectionPipeline:
     async def _fetch_all(
         self, searches: list[LinkedInSearchConfig], fetcher: TextFetcher
     ) -> list[SearchOutcome]:
-        """Run selected searches concurrently within configured limits."""
+        """Collect concurrently, skipping queued searches after a source stop."""
 
         stopped: FetchError | None = None
 
         async def fetch(search: LinkedInSearchConfig) -> SearchOutcome:
-            """Collect one search while isolating its errors."""
             nonlocal stopped
             run_id = str(uuid.uuid4())
             started_at = self.clock()

@@ -16,7 +16,7 @@ R = TypeVar("R")
 
 
 class Benchmark(Protocol):
-    """Describe the callable interface exposed by pytest-benchmark."""
+    """Typed callable contract for the pytest-benchmark fixture."""
 
     def __call__(self, target: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> R:
         """Measure repeated calls and return the final result."""

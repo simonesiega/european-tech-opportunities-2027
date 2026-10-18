@@ -26,7 +26,7 @@ from opportunities.utils.time import ensure_utc
 
 @dataclass(frozen=True, slots=True)
 class PersistSummary:
-    """Summarize database changes from persistence."""
+    """Listing lifecycle counts from a persistence operation."""
 
     new: int = 0
     updated: int = 0
@@ -45,7 +45,7 @@ class PersistSummary:
 
 @dataclass(frozen=True, slots=True)
 class AvailabilityChanges:
-    """Summarize changes made by an availability audit batch."""
+    """Deletion and reopening counts from an availability audit."""
 
     deleted: int = 0
     reopened: int = 0
@@ -53,7 +53,7 @@ class AvailabilityChanges:
 
 @dataclass(frozen=True, slots=True)
 class DatabaseStats:
-    """Summarize aggregate database statistics."""
+    """Aggregate listing and collection-run statistics."""
 
     total: int
     open: int
@@ -66,7 +66,7 @@ class DatabaseStats:
 
 @dataclass(frozen=True, slots=True)
 class SearchHealth:
-    """Summarize the latest health of a configured search."""
+    """Outcome and counters from a configured search's latest run."""
 
     status: str
     finished_at: datetime
@@ -77,7 +77,7 @@ class SearchHealth:
 
 
 class Repository:
-    """Own short SQLite transactions for canonical lifecycle mutations."""
+    """Canonical lifecycle storage with short, per-operation SQLite transactions."""
 
     def __init__(self, factory: sessionmaker[Session], settings: Settings) -> None:
         self.factory = factory

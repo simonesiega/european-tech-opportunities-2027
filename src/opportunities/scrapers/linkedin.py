@@ -88,7 +88,7 @@ class LinkedInPayloadError(ValueError):
 
 
 class TextFetcher(Protocol):
-    """Define the text-fetching interface for LinkedIn collection and availability checks."""
+    """Validated HTML transport used by collection and availability checks."""
 
     async def get_text(self, url: str) -> str:
         """Fetch one URL and return validated text."""
@@ -97,7 +97,7 @@ class TextFetcher(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class LinkedInSearchCard:
-    """Hold a parsed LinkedIn search-result card."""
+    """Listing identity and display fields parsed from a search card."""
 
     job_id: str
     title: str
@@ -108,7 +108,7 @@ class LinkedInSearchCard:
 
 @dataclass(frozen=True, slots=True)
 class SearchPageResult:
-    """Hold parsed cards and page-level warnings."""
+    """Parsed search cards and malformed-card warnings for one page."""
 
     cards: tuple[LinkedInSearchCard, ...]
     warnings: tuple[str, ...] = ()
@@ -116,7 +116,7 @@ class SearchPageResult:
 
 @dataclass(frozen=True, slots=True)
 class LinkedInScrapeResult:
-    """Summarize one complete LinkedIn search."""
+    """Parsed listings, warnings, and unavailability evidence from one search."""
 
     positions: list[RawJob]
     warnings: tuple[str, ...]
@@ -323,7 +323,7 @@ def _extract_start_date(title: str, description: str | None) -> str | None:
 
 
 class LinkedInScraper:
-    """Collect paginated cards and details through one provider-specific path."""
+    """Bounded guest-HTML collector with shared in-flight detail requests."""
 
     def __init__(
         self,

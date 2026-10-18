@@ -1,4 +1,4 @@
-"""Minimal structured logging without an additional runtime dependency."""
+"""JSON logging with an allowlist of structured fields."""
 
 from __future__ import annotations
 
@@ -10,10 +10,9 @@ _SAFE_EXTRA_FIELDS = frozenset({"attempt", "delay_seconds", "error_code"})
 
 
 class JsonFormatter(logging.Formatter):
-    """Format one-line JSON with only explicitly approved structured fields."""
+    """One-line JSON formatter with allowlisted extras and exception types only."""
 
     def format(self, record: logging.LogRecord) -> str:
-        """Format one log record as compact JSON."""
         payload: dict[str, object] = {
             "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "level": record.levelname.lower(),
@@ -29,7 +28,7 @@ class JsonFormatter(logging.Formatter):
 
 
 def configure_logging(level: str = "INFO", *, json_output: bool = True) -> None:
-    """Configure application logging."""
+    """Replace root handlers with one stderr handler in JSON or plain-text format."""
     handler = logging.StreamHandler()
     handler.setFormatter(
         JsonFormatter() if json_output else logging.Formatter("%(levelname)s %(message)s")
