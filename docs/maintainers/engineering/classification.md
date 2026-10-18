@@ -22,7 +22,7 @@ Title opportunity years have priority over description context. A conflicting ti
 
 Internship graduation/eligibility years (for example, “graduating in 2027”) are not opportunity-cycle evidence. Title-explicit New Grad roles use title/contextual opportunity years as hiring-cycle evidence, so explicit 2025/2026 roles are rejected.
 
-An explicit target-cycle listing does not require posting-age metadata. Relative posting ages are approximate: unknown or lower-bound ages such as `30+ days ago` are not fabricated into exact dates. Missing posting metadata for an existing job is not closure evidence.
+An explicit target-cycle listing does not require posting-age metadata. Relative posting ages are approximate: unknown, lower-bound ages such as `30+ days ago`, and malformed ages such as `-5 days ago` are not fabricated into exact dates. Signs and punctuation are preserved when validating posting-age text. Missing posting metadata for an existing job is not closure evidence.
 
 Changing `OPPORTUNITIES_TARGET_CYCLE` alone does **not** roll the product forward: the posting floor, search window, public copy, fixtures and policy require a coordinated review.
 

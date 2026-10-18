@@ -153,10 +153,7 @@ class Repository:
             return tuple(
                 KnownJob(
                     source_job_id=job.linkedin_job_id,
-                    company=job.company,
-                    title=job.title,
                     locations=(job.location,),
-                    application_url=job.link,
                 )
                 for job in rows
             )

@@ -18,6 +18,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Reject malformed signed or punctuated posting ages instead of normalizing them into trusted recency evidence; preserve explicit-cycle acceptance without posting metadata.
 - Document the GitHub-only operating loop, ongoing maintenance, and statistics ownership; align database auditing guidance with the three-day update cadence.
 - Correct the privacy notice's README image-provider disclosure.
 - Reuse fixed-locale sort collators, normalize distinct locations once, and avoid repeating unfiltered hydration sorting to reduce large-directory rendering work.
@@ -34,6 +35,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Removed
 
+- Remove unused stored title/company and URL fallback plumbing from detail rechecks; require fresh detail identity and construct canonical links from numeric job IDs.
 - Remove the standalone promotional MP3 from the public tree and documentation allowlists; document Pixabay soundtrack permissions while preserving the scored film.
 
 ### Security

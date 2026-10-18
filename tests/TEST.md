@@ -125,7 +125,7 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 | Test | Behavior protected |
 |---|---|
 | `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, transport/HTTP failure, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; only HTTP 429 may qualify for partial publication and diagnostics are sanitized |
-| `test_collection_uses_explicit_cycle_when_posting_age_is_missing` | Real parsing/classification persists explicit-cycle roles but rejects yearless roles without date evidence |
+| `test_collection_requires_cycle_or_usable_posting_age` | Real parsing/classification persists explicit-cycle roles despite missing, lower-bound, or malformed ages; yearless roles require usable posting evidence |
 | `test_malformed_detail_does_not_publish_a_current_search_card` | A plausible card cannot substitute for missing detail identity or produce a successful collection |
 | `test_concurrent_search_outcomes_apply_in_observation_order` | Reversed fetched outcomes still persist the newest metadata and both search associations |
 | `test_equal_finish_times_keep_configured_search_order` | Equal timestamps are deterministic by configured order, not random run IDs |
@@ -262,17 +262,18 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_linkedin_search_page_parser_extracts_stable_cards` | Guest cards yield numeric identities, company evidence, and canonical links |
+| `test_linkedin_search_page_parser_extracts_stable_cards` | Guest cards yield numeric identities and company evidence; canonical links are constructed by detail parsing |
 | `test_search_page_accepts_empty_guest_fragments` | Legitimate empty fragments are distinguished from malformed nonempty responses |
 | `test_search_page_rejects_unrecognized_nonempty_documents` | Sign-in/generic documents cannot masquerade as successful empty searches |
 | `test_linkedin_search_page_rejects_more_than_one_page_of_cards` | An oversized page cannot evade the 25-card bound |
 | `test_closed_application_notice_uses_semantic_alert_instead_of_hashed_classes` | Explicit semantic closure alerts survive unstable source class names |
 | `test_closed_application_notice_supports_guest_page_markup` | Guest closure markup remains recognized independently of the public-page form |
 | `test_closed_application_words_outside_an_alert_do_not_close_job` | Description text mentioning closure is not closure evidence |
-| `test_linkedin_job_detail_parser_extracts_description` | Detail identity, description, start date, and explicit industries survive parsing |
+| `test_linkedin_job_detail_parser_extracts_description` | Detail identity, canonical listing URL, description, start date, and explicit industries survive parsing |
 | `test_current_search_card_cannot_supply_missing_detail_identity` | Empty/partial detail pages cannot borrow title or company from a current card |
-| `test_linkedin_job_detail_infers_posted_at_from_relative_age` | Relative posting age is anchored to the injected observation clock |
+| `test_linkedin_job_detail_infers_posted_at_from_relative_age` | Plain/reposted ages, case and whitespace variants, today, and just-now evidence stay anchored to the injected observation clock |
 | `test_lower_bound_posting_age_is_not_treated_as_exact_recency` | “30+ days” cannot invent a precise eligible date |
+| `test_malformed_posting_age_is_not_normalized_into_recency` | ASCII/Unicode negative signs and hyphenated ages cannot become exact posting evidence through punctuation stripping |
 | `test_unbounded_relative_posting_age_is_not_treated_as_exact_evidence` | Huge relative ages cannot overflow or become trusted dates |
 | `test_linkedin_job_detail_extracts_criteria_without_linkedin_classes` | Semantic criteria labels work without source-specific CSS classes |
 | `test_linkedin_job_detail_does_not_infer_industries_from_description` | Unstructured prose cannot invent structured industry metadata |
@@ -286,7 +287,8 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 | `test_linkedin_scraper_leaves_cycle_and_posting_evidence_to_classifier` | The scraper forwards candidates on both sides of the posting floor instead of duplicating acceptance policy |
 | `test_linkedin_company_filter_is_applied_before_detail_fetch` | Company scope rejects a title-eligible out-of-scope card before requesting its detail |
 | `test_stale_search_card_detail_404_confirms_known_job_unavailability` | A stale visible card does not negate explicit known-job absence |
-| `test_known_job_recheck_requires_identity_in_the_detail_response` | Malformed rechecks remain inconclusive and cannot synthesize availability from stored identity |
+| `test_known_job_recheck_requires_identity_in_the_detail_response` | Empty, generic, title-only, and company-only rechecks remain inconclusive and cannot synthesize availability from stored identity |
+| `test_known_job_recheck_uses_fresh_identity_and_only_falls_back_for_location` | Rechecks use current detail title/company and canonical ID links; detail location overrides stored location, which remains an optional fallback |
 | `test_known_job_404_is_reported_as_confirmed_unavailable` | Bounded rechecks report explicit absence even when the job is not on the search page |
 | `test_linkedin_access_challenge_is_rejected` | Parser-level challenge detection cannot become valid search results |
 | `test_detail_challenge_stops_later_details_and_searches` | A real fetcher/parser combination propagates a detail challenge across the remaining source work |
