@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Ultima raccolta completata con successo: 15 ottobre 2026 alle 23:37 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-725-2563eb?style=for-the-badge" alt="Offerte attive: 725" />
+  <strong>Ultima raccolta completata con successo: 19 ottobre 2026 alle 11:08 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offerte%20attive-726-2563eb?style=for-the-badge" alt="Offerte attive: 726" />
   <img src="https://img.shields.io/badge/Tirocini-348-16a34a?style=for-the-badge" alt="Tirocini: 348" />
-  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Posizioni New Grad: 377" />
+  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="Posizioni New Grad: 378" />
 </p>
-<!-- Public directory state v1 sha256: 306c1b26d920683e4b77d17d2bd71b27426d86ee184d54fca8b7cb404d0b7b42 -->
+<!-- Public directory state v1 sha256: 68ed34b5ceeeaf8809b2165cc7d06a73def13b5d2f6b98412805b1df1472e638 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -57,22 +57,22 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 725 (Tirocini: 348 · New Grad: 377)<br>
-**Ultima raccolta completata con successo:** 15 ottobre 2026 alle 23:37 UTC
+**Offerte aperte:** 726 (Tirocini: 348 · New Grad: 378)<br>
+**Ultima raccolta completata con successo:** 19 ottobre 2026 alle 11:08 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 377 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 378 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
+| Sage | Software Engineering Graduate | Barcelona, Catalonia, Spain | [Apri](<https://www.linkedin.com/jobs/view/4479294828>) |
 | Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Apri](<https://www.linkedin.com/jobs/view/4477972408>) |
 | HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [Apri](<https://www.linkedin.com/jobs/view/4475611055>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Apri](<https://www.linkedin.com/jobs/view/4477857755>) |
 | EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Apri](<https://www.linkedin.com/jobs/view/4477838098>) |
-| Beyond Sports | Graduate Software Engineers &amp; Product Designers - Beyond Sports Alkmaar | Alkmaar, North Holland, Netherlands | [Apri](<https://www.linkedin.com/jobs/view/4477693947>) |
 
 ### Ultimi tirocini
 

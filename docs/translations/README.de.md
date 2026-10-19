@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Letzte erfolgreiche Datenerfassung: 15. Oktober 2026 um 23:37 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-725-2563eb?style=for-the-badge" alt="Offene Stellen: 725" />
+  <strong>Letzte erfolgreiche Datenerfassung: 19. Oktober 2026 um 11:08 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offene%20Stellen-726-2563eb?style=for-the-badge" alt="Offene Stellen: 726" />
   <img src="https://img.shields.io/badge/Praktika-348-16a34a?style=for-the-badge" alt="Praktika: 348" />
-  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 377" />
+  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 378" />
 </p>
-<!-- Public directory state v1 sha256: 306c1b26d920683e4b77d17d2bd71b27426d86ee184d54fca8b7cb404d0b7b42 -->
+<!-- Public directory state v1 sha256: 68ed34b5ceeeaf8809b2165cc7d06a73def13b5d2f6b98412805b1df1472e638 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -57,22 +57,22 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 725 (Praktika: 348 · New Grad: 377)<br>
-**Letzte erfolgreiche Datenerfassung:** 15. Oktober 2026 um 23:37 UTC
+**Offene Stellen:** 726 (Praktika: 348 · New Grad: 378)<br>
+**Letzte erfolgreiche Datenerfassung:** 19. Oktober 2026 um 11:08 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 377 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 378 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
+| Sage | Software Engineering Graduate | Barcelona, Catalonia, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4479294828>) |
 | Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4477972408>) |
 | HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [Ansehen](<https://www.linkedin.com/jobs/view/4475611055>) |
 | Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ansehen](<https://www.linkedin.com/jobs/view/4477857755>) |
 | EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ansehen](<https://www.linkedin.com/jobs/view/4477838098>) |
-| Beyond Sports | Graduate Software Engineers &amp; Product Designers - Beyond Sports Alkmaar | Alkmaar, North Holland, Netherlands | [Ansehen](<https://www.linkedin.com/jobs/view/4477693947>) |
 
 ### Neueste Praktika
 
