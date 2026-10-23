@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 10 月 19 日 11:08（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-726-2563eb?style=for-the-badge" alt="在招职位总数：726" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-348-16a34a?style=for-the-badge" alt="实习岗位：348" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-378-9333ea?style=for-the-badge" alt="应届生岗位：378" />
+  <strong>最近一次成功采集：2026 年 10 月 23 日 12:20（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-751-2563eb?style=for-the-badge" alt="在招职位总数：751" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-374-16a34a?style=for-the-badge" alt="实习岗位：374" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-377-9333ea?style=for-the-badge" alt="应届生岗位：377" />
 </p>
-<!-- Public directory state v1 sha256: 68ed34b5ceeeaf8809b2165cc7d06a73def13b5d2f6b98412805b1df1472e638 -->
+<!-- Public directory state v1 sha256: 9af4fa66228629040434d4b145a20e6d2e218988a7106410bbe38f86515231b6 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -60,34 +60,34 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 726（实习：348 · New Grad：378）<br>
-**最近一次成功采集：** 2026 年 10 月 19 日 11:08（UTC）
+**在招职位：** 751（实习：374 · New Grad：377）<br>
+**最近一次成功采集：** 2026 年 10 月 23 日 12:20（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 378 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 377 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
-| Sage | Software Engineering Graduate | Barcelona, Catalonia, Spain | [查看](<https://www.linkedin.com/jobs/view/4479294828>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [查看](<https://www.linkedin.com/jobs/view/4477972408>) |
-| HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [查看](<https://www.linkedin.com/jobs/view/4475611055>) |
-| Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [查看](<https://www.linkedin.com/jobs/view/4477857755>) |
-| EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [查看](<https://www.linkedin.com/jobs/view/4477838098>) |
+| Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [查看](<https://www.linkedin.com/jobs/view/4481351802>) |
+| Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [查看](<https://www.linkedin.com/jobs/view/4481130276>) |
+| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [查看](<https://www.linkedin.com/jobs/view/4482126351>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [查看](<https://www.linkedin.com/jobs/view/4480498081>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [查看](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### 最新实习岗位
 
-以下展示 348 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 374 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
-| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [查看](<https://www.linkedin.com/jobs/view/4477946355>) |
-| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [查看](<https://www.linkedin.com/jobs/view/4476848934>) |
-| Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [查看](<https://www.linkedin.com/jobs/view/4476853550>) |
-| SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [查看](<https://www.linkedin.com/jobs/view/4475243096>) |
-| Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [查看](<https://www.linkedin.com/jobs/view/4475211197>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Würselen, North Rhine-Westphalia, Germany | [查看](<https://www.linkedin.com/jobs/view/4472364767>) |
+| Cytiva | Intern PLC developer thesis worker | Uppsala, Uppsala County, Sweden | [查看](<https://www.linkedin.com/jobs/view/4480052184>) |
+| Intel | Intern Software QA Test Engineer | Gdańsk, Pomorskie, Poland | [查看](<https://www.linkedin.com/jobs/view/4481123212>) |
+| KPMG Italy | Junior ServiceNow Developer \(Intern\) | Milan, Lombardy, Italy | [查看](<https://www.linkedin.com/jobs/view/4471999690>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Munich, Bavaria, Germany | [查看](<https://www.linkedin.com/jobs/view/4481101926>) |
 <!-- END OPPORTUNITIES -->
 
 发现尚未收录的合适职位？欢迎 [推荐职位](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml)。提交的职位会在审核后发布。
