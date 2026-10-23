@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 19 de octubre de 2026 a las 11:08 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-726-2563eb?style=for-the-badge" alt="Ofertas activas: 726" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-348-16a34a?style=for-the-badge" alt="Prácticas: 348" />
-  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="Puestos New Grad: 378" />
+  <strong>Última recopilación realizada con éxito: 23 de octubre de 2026 a las 12:20 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-751-2563eb?style=for-the-badge" alt="Ofertas activas: 751" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-374-16a34a?style=for-the-badge" alt="Prácticas: 374" />
+  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Puestos New Grad: 377" />
 </p>
-<!-- Public directory state v1 sha256: 68ed34b5ceeeaf8809b2165cc7d06a73def13b5d2f6b98412805b1df1472e638 -->
+<!-- Public directory state v1 sha256: 9af4fa66228629040434d4b145a20e6d2e218988a7106410bbe38f86515231b6 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -60,34 +60,34 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 726 (Prácticas: 348 · New Grad: 378)<br>
-**Última recopilación realizada con éxito:** 19 de octubre de 2026 a las 11:08 UTC
+**Ofertas activas:** 751 (Prácticas: 374 · New Grad: 377)<br>
+**Última recopilación realizada con éxito:** 23 de octubre de 2026 a las 12:20 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 378 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 377 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
-| Sage | Software Engineering Graduate | Barcelona, Catalonia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4479294828>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4477972408>) |
-| HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [Ver oferta](<https://www.linkedin.com/jobs/view/4475611055>) |
-| Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ver oferta](<https://www.linkedin.com/jobs/view/4477857755>) |
-| EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [Ver oferta](<https://www.linkedin.com/jobs/view/4477838098>) |
+| Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4481351802>) |
+| Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [Ver oferta](<https://www.linkedin.com/jobs/view/4481130276>) |
+| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [Ver oferta](<https://www.linkedin.com/jobs/view/4482126351>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4480498081>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Últimas ofertas de prácticas
 
-5 de 348 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 374 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
-| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [Ver oferta](<https://www.linkedin.com/jobs/view/4477946355>) |
-| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4476848934>) |
-| Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4476853550>) |
-| SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4475243096>) |
-| Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4475211197>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Würselen, North Rhine-Westphalia, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4472364767>) |
+| Cytiva | Intern PLC developer thesis worker | Uppsala, Uppsala County, Sweden | [Ver oferta](<https://www.linkedin.com/jobs/view/4480052184>) |
+| Intel | Intern Software QA Test Engineer | Gdańsk, Pomorskie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4481123212>) |
+| KPMG Italy | Junior ServiceNow Developer \(Intern\) | Milan, Lombardy, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4471999690>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Munich, Bavaria, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4481101926>) |
 <!-- END OPPORTUNITIES -->
 
 ¿Conoces una oferta que debería estar aquí? [Propón una nueva oferta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Todas las propuestas se revisan antes de publicarse.

@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 19, 2026 at 11:08 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-726-2563eb?style=for-the-badge" alt="Total opportunities: 726" />
-  <img src="https://img.shields.io/badge/Internships-348-16a34a?style=for-the-badge" alt="Internships: 348" />
-  <img src="https://img.shields.io/badge/New%20Grad-378-9333ea?style=for-the-badge" alt="New Grad opportunities: 378" />
+  <strong>Last successful collection: October 23, 2026 at 12:20 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-751-2563eb?style=for-the-badge" alt="Total opportunities: 751" />
+  <img src="https://img.shields.io/badge/Internships-374-16a34a?style=for-the-badge" alt="Internships: 374" />
+  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="New Grad opportunities: 377" />
 </p>
-<!-- Public directory state v1 sha256: 68ed34b5ceeeaf8809b2165cc7d06a73def13b5d2f6b98412805b1df1472e638 -->
+<!-- Public directory state v1 sha256: 9af4fa66228629040434d4b145a20e6d2e218988a7106410bbe38f86515231b6 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -60,34 +60,34 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 726 (Internships: 348 · New Grad: 378)<br>
-**Last successful collection:** October 19, 2026 at 11:08 UTC
+**Open opportunities:** 751 (Internships: 374 · New Grad: 377)<br>
+**Last successful collection:** October 23, 2026 at 12:20 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 378 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 377 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Sage | Software Engineering Graduate | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4479294828>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4477972408>) |
-| HyperMorph | Junior Software Developer \(Entry Level\) | Chaïdári, Attiki, Greece | [View](<https://www.linkedin.com/jobs/view/4475611055>) |
-| Beyond Sports | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477857755>) |
-| EngRadar | Graduate Software Engineers &amp; Product Designers – Beyond Sports Budapest | Budapest, Budapest, Hungary | [View](<https://www.linkedin.com/jobs/view/4477838098>) |
+| Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4481351802>) |
+| Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4481130276>) |
+| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4482126351>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [View](<https://www.linkedin.com/jobs/view/4480498081>) |
+| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Latest internships
 
-Showing 5 of 348 open internships, newest first by first-seen time:
+Showing 5 of 374 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| NVIDIA | Accelerated Computing Research Intern | Lund, Skåne County, Sweden | [View](<https://www.linkedin.com/jobs/view/4477946355>) |
-| Ensimag Alumni | Research Internship - Speech LLM Post-training | Annecy, Auvergne-Rhône-Alpes, France | [View](<https://www.linkedin.com/jobs/view/4476848934>) |
-| Autodesk | Intern, Software Engineer | Cracow, Małopolskie, Poland | [View](<https://www.linkedin.com/jobs/view/4476853550>) |
-| SAP | SAP iXp Intern \(f/m/d\) - Software Developer | Walldorf, Baden-Württemberg, Germany | [View](<https://www.linkedin.com/jobs/view/4475243096>) |
-| Newnow | Machine Learning Engineer Intern | Berlin, Berlin, Germany | [View](<https://www.linkedin.com/jobs/view/4475211197>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Würselen, North Rhine-Westphalia, Germany | [View](<https://www.linkedin.com/jobs/view/4472364767>) |
+| Cytiva | Intern PLC developer thesis worker | Uppsala, Uppsala County, Sweden | [View](<https://www.linkedin.com/jobs/view/4480052184>) |
+| Intel | Intern Software QA Test Engineer | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4481123212>) |
+| KPMG Italy | Junior ServiceNow Developer \(Intern\) | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4471999690>) |
+| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4481101926>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
