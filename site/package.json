@@ -2,7 +2,7 @@
   "name": "european-tech-opportunities-2027-site",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "bun@1.4.2",
+  "packageManager": "bun@1.4.3",
   "engines": {
     "node": ">=22.13"
   },
