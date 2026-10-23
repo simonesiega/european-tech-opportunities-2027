@@ -40,6 +40,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Update the locked `certifi` dependency to `2026.10.19` to remove the compromised emSign trust root (GHSA-6q48-6c7w-9gw2) from the CLI image.
+- Upgrade Next.js and its ESLint configuration to `16.4.1` to fix remote-code-execution and denial-of-service advisories blocking Docker CI, while retaining strict image vulnerability checks.
 - Remove Lighthouse's vulnerable `extract-zip` dependency through a pinned upstream Puppeteer upgrade, retaining the performance gate and dependency alerts.
 - Reject nonregular public downloads without blocking on named pipes, preserving sanitized GET and HEAD failures.
 - Preserve pre-existing snapshot-replacement staging, aliases, and sidecars before storage access; create final local staging exclusively.
