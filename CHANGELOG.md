@@ -18,6 +18,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Align CodeQL initialization, analysis, and SARIF upload on the same pinned action release to prevent version-mismatch failures.
 - Reject malformed signed or punctuated posting ages instead of normalizing them into trusted recency evidence; preserve explicit-cycle acceptance without posting metadata.
 - Document the GitHub-only operating loop, ongoing maintenance, and statistics ownership; align database auditing guidance with the three-day update cadence.
 - Correct the privacy notice's README image-provider disclosure.
