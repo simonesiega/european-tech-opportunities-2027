@@ -11,10 +11,10 @@ Install the development tools, initialize disposable local SQLite state, and lau
 | Tool | Version | Required for |
 |---|---:|---|
 | Python | 3.12+ (CI baseline: 3.12) | Pipeline, CLI, tests, and migrations |
-| `uv` | 0.11.6 recommended | Locked Python environment and commands |
+| `uv` | 0.13.4 recommended | Locked Python environment and commands |
 | Git | Current supported release | Repository checkout |
 | Node.js | 22.13+ | Website builds and production-style local startup with unflagged `node:sqlite` support |
-| Bun | 1.4.2 | Website dependency installation, tests, and development |
+| Bun | 1.4.3 | Website dependency installation, tests, and development |
 | GNU Make | Optional | Python validation shortcuts; direct `uv` commands are documented too |
 | Docker | Current supported release | Documentation lint and optional container and deployment checks |
 
