@@ -370,17 +370,3 @@ def test_review_seal_detects_changes_beyond_preview_and_exact_timestamps(tmp_pat
     )
     readme.write_text(malformed, encoding="utf-8")
     assert validate_readme(readme) == ["README public directory state seal is missing or malformed"]
-
-
-def test_readme_rejects_reversed_generated_markers(tmp_path: Path) -> None:
-    readme = tmp_path / "README.md"
-    readme.write_text(
-        "# Test\n\n<!-- BEGIN OPPORTUNITY COUNTS -->\nold\n"
-        "<!-- END OPPORTUNITY COUNTS -->\n\n<!-- END OPPORTUNITIES -->\nold\n"
-        "<!-- BEGIN OPPORTUNITIES -->\n",
-        encoding="utf-8",
-    )
-
-    assert validate_readme(readme) == ["README opportunity markers are out of order"]
-    with pytest.raises(ValueError, match="out of order"):
-        render_readme(readme, [], ReadmeMetadata(0, None))

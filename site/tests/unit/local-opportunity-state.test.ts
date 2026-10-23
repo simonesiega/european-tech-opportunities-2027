@@ -41,22 +41,32 @@ test("retains only current IDs and deduplicates all local lists", () => {
   expect(toggleLocalId(state, "applied", "456").applied).toEqual(["123", "456"]);
 });
 
-test("counts only rows first seen strictly after the previous visit", () => {
-  const rows = ["2026-09-27T12:00:00Z", "2026-09-28T11:00:00Z", "2026-09-26T12:00:00Z"].map(
-    (firstSeenAt, index) => ({firstSeenAt, linkedinJobId: String(index)}) as Opportunity
-  );
-  expect(newOpportunityIds(rows, null).size).toBe(0);
-  expect([...newOpportunityIds(rows, "2026-09-27T12:00:00Z")]).toEqual(["1"]);
+test("new rows preserve microsecond boundaries across UTC, SQLite and offset timestamps", () => {
+  const rows = [
+    "2026-09-28T12:00:00.122999Z",
+    "2026-09-28 12:00:00.123000",
+    "2026-09-28T14:00:00.123000+02:00",
+    "2026-09-28 12:00:00.123001",
+    "2026-09-28T14:00:00.123999+02:00",
+    "2026-09-28T12:00:00.124000Z",
+    "not a date",
+    "2026-02-30T12:00:00Z",
+  ].map((firstSeenAt, index) => ({firstSeenAt, linkedinJobId: String(index)}) as Opportunity);
+  const original = structuredClone(rows);
+  for (const cutoff of ["2026-09-28T12:00:00.123Z", "2026-09-28T14:00:00.123000+02:00"]) {
+    expect([...newOpportunityIds(rows, cutoff)]).toEqual(["3", "4", "5"]);
+  }
+  expect([...newOpportunityIds(rows, "2026-09-28T12:00:00.123500Z")]).toEqual(["4", "5"]);
+  expect(rows).toEqual(original);
 });
 
-test("SQLite timestamps are UTC and compare consistently with ISO offsets", () => {
-  const rows = [
-    "2026-09-28 12:00:00.000000",
-    "2026-09-28 12:00:01.123456",
-    "2026-09-28T14:00:01.123456+02:00",
-  ].map((firstSeenAt, index) => ({firstSeenAt, linkedinJobId: String(index)}) as Opportunity);
-  expect([...newOpportunityIds(rows, "2026-09-28T12:00:00Z")]).toEqual(["1", "2"]);
+test("invalid previous-visit evidence never invents new rows", () => {
+  const rows = [{firstSeenAt: "2026-03-03T12:00:00Z", linkedinJobId: "123"} as Opportunity];
+  for (const cutoff of [null, "", "not a date", "2026-02-30T12:00:00Z"]) {
+    expect([...newOpportunityIds(rows, cutoff)]).toEqual([]);
+  }
 });
+
 test("visit baseline survives reloads and advances after inactivity", () => {
   const old = {...emptyLocalState("2026-09-27T12:00:00Z"), saved: ["123"]};
   const first = resumeLocalVisit(old, now);

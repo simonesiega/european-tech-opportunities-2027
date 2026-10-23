@@ -8,21 +8,43 @@ from opportunities.utils.concurrency import map_concurrently
 
 
 def test_concurrent_map_bounds_workers_and_preserves_input_order() -> None:
-    active = 0
-    peak = 0
+    async def run() -> None:
+        active = peak = 0
+        ready = asyncio.Event()
+        release = [asyncio.Event() for _ in range(3)]
+        finished = [asyncio.Event() for _ in range(3)]
+        completion_order: list[int] = []
 
-    async def double(value: int) -> int:
-        nonlocal active, peak
-        active += 1
-        peak = max(peak, active)
-        await asyncio.sleep(0)
-        active -= 1
-        return value * 2
+        async def double(value: int) -> int:
+            nonlocal active, peak
+            active += 1
+            peak = max(peak, active)
+            if active == 3:
+                ready.set()
+            if value < 3:
+                await release[value].wait()
+            else:
+                await asyncio.sleep(0)
+            active -= 1
+            completion_order.append(value)
+            if value < 3:
+                finished[value].set()
+            return value * 2
 
-    results = asyncio.run(map_concurrently(list(range(20)), double, limit=3))
+        task = asyncio.create_task(map_concurrently(list(range(20)), double, limit=3))
+        await ready.wait()
+        # Force a different completion order instead of trusting scheduler timing.
+        for value in (2, 1, 0):
+            release[value].set()
+            await finished[value].wait()
+        results = await task
 
-    assert results == [value * 2 for value in range(20)]
-    assert peak == 3
+        assert [value for value in completion_order if value < 3] == [2, 1, 0]
+        assert results == [value * 2 for value in range(20)]
+        assert peak == 3
+        assert active == 0
+
+    asyncio.run(asyncio.wait_for(run(), timeout=5))
 
 
 @pytest.mark.parametrize("limit", [-1, 0])

@@ -8,13 +8,6 @@ import {
 } from "@/lib/opportunity-presentation";
 
 describe("opportunity presentation", () => {
-  test("extracts every unique country from a multi-location value", () => {
-    expect(getCountries("Madrid, Spain; Lisbon, Portugal; Porto, Portugal")).toEqual([
-      "Spain",
-      "Portugal",
-    ]);
-  });
-
   test.each(locations.map(({location, countries}) => [location, countries] as const))(
     "normalizes countries without inventing geography for %s",
     (location, countries) => {

@@ -1,4 +1,4 @@
-import {parseOpportunityTimestamp} from "@/lib/opportunity-presentation";
+import {normalizeOpportunityTimestamp} from "@/lib/opportunity-presentation";
 import type {Opportunity} from "@/types/opportunity";
 
 export const LOCAL_STATE_KEY = "opportunities-directory-state";
@@ -64,12 +64,21 @@ export function newOpportunityIds(
   previousVisit: string | null
 ): Set<string> {
   if (!previousVisit) return new Set();
-  const cutoff = Date.parse(previousVisit);
+  let cutoff: string;
+  try {
+    cutoff = normalizeOpportunityTimestamp(previousVisit);
+  } catch {
+    return new Set();
+  }
   return new Set(
     opportunities
       .filter((item) => {
-        const seen = parseOpportunityTimestamp(item.firstSeenAt);
-        return Number.isFinite(seen) && seen > cutoff;
+        try {
+          // Fixed-width UTC strings preserve microseconds at the visit boundary.
+          return normalizeOpportunityTimestamp(item.firstSeenAt) > cutoff;
+        } catch {
+          return false;
+        }
       })
       .map((item) => item.linkedinJobId)
   );

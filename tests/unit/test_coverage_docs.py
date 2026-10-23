@@ -108,23 +108,44 @@ def test_invalid_report_fails_cleanly_without_rewriting_readme(
     assert readme_path.read_text(encoding="utf-8") == original
 
 
-def test_rejects_duplicate_generated_regions(
-    generated_inputs: tuple[Path, Path, Path],
+@pytest.mark.parametrize("check", [False, True], ids=["render", "check"])
+@pytest.mark.parametrize(
+    "defect",
+    ["duplicate-region", "extra-start", "extra-end", "missing-start", "missing-end", "reversed"],
+)
+def test_rejects_malformed_generated_regions_without_rewriting(
+    generated_inputs: tuple[Path, Path, Path], defect: str, check: bool
 ) -> None:
     coverage_path, pyproject_path, readme_path = generated_inputs
-    readme_path.write_text(
-        _readme_template().replace(
-            "<!-- END PYTHON COVERAGE -->",
-            "<!-- END PYTHON COVERAGE -->\n<!-- BEGIN PYTHON COVERAGE -->\nold\n"
-            "<!-- END PYTHON COVERAGE -->",
-        ),
-        encoding="utf-8",
+    start = "<!-- BEGIN PYTHON COVERAGE -->"
+    end = "<!-- END PYTHON COVERAGE -->"
+    original = _readme_template()
+    match defect:
+        case "duplicate-region":
+            original += f"\n{start}\nold\n{end}\n"
+        case "extra-start":
+            original = original.replace(start, f"{start}\nAuthored text to preserve\n{start}")
+        case "extra-end":
+            original += f"\nAuthored text to preserve\n{end}\n"
+        case "missing-start":
+            original = original.replace(start, "")
+        case "missing-end":
+            original = original.replace(end, "")
+        case "reversed":
+            original = original.replace(start, end).replace(
+                f"old table\n{end}", f"old table\n{start}"
+            )
+    readme_path.write_text(original, encoding="utf-8")
+    original_bytes = readme_path.read_bytes()
+
+    result = _run_script(
+        coverage_path, pyproject_path, readme_path, *(["--check"] if check else [])
     )
 
-    result = _run_script(coverage_path, pyproject_path, readme_path)
-
-    assert result.returncode != 0
+    assert result.returncode == 1
     assert "exactly one generated coverage table region" in result.stderr
+    assert "Traceback" not in result.stderr
+    assert readme_path.read_bytes() == original_bytes
 
 
 def _run_script(

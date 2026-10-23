@@ -33,24 +33,31 @@ describe("shared opportunity filtering", () => {
     expect(rows).toEqual(original);
   });
 
-  test("search spans nonempty fields with normalized case and surrounding whitespace", () => {
-    expect(
-      filterOpportunities(
-        [opportunity],
-        {...filters, q: "  SOFTWARE-ENGINEERING INTERNSHIP  "},
-        referenceTimestamp
-      )
-    ).toEqual([opportunity]);
-    expect(
-      filterOpportunities(
-        [{...opportunity, industries: "Robotics"}],
-        {...filters, q: "robotics"},
-        referenceTimestamp
-      )
-    ).toHaveLength(1);
-    expect(
-      filterOpportunities([opportunity], {...filters, q: "robotics"}, referenceTimestamp)
-    ).toEqual([]);
+  test.each([
+    {field: "company", value: "Acme", other: "Other Company"},
+    {field: "title", value: "Software Intern 2027", other: "Data Intern 2027"},
+    {field: "location", value: "Berlin, Germany; Paris, France", other: "Lisbon, Portugal"},
+    {field: "category", value: "software-engineering", other: "data-science"},
+    {field: "industries", value: "Robotics", other: null},
+    {field: "employmentType", value: "internship", other: "new-grad"},
+  ] as const)(
+    "search independently matches $field with normalized case and whitespace",
+    ({field, value, other}) => {
+      const matching = {...opportunity, linkedinJobId: "101", [field]: value};
+      const nonmatching = {...opportunity, linkedinJobId: "102", [field]: other};
+      const rows = [nonmatching, matching];
+      const original = structuredClone(rows);
+      expect(
+        filterOpportunities(rows, {...filters, q: `  ${value.toUpperCase()}  `}, referenceTimestamp)
+      ).toEqual([matching]);
+      expect(rows).toEqual(original);
+    }
+  );
+
+  test("search never treats missing optional fields as searchable text", () => {
+    for (const q of ["robotics", "null", "undefined"]) {
+      expect(filterOpportunities([opportunity], {...filters, q}, referenceTimestamp)).toEqual([]);
+    }
   });
 
   test("country aliases select normalized rows without foreign namesakes", () => {

@@ -22,6 +22,19 @@ Test observable behavior and failure boundaries that affect users or canonical s
 
 Keep regressions near their owner. Assert resulting state and public responses rather than exact private helper calls, CSS classes, column widths, or generic framework behavior. Do not delete useful failure-path tests merely to lower the count. Coverage is a backstop, not a substitute for evidence-boundary tests.
 
+### Reviewing existing tests
+
+Evaluate a test by the regression it detects, not whether it was AI-assisted or how much code it contains:
+
+- Compare its stated contract with the owner implementation, fixtures, and neighboring tests before keeping, refactoring, or removing it.
+- Challenge the assertion with a plausible wrong implementation in a disposable copy. First run an unchanged control; import or setup failures do not prove that a mutation was detected.
+- Make competing outcomes distinguishable: force reversed async completion, isolate each searchable field, and include offset timestamps that cross a UTC date boundary.
+- Assert complete allowlists and actual row multiplicity where privacy or publication accuracy requires them. Do not let partial matches, deduplication, or datetime instant equality hide extra data or missing normalization.
+- Remove a case only when remaining coverage protects the same boundary. Exact fixture duplicates and simpler examples subsumed by a boundary matrix do not need separate tests. A forbidden file extension does not need a second symlink case when the extension matrix rejects it and an allowed-extension symlink test protects against content leakage.
+- Keep filter truth tables in shared-helper tests and representative control/history/sorting journeys in the browser. Do not add browser scenarios for every combination or freeze the incidental order in which search fields are concatenated.
+
+Keep mutation probes offline and disposable; do not weaken production behavior, source-access interlocks, or quality thresholds to make tests pass. Mutation checks supplement contract review and coverage, rather than becoming a target test count.
+
 ## Suite map
 
 The source-adjacent [test inventory and review](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/tests/TEST.md) identifies Python and website tests, their protected contracts, parameterized boundaries, fixtures, and platform requirements. Update it when adding, removing, moving, or changing a test's purpose.
@@ -124,6 +137,12 @@ Lighthouse's `puppeteer-core` is pinned to `25.14.0`, whose official browser-man
 This is a major-version override: validate Node's ESM/CommonJS imports and the complete Lighthouse gate on the minimum supported Node version before changing it. Keep using installed Chromium through `CHROME_PATH`; the configured audits do not use LHCI's optional `puppeteerScript` executable-path discovery, which assumes the older synchronous `executablePath` API. Review that integration before enabling it. Remove the override only when Lighthouse selects a safe compatible dependency chain itself.
 
 For an existing checkout, recreate only `site/node_modules` with a frozen install if old installation artifacts leave the removed extractor resolvable; the dependency regression intentionally detects that residue.
+
+Development tooling pins Zod to `4.6.7` for [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5), which affects oversized collection validation before `4.6.6`. An offline subprocess exercises the copies resolved by ESLint's React Hooks plugin and Lighthouse's browser-protocol dependency, checking that bounded arrays reject excessive input before visiting elements while valid input remains usable. The child has a memory limit and timeout so a vulnerable version cannot exhaust the test runner.
+
+Lighthouse's proxy chain pins `ip-address` to `10.7.4` for [GHSA-rxp7-6hxx-x8q5](https://github.com/advisories/GHSA-rxp7-6hxx-x8q5). Its offline subprocess checks the IPv6 byte API used by SOCKS and rejects a large malformed zone identifier within a timeout, without opening a connection. These are transitive development dependencies, not new website runtime dependencies. Remove the overrides only after upstream selects patched versions and the dependency audit, consumer checks, and Lighthouse pass.
+
+Lighthouse's Express dependency pins `body-parser` to `1.20.9` for [GHSA-27r3-jxmh-p828](https://github.com/advisories/GHSA-27r3-jxmh-p828), which can crash a process after a compressed request carries trailing bytes. Keep the compatible 1.x patch rather than forcing Express onto the 2.x API. Recheck the frozen install, dependency audit, and Lighthouse before removing this override.
 
 ESLint's development-only `braces` dependency has an unpatched high-severity stack-exhaustion advisory, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), affecting versions through `3.0.3`. Do not feed untrusted nested glob patterns to this tooling or treat a clean production build as a clean dependency audit. Retain the finding until an upstream fix is available and validated.
 

@@ -86,11 +86,10 @@ Source: [integration/test_readme.py](integration/test_readme.py).
 | `test_readme_contains_type_sections_and_escapes_values` | Counts, collection time, both employment sections, escaped table values, rendering, and validation agree; English output remains the default for root and custom filenames |
 | `test_readme_render_preserves_authored_text_and_updates_translations` | One root render refreshes all six projections from synthetic state; root validation accepts every sibling, Unicode authored text remains unchanged, and repeated rendering is idempotent |
 | `test_readme_validation_reports_stale_translation` | Independent count-card and preview drift is reported by localized filename without modifying any file |
-| `test_translation_preflight_failure_preserves_all_projections` | Missing localized files, duplicate/reversed markers, and overlapping regions fail before any English or localized projection changes |
+| `test_translation_preflight_failure_preserves_all_projections` | Missing localized files and duplicate/reversed/overlapping markers are rejected by rendering and validation; the shared marker guard prevents any English or localized projection changes |
 | `test_localized_rendering_preserves_canonical_data_and_formats_utc` | All six locales render populated and empty state with both complete Markdown table headers, link labels, and fixed UTC month/date formatting across a year boundary; empty English metadata has zero counts and no invented collection time; counts, five-row bounds, ID ordering, escaping, and seals stay canonical |
 | `test_readme_preview_is_bounded_to_five_opportunities_per_type` | Only the five newest first-seen rows of each type appear, with truthful full counts and explicit ordering labels; later observations cannot promote older rows |
 | `test_review_seal_detects_changes_beyond_preview_and_exact_timestamps` | Off-preview public edits and microsecond changes alter the seal; private lifecycle-only edits do not; malformed seals fail |
-| `test_readme_rejects_reversed_generated_markers` | Invalid region ownership fails before rendering can overwrite the document |
 
 ### Repository
 
@@ -197,10 +196,11 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | `test_configuration_errors_do_not_echo_invalid_values` | Validation errors omit credentials embedded in invalid database URLs |
 | `test_settings_precedence_is_defaults_dotenv_yaml_then_environment` | Automatic dotenv and explicit YAML entry paths preserve relative export paths and compose all four settings layers correctly; source authorization remains false unless explicitly enabled |
 | `test_false_authorization_values_never_enable_source_access` | Supported false spellings remain false |
-| `test_discovered_job_rejects_non_string_text_fields` | Canonical job input rejects null/non-string required text |
+| `test_discovered_job_rejects_invalid_required_text` | Every required company/title/location field rejects null, non-string, whitespace-only, and entity-decoded blank input |
+| `test_discovered_job_normalizes_required_text_without_losing_unicode` | Required text decodes entities, collapses whitespace, and retains Unicode instead of merely satisfying string types |
 | `test_raw_job_rejects_non_string_locations` | Malformed location items cannot cross the parser-model boundary |
 | `test_job_models_canonicalize_listing_urls_consistently` | Raw and discovered models strip tracking and normalize the same identity URL |
-| `test_job_models_normalize_naive_timestamps_to_utc` | Raw, discovered, and stored model boundaries consistently interpret naive timestamps as UTC |
+| `test_job_models_normalize_timestamps_to_utc` | Raw, discovered, and stored posting/lifecycle fields normalize naive, UTC, and positive/negative offset evidence to actual UTC, preserving microseconds across date boundaries; instant equality alone is insufficient |
 | `test_public_url_canonicalization_removes_tracking_and_normalizes_host` | Tracking/fragments/default ports are removed while meaningful query parameters retain deterministic order |
 | `test_public_url_canonicalization_rejects_unsafe_targets` | Non-HTTPS, local/internal, malformed-host, and script URLs are rejected |
 | `test_linkedin_listing_url_must_match_the_canonical_job_id` | Safe-looking links with another job's ID cannot be persisted as the listing URL |
@@ -221,12 +221,12 @@ Sources: [unit/test_concurrency.py](unit/test_concurrency.py) and [unit/test_log
 
 | Test | Behavior protected |
 |---|---|
-| `test_concurrent_map_bounds_workers_and_preserves_input_order` | Active workers never exceed the configured bound and output follows input order |
+| `test_concurrent_map_bounds_workers_and_preserves_input_order` | Event-controlled workers complete out of order while output retains input order; concurrency stays bounded and every worker drains |
 | `test_concurrent_map_rejects_an_invalid_limit` | Zero/negative concurrency fails rather than hanging or spawning unbounded work |
 | `test_concurrent_map_cleans_up_running_workers_after_failure_or_cancellation` | Failure/cancellation drains running work and does not start queued items; event handshakes avoid timing guesses |
 | `test_concurrent_map_handles_empty_input_and_none_results` | Empty work invokes nothing; valid `None` results are not mistaken for missing outputs |
-| `test_json_formatter_emits_only_approved_structured_fields` | Structured logging drops unapproved response-body fields |
-| `test_json_formatter_does_not_emit_exception_messages_or_tracebacks` | Logs identify exception type without leaking sensitive exception detail |
+| `test_json_formatter_emits_only_approved_structured_fields` | Exact public log fields include all approved extras and an explicit UTC timestamp; arbitrary extras, headers, and response bodies stay out |
+| `test_json_formatter_does_not_emit_exception_messages_or_tracebacks` | An exact exception-log allowlist preserves only the exception type and approved base fields, not traceback or exception-detail fields |
 
 ### HTTP transport
 
@@ -314,7 +314,6 @@ Source: [unit/test_data_quality.py](unit/test_data_quality.py).
 | `test_moderate_parser_field_missing_jump_is_reported_against_baseline` | Parser-field drift uses comparable history even below the high threshold |
 | `test_stable_absolute_field_missingness_does_not_repeat_alerts` | A stable known absence of optional/parser fields does not generate perpetual alarms |
 | `test_missing_field_comparisons_require_sampled_history` | Empty historical samples cannot establish misleading missingness baselines |
-| `test_malformed_snapshots_are_ignored_and_reported` | Unreadable history produces a safe finding without a false publication block |
 | `test_acceptance_thresholds_in_both_directions` | Adjacent warning/block thresholds apply to rises and drops, and blocking observations do not become baselines |
 | `test_empty_search_warms_up_without_premature_blocking` | Zero, one, and two historical observations are insufficient to condemn an empty search |
 | `test_candidate_volume_above_drop_threshold_does_not_warn` | The adjacent safe boundary and stable/growing volumes remain quiet |
@@ -326,7 +325,7 @@ Source: [unit/test_data_quality.py](unit/test_data_quality.py).
 | `test_changed_registry_does_not_compare_incompatible_profiles` | Registry geography changes reset incompatible aggregate comparisons |
 | `test_only_recent_nonfuture_baselines_can_block` | Thirty-day boundary, expired history, and future snapshots are handled conservatively |
 | `test_invalid_baselines_cannot_influence_or_leak_into_reports` | Invalid versions, timestamps, counts, categories, countries, shapes, and extra fields fail validation without leaking their contents |
-| `test_baseline_parsing_is_bounded` | Deep nesting, excess bytes, null, and array roots cannot enter baseline analysis |
+| `test_invalid_baseline_parsing_is_bounded_and_does_not_block_healthy_collection` | Malformed JSON, deep nesting, excess bytes, null, and array roots produce only the invalid-baseline finding, preserve healthy publication eligibility, and allow a valid new aggregate baseline |
 | `test_report_and_snapshot_are_deterministic_and_history_is_bounded` | Input row order does not affect output and history inspection stops at five payloads |
 
 ### Migrations and public exports
@@ -453,14 +452,14 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_legacy_redirects_point_directly_to_current_topic_guides` | Legacy mappings resolve directly to current guides, never redirect chains or overwritten canonical pages |
 | `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
 | `test_public_staging_rejects_unapproved_files` | Databases, environment files, all standalone audio (including the former soundtrack path), and promotional implementation files fail the publication allowlist |
-| `test_public_staging_rejects_symlinked_media` | Allowed extensions cannot smuggle private files through symlinks |
+| `test_public_staging_rejects_symlinked_media` | An otherwise allowed WebP cannot smuggle private content through a symlink; disallowed MP3 paths belong to the separate unapproved-file matrix |
 | `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors using native language names and resolving to every supported language |
 | `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |
 | `test_readme_translations_participate_in_documentation_checks_and_navigation` | Every supported README participates in curated source/lint discovery and parsed MkDocs language navigation without restricting unrelated Markdown files |
 | `test_renders_table_and_then_passes_check` | Stale check mode does not write; rendering updates measured values and subsequent checking passes without altering unrelated content |
 | `test_default_document_targets_nested_guide_independently_of_working_directory` | Default coverage updates target the canonical nested guide, not the README or a caller-relative path |
 | `test_invalid_report_fails_cleanly_without_rewriting_readme` | Invalid measurement data leaves the target untouched with a sanitized error |
-| `test_rejects_duplicate_generated_regions` | Ambiguous coverage-region ownership cannot trigger a rewrite |
+| `test_rejects_malformed_generated_regions_without_rewriting` | Render and check modes reject duplicate regions, orphaned or missing markers, and reversed boundaries without changing document bytes or deleting authored prose |
 | `test_legacy_hostname_only_in_redirect_and_migration_material` | New retired-host references outside the approved migration/redirect material are detected without requiring obsolete references to remain |
 
 ### Test isolation and website fixtures
@@ -500,8 +499,8 @@ Source: [local-opportunity-state.test.ts](../site/tests/unit/local-opportunity-s
 |---|---|
 | `first visit, corrupt, unknown version and future visit reset safely` | Unsupported/untrusted stored state resets instead of inventing lists or visit history |
 | `retains only current IDs and deduplicates all local lists` | Stale/duplicate IDs are pruned and toggles preserve the intended list membership |
-| `counts only rows first seen strictly after the previous visit` | First visits have no new baseline; equal/older rows are not new |
-| `SQLite timestamps are UTC and compare consistently with ISO offsets` | Equivalent database/ISO instants produce consistent new-row membership |
+| `new rows preserve microsecond boundaries across UTC, SQLite and offset timestamps` | One matrix owns older/equal/newer membership, UTC/SQLite/offset equivalence, and submillisecond boundaries without input mutation; invalid rows remain excluded |
+| `invalid previous-visit evidence never invents new rows` | Missing, unreadable, and impossible calendar baselines yield no new-row claims |
 | `visit baseline survives reloads and advances after inactivity` | Reloads preserve the previous visit; the 30-minute boundary advances it without losing saved IDs |
 
 ### API contracts
@@ -535,16 +534,16 @@ Sources: [opportunity-feed.test.ts](../site/tests/unit/opportunity-feed.test.ts)
 | `canonicalizes filter order and returns a valid empty feed` | Equivalent filters serialize identically; empty feeds retain a deterministic timestamp |
 | `uses the latest successful collection timestamp for empty Atom feeds` | An empty selection can still report real dataset freshness |
 | `empty filters preserve every row and its order without mutating the input` | Filtering cannot drop/reorder/alter the unfiltered dataset; allocation identity is deliberately not tested |
-| `search spans nonempty fields with normalized case and surrounding whitespace` | Search includes category/type/optional industries and handles absent values |
+| `search independently matches $field with normalized case and whitespace` | Each of company, title, location, category, industries, and employment type independently selects one row over a one-field near-miss without input mutation |
+| `search never treats missing optional fields as searchable text` | Absent industries cannot invent matches for missing values or their string representations |
 | `country aliases select normalized rows without foreign namesakes` | A country-code query selects canonical, city-only, and remote rows without including other countries or foreign namesakes |
 | `unrecognized and multiple country filters do not broaden a query` | Unknown, prototype-like, and multi-location values cannot bypass the exact filter by discarding unsupported entries |
 | `recency includes both boundaries and excludes old, future, and invalid timestamps` | Recency's inclusive bounds reject future/invalid evidence without hiding rows when no recency filter is set |
-| `extracts every unique country from a multi-location value` | Multi-country roles remain discoverable under each country without duplicate options |
-| `normalizes countries without inventing geography for %s` | Shared Python/website fixtures normalize aliases, codes, accented city names, remote locations, and European regions without erasing conflicting or unknown geographic words |
+| `normalizes countries without inventing geography for %s` | Shared fixtures own country normalization and multi-location deduplication, including repeated Portuguese locations, without erasing conflicting or unknown geographic words |
 | `rejects invalid calendar or out-of-range UTC evidence: %s` | Month/day/leap-year/time/UTC-range failures cannot normalize into a different valid instant |
 | `normalizes valid leap days, UTC offsets and fractional seconds` | Legitimate boundary dates and fractions survive normalization |
 | `formats offset and SQLite timestamps consistently in UTC` | Visible dates follow UTC even when an offset crosses midnight |
-| `rendered %s rows preserve microseconds and numeric ID ties` | Both first-seen directions render independently expected IDs and normalized machine-readable timestamps; this checks row semantics, not button markup |
+| `rendered %s rows preserve microseconds and numeric ID ties` | Both first-seen directions render exactly the expected rows and each row's literal microsecond timestamp, without deduplication masking extra rows; this checks row semantics, not button markup |
 | `publishes a timezone-explicit date or omits invalid evidence: %s` | JSON-LD dateModified is normalized or omitted for absent/impossible timestamps |
 | `escapes markup that could terminate the JSON-LD script` | Script-closing text is safely escaped while preserving JSON meaning |
 
@@ -571,6 +570,8 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `does not expose a non-public directory name through a release alias` | A numeric alias cannot leak a private resolved directory name |
 | `standalone startup preserves %s data paths after Next changes directory` | Default/relative/absolute runtime paths remain correct after standalone chdir and static assets remain available |
 | `Lighthouse resolves compatible Puppeteer imports without extract-zip` | Node resolves the same Puppeteer for Lighthouse's ESM and LHCI's CommonJS consumers, preserves connect/launch APIs, and cannot resolve the vulnerable archive extractor from the browser-management dependency |
+| `ESLint and Lighthouse reject oversized Zod collections before validating elements` | Actual consumer resolution preserves valid parsing and rejects a million-element constrained array without visiting elements or accumulating per-element errors; subprocess memory and time bounds contain vulnerable versions |
+| `Lighthouse's proxy dependency bounds malformed IPv6 parsing and preserves address bytes` | The SOCKS consumer retains valid IPv6 parsing and exact address bytes while a million-character malformed zone is rejected within a bounded subprocess, without network access |
 | `Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing` | The pinned security override stays compatible and rejects pathological synthetic listings within a subprocess timeout, without FTP access |
 
 ## Website HTTP and browser tests
@@ -579,7 +580,7 @@ Playwright uses synthetic migrated SQLite/exports. HTTP contracts do not open a 
 
 ### Directory URLs and navigation
 
-Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts).
+Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts). Browser journeys protect control wiring, shared URLs, history, and sorted pagination; the API unit's one-predicate near-misses own the shared filter AND truth table.
 
 | Test title | Behavior protected |
 |---|---|
@@ -588,7 +589,6 @@ Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts).
 | `filters opportunities by when they were first seen` | Each recency window changes counts correctly and Reset clears it |
 | `restores filters from a shared URL and browser history` | Deep-linked search/type/country/recency and browser Back restore the same results |
 | `restores a country alias without broadening the directory` | A country-code URL selects the canonical country control and the matching row without rewriting the shared URL |
-| `composes search, country, category, first-seen filtering, and company sorting` | Combined filters and sorting agree on visible row order |
 | `restores sorting, page, and page size from a shared URL` | Deep-linked pagination survives history; a sort change resets to page one |
 | `falls back safely for unsupported directory view parameters` | Browser inputs constrain invalid recency/sort/page/page-size values rather than applying API-style rejection |
 | `search, reset, keyboard focus, and sorting remain interactive` | Search shortcut works; reset preserves unrelated query/sort/page-size state; sort direction changes actual row order |

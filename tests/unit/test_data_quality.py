@@ -336,13 +336,6 @@ def test_missing_field_comparisons_require_sampled_history() -> None:
     assert analysis.report["checks"] == []
 
 
-def test_malformed_snapshots_are_ignored_and_reported() -> None:
-    analysis = _analyze(_collection(), baselines=("not json",))
-
-    assert not analysis.blocking
-    assert "baseline_snapshot_invalid" in _codes(analysis)
-
-
 # With 20 classified records, differences of 8 and 15 reach the warning and blocking
 # thresholds (40 and 75 percentage points); adjacent values test the boundaries.
 @pytest.mark.parametrize(
@@ -571,11 +564,19 @@ def test_invalid_baselines_cannot_influence_or_leak_into_reports(update: dict[st
 
 @pytest.mark.parametrize(
     "payload",
-    ["[" * 300, " " * 131_073, "null", "[]"],
-    ids=["deeply-nested", "oversized", "null", "array"],
+    ["not json", "[" * 300, " " * 131_073, "null", "[]"],
+    ids=["malformed", "deeply-nested", "oversized", "null", "array"],
 )
-def test_baseline_parsing_is_bounded(payload: str) -> None:
-    assert _codes(_analyze(_collection(), baselines=(payload,))) == {"baseline_snapshot_invalid"}
+def test_invalid_baseline_parsing_is_bounded_and_does_not_block_healthy_collection(
+    payload: str,
+) -> None:
+    analysis = _analyze(_collection(), baselines=(payload,))
+
+    assert _codes(analysis) == {"baseline_snapshot_invalid"}
+    assert not analysis.blocking
+    assert analysis.report["publication_eligible"] is True
+    assert analysis.snapshot_json is not None
+    DataQualitySnapshot.from_json(analysis.snapshot_json)
 
 
 def test_report_and_snapshot_are_deterministic_and_history_is_bounded() -> None:

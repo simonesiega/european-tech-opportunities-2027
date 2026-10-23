@@ -51,14 +51,21 @@ test.each([
       hasActiveFilters={false}
     />
   );
-  // Each row links through both its arrow and title; count each identity once, in order.
-  const renderedIds = [
-    ...new Set(
-      [...html.matchAll(/href="https:\/\/www.linkedin.com\/jobs\/view\/(\d+)"/g)].map(
-        (match) => match[1]
-      )
-    ),
-  ];
-  expect(renderedIds).toEqual([...expected]);
-  expect(html).toContain('dateTime="2026-07-17T12:00:00.123456+00:00"');
+  const body = /<tbody\b[^>]*>([\s\S]*?)<\/tbody>/.exec(html)?.[1];
+  expect(body).toBeDefined();
+  // Inspect each actual row: a global Set would hide accidentally duplicated rows.
+  const rows = [...body!.matchAll(/<tr\b[^>]*>([\s\S]*?)<\/tr>/g)].map((match) => {
+    const row = match[1];
+    return {
+      id: /href="https:\/\/www.linkedin.com\/jobs\/view\/(\d+)"/.exec(row)?.[1],
+      timestamp: /dateTime="([^"]+)"/.exec(row)?.[1],
+    };
+  });
+  const timestamps = {
+    "9": "2026-07-17T12:00:00.123456+00:00",
+    "10": "2026-07-17T12:00:00.123456+00:00",
+    "11": "2026-07-17T12:00:00.123457+00:00",
+    "12": "2026-07-17T12:00:00.123455+00:00",
+  };
+  expect(rows).toEqual(expected.map((id) => ({id, timestamp: timestamps[id]})));
 });

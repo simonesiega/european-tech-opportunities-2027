@@ -11,6 +11,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Remove redundant visit-boundary, country-deduplication, README-marker, and combined browser-filter tests; drop a search assertion tied to internal field-concatenation order while preserving the shared matrices and user journeys.
+- Strengthen test oracles for out-of-order concurrency, UTC normalization, log allowlists, independent search fields, and exact rendered rows; consolidate invalid-baseline checks and remove a redundant forbidden-extension symlink case without reducing safety coverage.
 - Make default Compose pipeline startup show help instead of upgrading SQLite; migrations remain explicit maintenance commands.
 - Run scheduled full updates every three UTC days with a fixed cadence across month boundaries; retain additional manual updates for busy hiring periods and keep source-access safeguards unchanged.
 - Allow HTTP 429-only partial availability audits to retain completed checks through validated, manual-review publication while skipping all subsequent source requests and nightly scraping.
@@ -18,6 +20,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Reject malformed coverage-documentation markers before rewriting, preserving authored prose and document bytes on failure.
+- Preserve microsecond precision when identifying opportunities newer than a browser visit, and reject invalid visit-date evidence.
 - Align CodeQL initialization, analysis, and SARIF upload on the same pinned action release to prevent version-mismatch failures.
 - Reject malformed signed or punctuated posting ages instead of normalizing them into trusted recency evidence; preserve explicit-cycle acceptance without posting metadata.
 - Document the GitHub-only operating loop, ongoing maintenance, and statistics ownership; align database auditing guidance with the three-day update cadence.
@@ -41,6 +45,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Pin development-tooling dependencies to Zod `4.6.7`, `ip-address` `10.7.4`, and `body-parser` `1.20.9` to fix memory exhaustion, quadratic IPv6 parsing, and compressed-request crashes; retain bounded offline consumer regressions and the dependency audit.
 - Upgrade uv to `0.13.4` in CI and container builds to remove a compromised trust root from its bundled certificates (GHSA-hq85-5cpj-mr62).
 - Update the locked `certifi` dependency to `2026.10.19` to remove the compromised emSign trust root (GHSA-6q48-6c7w-9gw2) from the CLI image.
 - Upgrade Next.js and its ESLint configuration to `16.4.1` to fix remote-code-execution and denial-of-service advisories blocking Docker CI, while retaining strict image vulnerability checks.

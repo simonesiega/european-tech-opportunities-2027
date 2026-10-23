@@ -84,7 +84,13 @@ def render_coverage_docs(document: str, metrics: CoverageMetrics) -> str:
         f"| Classifier branch coverage | {metrics.classifier_branches}% | Reported |\n"
         "<!-- END PYTHON COVERAGE -->"
     )
-    return _replace_one(_TABLE_PATTERN, document, table, name="coverage table")
+    if (
+        document.count("<!-- BEGIN PYTHON COVERAGE -->") != 1
+        or document.count("<!-- END PYTHON COVERAGE -->") != 1
+        or len(_TABLE_PATTERN.findall(document)) != 1
+    ):
+        raise ValueError("Document must contain exactly one generated coverage table region")
+    return _TABLE_PATTERN.sub(lambda _match: table, document, count=1)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -192,13 +198,6 @@ def _classifier_summary(files: Mapping[str, object]) -> Mapping[str, object]:
             file_report = _mapping(value, name="classifier coverage")
             return _mapping(file_report.get("summary"), name="classifier coverage summary")
     raise ValueError(f"coverage report does not contain {_CLASSIFIER_PATH}")
-
-
-def _replace_one(pattern: re.Pattern[str], content: str, replacement: str, *, name: str) -> str:
-    matches = pattern.findall(content)
-    if len(matches) != 1:
-        raise ValueError(f"Document must contain exactly one generated {name} region")
-    return pattern.sub(lambda _match: replacement, content, count=1)
 
 
 if __name__ == "__main__":

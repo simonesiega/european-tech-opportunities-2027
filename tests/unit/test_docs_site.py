@@ -201,14 +201,13 @@ def test_public_staging_rejects_unapproved_files(
         build_docs.main()
 
 
-@pytest.mark.parametrize("asset", ["image.webp", "promo/soundtrack.mp3"])
 def test_public_staging_rejects_symlinked_media(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, asset: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(build_docs, "ROOT", tmp_path)
     private = tmp_path / "private"
     private.write_text("private", encoding="utf-8")
-    alias = tmp_path / "docs/assets" / asset
+    alias = tmp_path / "docs/assets/image.webp"
     alias.parent.mkdir(parents=True)
     try:
         alias.symlink_to(private)
