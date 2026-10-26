@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Ultima raccolta completata con successo: 23 ottobre 2026 alle 12:20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-751-2563eb?style=for-the-badge" alt="Offerte attive: 751" />
+  <img src="https://img.shields.io/badge/Offerte%20attive-749-2563eb?style=for-the-badge" alt="Offerte attive: 749" />
   <img src="https://img.shields.io/badge/Tirocini-374-16a34a?style=for-the-badge" alt="Tirocini: 374" />
-  <img src="https://img.shields.io/badge/New%20Grad-377-9333ea?style=for-the-badge" alt="Posizioni New Grad: 377" />
+  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="Posizioni New Grad: 375" />
 </p>
-<!-- Public directory state v1 sha256: 9af4fa66228629040434d4b145a20e6d2e218988a7106410bbe38f86515231b6 -->
+<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -60,14 +60,14 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 751 (Tirocini: 374 · New Grad: 377)<br>
+**Offerte aperte:** 749 (Tirocini: 374 · New Grad: 375)<br>
 **Ultima raccolta completata con successo:** 23 ottobre 2026 alle 12:20 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 377 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 375 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
