@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Dernière collecte réussie : 23 octobre 2026 à 12 h 20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offres%20actives-749-2563eb?style=for-the-badge" alt="Offres actives : 749" />
-  <img src="https://img.shields.io/badge/Stages-374-16a34a?style=for-the-badge" alt="Stages : 374" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="Offres New Grad : 375" />
+  <strong>Dernière collecte réussie : 27 octobre 2026 à 22 h 45 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offres%20actives-763-2563eb?style=for-the-badge" alt="Offres actives : 763" />
+  <img src="https://img.shields.io/badge/Stages-376-16a34a?style=for-the-badge" alt="Stages : 376" />
+  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="Offres New Grad : 387" />
 </p>
-<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
+<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Pourquoi ce projet ?
@@ -60,26 +60,26 @@ Ce qui n’était au départ qu’un petit projet open source a trouvé son publ
 ## Dernières offres
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offres actives :** 749 (Stages : 374 · New Grad : 375)<br>
-**Dernière collecte réussie :** 23 octobre 2026 à 12 h 20 UTC
+**Offres actives :** 763 (Stages : 376 · New Grad : 387)<br>
+**Dernière collecte réussie :** 27 octobre 2026 à 22 h 45 UTC
 
 Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Dernières offres New Grad
 
-5 offres parmi les 375 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 387 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [Voir l’offre](<https://www.linkedin.com/jobs/view/4482300597>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [Voir l’offre](<https://www.linkedin.com/jobs/view/4482306524>) |
+| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4483120039>) |
 | Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [Voir l’offre](<https://www.linkedin.com/jobs/view/4481351802>) |
 | Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4481130276>) |
-| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4482126351>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [Voir l’offre](<https://www.linkedin.com/jobs/view/4480498081>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [Voir l’offre](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Derniers stages
 
-5 offres parmi les 374 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 376 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|

@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 23, 2026 at 12:20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-749-2563eb?style=for-the-badge" alt="Total opportunities: 749" />
-  <img src="https://img.shields.io/badge/Internships-374-16a34a?style=for-the-badge" alt="Internships: 374" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New Grad opportunities: 375" />
+  <strong>Last successful collection: October 27, 2026 at 22:45 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-763-2563eb?style=for-the-badge" alt="Total opportunities: 763" />
+  <img src="https://img.shields.io/badge/Internships-376-16a34a?style=for-the-badge" alt="Internships: 376" />
+  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="New Grad opportunities: 387" />
 </p>
-<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
+<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -60,26 +60,26 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 749 (Internships: 374 · New Grad: 375)<br>
-**Last successful collection:** October 23, 2026 at 12:20 UTC
+**Open opportunities:** 763 (Internships: 376 · New Grad: 387)<br>
+**Last successful collection:** October 27, 2026 at 22:45 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 375 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 387 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4482300597>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4482306524>) |
+| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [View](<https://www.linkedin.com/jobs/view/4483120039>) |
 | Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [View](<https://www.linkedin.com/jobs/view/4481351802>) |
 | Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4481130276>) |
-| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [View](<https://www.linkedin.com/jobs/view/4482126351>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [View](<https://www.linkedin.com/jobs/view/4480498081>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [View](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Latest internships
 
-Showing 5 of 374 open internships, newest first by first-seen time:
+Showing 5 of 376 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
