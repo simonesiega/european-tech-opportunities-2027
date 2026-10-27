@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 10 月 23 日 12:20（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-749-2563eb?style=for-the-badge" alt="在招职位总数：749" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-374-16a34a?style=for-the-badge" alt="实习岗位：374" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-375-9333ea?style=for-the-badge" alt="应届生岗位：375" />
+  <strong>最近一次成功采集：2026 年 10 月 27 日 22:45（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-763-2563eb?style=for-the-badge" alt="在招职位总数：763" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-376-16a34a?style=for-the-badge" alt="实习岗位：376" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-387-9333ea?style=for-the-badge" alt="应届生岗位：387" />
 </p>
-<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
+<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -60,26 +60,26 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 749（实习：374 · New Grad：375）<br>
-**最近一次成功采集：** 2026 年 10 月 23 日 12:20（UTC）
+**在招职位：** 763（实习：376 · New Grad：387）<br>
+**最近一次成功采集：** 2026 年 10 月 27 日 22:45（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 375 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 387 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [查看](<https://www.linkedin.com/jobs/view/4482300597>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [查看](<https://www.linkedin.com/jobs/view/4482306524>) |
+| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [查看](<https://www.linkedin.com/jobs/view/4483120039>) |
 | Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [查看](<https://www.linkedin.com/jobs/view/4481351802>) |
 | Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [查看](<https://www.linkedin.com/jobs/view/4481130276>) |
-| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [查看](<https://www.linkedin.com/jobs/view/4482126351>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [查看](<https://www.linkedin.com/jobs/view/4480498081>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [查看](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### 最新实习岗位
 
-以下展示 374 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 376 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|

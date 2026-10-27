@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Letzte erfolgreiche Datenerfassung: 23. Oktober 2026 um 12:20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-749-2563eb?style=for-the-badge" alt="Offene Stellen: 749" />
-  <img src="https://img.shields.io/badge/Praktika-374-16a34a?style=for-the-badge" alt="Praktika: 374" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 375" />
+  <strong>Letzte erfolgreiche Datenerfassung: 27. Oktober 2026 um 22:45 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offene%20Stellen-763-2563eb?style=for-the-badge" alt="Offene Stellen: 763" />
+  <img src="https://img.shields.io/badge/Praktika-376-16a34a?style=for-the-badge" alt="Praktika: 376" />
+  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 387" />
 </p>
-<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
+<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -60,26 +60,26 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 749 (Praktika: 374 · New Grad: 375)<br>
-**Letzte erfolgreiche Datenerfassung:** 23. Oktober 2026 um 12:20 UTC
+**Offene Stellen:** 763 (Praktika: 376 · New Grad: 387)<br>
+**Letzte erfolgreiche Datenerfassung:** 27. Oktober 2026 um 22:45 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 375 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 387 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4482300597>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [Ansehen](<https://www.linkedin.com/jobs/view/4482306524>) |
+| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [Ansehen](<https://www.linkedin.com/jobs/view/4483120039>) |
 | Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4481351802>) |
 | Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [Ansehen](<https://www.linkedin.com/jobs/view/4481130276>) |
-| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [Ansehen](<https://www.linkedin.com/jobs/view/4482126351>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4480498081>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Neueste Praktika
 
-5 von 374 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 376 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|

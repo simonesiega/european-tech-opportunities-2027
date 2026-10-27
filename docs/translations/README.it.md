@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Ultima raccolta completata con successo: 23 ottobre 2026 alle 12:20 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-749-2563eb?style=for-the-badge" alt="Offerte attive: 749" />
-  <img src="https://img.shields.io/badge/Tirocini-374-16a34a?style=for-the-badge" alt="Tirocini: 374" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="Posizioni New Grad: 375" />
+  <strong>Ultima raccolta completata con successo: 27 ottobre 2026 alle 22:45 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offerte%20attive-763-2563eb?style=for-the-badge" alt="Offerte attive: 763" />
+  <img src="https://img.shields.io/badge/Tirocini-376-16a34a?style=for-the-badge" alt="Tirocini: 376" />
+  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="Posizioni New Grad: 387" />
 </p>
-<!-- Public directory state v1 sha256: 735d197f0df39e316637e6397f0fc82c1a3e0fa5a7b3a96fb971f5983a43c368 -->
+<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -60,26 +60,26 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 749 (Tirocini: 374 · New Grad: 375)<br>
-**Ultima raccolta completata con successo:** 23 ottobre 2026 alle 12:20 UTC
+**Offerte aperte:** 763 (Tirocini: 376 · New Grad: 387)<br>
+**Ultima raccolta completata con successo:** 27 ottobre 2026 alle 22:45 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 375 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 387 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
+| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [Apri](<https://www.linkedin.com/jobs/view/4482300597>) |
+| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [Apri](<https://www.linkedin.com/jobs/view/4482306524>) |
+| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [Apri](<https://www.linkedin.com/jobs/view/4483120039>) |
 | Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [Apri](<https://www.linkedin.com/jobs/view/4481351802>) |
 | Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [Apri](<https://www.linkedin.com/jobs/view/4481130276>) |
-| Anduril Industries | 2027 New Grad Software Development in Test | Dublin, County Dublin, Ireland | [Apri](<https://www.linkedin.com/jobs/view/4482126351>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Bari, Apulia, Italy | [Apri](<https://www.linkedin.com/jobs/view/4480498081>) |
-| DXC Technology | Graduate Academy – Full Stack &amp; AI Assisted Development | Rome, Latium, Italy | [Apri](<https://www.linkedin.com/jobs/view/4480488466>) |
 
 ### Ultimi tirocini
 
-5 tirocini su 374 ancora aperti, ordinati dalla data di prima rilevazione più recente:
+5 tirocini su 376 ancora aperti, ordinati dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
