@@ -55,7 +55,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Guarda il video](../assets/promo/european-tech-opportunities-2027.mp4) · [Trascrizione](../assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Panoramica statica](../assets/promo/storyboard.webp)
 
-Nato come piccolo progetto open source, European Tech Opportunities 2027 ha raggiunto persone in tutta Europa e non solo. Una precedente rilevazione aggregata del traffico ha registrato **oltre 21.000 visualizzazioni di pagina**, **oltre 4.900 utenti** e **oltre 9.300 visite da più di 70 Paesi**. Il progetto è stato scoperto attraverso **oltre 25 fonti diverse**, tra cui Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram e Facebook.
+Nato come piccolo progetto open source, European Tech Opportunities 2027 ha raggiunto persone in tutta Europa e non solo. Una precedente rilevazione aggregata del traffico ha registrato **oltre 28.800 visualizzazioni di pagina**, **oltre 6.200 utenti** e **oltre 11.400 visite da più di 70 Paesi**. Il progetto è stato scoperto attraverso **oltre 25 fonti diverse**, tra cui Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram e Facebook.
 
 ## Ultime opportunità
 
