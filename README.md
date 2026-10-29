@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Last successful collection: October 27, 2026 at 22:45 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-763-2563eb?style=for-the-badge" alt="Total opportunities: 763" />
+  <img src="https://img.shields.io/badge/Total%20opportunities-761-2563eb?style=for-the-badge" alt="Total opportunities: 761" />
   <img src="https://img.shields.io/badge/Internships-376-16a34a?style=for-the-badge" alt="Internships: 376" />
-  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="New Grad opportunities: 387" />
+  <img src="https://img.shields.io/badge/New%20Grad-385-9333ea?style=for-the-badge" alt="New Grad opportunities: 385" />
 </p>
-<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
+<!-- Public directory state v1 sha256: 928e6e2d4dc4d885f03546c1fec533458931f418d7863ab67e8934e4c3cbc84d -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -60,14 +60,14 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 763 (Internships: 376 · New Grad: 387)<br>
+**Open opportunities:** 761 (Internships: 376 · New Grad: 385)<br>
 **Last successful collection:** October 27, 2026 at 22:45 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 387 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 385 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
