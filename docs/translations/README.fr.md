@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Dernière collecte réussie : 27 octobre 2026 à 22 h 45 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offres%20actives-763-2563eb?style=for-the-badge" alt="Offres actives : 763" />
+  <img src="https://img.shields.io/badge/Offres%20actives-761-2563eb?style=for-the-badge" alt="Offres actives : 761" />
   <img src="https://img.shields.io/badge/Stages-376-16a34a?style=for-the-badge" alt="Stages : 376" />
-  <img src="https://img.shields.io/badge/New%20Grad-387-9333ea?style=for-the-badge" alt="Offres New Grad : 387" />
+  <img src="https://img.shields.io/badge/New%20Grad-385-9333ea?style=for-the-badge" alt="Offres New Grad : 385" />
 </p>
-<!-- Public directory state v1 sha256: e4ae7402bd3552018eca0b1b081d50fad739d4a59614718ac0d7a87a1e08b409 -->
+<!-- Public directory state v1 sha256: 928e6e2d4dc4d885f03546c1fec533458931f418d7863ab67e8934e4c3cbc84d -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Pourquoi ce projet ?
@@ -60,14 +60,14 @@ Ce qui n’était au départ qu’un petit projet open source a trouvé son publ
 ## Dernières offres
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offres actives :** 763 (Stages : 376 · New Grad : 387)<br>
+**Offres actives :** 761 (Stages : 376 · New Grad : 385)<br>
 **Dernière collecte réussie :** 27 octobre 2026 à 22 h 45 UTC
 
 Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Dernières offres New Grad
 
-5 offres parmi les 387 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 385 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
