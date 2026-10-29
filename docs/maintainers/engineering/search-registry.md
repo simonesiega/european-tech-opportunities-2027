@@ -29,7 +29,7 @@ The loader scans `configs/searches/` recursively:
 ```text
 configs/searches/
 ├── roles/       # 23 technology paths
-├── companies/   # 33 targeted employers
+├── companies/   # 34 targeted employers
 └── countries/   # 33 country partitions
 ```
 
