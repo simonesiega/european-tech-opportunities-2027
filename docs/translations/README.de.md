@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Letzte erfolgreiche Datenerfassung: 27. Oktober 2026 um 22:45 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-761-2563eb?style=for-the-badge" alt="Offene Stellen: 761" />
-  <img src="https://img.shields.io/badge/Praktika-376-16a34a?style=for-the-badge" alt="Praktika: 376" />
-  <img src="https://img.shields.io/badge/New%20Grad-385-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 385" />
+  <strong>Letzte erfolgreiche Datenerfassung: 31. Oktober 2026 um 00:17 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offene%20Stellen-800-2563eb?style=for-the-badge" alt="Offene Stellen: 800" />
+  <img src="https://img.shields.io/badge/Praktika-396-16a34a?style=for-the-badge" alt="Praktika: 396" />
+  <img src="https://img.shields.io/badge/New%20Grad-404-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 404" />
 </p>
-<!-- Public directory state v1 sha256: 928e6e2d4dc4d885f03546c1fec533458931f418d7863ab67e8934e4c3cbc84d -->
+<!-- Public directory state v1 sha256: fc024239106dc0bad9d4850638229da54953aca95968b30a142471e1c7f9dc45 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -60,34 +60,34 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 761 (Praktika: 376 · New Grad: 385)<br>
-**Letzte erfolgreiche Datenerfassung:** 27. Oktober 2026 um 22:45 UTC
+**Offene Stellen:** 800 (Praktika: 396 · New Grad: 404)<br>
+**Letzte erfolgreiche Datenerfassung:** 31. Oktober 2026 um 00:17 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 385 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 404 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
-| Bending Spoons | Graduate data scientist | Madrid, Community of Madrid, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4482300597>) |
-| Bending Spoons | Graduate data scientist | Oxford, England, United Kingdom | [Ansehen](<https://www.linkedin.com/jobs/view/4482306524>) |
-| McKesson | Graduate Cyber Security Analyst \(Cyber Academy\) | Cork, County Cork, Ireland | [Ansehen](<https://www.linkedin.com/jobs/view/4483120039>) |
-| Ali Professional | Graduate Software Developer / Full Stack Developer | Pisa, Tuscany, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4481351802>) |
-| Fortray Global Service Limited | Graduate Software Engineer | Dublin, County Dublin, Ireland | [Ansehen](<https://www.linkedin.com/jobs/view/4481130276>) |
+| Bending Spoons | Graduate AI software engineer | Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484898669>) |
+| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [Ansehen](<https://www.linkedin.com/jobs/view/4484897692>) |
+| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484897665>) |
+| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4484894667>) |
+| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4484889681>) |
 
 ### Neueste Praktika
 
-5 von 376 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 396 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
-| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Würselen, North Rhine-Westphalia, Germany | [Ansehen](<https://www.linkedin.com/jobs/view/4472364767>) |
-| Cytiva | Intern PLC developer thesis worker | Uppsala, Uppsala County, Sweden | [Ansehen](<https://www.linkedin.com/jobs/view/4480052184>) |
-| Intel | Intern Software QA Test Engineer | Gdańsk, Pomorskie, Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4481123212>) |
-| KPMG Italy | Junior ServiceNow Developer \(Intern\) | Milan, Lombardy, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4471999690>) |
-| NVIDIA | Developer Technology Engineering Intern - Compute Performance | Munich, Bavaria, Germany | [Ansehen](<https://www.linkedin.com/jobs/view/4481101926>) |
+| Meta | Research Scientist Intern, AI Core Machine Learning \(PhD\) | Paris, Île-de-France, France | [Ansehen](<https://www.linkedin.com/jobs/view/4483469893>) |
+| ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [Ansehen](<https://www.linkedin.com/jobs/view/4476290199>) |
+| Bending Spoons | Security engineer intern | Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484591655>) |
+| RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [Ansehen](<https://www.linkedin.com/jobs/view/4485223442>) |
+| Roche | Internship - Software and Data Engineer \(for 12 months in Rotkreuz\) | Rotkreuz, Zug, Switzerland | [Ansehen](<https://www.linkedin.com/jobs/view/4484048585>) |
 <!-- END OPPORTUNITIES -->
 
 Du vermisst ein passendes Angebot? [Schlage eine Stelle vor](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Vorschläge werden vor der Veröffentlichung geprüft.
