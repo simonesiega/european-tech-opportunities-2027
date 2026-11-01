@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Last successful collection: October 31, 2026 at 00:17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-800-2563eb?style=for-the-badge" alt="Total opportunities: 800" />
-  <img src="https://img.shields.io/badge/Internships-396-16a34a?style=for-the-badge" alt="Internships: 396" />
-  <img src="https://img.shields.io/badge/New%20Grad-404-9333ea?style=for-the-badge" alt="New Grad opportunities: 404" />
+  <img src="https://img.shields.io/badge/Total%20opportunities-798-2563eb?style=for-the-badge" alt="Total opportunities: 798" />
+  <img src="https://img.shields.io/badge/Internships-395-16a34a?style=for-the-badge" alt="Internships: 395" />
+  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="New Grad opportunities: 403" />
 </p>
-<!-- Public directory state v1 sha256: fc024239106dc0bad9d4850638229da54953aca95968b30a142471e1c7f9dc45 -->
+<!-- Public directory state v1 sha256: bbeb5d4023276912eec2290de977ae4ef1a97d8815fc3da5e8e8427d6e7cbcf5 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -60,14 +60,14 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 800 (Internships: 396 · New Grad: 404)<br>
+**Open opportunities:** 798 (Internships: 395 · New Grad: 403)<br>
 **Last successful collection:** October 31, 2026 at 00:17 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 404 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 403 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -79,7 +79,7 @@ Showing 5 of 404 open New Grad opportunities, newest first by first-seen time:
 
 ### Latest internships
 
-Showing 5 of 396 open internships, newest first by first-seen time:
+Showing 5 of 395 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
