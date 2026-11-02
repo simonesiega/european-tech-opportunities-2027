@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Letzte erfolgreiche Datenerfassung: 31. Oktober 2026 um 00:17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-798-2563eb?style=for-the-badge" alt="Offene Stellen: 798" />
-  <img src="https://img.shields.io/badge/Praktika-395-16a34a?style=for-the-badge" alt="Praktika: 395" />
-  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 403" />
+  <strong>Letzte erfolgreiche Datenerfassung: 2. November 2026 um 23:13 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offene%20Stellen-804-2563eb?style=for-the-badge" alt="Offene Stellen: 804" />
+  <img src="https://img.shields.io/badge/Praktika-396-16a34a?style=for-the-badge" alt="Praktika: 396" />
+  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 408" />
 </p>
-<!-- Public directory state v1 sha256: bbeb5d4023276912eec2290de977ae4ef1a97d8815fc3da5e8e8427d6e7cbcf5 -->
+<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -60,26 +60,26 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 798 (Praktika: 395 · New Grad: 403)<br>
-**Letzte erfolgreiche Datenerfassung:** 31. Oktober 2026 um 00:17 UTC
+**Offene Stellen:** 804 (Praktika: 396 · New Grad: 408)<br>
+**Letzte erfolgreiche Datenerfassung:** 2. November 2026 um 23:13 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 403 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 408 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
+| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [Ansehen](<https://www.linkedin.com/jobs/view/4485367529>) |
 | Bending Spoons | Graduate AI software engineer | Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484898669>) |
 | Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [Ansehen](<https://www.linkedin.com/jobs/view/4484897692>) |
 | Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484897665>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4484894667>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [Ansehen](<https://www.linkedin.com/jobs/view/4484889681>) |
 
 ### Neueste Praktika
 
-5 von 395 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 396 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
@@ -87,7 +87,7 @@ Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[http
 | ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [Ansehen](<https://www.linkedin.com/jobs/view/4476290199>) |
 | Bending Spoons | Security engineer intern | Poland | [Ansehen](<https://www.linkedin.com/jobs/view/4484591655>) |
 | RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [Ansehen](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Roche | Internship - Software and Data Engineer \(for 12 months in Rotkreuz\) | Rotkreuz, Zug, Switzerland | [Ansehen](<https://www.linkedin.com/jobs/view/4484048585>) |
+| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [Ansehen](<https://www.linkedin.com/jobs/view/4484534979>) |
 <!-- END OPPORTUNITIES -->
 
 Du vermisst ein passendes Angebot? [Schlage eine Stelle vor](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Vorschläge werden vor der Veröffentlichung geprüft.
