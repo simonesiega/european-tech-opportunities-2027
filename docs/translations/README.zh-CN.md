@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 10 月 31 日 00:17（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-798-2563eb?style=for-the-badge" alt="在招职位总数：798" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-395-16a34a?style=for-the-badge" alt="实习岗位：395" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-403-9333ea?style=for-the-badge" alt="应届生岗位：403" />
+  <strong>最近一次成功采集：2026 年 11 月 2 日 23:13（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-804-2563eb?style=for-the-badge" alt="在招职位总数：804" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-396-16a34a?style=for-the-badge" alt="实习岗位：396" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-408-9333ea?style=for-the-badge" alt="应届生岗位：408" />
 </p>
-<!-- Public directory state v1 sha256: bbeb5d4023276912eec2290de977ae4ef1a97d8815fc3da5e8e8427d6e7cbcf5 -->
+<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -60,26 +60,26 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 798（实习：395 · New Grad：403）<br>
-**最近一次成功采集：** 2026 年 10 月 31 日 00:17（UTC）
+**在招职位：** 804（实习：396 · New Grad：408）<br>
+**最近一次成功采集：** 2026 年 11 月 2 日 23:13（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 403 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 408 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
+| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [查看](<https://www.linkedin.com/jobs/view/4485367529>) |
 | Bending Spoons | Graduate AI software engineer | Poland | [查看](<https://www.linkedin.com/jobs/view/4484898669>) |
 | Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [查看](<https://www.linkedin.com/jobs/view/4484897692>) |
 | Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [查看](<https://www.linkedin.com/jobs/view/4484897665>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [查看](<https://www.linkedin.com/jobs/view/4484894667>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [查看](<https://www.linkedin.com/jobs/view/4484889681>) |
 
 ### 最新实习岗位
 
-以下展示 395 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 396 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
@@ -87,7 +87,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 | ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [查看](<https://www.linkedin.com/jobs/view/4476290199>) |
 | Bending Spoons | Security engineer intern | Poland | [查看](<https://www.linkedin.com/jobs/view/4484591655>) |
 | RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [查看](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Roche | Internship - Software and Data Engineer \(for 12 months in Rotkreuz\) | Rotkreuz, Zug, Switzerland | [查看](<https://www.linkedin.com/jobs/view/4484048585>) |
+| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [查看](<https://www.linkedin.com/jobs/view/4484534979>) |
 <!-- END OPPORTUNITIES -->
 
 发现尚未收录的合适职位？欢迎 [推荐职位](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml)。提交的职位会在审核后发布。

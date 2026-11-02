@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: October 31, 2026 at 00:17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-798-2563eb?style=for-the-badge" alt="Total opportunities: 798" />
-  <img src="https://img.shields.io/badge/Internships-395-16a34a?style=for-the-badge" alt="Internships: 395" />
-  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="New Grad opportunities: 403" />
+  <strong>Last successful collection: November 2, 2026 at 23:13 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-804-2563eb?style=for-the-badge" alt="Total opportunities: 804" />
+  <img src="https://img.shields.io/badge/Internships-396-16a34a?style=for-the-badge" alt="Internships: 396" />
+  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="New Grad opportunities: 408" />
 </p>
-<!-- Public directory state v1 sha256: bbeb5d4023276912eec2290de977ae4ef1a97d8815fc3da5e8e8427d6e7cbcf5 -->
+<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -60,26 +60,26 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 798 (Internships: 395 · New Grad: 403)<br>
-**Last successful collection:** October 31, 2026 at 00:17 UTC
+**Open opportunities:** 804 (Internships: 396 · New Grad: 408)<br>
+**Last successful collection:** November 2, 2026 at 23:13 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 403 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 408 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4485367529>) |
 | Bending Spoons | Graduate AI software engineer | Poland | [View](<https://www.linkedin.com/jobs/view/4484898669>) |
 | Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [View](<https://www.linkedin.com/jobs/view/4484897692>) |
 | Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4484897665>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4484894667>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4484889681>) |
 
 ### Latest internships
 
-Showing 5 of 395 open internships, newest first by first-seen time:
+Showing 5 of 396 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -87,7 +87,7 @@ Showing 5 of 395 open internships, newest first by first-seen time:
 | ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [View](<https://www.linkedin.com/jobs/view/4476290199>) |
 | Bending Spoons | Security engineer intern | Poland | [View](<https://www.linkedin.com/jobs/view/4484591655>) |
 | RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [View](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Roche | Internship - Software and Data Engineer \(for 12 months in Rotkreuz\) | Rotkreuz, Zug, Switzerland | [View](<https://www.linkedin.com/jobs/view/4484048585>) |
+| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4484534979>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.

@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Dernière collecte réussie : 31 octobre 2026 à 00 h 17 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offres%20actives-798-2563eb?style=for-the-badge" alt="Offres actives : 798" />
-  <img src="https://img.shields.io/badge/Stages-395-16a34a?style=for-the-badge" alt="Stages : 395" />
-  <img src="https://img.shields.io/badge/New%20Grad-403-9333ea?style=for-the-badge" alt="Offres New Grad : 403" />
+  <strong>Dernière collecte réussie : 2 novembre 2026 à 23 h 13 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offres%20actives-804-2563eb?style=for-the-badge" alt="Offres actives : 804" />
+  <img src="https://img.shields.io/badge/Stages-396-16a34a?style=for-the-badge" alt="Stages : 396" />
+  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="Offres New Grad : 408" />
 </p>
-<!-- Public directory state v1 sha256: bbeb5d4023276912eec2290de977ae4ef1a97d8815fc3da5e8e8427d6e7cbcf5 -->
+<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Pourquoi ce projet ?
@@ -60,26 +60,26 @@ Ce qui n’était au départ qu’un petit projet open source a trouvé son publ
 ## Dernières offres
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offres actives :** 798 (Stages : 395 · New Grad : 403)<br>
-**Dernière collecte réussie :** 31 octobre 2026 à 00 h 17 UTC
+**Offres actives :** 804 (Stages : 396 · New Grad : 408)<br>
+**Dernière collecte réussie :** 2 novembre 2026 à 23 h 13 UTC
 
 Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Dernières offres New Grad
 
-5 offres parmi les 403 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 408 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
+| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [Voir l’offre](<https://www.linkedin.com/jobs/view/4485367529>) |
 | Bending Spoons | Graduate AI software engineer | Poland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484898669>) |
 | Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484897692>) |
 | Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484897665>) |
 | Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484894667>) |
-| Bending Spoons | Graduate AI software engineer | Madrid, Community of Madrid, Spain | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484889681>) |
 
 ### Derniers stages
 
-5 offres parmi les 395 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 396 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
@@ -87,7 +87,7 @@ Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu
 | ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [Voir l’offre](<https://www.linkedin.com/jobs/view/4476290199>) |
 | Bending Spoons | Security engineer intern | Poland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484591655>) |
 | RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Roche | Internship - Software and Data Engineer \(for 12 months in Rotkreuz\) | Rotkreuz, Zug, Switzerland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484048585>) |
+| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [Voir l’offre](<https://www.linkedin.com/jobs/view/4484534979>) |
 <!-- END OPPORTUNITIES -->
 
 Une offre intéressante manque à l’appel ? [Proposez une annonce](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Chaque suggestion est examinée avant publication.
