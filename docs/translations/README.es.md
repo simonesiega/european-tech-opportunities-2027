@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 2 de noviembre de 2026 a las 23:13 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-804-2563eb?style=for-the-badge" alt="Ofertas activas: 804" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-396-16a34a?style=for-the-badge" alt="Prácticas: 396" />
-  <img src="https://img.shields.io/badge/New%20Grad-408-9333ea?style=for-the-badge" alt="Puestos New Grad: 408" />
+  <strong>Última recopilación realizada con éxito: 4 de noviembre de 2026 a las 14:09 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-791-2563eb?style=for-the-badge" alt="Ofertas activas: 791" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-395-16a34a?style=for-the-badge" alt="Prácticas: 395" />
+  <img src="https://img.shields.io/badge/New%20Grad-396-9333ea?style=for-the-badge" alt="Puestos New Grad: 396" />
 </p>
-<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
+<!-- Public directory state v1 sha256: d8fe679d00b70c3254b833fe43a5fef22699764de0226a8288e0572d46b22dce -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -60,34 +60,34 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 804 (Prácticas: 396 · New Grad: 408)<br>
-**Última recopilación realizada con éxito:** 2 de noviembre de 2026 a las 23:13 UTC
+**Ofertas activas:** 791 (Prácticas: 395 · New Grad: 396)<br>
+**Última recopilación realizada con éxito:** 4 de noviembre de 2026 a las 14:09 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 408 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 396 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
-| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [Ver oferta](<https://www.linkedin.com/jobs/view/4485367529>) |
-| Bending Spoons | Graduate AI software engineer | Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4484898669>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [Ver oferta](<https://www.linkedin.com/jobs/view/4484897692>) |
-| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4484897665>) |
-| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4484894667>) |
+| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486307871>) |
+| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [Ver oferta](<https://www.linkedin.com/jobs/view/4486067809>) |
+| Bending Spoons | Graduate data scientist | Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486033138>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486019976>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4485708494>) |
 
 ### Últimas ofertas de prácticas
 
-5 de 396 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 395 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
-| Meta | Research Scientist Intern, AI Core Machine Learning \(PhD\) | Paris, Île-de-France, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4483469893>) |
-| ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [Ver oferta](<https://www.linkedin.com/jobs/view/4476290199>) |
-| Bending Spoons | Security engineer intern | Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4484591655>) |
-| RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [Ver oferta](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [Ver oferta](<https://www.linkedin.com/jobs/view/4484534979>) |
+| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4486367837>) |
+| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4487240115>) |
+| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4485735587>) |
+| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4486160531>) |
+| Sia | Final year internship - Data Scientist &amp; AI Consultant | Paris, Île-de-France, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4486119935>) |
 <!-- END OPPORTUNITIES -->
 
 ¿Conoces una oferta que debería estar aquí? [Propón una nueva oferta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Todas las propuestas se revisan antes de publicarse.
