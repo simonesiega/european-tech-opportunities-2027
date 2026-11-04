@@ -29,12 +29,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 11 月 2 日 23:13（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-804-2563eb?style=for-the-badge" alt="在招职位总数：804" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-396-16a34a?style=for-the-badge" alt="实习岗位：396" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-408-9333ea?style=for-the-badge" alt="应届生岗位：408" />
+  <strong>最近一次成功采集：2026 年 11 月 4 日 14:09（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-791-2563eb?style=for-the-badge" alt="在招职位总数：791" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-395-16a34a?style=for-the-badge" alt="实习岗位：395" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-396-9333ea?style=for-the-badge" alt="应届生岗位：396" />
 </p>
-<!-- Public directory state v1 sha256: bcb328cd54195a724a40b6ac702b58d3085399f4e4a298843eee7ad101374680 -->
+<!-- Public directory state v1 sha256: d8fe679d00b70c3254b833fe43a5fef22699764de0226a8288e0572d46b22dce -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -60,34 +60,34 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 804（实习：396 · New Grad：408）<br>
-**最近一次成功采集：** 2026 年 11 月 2 日 23:13（UTC）
+**在招职位：** 791（实习：395 · New Grad：396）<br>
+**最近一次成功采集：** 2026 年 11 月 4 日 14:09（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 408 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 396 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
-| ABB | Newly Graduate Cyber Security Project Engineer | Ballerup, Capital Region of Denmark, Denmark | [查看](<https://www.linkedin.com/jobs/view/4485367529>) |
-| Bending Spoons | Graduate AI software engineer | Poland | [查看](<https://www.linkedin.com/jobs/view/4484898669>) |
-| Bending Spoons | Graduate software engineer | Bucharest, Bucharest, Romania | [查看](<https://www.linkedin.com/jobs/view/4484897692>) |
-| Bending Spoons | Graduate AI software engineer | Warsaw, Mazowieckie, Poland | [查看](<https://www.linkedin.com/jobs/view/4484897665>) |
-| Bending Spoons | Graduate software engineer | Milan, Lombardy, Italy | [查看](<https://www.linkedin.com/jobs/view/4484894667>) |
+| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [查看](<https://www.linkedin.com/jobs/view/4486307871>) |
+| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [查看](<https://www.linkedin.com/jobs/view/4486067809>) |
+| Bending Spoons | Graduate data scientist | Poland | [查看](<https://www.linkedin.com/jobs/view/4486033138>) |
+| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [查看](<https://www.linkedin.com/jobs/view/4486019976>) |
+| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [查看](<https://www.linkedin.com/jobs/view/4485708494>) |
 
 ### 最新实习岗位
 
-以下展示 396 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 395 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
-| Meta | Research Scientist Intern, AI Core Machine Learning \(PhD\) | Paris, Île-de-France, France | [查看](<https://www.linkedin.com/jobs/view/4483469893>) |
-| ABB E-mobility | Intern - Software Testing | Delft, South Holland, Netherlands | [查看](<https://www.linkedin.com/jobs/view/4476290199>) |
-| Bending Spoons | Security engineer intern | Poland | [查看](<https://www.linkedin.com/jobs/view/4484591655>) |
-| RIVR | Robotics Wireless &amp; Network Engineer Intern, RIVR | Zurich, Zurich, Switzerland | [查看](<https://www.linkedin.com/jobs/view/4485223442>) |
-| Siemens Gamesa | Digitalisation Intern \(Software Developer\) | Kingston Upon Hull, England, United Kingdom | [查看](<https://www.linkedin.com/jobs/view/4484534979>) |
+| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [查看](<https://www.linkedin.com/jobs/view/4486367837>) |
+| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [查看](<https://www.linkedin.com/jobs/view/4487240115>) |
+| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [查看](<https://www.linkedin.com/jobs/view/4485735587>) |
+| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [查看](<https://www.linkedin.com/jobs/view/4486160531>) |
+| Sia | Final year internship - Data Scientist &amp; AI Consultant | Paris, Île-de-France, France | [查看](<https://www.linkedin.com/jobs/view/4486119935>) |
 <!-- END OPPORTUNITIES -->
 
 发现尚未收录的合适职位？欢迎 [推荐职位](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml)。提交的职位会在审核后发布。
