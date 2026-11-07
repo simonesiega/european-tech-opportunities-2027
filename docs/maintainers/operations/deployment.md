@@ -28,10 +28,10 @@ The root `Dockerfile` is the executable source of truth for image versions and p
 
 | Target | Final runtime | Responsibility |
 |---|---|---|
-| `opportunities` | Python 3.14.7 on Debian 13 slim | CLI commands, migrations, collection, validation, and generated-document rendering |
+| `opportunities` | Python 3.15.0 on Debian 13 slim | CLI commands, migrations, collection, validation, and generated-document rendering |
 | `site` | Node.js 26 on Debian 13 slim with Next.js standalone output | Read-only website server on port `3000` |
 
-Disposable build stages use the digest-pinned `uv` 0.13.4 image, Bun 1.4.3 on Alpine, and Node.js 26 on Alpine. Package-manager binaries are omitted from the final images: the pipeline invokes the installed console script directly, and the website runtime omits npm.
+Disposable build stages use the digest-pinned `uv` 0.13.7 image, Bun 1.4.4 on Alpine, and Node.js 26 on Alpine. Package-manager binaries are omitted from the final images: the pipeline invokes the installed console script directly, and the website runtime omits npm.
 
 Both final images run as an unprivileged user:
 
@@ -42,7 +42,7 @@ GID 10001
 
 The Compose services also drop all Linux capabilities and set `no-new-privileges`.
 
-The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets pin security revisions for `gzip`, PCRE2, OpenSSL, and Perl; the Python target also pins SQLite. Keep these revisions until they are incorporated into the base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
+The images install only the dependencies required by their target and use committed lockfiles, versioned images, and immutable image digests for reproducible builds. Both Debian runtime targets pin security revisions for APT (`apt` and `libapt-pkg7.0`), `gzip`, PCRE2, SQLite, OpenSSL, Perl, and zlib. APT is pinned to `3.0.4` and zlib to `1:1.3.dfsg+really1.3.1-1+deb13u1` to address the fixable high-severity findings that block Docker CI. Keep these revisions until they are incorporated into the base-image digests. Update the pins and package versions together; an unavailable exact package version is intentionally a build failure rather than a silent fallback.
 
 ## Build images
 

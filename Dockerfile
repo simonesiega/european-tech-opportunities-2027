@@ -18,13 +18,16 @@ WORKDIR /app
 # Apply security fixes not yet included in the pinned base image.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
+        apt=3.0.4 \
         gzip=1.13-1+deb13u1 \
+        libapt-pkg7.0=3.0.4 \
         libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
         openssl=3.5.7-1~deb13u3 \
         openssl-provider-legacy=3.5.7-1~deb13u3 \
         perl-base=5.40.1-6+deb13u1 \
+        zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Cache Python dependencies independently from application source.
@@ -92,12 +95,15 @@ ENV NODE_ENV=production \
 # The standalone server does not need npm.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends --only-upgrade \
+        apt=3.0.4 \
         gzip=1.13-1+deb13u1 \
+        libapt-pkg7.0=3.0.4 \
         libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
         openssl-provider-legacy=3.5.7-1~deb13u3 \
         perl-base=5.40.1-6+deb13u1 \
+        zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1 \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /usr/local/lib/node_modules/npm \
     && rm -f /usr/local/bin/npm /usr/local/bin/npx \
