@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Última recopilación realizada con éxito: 4 de noviembre de 2026 a las 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-791-2563eb?style=for-the-badge" alt="Ofertas activas: 791" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-395-16a34a?style=for-the-badge" alt="Prácticas: 395" />
-  <img src="https://img.shields.io/badge/New%20Grad-396-9333ea?style=for-the-badge" alt="Puestos New Grad: 396" />
+  <img src="https://img.shields.io/badge/Ofertas%20activas-759-2563eb?style=for-the-badge" alt="Ofertas activas: 759" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-386-16a34a?style=for-the-badge" alt="Prácticas: 386" />
+  <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="Puestos New Grad: 373" />
 </p>
-<!-- Public directory state v1 sha256: d8fe679d00b70c3254b833fe43a5fef22699764de0226a8288e0572d46b22dce -->
+<!-- Public directory state v1 sha256: cc1e75b83a63d225b36a2b7262c16957916afa6b10ff9c4f29eeb9b6d05f4907 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -60,14 +60,14 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 791 (Prácticas: 395 · New Grad: 396)<br>
+**Ofertas activas:** 759 (Prácticas: 386 · New Grad: 373)<br>
 **Última recopilación realizada con éxito:** 4 de noviembre de 2026 a las 14:09 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 396 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 373 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
@@ -79,7 +79,7 @@ Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](h
 
 ### Últimas ofertas de prácticas
 
-5 de 395 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 386 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
