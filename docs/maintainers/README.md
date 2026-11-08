@@ -62,3 +62,9 @@ See the [v1.0.0 release notes](../releases/v1.0.0.md) for stable product scope a
 ## Agents and policy ownership
 
 Coding agents start with the root [agent guidelines](../../AGENTS.md), then load only the relevant guides. Root [Security](../../SECURITY.md), [Privacy](../../PRIVACY.md), [Contributing](../../CONTRIBUTING.md), [Code of Conduct](../../CODE_OF_CONDUCT.md), and [License](../../LICENSE) remain canonical. Do not copy policies into new pages.
+
+## External references
+
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/simonesiega/badge.svg)](https://hub.xerj.org/contributors/simonesiega)
+
+The [XERJ Corpus Hub](https://hub.xerj.org/corpus/simonesiega--european-tech-opportunities-2027) indexes a pinned snapshot of this repository. Its selected implementation is [PR #236: validated partial collections and search rotation](https://github.com/simonesiega/european-tech-opportunities-2027/pull/236), not the latest `main` branch.

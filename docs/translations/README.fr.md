@@ -22,9 +22,6 @@
   <a href="https://github.com/simonesiega/european-tech-opportunities-2027/actions?query=branch%3Amain">
     <img src="https://img.shields.io/github/check-suites/simonesiega/european-tech-opportunities-2027/main?label=CI" alt="État global de l’intégration continue sur la branche main" />
   </a>
-  <a href="https://hub.xerj.org/contributors/simonesiega">
-    <img src="https://hub.xerj.org/contributors/simonesiega/badge.svg" alt="XERJ Corpus Hub contributor" />
-  </a>
 </p>
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
@@ -55,7 +52,7 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 
 [Regarder la vidéo](../assets/promo/european-tech-opportunities-2027.mp4) · [Transcription](../assets/promo/maintainers/VIDEO.md#timeline-and-descriptive-transcript) · [Présentation en images](../assets/promo/storyboard.webp)
 
-Ce qui n’était au départ qu’un petit projet open source a trouvé son public en Europe et au-delà. Un précédent relevé de fréquentation agrégée faisait état de **plus de 28 800 pages vues**, **plus de 6 200 utilisateurs** et **plus de 11 400 visites provenant de plus de 70 pays**. Le projet avait été découvert par **plus de 25 sources différentes**, notamment Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram et Facebook.
+Ce qui n’était au départ qu’un petit projet open source a trouvé son public en Europe et au-delà. Un précédent relevé de fréquentation agrégée faisait état de **plus de 39 000 pages vues**, **plus de 8 400 utilisateurs** et **plus de 15 400 visites provenant de plus de 70 pays**. Le projet avait été découvert par **plus de 25 sources différentes**, notamment Google, GitHub, ChatGPT, DuckDuckGo, Claude, Perplexity, Instagram, Telegram et Facebook.
 
 ## Dernières offres
 
