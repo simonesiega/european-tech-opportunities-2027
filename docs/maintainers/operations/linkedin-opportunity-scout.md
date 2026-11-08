@@ -1,6 +1,6 @@
 # Research overlooked LinkedIn opportunities
 
-[← Maintainer handbook](../README.md) · [Classification](../engineering/classification.md) · [Public API](../../users/data/api.md) · [Manual addition](automation.md#manual-job-addition) · [Security](../../../SECURITY.md)
+[← Maintainer handbook](../README.md) · [Prompt templates](linkedin-opportunity-scout-prompts.md) · [Classification](../engineering/classification.md) · [Public API](../../users/data/api.md) · [Manual addition](automation.md#manual-job-addition) · [Security](../../../SECURITY.md)
 
 Use the shared `linkedin-opportunity-scout` Codex skill to research public LinkedIn internships and New Grad roles, compare them with every published open listing, and save evidence for human review. Research remains read-only with respect to canonical state. No LLM service, API key, scheduler, or background agent is required.
 
@@ -23,6 +23,8 @@ Write a report and stop before submitting anything.
 ```
 
 The tracked entry point is [SKILL.md](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.agents/skills/linkedin-opportunity-scout/SKILL.md). Codex discovers its `name` and `description` metadata in `.agents/skills/linkedin-opportunity-scout/`. If the current session predates the skill, restart or refresh skill discovery. If the environment lacks that facility, explicitly ask it to read that entry point; this is a fallback, not proof of native invocation support.
+
+For reusable research, review, preparation, submission, and follow-up requests, use the [scout prompt templates](linkedin-opportunity-scout-prompts.md). Replace their placeholders and send only the prompt for the action you intend to authorize.
 
 The skill uses the active session's available research tools. A local synthetic test cannot establish that compliant LinkedIn browsing is available in another Codex environment. Missing browsing or GitHub tools do not justify installing a scraper or requesting source credentials.
 

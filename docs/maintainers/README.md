@@ -41,6 +41,7 @@ For routine maintenance without a local checkout, start with [routine operation 
 | Task | Procedure |
 |---|---|
 | Research overlooked LinkedIn listings and prepare reviewed additions | [LinkedIn opportunity scout](operations/linkedin-opportunity-scout.md) |
+| Choose prompts for scout research, approval, and follow-up | [Scout prompt templates](operations/linkedin-opportunity-scout-prompts.md) |
 | Inspect commands, inputs, side effects, and exit codes | [CLI reference](operations/cli.md) |
 | Configure CI, schedules, protected environments, or snapshot storage | [Automation](operations/automation.md) |
 | Review a collected state and publish it | [Post-nightly runbook](operations/automation.md#post-nightly-production-runbook) |
