@@ -30,11 +30,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Dernière collecte réussie : 4 novembre 2026 à 14 h 09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offres%20actives-759-2563eb?style=for-the-badge" alt="Offres actives : 759" />
-  <img src="https://img.shields.io/badge/Stages-386-16a34a?style=for-the-badge" alt="Stages : 386" />
+  <img src="https://img.shields.io/badge/Offres%20actives-760-2563eb?style=for-the-badge" alt="Offres actives : 760" />
+  <img src="https://img.shields.io/badge/Stages-387-16a34a?style=for-the-badge" alt="Stages : 387" />
   <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="Offres New Grad : 373" />
 </p>
-<!-- Public directory state v1 sha256: cc1e75b83a63d225b36a2b7262c16957916afa6b10ff9c4f29eeb9b6d05f4907 -->
+<!-- Public directory state v1 sha256: 811514e9c534625a9fd56c4f0be1c6a69ad57dd4350f3478144cc966c717b88b -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Pourquoi ce projet ?
@@ -60,7 +60,7 @@ Ce qui n’était au départ qu’un petit projet open source a trouvé son publ
 ## Dernières offres
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offres actives :** 759 (Stages : 386 · New Grad : 373)<br>
+**Offres actives :** 760 (Stages : 387 · New Grad : 373)<br>
 **Dernière collecte réussie :** 4 novembre 2026 à 14 h 09 UTC
 
 Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu/](https://techopportunities.eu/)**.
@@ -79,15 +79,15 @@ Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu
 
 ### Derniers stages
 
-5 offres parmi les 386 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 387 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
+| Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [Voir l’offre](<https://www.linkedin.com/jobs/view/4465067812>) |
 | Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [Voir l’offre](<https://www.linkedin.com/jobs/view/4486367837>) |
 | Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [Voir l’offre](<https://www.linkedin.com/jobs/view/4487240115>) |
 | Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [Voir l’offre](<https://www.linkedin.com/jobs/view/4485735587>) |
 | Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [Voir l’offre](<https://www.linkedin.com/jobs/view/4486160531>) |
-| Sia | Final year internship - Data Scientist &amp; AI Consultant | Paris, Île-de-France, France | [Voir l’offre](<https://www.linkedin.com/jobs/view/4486119935>) |
 <!-- END OPPORTUNITIES -->
 
 Une offre intéressante manque à l’appel ? [Proposez une annonce](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Chaque suggestion est examinée avant publication.
