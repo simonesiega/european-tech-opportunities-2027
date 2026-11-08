@@ -30,7 +30,16 @@ def test_local_workflow_references_use_self_repository_syntax_and_exist() -> Non
     assert checked_references > 0
 
 
-@pytest.mark.parametrize("inventory_path", ["CHANGELOG.md", "scripts/SCRIPT.md", "tests/TEST.md"])
+@pytest.mark.parametrize(
+    "inventory_path",
+    [
+        "CHANGELOG.md",
+        "scripts/SCRIPT.md",
+        "tests/TEST.md",
+        ".agents/skills/README.md",
+        ".agents/skills/linkedin-opportunity-scout/SKILL.md",
+    ],
+)
 def test_source_checker_validates_inventories_and_local_workflow_overview(
     tmp_path: Path,
     inventory_path: str,
@@ -85,7 +94,7 @@ and `settings.yml` is not a workflow reference.
     assert valid.returncode == 0, valid.stderr
 
     inventory = tmp_path / inventory_path
-    inventory.parent.mkdir(exist_ok=True)
+    inventory.parent.mkdir(parents=True, exist_ok=True)
     inventory.write_text("# Scripts\n\n[Missing helper](missing.py)\n", encoding="utf-8")
     invalid_inventory = subprocess.run(
         [sys.executable, str(script_dir / "check_docs.py")],

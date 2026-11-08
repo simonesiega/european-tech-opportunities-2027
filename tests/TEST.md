@@ -480,11 +480,11 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | Test | Behavior protected |
 |---|---|
 | `test_local_workflow_references_use_self_repository_syntax_and_exist` | Local workflow/action references use the repository's supported syntax and resolve to existing files |
-| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog and script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog, script/test-inventory, shared skill README/entry-point links, and actual workflow-table references fail; unrelated example filenames do not cause false failures |
 | `test_diagram_links_and_accessibility_match_source` | All five SVGs retain source-matched titles, descriptions, keyboard-usable native links, real repository targets, and no scripts, HTML labels, event handlers, or external resources |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
 | `test_external_link_scope_keeps_authored_diagram_markdown` | POSIX/Windows paths include authored diagram Markdown while excluding generated media from external-link crawling |
-| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
+| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the shared skill, changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |

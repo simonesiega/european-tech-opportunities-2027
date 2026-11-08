@@ -15,6 +15,8 @@ ROOT_FILES = (
     "scripts/SCRIPT.md",
     "tests/TEST.md",
     "AGENTS.md",
+    ".agents/skills/README.md",
+    ".agents/skills/linkedin-opportunity-scout/SKILL.md",
     "CHANGELOG.md",
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",
