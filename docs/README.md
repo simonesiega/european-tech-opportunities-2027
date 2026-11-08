@@ -57,6 +57,7 @@ Set up a development environment, understand how listings are validated, or oper
 
 | Task | Guide |
 |---|---|
+| Research overlooked LinkedIn listings with Codex | [LinkedIn opportunity scout](maintainers/operations/linkedin-opportunity-scout.md) |
 | Inspect commands and their side effects | [CLI reference](maintainers/operations/cli.md) |
 | Run routine updates without a local checkout | [Operate from GitHub](maintainers/operations/automation.md#routine-operation-from-github) |
 | Configure workflows and protected environments | [Automation and operations](maintainers/operations/automation.md) |

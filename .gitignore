@@ -25,13 +25,17 @@ site/playwright-report/
 site/test-results/
 site/tests/e2e/.tmp/
 
-# Local developer routers, context, and skills; share only setup instructions
+# Local developer routers/context/skills; allow only explicitly shared project skills
 .context/**
 !.context/.gitkeep
 !.context/README.md
 .agents/skills/**
-!.agents/skills/.gitkeep
 !.agents/skills/README.md
+!.agents/skills/linkedin-opportunity-scout/
+!.agents/skills/linkedin-opportunity-scout/SKILL.md
+
+# Local research evidence and prepared manual-addition batches
+reports/linkedin-opportunity-scout/
 
 # Local configuration and secrets
 .env
