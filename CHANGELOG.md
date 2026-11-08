@@ -6,6 +6,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Added
 
+- Add the shared `linkedin-opportunity-scout` Codex skill with complete public-dataset checks, reconciled evidence reports, explicit availability verification, offline classification, and approval-gated manual batches without a research service or automatic publication.
 - Add a manual `skip_availability` option to the nightly workflow; scheduled runs always audit stored jobs before scraping.
 - Add Italian, French, German, Spanish, and Simplified Chinese READMEs to the documentation site, with reciprocal language navigation and synchronized generated data.
 

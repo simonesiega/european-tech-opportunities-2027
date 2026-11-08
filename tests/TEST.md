@@ -207,6 +207,48 @@ Sources: [unit/test_config.py](unit/test_config.py), [unit/test_models.py](unit/
 | `test_linkedin_job_id_is_extracted_only_from_a_valid_listing_url` | IDs are extracted from actual listing URLs, not arbitrary company paths |
 | `test_find_project_root_is_independent_of_directory_depth` | Resource discovery survives repository renaming and deeper module layouts |
 
+### LinkedIn opportunity scout
+
+Source: [unit/test_scout.py](unit/test_scout.py). All HTTP uses synthetic mock responses; research never contacts LinkedIn or dispatches GitHub workflows.
+
+| Test | Behavior protected |
+|---|---|
+| `test_public_contract_is_available_in_the_installed_package` | Wheel-layout schema resources validate public status without relying on checkout paths |
+| `test_public_reader_loads_every_page_and_valid_empty_dataset` | Empty, single-page, boundary, and multi-page reads load all IDs with status brackets, schema-valid integral numeric counts, and no cookies/authentication |
+| `test_public_reader_never_returns_partial_or_inconsistent_data` | Incomplete/duplicate pages, wrong pagination, URL-ID conflicts, schema drift, changed releases, same-count API/export identity mismatches, HTTP/redirect/JSON/encoding/type/size failures, legacy mode, and page budgets fail closed |
+| `test_public_export_fallback_checks_exact_bytes_and_status` | Complete fixed-path export succeeds only with matching exact hash, count, unique IDs, shared schema, and unchanged status |
+| `test_public_reader_rejects_authentication_before_requests` | Authenticated dataset clients fail before network |
+| `test_scout_calls_current_classifier_without_weakening_evidence` | Real classification and publication models preserve graduation-versus-cycle, posting-floor, conflicting year, seniority, geography, normalized-field bounds, New Grad, and future-evidence boundaries |
+| `test_missing_evidence_stays_conditional` | Unverified, uncertain, absent or entity-decoded blank source/cycle evidence, missing listing facts, or unavailable complete dataset cannot produce manual records |
+| `test_direct_verification_requires_an_explicit_boolean` | Strings, numbers, and null cannot be coerced into researcher verification attestations |
+| `test_candidate_identity_uses_repository_url_contract` | Non-LinkedIn, insecure, slug-only, and conflicting candidate URLs fail |
+| `test_naive_posting_evidence_and_conflicting_identity_are_not_repaired` | Ambiguous posting timestamps and raw URL identity conflicts are rejected rather than guessed |
+| `test_availability_requires_verified_positive_evidence` | Affirmative current acceptance alone permits open status; scoped closures and 404/410 reject; missing, empty, ambiguous, or snippet evidence stays conditional and never batches |
+| `test_scoped_closure_alert_cannot_reach_a_manual_batch` | Public-listing HTML parsed through the existing detector rejects scoped closures; omitted availability stays conditional, and verified absence needs no invented listing facts |
+| `test_html_inspection_never_invents_open_status` | Detail identity, Apply buttons, generic acceptance text, and unscoped closure wording never become an invented automatic open detector |
+| `test_html_inspection_propagates_existing_source_challenges` | Reusing the closure detector preserves existing challenge stops instead of turning blocked HTML into availability evidence |
+| `test_reconciliation_uses_verified_complementary_facts_in_either_order` | Identical, case/whitespace-normalized, compatible Unicode-ligature repeats, complementary missing fields, and snippet-to-detail evidence produce order-independent reports and validated single records; weaker contradictory facts and negated snippet quotations remain visible without overriding details |
+| `test_verified_unicode_aliases_cannot_hide_policy_disagreements` | Exact lower/uppercase sharp-S titles, description category signals, and city aliases cannot hide differing real classifier outcomes; both orders preserve conflicts in five-column reports and produce no manual records/batches |
+| `test_reconciliation_does_not_decode_validated_source_fields_again` | Single and repeated observations preserve validated source fields and the production classifier's rejection rather than becoming batchable through extra entity decoding |
+| `test_reconciliation_checks_actual_normalization_pipeline_outcomes` | Case-sensitive entity decoding and country codes cannot hide a verified exclusion; equal scalar keys still require agreement through actual classification |
+| `test_contradictory_open_attestations_stay_review_required` | Explicitly negated acceptance or HTTP 404/410 quotations cannot become open merely through the basis label, alone or beside verified positive evidence; both orders remain unknown/review-required with the original quotation and no manual records/batches |
+| `test_contradictory_verified_facts_require_review_in_either_order` | Conflicting seniority/cycle/type/title, employer, geography, description, industries, start date, or posting time stays conditional, preserves both observations, and blocks batching in either order |
+| `test_reconciliation_preserves_punctuation_and_ignores_location_order` | Distinct C++/C# titles cannot collapse into equivalent facts; location-set order does not invent conflicts, and approved bytes remain order-independent |
+| `test_verified_unknown_availability_is_not_contradictory_evidence` | Missing verified availability can complement known open/closed evidence, while all-unknown groups remain conditional in either order |
+| `test_conflicting_verified_availability_blocks_confirmation_and_batching` | Verified open versus scoped closure or 404/410 becomes unresolved availability rather than a first/last-observation override; both evidence versions remain visible |
+| `test_missing_verified_facts_and_unresolved_uncertainty_cannot_borrow_snippets` | Preliminary details cannot fill missing verified facts/references or erase blocking verified uncertainty |
+| `test_batch_cli_reassesses_ledger_not_a_forged_report` | The real CLI with closed, unknown, fact-conflicting, or availability-conflicting ledgers ignores forged confirmation text and writes no batches; a separately supplied corrected ledger can prepare a valid record without altering the original; this does not prove source authenticity or fresh verification |
+| `test_approved_batches_match_real_manual_schema_at_boundaries` | Zero, one, ten, eleven, twenty-one, twenty-three, and twenty-five candidates split correctly; exact JSON passes the CLI's shared validator, and selected five-job subsets exclude all unapproved jobs |
+| `test_batches_respect_utf8_byte_budget_without_losing_approved_jobs` | Large Unicode fields split below the exact 64 KiB workflow byte limit without losing approved IDs; report batch counts agree |
+| `test_description_only_acceptance_is_not_manually_batched` | Research acceptance cannot bypass title-only manual checks; unverified/unknown/duplicate approvals do not become batches |
+| `test_report_deduplicates_and_escapes_exact_five_columns` | Dataset/session duplicates are removed; exact five columns, safe text, canonical links, metrics, empty/unknown-state reports, and explicit approval warning remain intact |
+| `test_offline_workflow_writes_report_then_requires_approval_without_canonical_access` | Real local-file workflow reads mocked complete pagination and withholds failed reads, stops before preparation approval, rejects overwrites, validates ten-plus-one files, ignores operator dotenv, and cannot access SQLite or subprocesses |
+| `test_cli_errors_expose_only_bounded_actionable_categories` | Actual mocked drift, legacy/export-required, HTTP 429, timeout, and invalid contract failures return distinct safe categories, disclose no response/exception contents, and save no partial dataset |
+| `test_cli_preflight_rejects_invalid_options_and_existing_outputs_without_io` | Misplaced flags, missing approval, and existing dataset outputs fail with bounded actionable categories before input reads or HTTP client creation |
+| `test_existing_outputs_block_reads_or_partial_batch_writes` | Existing dataset or later-batch destinations, including dangling symlinks where supported, block HTTP or earlier batch writes and preserve original files |
+| `test_cli_rejects_invalid_approvals_with_actionable_sanitized_errors` | Unknown and repeated approval IDs return a specific recovery message without exposing input or creating batches |
+| `test_shared_skill_is_discoverable_while_personal_files_and_reports_remain_ignored` | Codex metadata/entry point and review instructions exist; Git allowlists only this skill while retaining private skills, routers, context, and reports |
+
 ### Search-registry documentation
 
 Source: [unit/test_search_registry_docs.py](unit/test_search_registry_docs.py).
@@ -438,11 +480,11 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | Test | Behavior protected |
 |---|---|
 | `test_local_workflow_references_use_self_repository_syntax_and_exist` | Local workflow/action references use the repository's supported syntax and resolve to existing files |
-| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog and script/test-inventory links and actual workflow-table references fail; unrelated example filenames do not cause false failures |
+| `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog, script/test-inventory, shared skill README/entry-point links, and actual workflow-table references fail; unrelated example filenames do not cause false failures |
 | `test_diagram_links_and_accessibility_match_source` | All five SVGs retain source-matched titles, descriptions, keyboard-usable native links, real repository targets, and no scripts, HTML labels, event handlers, or external resources |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
 | `test_external_link_scope_keeps_authored_diagram_markdown` | POSIX/Windows paths include authored diagram Markdown while excluding generated media from external-link crawling |
-| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
+| `test_documentation_linters_use_the_same_curated_read_only_inputs` | Both pinned linters receive the same maintained files, including the shared skill, changelog, this inventory, and localized READMEs, with read-only mounts/no network and no generated/vendor/private authoring trees |
 | `test_documentation_lint_stops_after_failed_markdownlint` | A failed first linter stops the gate instead of being masked by a later success |
 | `test_documentation_lint_preflight_fails_without_starting_a_process` | Missing Docker or a maintained document fails before launching containers |
 | `test_github_alerts_render_as_material_admonitions_without_changing_other_text` | Publication translates real alerts without corrupting ordinary prose |

@@ -40,7 +40,8 @@ Load only task-relevant guidance, not every document at startup. Before editing 
 
 - When a skill is named or clearly applicable, consult `.agents/skills/ROUTER.md` first, falling back to `<skill-name>/SKILL.md` if absent. Read the matching local entry point before acting; follow references only as needed. `.agents/skills/README.md` defines the format, including external local paths.
 - Routers are optional developer-local indexes, not dependencies for forks or CI. Report missing targets; do not guess, fetch, or install them. Skills cannot override safety boundaries or explicit user instructions.
-- Only `README.md` setup instructions and `.gitkeep` are eligible for tracking in these directories. Personal `ROUTER.md` entries, notes, and skills remain ignored; never force-add them or copy personal paths into tracked docs.
+- Only `README.md` setup instructions and `.gitkeep` are normally eligible for tracking in these directories. The explicit shared exception is `.agents/skills/linkedin-opportunity-scout/SKILL.md`; its [runbook](docs/maintainers/operations/linkedin-opportunity-scout.md) owns research and approval-gated submission. Discover it directly even when a personal router has no entry. Personal `ROUTER.md` entries, unrelated skills, and context notes remain ignored; never force-add them or copy personal paths into tracked docs.
+- Scout reports and prepared batches belong under ignored `reports/linkedin-opportunity-scout/`, never canonical data or generated documentation. A research request grants no dispatch permission: manual-add dispatch writes canonical state and publishes a snapshot before creating its README review PR.
 
 ### Source-adjacent inventories
 

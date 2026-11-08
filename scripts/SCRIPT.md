@@ -13,6 +13,7 @@ Run the example commands from the repository root. Python scripts use `uv`; see 
 | [docs/](docs/) | Documentation checks, site builds, and coverage reports |
 | [database/](database/) | Migration checks, database snapshots, and recovery |
 | [deployment/](deployment/) | Upload and activation of reviewed website data |
+| [research/](research/) | Read-only scout tooling and offline evidence reports/batches |
 | [testing/](testing/) | Synthetic listings for website tests and the product demo |
 
 ## Documentation
@@ -74,6 +75,18 @@ uv run --frozen python scripts/testing/create_site_fixture.py --demo
 ```
 
 See the [testing guide](../docs/maintainers/engineering/testing.md) for test commands and the [media guide](../docs/assets/README.md) for recording the tour.
+
+## LinkedIn research
+
+[research/scout.py](research/scout.py) supports the shared LinkedIn opportunity scout skill. It reads public website data and local research files, never `.env`, canonical SQLite, or private snapshots. It performs no LinkedIn requests or workflow dispatch.
+
+| Command | Input and result |
+|---|---|
+| `dataset` | Reads the official public API, status, and hash-checked JSON export; saves only a complete, consistent ID set. `--export` selects the complete export fallback. |
+| `report` | Reads `research.json` and the saved dataset, reconciles observations, and reports availability, eligibility, evidence, and uncertainty. `--without-dataset` leaves novelty unknown. |
+| `batches` | Requires explicit approved IDs, independently reassesses the ledger, and validates exact JSON through the CLI's pure manual validator. Prepares only verified-open, conflict-free jobs, with at most 10 jobs and 64 KiB per file. |
+
+Use ignored `reports/linkedin-opportunity-scout/` for outputs; existing files are never overwritten. Errors use sanitized recovery categories; preparation does not authorize submission. See the [scout runbook](../docs/maintainers/operations/linkedin-opportunity-scout.md) for input formats, request budgets, commands, and the separate approval required before state-changing GitHub submission.
 
 ## Backups, recovery, and deployment
 

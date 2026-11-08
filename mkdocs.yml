@@ -36,6 +36,8 @@ nav:
           - Promotional video: docs/assets/promo/maintainers/VIDEO.md
       - Operations:
           - CLI reference: docs/maintainers/operations/cli.md
+          - LinkedIn opportunity scout: docs/maintainers/operations/linkedin-opportunity-scout.md
+          - Scout prompt templates: docs/maintainers/operations/linkedin-opportunity-scout-prompts.md
           - Automation and operations: docs/maintainers/operations/automation.md
           - Database and lifecycle: docs/maintainers/operations/database.md
           - Containers and deployment: docs/maintainers/operations/deployment.md

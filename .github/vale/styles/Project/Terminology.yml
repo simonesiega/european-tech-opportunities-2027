@@ -9,7 +9,7 @@ swap:
   github: GitHub
   GITHUB: GitHub
   Linkedin: LinkedIn
-  linkedin: LinkedIn
+  'linkedin(?!-opportunity-scout\b)': LinkedIn
   LINKEDIN: LinkedIn
   Javascript: JavaScript
   javascript: JavaScript

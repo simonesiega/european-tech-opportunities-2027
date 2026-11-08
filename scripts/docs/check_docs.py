@@ -13,6 +13,8 @@ MARKDOWN_FILES = (
     ROOT / "CHANGELOG.md",
     ROOT / "CONTRIBUTING.md",
     ROOT / "AGENTS.md",
+    *sorted((ROOT / ".agents/skills").glob("README.md")),
+    *sorted((ROOT / ".agents/skills/linkedin-opportunity-scout").glob("SKILL.md")),
     *sorted((ROOT / ".github").rglob("*.md")),
     *sorted((ROOT / "scripts").rglob("*.md")),
     *sorted((ROOT / "tests").glob("*.md")),
