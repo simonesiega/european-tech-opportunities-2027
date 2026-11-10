@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Última recopilación realizada con éxito: 4 de noviembre de 2026 a las 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-760-2563eb?style=for-the-badge" alt="Ofertas activas: 760" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-387-16a34a?style=for-the-badge" alt="Prácticas: 387" />
+  <img src="https://img.shields.io/badge/Ofertas%20activas-759-2563eb?style=for-the-badge" alt="Ofertas activas: 759" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-386-16a34a?style=for-the-badge" alt="Prácticas: 386" />
   <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="Puestos New Grad: 373" />
 </p>
-<!-- Public directory state v1 sha256: 811514e9c534625a9fd56c4f0be1c6a69ad57dd4350f3478144cc966c717b88b -->
+<!-- Public directory state v1 sha256: f7cf9aa345d4a6faabad98e78375d3174ded7bdb856a921f1fd180544badc068 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -57,7 +57,7 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 760 (Prácticas: 387 · New Grad: 373)<br>
+**Ofertas activas:** 759 (Prácticas: 386 · New Grad: 373)<br>
 **Última recopilación realizada con éxito:** 4 de noviembre de 2026 a las 14:09 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
@@ -76,7 +76,7 @@ Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](h
 
 ### Últimas ofertas de prácticas
 
-5 de 387 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 386 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
