@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Letzte erfolgreiche Datenerfassung: 4. November 2026 um 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-760-2563eb?style=for-the-badge" alt="Offene Stellen: 760" />
-  <img src="https://img.shields.io/badge/Praktika-387-16a34a?style=for-the-badge" alt="Praktika: 387" />
+  <img src="https://img.shields.io/badge/Offene%20Stellen-759-2563eb?style=for-the-badge" alt="Offene Stellen: 759" />
+  <img src="https://img.shields.io/badge/Praktika-386-16a34a?style=for-the-badge" alt="Praktika: 386" />
   <img src="https://img.shields.io/badge/New%20Grad-373-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 373" />
 </p>
-<!-- Public directory state v1 sha256: 811514e9c534625a9fd56c4f0be1c6a69ad57dd4350f3478144cc966c717b88b -->
+<!-- Public directory state v1 sha256: f7cf9aa345d4a6faabad98e78375d3174ded7bdb856a921f1fd180544badc068 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -57,7 +57,7 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 760 (Praktika: 387 · New Grad: 373)<br>
+**Offene Stellen:** 759 (Praktika: 386 · New Grad: 373)<br>
 **Letzte erfolgreiche Datenerfassung:** 4. November 2026 um 14:09 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
@@ -76,7 +76,7 @@ Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[http
 
 ### Neueste Praktika
 
-5 von 387 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 386 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
