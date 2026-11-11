@@ -449,6 +449,8 @@ Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_w
 | Test | Behavior protected |
 |---|---|
 | `test_python_ci_checks_lockfile_before_code_validation` | Frozen installs cannot silently hide a stale Python lockfile from CI |
+| `test_site_ci_pins_browser_runner_and_keeps_required_gates` | Browser dependency installation uses explicit Ubuntu 24.04 rather than a moving runner alias; frozen installation, full site checks, and Lighthouse remain mandatory |
+| `test_site_browser_install_retries_are_bounded_and_fail_closed` | Actual workflow shell with fake installers accepts immediate/eventual success, bounds retries and backoffs, and fails after persistent errors or timeouts without network access |
 | `test_dependency_review_preserves_real_action_and_pull_request_validation` | Dependency review retains read-only permissions, real pinned action, mandatory dispatch input, correct comparison refs, and unsuppressed high-severity failure |
 | `test_dispatch_resolves_real_pr_base_and_binds_head_to_workflow_commit` | Actual scope guard accepts English-only, translations-only, and combined proposals, resolves the PR base, and binds its head to the workflow commit |
 | `test_dependency_dispatch_rejects_untrusted_scope_or_comparison` | Closed/foreign/wrong-base/mismatched-head PRs, mixed documentation, unsupported or suffixed translation paths, null paths, and malformed/injected SHAs fail without output refs |

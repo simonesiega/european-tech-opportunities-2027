@@ -71,8 +71,6 @@ include = [
 
 [tool.hatch.build.targets.wheel]
 dev-mode-dirs = ["src"]
-# Normal selection respects ignore rules; directory-wide force-include would
-# bundle ignored operator settings, credentials, and runtime artifacts as well.
 only-include = [
   "src/opportunities",
   "configs/categories.yml",
@@ -113,7 +111,7 @@ line-ending = "lf"
 python_version = "3.12"
 strict = true
 mypy_path = "src"
-plugins = ["pydantic.mypy", "sqlalchemy.ext.mypy.plugin"]
+plugins = ["pydantic.mypy"]
 exclude = ["migrations/versions"]
 
 [[tool.mypy.overrides]]
@@ -137,7 +135,7 @@ precision = 1
 show_missing = true
 
 [tool.pytest.ini_options]
-addopts = "-ra --strict-config --strict-markers"
+addopts = "-ra --strict-config --strict-markers -p no:anyio"
 testpaths = ["tests"]
 markers = [
   "live: optional tests that access public websites (disabled unless explicitly selected)",

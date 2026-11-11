@@ -41,6 +41,78 @@ def test_python_ci_checks_lockfile_before_code_validation() -> None:
     assert commands.index("uv lock --check") < commands.index("uv run ruff format --check .")
 
 
+def test_site_ci_pins_browser_runner_and_keeps_required_gates() -> None:
+    document = yaml.load(
+        (WORKFLOWS / "site-ci.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
+    )
+    job = document["jobs"]["site"]
+    assert job["runs-on"] == "ubuntu-24.04"
+    assert "continue-on-error" not in job
+    commands = [step for step in job["steps"] if "run" in step]
+    assert commands[0]["run"] == "bun install --frozen-lockfile"
+    assert "bunx playwright install --with-deps chromium" in commands[1]["run"]
+    assert commands[1]["timeout-minutes"] == "10"
+    assert commands[2]["run"] == "bun run ci"
+    assert "bun run lighthouse" in commands[3]["run"]
+    for step in commands:
+        assert "if" not in step
+        assert "continue-on-error" not in step
+
+
+@pytest.mark.parametrize(
+    ("failures", "failure_status", "attempts", "exit_status"),
+    [(0, 1, 1, 0), (2, 1, 3, 0), (3, 1, 3, 1), (3, 124, 3, 1)],
+)
+def test_site_browser_install_retries_are_bounded_and_fail_closed(
+    tmp_path: Path, failures: int, failure_status: int, attempts: int, exit_status: int
+) -> None:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("Browser-install workflow test requires Bash")
+    steps = yaml.load(
+        (WORKFLOWS / "site-ci.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
+    )["jobs"]["site"]["steps"]
+    install = next(step for step in steps if step.get("name") == "Install Playwright browser")
+    fakes = """
+set -euo pipefail
+calls=0
+timeout() {
+  [ "$1" = "180s" ] || exit 97
+  shift
+  "$@"
+}
+bunx() {
+  [ "$*" = "playwright install --with-deps chromium" ] || exit 98
+  calls=$((calls + 1))
+  printf 'install\\n' >> calls.log
+  if [ "$calls" -le "$FAILURES" ]; then return "$FAILURE_STATUS"; fi
+}
+sleep() {
+  printf 'sleep %s\\n' "$1" >> calls.log
+}
+"""
+    result = subprocess.run(
+        [bash, "-c", fakes + install["run"]],
+        cwd=tmp_path,
+        env={
+            **offline_shell_environment(tmp_path),
+            "FAILURES": str(failures),
+            "FAILURE_STATUS": str(failure_status),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+    )
+    assert result.returncode == exit_status, result.stderr
+    assert (tmp_path / "calls.log").read_text(encoding="utf-8").splitlines() == [
+        entry
+        for attempt in range(1, attempts + 1)
+        for entry in ([f"sleep {(attempt - 1) * 10}"] if attempt > 1 else []) + ["install"]
+    ]
+    assert not (tmp_path / "blocked-network.log").exists()
+
+
 def process_steps() -> list[dict[str, object]]:
     document = yaml.load(
         (WORKFLOWS / "reusable-process-state.yml").read_text(encoding="utf-8"),

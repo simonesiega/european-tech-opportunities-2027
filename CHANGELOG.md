@@ -12,6 +12,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Update SQLAlchemy to `2.1.8`, pytest to `9.2.0`, pytest-benchmark to `5.3.1`, and CodeQL initialization/analysis to the pinned `4.39.3` release.
 - Remove redundant visit-boundary, country-deduplication, README-marker, and combined browser-filter tests; drop a search assertion tied to internal field-concatenation order while preserving the shared matrices and user journeys.
 - Strengthen test oracles for out-of-order concurrency, UTC normalization, log allowlists, independent search fields, and exact rendered rows; consolidate invalid-baseline checks and remove a redundant forbidden-extension symlink case without reducing safety coverage.
 - Make default Compose pipeline startup show help instead of upgrading SQLite; migrations remain explicit maintenance commands.
@@ -21,6 +22,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Pin Site CI to Ubuntu 24.04 and bound retries for transient Playwright installation failures, retaining browser, accessibility, and Lighthouse gates.
+- Use SQLAlchemy's native type annotations without its removed mypy plugin, and disable the unused AnyIO pytest plugin to preserve warning-as-error startup with pytest 9.2.
 - Reject malformed coverage-documentation markers before rewriting, preserving authored prose and document bytes on failure.
 - Preserve microsecond precision when identifying opportunities newer than a browser visit, and reject invalid visit-date evidence.
 - Align CodeQL initialization, analysis, and SARIF upload on the same pinned action release to prevent version-mismatch failures.

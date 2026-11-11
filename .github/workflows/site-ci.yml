@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   site:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:
@@ -35,7 +35,18 @@ jobs:
       - name: Install frozen dependencies
         run: bun install --frozen-lockfile
       - name: Install Playwright browser
-        run: bunx playwright install --with-deps chromium
+        timeout-minutes: 10
+        run: |
+          # Retry transient mirror/DNS failures, but never skip browser installation.
+          for attempt in 1 2 3; do
+            if timeout 180s bunx playwright install --with-deps chromium; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              exit 1
+            fi
+            sleep "$((attempt * 10))"
+          done
       - name: Check formatting, lint, types, build, and behavior
         env:
           SITE_URL: https://techopportunities.eu

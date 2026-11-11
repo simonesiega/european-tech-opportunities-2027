@@ -73,6 +73,8 @@ uv run --frozen --group docs python scripts/docs/check_built_docs.py
 git diff --check
 ```
 
+Strict mypy uses SQLAlchemy's native `Mapped` annotations; SQLAlchemy 2.1 no longer ships the legacy mypy plugin. The suite runs asynchronous work through `asyncio.run` and disables only AnyIO's unused auto-loaded pytest plugin, whose deprecated `CallSpec2` import fails under pytest 9.2. Warning-as-error handling remains enabled.
+
 `make check` wraps this gate; `make coverage` refreshes the coverage table here. CI uses `scripts/docs/coverage_docs.py --check`, so refresh metrics after changing measured paths. [Documentation maintenance](documentation.md) owns the shared writing style, lint/build inputs, and generated regions. The documentation checks include diagram Markdown and the workflow, script, and test inventories; they do not regenerate the root README.
 
 ### Website validation
@@ -84,7 +86,7 @@ bunx playwright install chromium
 bun run ci
 ```
 
-This runs Prettier, ESLint, strict TypeScript, the production Next.js build, Bun unit tests, and Playwright/axe against disposable synthetic state in `site/tests/e2e/.tmp/`. Browser tests use a separate development build directory.
+This runs Prettier, ESLint, strict TypeScript, the production Next.js build, Bun unit tests, and Playwright/axe against disposable synthetic state in `site/tests/e2e/.tmp/`. Browser tests use a separate development build directory. Site CI pins Ubuntu 24.04 so `ubuntu-latest` image transitions cannot silently change Playwright's APT dependency environment. Browser installation remains mandatory, with at most three attempts of 180 seconds each and 10/20-second backoffs for transient mirror or DNS failures. Exhaustion fails the job before application checks; infrastructure failures are not successful application checks.
 
 Status fault-injection tests start the built standalone server on loopback port `3101` with a temporary fixture copy outside the development server's watched directories. Cases restore their own changes and run sequentially without skipping independent tests after a failure. Linux also exercises release cutover and missing-pointer rejection. Run `bun run build` before selecting these production tests with `test:e2e`; `bun run ci` already includes that build.
 

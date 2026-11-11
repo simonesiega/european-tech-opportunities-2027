@@ -13,7 +13,7 @@ These checks help catch problems before a change is merged. They use test data r
 | Workflow | When it runs | What it checks |
 |---|---|---|
 | [Python CI](workflows/python-ci.yml) | PR, push to `main`, manual | Lockfile consistency, Python code quality, automated tests, test coverage, performance benchmarks, database upgrades, and generated-data validation. Also checks documentation links. |
-| [Site CI](workflows/site-ci.yml) | PR, push to `main`, manual | Website code quality, the production build, browser behavior, accessibility, and Lighthouse scores. |
+| [Site CI](workflows/site-ci.yml) | PR, push to `main`, manual | Website code quality, the production build, browser behavior, accessibility, and Lighthouse scores on Ubuntu 24.04 with mandatory Playwright system dependency/browser installation (three bounded attempts for transient network failures). |
 | [Docker CI](workflows/docker-ci.yml) | PR, push to `main`, manual | Workflow and container configuration, production-image builds, SPDX SBOMs and build evidence, and high/critical vulnerabilities with available fixes. Uploads evidence for 30 days and attests those files on `main`. Also verifies non-mutating default CLI startup, database access, downloads, redirects, and production security headers, including nonce-based script CSP. |
 | [CodeQL](workflows/codeql.yml) | PR, push to `main`, Monday 05:31, manual | Potential security problems in Python and TypeScript. Results appear in GitHub code scanning. |
 | [Gitleaks](workflows/gitleaks.yml) | PR, push to `main`, manual | Accidentally committed credentials and other secrets. Checks new commits on pushes and PRs, or the fetched history on manual runs. Sensitive finding values are redacted. |
