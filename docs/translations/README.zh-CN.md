@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>最近一次成功采集：2026 年 11 月 4 日 14:09（UTC）</strong><br>
-  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-755-2563eb?style=for-the-badge" alt="在招职位总数：755" />
-  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-385-16a34a?style=for-the-badge" alt="实习岗位：385" />
-  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-370-9333ea?style=for-the-badge" alt="应届生岗位：370" />
+  <strong>最近一次成功采集：2026 年 11 月 14 日 12:58（UTC）</strong><br>
+  <img src="https://img.shields.io/badge/%E5%9C%A8%E6%8B%9B%E8%81%8C%E4%BD%8D-772-2563eb?style=for-the-badge" alt="在招职位总数：772" />
+  <img src="https://img.shields.io/badge/%E5%AE%9E%E4%B9%A0%E5%B2%97%E4%BD%8D-397-16a34a?style=for-the-badge" alt="实习岗位：397" />
+  <img src="https://img.shields.io/badge/%E5%BA%94%E5%B1%8A%E7%94%9F%E5%B2%97%E4%BD%8D-375-9333ea?style=for-the-badge" alt="应届生岗位：375" />
 </p>
-<!-- Public directory state v1 sha256: 206681f30580c21d54034447d79849dd87fc41d9df352381f22336ec31577e29 -->
+<!-- Public directory state v1 sha256: 09b23771589145da60c898bf64440c68aba745d9e43f6264e03105d7fbd3ead5 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## 为什么做这个项目？
@@ -57,34 +57,34 @@ https://github.com/user-attachments/assets/c55e9172-0b2b-4dde-92b8-84428f72cdce
 ## 最新机会
 
 <!-- BEGIN OPPORTUNITIES -->
-**在招职位：** 755（实习：385 · New Grad：370）<br>
-**最近一次成功采集：** 2026 年 11 月 4 日 14:09（UTC）
+**在招职位：** 772（实习：397 · New Grad：375）<br>
+**最近一次成功采集：** 2026 年 11 月 14 日 12:58（UTC）
 
 前往 **[https://techopportunities.eu/](https://techopportunities.eu/)** 浏览和筛选完整的职位目录。
 
 ### 最新 New Grad 职位
 
-以下展示 370 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 375 个在招 New Grad 职位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
-| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [查看](<https://www.linkedin.com/jobs/view/4486307871>) |
-| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [查看](<https://www.linkedin.com/jobs/view/4486067809>) |
-| Bending Spoons | Graduate data scientist | Poland | [查看](<https://www.linkedin.com/jobs/view/4486033138>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [查看](<https://www.linkedin.com/jobs/view/4486019976>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [查看](<https://www.linkedin.com/jobs/view/4485708494>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [查看](<https://www.linkedin.com/jobs/view/4489542552>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [查看](<https://www.linkedin.com/jobs/view/4489537674>) |
+| Ericsson | New Graduate Developer | Kirkkonummi, Uusimaa, Finland | [查看](<https://www.linkedin.com/jobs/view/4488305876>) |
+| MagVenture | Graduate Cloud Infrastructure Engineer – Medical Software | Farum, Capital Region of Denmark, Denmark | [查看](<https://www.linkedin.com/jobs/view/4486599504>) |
+| Databricks | Software Engineer - New Grad \(2027 Start\) - Aarhus | Aarhus, Central Denmark Region, Denmark | [查看](<https://www.linkedin.com/jobs/view/4484389946>) |
 
 ### 最新实习岗位
 
-以下展示 385 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
+以下展示 397 个在招实习岗位中的 5 个，按首次记录时间从新到旧排序：
 
 | 公司 | 职位名称 | 地点 | 原始公告 |
 |---|---|---|---|
+| Blox Space | Software Engineer Intern | Turin, Piedmont, Italy | [查看](<https://www.linkedin.com/jobs/view/4490039902>) |
+| SAP | SAP iXp Intern - Java Developer Associate - F/M \(limited contract\) | Brno, South Moravia, Czechia | [查看](<https://www.linkedin.com/jobs/view/4480451511>) |
+| Microsoft | Silicon Engineering INTERN | Satakunta, Finland | [查看](<https://www.linkedin.com/jobs/view/4488875814>) |
+| Thermo Fisher Scientific | Intern – Software Development | Brno, South Moravia, Czechia | [查看](<https://www.linkedin.com/jobs/view/4489407985>) |
 | Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [查看](<https://www.linkedin.com/jobs/view/4465067812>) |
-| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [查看](<https://www.linkedin.com/jobs/view/4486367837>) |
-| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [查看](<https://www.linkedin.com/jobs/view/4487240115>) |
-| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [查看](<https://www.linkedin.com/jobs/view/4485735587>) |
-| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [查看](<https://www.linkedin.com/jobs/view/4486160531>) |
 <!-- END OPPORTUNITIES -->
 
 发现尚未收录的合适职位？欢迎 [推荐职位](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml)。提交的职位会在审核后发布。
