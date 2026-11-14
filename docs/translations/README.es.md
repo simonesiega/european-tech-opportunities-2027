@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 4 de noviembre de 2026 a las 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-755-2563eb?style=for-the-badge" alt="Ofertas activas: 755" />
-  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-385-16a34a?style=for-the-badge" alt="Prácticas: 385" />
-  <img src="https://img.shields.io/badge/New%20Grad-370-9333ea?style=for-the-badge" alt="Puestos New Grad: 370" />
+  <strong>Última recopilación realizada con éxito: 14 de noviembre de 2026 a las 12:58 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-772-2563eb?style=for-the-badge" alt="Ofertas activas: 772" />
+  <img src="https://img.shields.io/badge/Pr%C3%A1cticas-397-16a34a?style=for-the-badge" alt="Prácticas: 397" />
+  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="Puestos New Grad: 375" />
 </p>
-<!-- Public directory state v1 sha256: 206681f30580c21d54034447d79849dd87fc41d9df352381f22336ec31577e29 -->
+<!-- Public directory state v1 sha256: 09b23771589145da60c898bf64440c68aba745d9e43f6264e03105d7fbd3ead5 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -57,34 +57,34 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 755 (Prácticas: 385 · New Grad: 370)<br>
-**Última recopilación realizada con éxito:** 4 de noviembre de 2026 a las 14:09 UTC
+**Ofertas activas:** 772 (Prácticas: 397 · New Grad: 375)<br>
+**Última recopilación realizada con éxito:** 14 de noviembre de 2026 a las 12:58 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 370 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 375 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
-| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486307871>) |
-| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [Ver oferta](<https://www.linkedin.com/jobs/view/4486067809>) |
-| Bending Spoons | Graduate data scientist | Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486033138>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4486019976>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4485708494>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4489542552>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4489537674>) |
+| Ericsson | New Graduate Developer | Kirkkonummi, Uusimaa, Finland | [Ver oferta](<https://www.linkedin.com/jobs/view/4488305876>) |
+| MagVenture | Graduate Cloud Infrastructure Engineer – Medical Software | Farum, Capital Region of Denmark, Denmark | [Ver oferta](<https://www.linkedin.com/jobs/view/4486599504>) |
+| Databricks | Software Engineer - New Grad \(2027 Start\) - Aarhus | Aarhus, Central Denmark Region, Denmark | [Ver oferta](<https://www.linkedin.com/jobs/view/4484389946>) |
 
 ### Últimas ofertas de prácticas
 
-5 de 385 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
+5 de 397 prácticas activas, ordenadas por fecha del primer registro, de la más reciente a la más antigua:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
+| Blox Space | Software Engineer Intern | Turin, Piedmont, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4490039902>) |
+| SAP | SAP iXp Intern - Java Developer Associate - F/M \(limited contract\) | Brno, South Moravia, Czechia | [Ver oferta](<https://www.linkedin.com/jobs/view/4480451511>) |
+| Microsoft | Silicon Engineering INTERN | Satakunta, Finland | [Ver oferta](<https://www.linkedin.com/jobs/view/4488875814>) |
+| Thermo Fisher Scientific | Intern – Software Development | Brno, South Moravia, Czechia | [Ver oferta](<https://www.linkedin.com/jobs/view/4489407985>) |
 | Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [Ver oferta](<https://www.linkedin.com/jobs/view/4465067812>) |
-| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4486367837>) |
-| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [Ver oferta](<https://www.linkedin.com/jobs/view/4487240115>) |
-| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [Ver oferta](<https://www.linkedin.com/jobs/view/4485735587>) |
-| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [Ver oferta](<https://www.linkedin.com/jobs/view/4486160531>) |
 <!-- END OPPORTUNITIES -->
 
 ¿Conoces una oferta que debería estar aquí? [Propón una nueva oferta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Todas las propuestas se revisan antes de publicarse.

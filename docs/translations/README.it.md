@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Ultima raccolta completata con successo: 4 novembre 2026 alle 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-755-2563eb?style=for-the-badge" alt="Offerte attive: 755" />
-  <img src="https://img.shields.io/badge/Tirocini-385-16a34a?style=for-the-badge" alt="Tirocini: 385" />
-  <img src="https://img.shields.io/badge/New%20Grad-370-9333ea?style=for-the-badge" alt="Posizioni New Grad: 370" />
+  <strong>Ultima raccolta completata con successo: 14 novembre 2026 alle 12:58 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offerte%20attive-772-2563eb?style=for-the-badge" alt="Offerte attive: 772" />
+  <img src="https://img.shields.io/badge/Tirocini-397-16a34a?style=for-the-badge" alt="Tirocini: 397" />
+  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="Posizioni New Grad: 375" />
 </p>
-<!-- Public directory state v1 sha256: 206681f30580c21d54034447d79849dd87fc41d9df352381f22336ec31577e29 -->
+<!-- Public directory state v1 sha256: 09b23771589145da60c898bf64440c68aba745d9e43f6264e03105d7fbd3ead5 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -57,34 +57,34 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 755 (Tirocini: 385 · New Grad: 370)<br>
-**Ultima raccolta completata con successo:** 4 novembre 2026 alle 14:09 UTC
+**Offerte aperte:** 772 (Tirocini: 397 · New Grad: 375)<br>
+**Ultima raccolta completata con successo:** 14 novembre 2026 alle 12:58 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 370 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 375 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
-| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [Apri](<https://www.linkedin.com/jobs/view/4486307871>) |
-| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [Apri](<https://www.linkedin.com/jobs/view/4486067809>) |
-| Bending Spoons | Graduate data scientist | Poland | [Apri](<https://www.linkedin.com/jobs/view/4486033138>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [Apri](<https://www.linkedin.com/jobs/view/4486019976>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [Apri](<https://www.linkedin.com/jobs/view/4485708494>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [Apri](<https://www.linkedin.com/jobs/view/4489542552>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [Apri](<https://www.linkedin.com/jobs/view/4489537674>) |
+| Ericsson | New Graduate Developer | Kirkkonummi, Uusimaa, Finland | [Apri](<https://www.linkedin.com/jobs/view/4488305876>) |
+| MagVenture | Graduate Cloud Infrastructure Engineer – Medical Software | Farum, Capital Region of Denmark, Denmark | [Apri](<https://www.linkedin.com/jobs/view/4486599504>) |
+| Databricks | Software Engineer - New Grad \(2027 Start\) - Aarhus | Aarhus, Central Denmark Region, Denmark | [Apri](<https://www.linkedin.com/jobs/view/4484389946>) |
 
 ### Ultimi tirocini
 
-5 tirocini su 385 ancora aperti, ordinati dalla data di prima rilevazione più recente:
+5 tirocini su 397 ancora aperti, ordinati dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
+| Blox Space | Software Engineer Intern | Turin, Piedmont, Italy | [Apri](<https://www.linkedin.com/jobs/view/4490039902>) |
+| SAP | SAP iXp Intern - Java Developer Associate - F/M \(limited contract\) | Brno, South Moravia, Czechia | [Apri](<https://www.linkedin.com/jobs/view/4480451511>) |
+| Microsoft | Silicon Engineering INTERN | Satakunta, Finland | [Apri](<https://www.linkedin.com/jobs/view/4488875814>) |
+| Thermo Fisher Scientific | Intern – Software Development | Brno, South Moravia, Czechia | [Apri](<https://www.linkedin.com/jobs/view/4489407985>) |
 | Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [Apri](<https://www.linkedin.com/jobs/view/4465067812>) |
-| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [Apri](<https://www.linkedin.com/jobs/view/4486367837>) |
-| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [Apri](<https://www.linkedin.com/jobs/view/4487240115>) |
-| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [Apri](<https://www.linkedin.com/jobs/view/4485735587>) |
-| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [Apri](<https://www.linkedin.com/jobs/view/4486160531>) |
 <!-- END OPPORTUNITIES -->
 
 Non trovi una posizione pertinente? [Segnalaci un'offerta](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Ogni segnalazione viene esaminata prima della pubblicazione.

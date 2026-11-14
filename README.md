@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: November 4, 2026 at 14:09 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-755-2563eb?style=for-the-badge" alt="Total opportunities: 755" />
-  <img src="https://img.shields.io/badge/Internships-385-16a34a?style=for-the-badge" alt="Internships: 385" />
-  <img src="https://img.shields.io/badge/New%20Grad-370-9333ea?style=for-the-badge" alt="New Grad opportunities: 370" />
+  <strong>Last successful collection: November 14, 2026 at 12:58 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-772-2563eb?style=for-the-badge" alt="Total opportunities: 772" />
+  <img src="https://img.shields.io/badge/Internships-397-16a34a?style=for-the-badge" alt="Internships: 397" />
+  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New Grad opportunities: 375" />
 </p>
-<!-- Public directory state v1 sha256: 206681f30580c21d54034447d79849dd87fc41d9df352381f22336ec31577e29 -->
+<!-- Public directory state v1 sha256: 09b23771589145da60c898bf64440c68aba745d9e43f6264e03105d7fbd3ead5 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -57,34 +57,34 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 755 (Internships: 385 · New Grad: 370)<br>
-**Last successful collection:** November 4, 2026 at 14:09 UTC
+**Open opportunities:** 772 (Internships: 397 · New Grad: 375)<br>
+**Last successful collection:** November 14, 2026 at 12:58 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 370 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 375 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
-| Arm | Graduate ML Software Engineer | Galway, County Galway, Ireland | [View](<https://www.linkedin.com/jobs/view/4486307871>) |
-| Toyota Motor Europe | Software Quality Engineering Graduate | Evere, Brussels Region, Belgium | [View](<https://www.linkedin.com/jobs/view/4486067809>) |
-| Bending Spoons | Graduate data scientist | Poland | [View](<https://www.linkedin.com/jobs/view/4486033138>) |
-| Bending Spoons | Graduate data scientist | Warsaw, Mazowieckie, Poland | [View](<https://www.linkedin.com/jobs/view/4486019976>) |
-| Bending Spoons | Graduate security engineer | Granada, Andalusia, Spain | [View](<https://www.linkedin.com/jobs/view/4485708494>) |
+| Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4489542552>) |
+| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4489537674>) |
+| Ericsson | New Graduate Developer | Kirkkonummi, Uusimaa, Finland | [View](<https://www.linkedin.com/jobs/view/4488305876>) |
+| MagVenture | Graduate Cloud Infrastructure Engineer – Medical Software | Farum, Capital Region of Denmark, Denmark | [View](<https://www.linkedin.com/jobs/view/4486599504>) |
+| Databricks | Software Engineer - New Grad \(2027 Start\) - Aarhus | Aarhus, Central Denmark Region, Denmark | [View](<https://www.linkedin.com/jobs/view/4484389946>) |
 
 ### Latest internships
 
-Showing 5 of 385 open internships, newest first by first-seen time:
+Showing 5 of 397 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Blox Space | Software Engineer Intern | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4490039902>) |
+| SAP | SAP iXp Intern - Java Developer Associate - F/M \(limited contract\) | Brno, South Moravia, Czechia | [View](<https://www.linkedin.com/jobs/view/4480451511>) |
+| Microsoft | Silicon Engineering INTERN | Satakunta, Finland | [View](<https://www.linkedin.com/jobs/view/4488875814>) |
+| Thermo Fisher Scientific | Intern – Software Development | Brno, South Moravia, Czechia | [View](<https://www.linkedin.com/jobs/view/4489407985>) |
 | Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [View](<https://www.linkedin.com/jobs/view/4465067812>) |
-| Ericsson | Data Scientist Intern | Madrid, Community of Madrid, Spain | [View](<https://www.linkedin.com/jobs/view/4486367837>) |
-| Doctolib | Machine Learning Engineer Intern \(x/f/m\) | Paris, Île-de-France, France | [View](<https://www.linkedin.com/jobs/view/4487240115>) |
-| Intel | DevOps Software Engineering Intern | Gdańsk, Pomorskie, Poland | [View](<https://www.linkedin.com/jobs/view/4485735587>) |
-| Titan OS | Infrastructure Intern | Barcelona, Catalonia, Spain | [View](<https://www.linkedin.com/jobs/view/4486160531>) |
 <!-- END OPPORTUNITIES -->
 
 Missing a relevant role? [Suggest a listing](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Suggestions are reviewed before publication.
