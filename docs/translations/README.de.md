@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Letzte erfolgreiche Datenerfassung: 14. November 2026 um 12:58 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-772-2563eb?style=for-the-badge" alt="Offene Stellen: 772" />
-  <img src="https://img.shields.io/badge/Praktika-397-16a34a?style=for-the-badge" alt="Praktika: 397" />
-  <img src="https://img.shields.io/badge/New%20Grad-375-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 375" />
+  <strong>Letzte erfolgreiche Datenerfassung: 16. November 2026 um 11:02 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offene%20Stellen-804-2563eb?style=for-the-badge" alt="Offene Stellen: 804" />
+  <img src="https://img.shields.io/badge/Praktika-413-16a34a?style=for-the-badge" alt="Praktika: 413" />
+  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 391" />
 </p>
-<!-- Public directory state v1 sha256: 09b23771589145da60c898bf64440c68aba745d9e43f6264e03105d7fbd3ead5 -->
+<!-- Public directory state v1 sha256: 83cede6b7328802c376b82ccf5d43702cfbd4d888ed0d12d78ff52597a6d5378 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -57,34 +57,34 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 772 (Praktika: 397 · New Grad: 375)<br>
-**Letzte erfolgreiche Datenerfassung:** 14. November 2026 um 12:58 UTC
+**Offene Stellen:** 804 (Praktika: 413 · New Grad: 391)<br>
+**Letzte erfolgreiche Datenerfassung:** 16. November 2026 um 11:02 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 375 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 391 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
+| Cognizant | Graduate Software Engineer | Cluj, Romania | [Ansehen](<https://www.linkedin.com/jobs/view/4489723688>) |
+| Cognizant | Graduate Software Engineer | Bucharest Metropolitan Area | [Ansehen](<https://www.linkedin.com/jobs/view/4489716946>) |
+| targetjobs UK | Graduate Software Engineer | Glasgow, Scotland, United Kingdom | [Ansehen](<https://www.linkedin.com/jobs/view/4490268038>) |
 | Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4489542552>) |
 | Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4489537674>) |
-| Ericsson | New Graduate Developer | Kirkkonummi, Uusimaa, Finland | [Ansehen](<https://www.linkedin.com/jobs/view/4488305876>) |
-| MagVenture | Graduate Cloud Infrastructure Engineer – Medical Software | Farum, Capital Region of Denmark, Denmark | [Ansehen](<https://www.linkedin.com/jobs/view/4486599504>) |
-| Databricks | Software Engineer - New Grad \(2027 Start\) - Aarhus | Aarhus, Central Denmark Region, Denmark | [Ansehen](<https://www.linkedin.com/jobs/view/4484389946>) |
 
 ### Neueste Praktika
 
-5 von 397 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 413 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
+| Cambrex | Artificial Intelligence Intern | Paullo, Lombardy, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4491295675>) |
+| Schaeffler | Internship - Software Developer | Braşov, Braşov, Romania | [Ansehen](<https://www.linkedin.com/jobs/view/4490744329>) |
+| Analog Devices | Embedded Software Engineering Intern | Cluj-Napoca, Cluj, Romania | [Ansehen](<https://www.linkedin.com/jobs/view/4488925838>) |
+| Tencent | SRE Intern | Amsterdam, North Holland, Netherlands | [Ansehen](<https://www.linkedin.com/jobs/view/4482886283>) |
 | Blox Space | Software Engineer Intern | Turin, Piedmont, Italy | [Ansehen](<https://www.linkedin.com/jobs/view/4490039902>) |
-| SAP | SAP iXp Intern - Java Developer Associate - F/M \(limited contract\) | Brno, South Moravia, Czechia | [Ansehen](<https://www.linkedin.com/jobs/view/4480451511>) |
-| Microsoft | Silicon Engineering INTERN | Satakunta, Finland | [Ansehen](<https://www.linkedin.com/jobs/view/4488875814>) |
-| Thermo Fisher Scientific | Intern – Software Development | Brno, South Moravia, Czechia | [Ansehen](<https://www.linkedin.com/jobs/view/4489407985>) |
-| Qube Research &amp; Technologies | 2027 - Internship, Software Engineering and Quantitative Development | London; Paris; Wrocław; Zurich; Dubai | [Ansehen](<https://www.linkedin.com/jobs/view/4465067812>) |
 <!-- END OPPORTUNITIES -->
 
 Du vermisst ein passendes Angebot? [Schlage eine Stelle vor](https://github.com/simonesiega/european-tech-opportunities-2027/issues/new?template=add-position.yml). Vorschläge werden vor der Veröffentlichung geprüft.
