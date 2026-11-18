@@ -12,7 +12,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
-- Update the pinned uv build image to `0.13.9` and Ruff to `0.17.4`.
+- Update the pinned uv build image to `0.13.9`, Ruff to `0.17.4`, and PyYAML stubs to `6.0.12.20261111`.
 - Update SQLAlchemy to `2.1.8`, pytest to `9.2.0`, pytest-benchmark to `5.3.1`, and CodeQL initialization/analysis to the pinned `4.39.3` release.
 - Remove redundant visit-boundary, country-deduplication, README-marker, and combined browser-filter tests; drop a search assertion tied to internal field-concatenation order while preserving the shared matrices and user journeys.
 - Strengthen test oracles for out-of-order concurrency, UTC normalization, log allowlists, independent search fields, and exact rendered rows; consolidate invalid-baseline checks and remove a redundant forbidden-extension symlink case without reducing safety coverage.
