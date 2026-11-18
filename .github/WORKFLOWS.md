@@ -13,7 +13,7 @@ These checks help catch problems before a change is merged. They use test data r
 | Workflow | When it runs | What it checks |
 |---|---|---|
 | [Python CI](workflows/python-ci.yml) | PR, push to `main`, manual | Lockfile consistency, Python code quality, automated tests, test coverage, performance benchmarks, database upgrades, and generated-data validation. Also checks documentation links. |
-| [Site CI](workflows/site-ci.yml) | PR, push to `main`, manual | Website code quality, the production build, browser behavior, accessibility, and Lighthouse scores on Ubuntu 24.04 with mandatory Playwright system dependency/browser installation (three bounded attempts for transient network failures). |
+| [Site CI](workflows/site-ci.yml) | PR, push to `main`, manual | Website code quality, the production build, browser behavior, accessibility, and Lighthouse scores on Ubuntu 24.04 with mandatory Playwright system dependency installation (once, with a ten-minute limit) followed by browser downloads (three bounded attempts for transient network failures). |
 | [Docker CI](workflows/docker-ci.yml) | PR, push to `main`, manual | Workflow and container configuration, production-image builds, SPDX SBOMs and build evidence, and high/critical vulnerabilities with available fixes. Uploads evidence for 30 days and attests those files on `main`. Also verifies non-mutating default CLI startup, database access, downloads, redirects, and production security headers, including nonce-based script CSP. |
 | [CodeQL](workflows/codeql.yml) | PR, push to `main`, Monday 05:31, manual | Potential security problems in Python and TypeScript. Results appear in GitHub code scanning. |
 | [Gitleaks](workflows/gitleaks.yml) | PR, push to `main`, manual | Accidentally committed credentials and other secrets. Checks new commits on pushes and PRs, or the fetched history on manual runs. Sensitive finding values are redacted. |
@@ -71,7 +71,7 @@ These files support contributions and workflow setup but are not separate workfl
 | File | Purpose |
 |---|---|
 | [Python setup action](actions/setup-python/action.yml) | Gives workflows a consistent Python environment and installs the project's locked dependencies. |
-| [Dependabot](dependabot.yml) | Proposes weekly dependency updates for the website, Python, GitHub Actions, and Docker. Does not merge or deploy updates. |
+| [Dependabot](dependabot.yml) | Proposes weekly dependency updates for the Bun-managed website, Python, GitHub Actions, and Docker. Does not merge or deploy updates. |
 | [Code owners](CODEOWNERS) | Identifies `@simonesiega` as the default reviewer for repository changes. Whether approval is required depends on the repository's review settings. |
 | [Listing suggestion](ISSUE_TEMPLATE/add-position.yml) | Lets you suggest a public listing for review. Submitting an issue does not add it to the directory automatically. |
 | [Bug report](ISSUE_TEMPLATE/bug-report.yml) | Helps you describe a problem, how to reproduce it, and the expected behavior. Use private reporting for security vulnerabilities, and never include credentials or private data. |

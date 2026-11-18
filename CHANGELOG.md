@@ -22,6 +22,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Separate mandatory Playwright system dependency installation from bounded browser-download retries so a timed-out sudo-owned APT process cannot block later attempts.
+- Configure Dependabot's website ecosystem as Bun so it can update the existing `bun.lock`.
 - Pin Site CI to Ubuntu 24.04 and bound retries for transient Playwright installation failures, retaining browser, accessibility, and Lighthouse gates.
 - Use SQLAlchemy's native type annotations without its removed mypy plugin, and disable the unused AnyIO pytest plugin to preserve warning-as-error startup with pytest 9.2.
 - Reject malformed coverage-documentation markers before rewriting, preserving authored prose and document bytes on failure.

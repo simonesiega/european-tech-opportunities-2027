@@ -34,12 +34,15 @@ jobs:
           bun-version: 1.4.3
       - name: Install frozen dependencies
         run: bun install --frozen-lockfile
+      - name: Install Playwright system dependencies
+        timeout-minutes: 10
+        run: bunx playwright install-deps chromium
       - name: Install Playwright browser
         timeout-minutes: 10
         run: |
-          # Retry transient mirror/DNS failures, but never skip browser installation.
+          # Retry only browser downloads; system package installation runs once above.
           for attempt in 1 2 3; do
-            if timeout 180s bunx playwright install --with-deps chromium; then
+            if timeout --kill-after=10s 180s bunx playwright install chromium; then
               exit 0
             fi
             if [ "$attempt" -eq 3 ]; then

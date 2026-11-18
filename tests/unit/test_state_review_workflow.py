@@ -41,6 +41,17 @@ def test_python_ci_checks_lockfile_before_code_validation() -> None:
     assert commands.index("uv lock --check") < commands.index("uv run ruff format --check .")
 
 
+def test_dependabot_uses_bun_for_the_site_lockfile() -> None:
+    root = WORKFLOWS.parents[1]
+    document = yaml.safe_load((root / ".github" / "dependabot.yml").read_text(encoding="utf-8"))
+    site_updates = [update for update in document["updates"] if update["directory"] == "/site"]
+    assert len(site_updates) == 1
+    assert site_updates[0]["package-ecosystem"] == "bun"
+    assert (root / "site" / "bun.lock").is_file()
+    for filename in ("package-lock.json", "yarn.lock", "pnpm-lock.yaml"):
+        assert not (root / "site" / filename).exists()
+
+
 def test_site_ci_pins_browser_runner_and_keeps_required_gates() -> None:
     document = yaml.load(
         (WORKFLOWS / "site-ci.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader
@@ -50,10 +61,12 @@ def test_site_ci_pins_browser_runner_and_keeps_required_gates() -> None:
     assert "continue-on-error" not in job
     commands = [step for step in job["steps"] if "run" in step]
     assert commands[0]["run"] == "bun install --frozen-lockfile"
-    assert "bunx playwright install --with-deps chromium" in commands[1]["run"]
+    assert commands[1]["run"] == "bunx playwright install-deps chromium"
     assert commands[1]["timeout-minutes"] == "10"
-    assert commands[2]["run"] == "bun run ci"
-    assert "bun run lighthouse" in commands[3]["run"]
+    assert "bunx playwright install chromium" in commands[2]["run"]
+    assert commands[2]["timeout-minutes"] == "10"
+    assert commands[3]["run"] == "bun run ci"
+    assert "bun run lighthouse" in commands[4]["run"]
     for step in commands:
         assert "if" not in step
         assert "continue-on-error" not in step
@@ -61,7 +74,7 @@ def test_site_ci_pins_browser_runner_and_keeps_required_gates() -> None:
 
 @pytest.mark.parametrize(
     ("failures", "failure_status", "attempts", "exit_status"),
-    [(0, 1, 1, 0), (2, 1, 3, 0), (3, 1, 3, 1), (3, 124, 3, 1)],
+    [(0, 1, 1, 0), (2, 1, 3, 0), (3, 1, 3, 1), (3, 124, 3, 1), (3, 137, 3, 1)],
 )
 def test_site_browser_install_retries_are_bounded_and_fail_closed(
     tmp_path: Path, failures: int, failure_status: int, attempts: int, exit_status: int
@@ -77,12 +90,12 @@ def test_site_browser_install_retries_are_bounded_and_fail_closed(
 set -euo pipefail
 calls=0
 timeout() {
-  [ "$1" = "180s" ] || exit 97
-  shift
+  [ "$1" = "--kill-after=10s" ] && [ "$2" = "180s" ] || exit 97
+  shift 2
   "$@"
 }
 bunx() {
-  [ "$*" = "playwright install --with-deps chromium" ] || exit 98
+  [ "$*" = "playwright install chromium" ] || exit 98
   calls=$((calls + 1))
   printf 'install\\n' >> calls.log
   if [ "$calls" -le "$FAILURES" ]; then return "$FAILURE_STATUS"; fi
