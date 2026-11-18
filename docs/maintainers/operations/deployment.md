@@ -28,7 +28,7 @@ The root `Dockerfile` is the executable source of truth for image versions and p
 
 | Target | Final runtime | Responsibility |
 |---|---|---|
-| `opportunities` | Python 3.15.0 on Debian 13 slim | CLI commands, migrations, collection, validation, and generated-document rendering |
+| `opportunities` | Python 3.15.2 on Debian 13 slim | CLI commands, migrations, collection, validation, and generated-document rendering |
 | `site` | Node.js 26 on Debian 13 slim with Next.js standalone output | Read-only website server on port `3000` |
 
 Disposable build stages use the digest-pinned `uv` 0.13.9 image, Bun 1.4.4 on Alpine, and Node.js 26 on Alpine. Package-manager binaries are omitted from the final images: the pipeline invokes the installed console script directly, and the website runtime omits npm.
