@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Last successful collection: November 16, 2026 at 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-804-2563eb?style=for-the-badge" alt="Total opportunities: 804" />
-  <img src="https://img.shields.io/badge/Internships-413-16a34a?style=for-the-badge" alt="Internships: 413" />
-  <img src="https://img.shields.io/badge/New%20Grad-391-9333ea?style=for-the-badge" alt="New Grad opportunities: 391" />
+  <img src="https://img.shields.io/badge/Total%20opportunities-789-2563eb?style=for-the-badge" alt="Total opportunities: 789" />
+  <img src="https://img.shields.io/badge/Internships-408-16a34a?style=for-the-badge" alt="Internships: 408" />
+  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="New Grad opportunities: 381" />
 </p>
-<!-- Public directory state v1 sha256: 83cede6b7328802c376b82ccf5d43702cfbd4d888ed0d12d78ff52597a6d5378 -->
+<!-- Public directory state v1 sha256: 2c9e30354aa37f0ecb0472e6da7d7ef29ab4b155089879d2173c4e6f7d9159db -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -57,14 +57,14 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 804 (Internships: 413 · New Grad: 391)<br>
+**Open opportunities:** 789 (Internships: 408 · New Grad: 381)<br>
 **Last successful collection:** November 16, 2026 at 11:02 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 391 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 381 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Showing 5 of 391 open New Grad opportunities, newest first by first-seen time:
 
 ### Latest internships
 
-Showing 5 of 413 open internships, newest first by first-seen time:
+Showing 5 of 408 open internships, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
