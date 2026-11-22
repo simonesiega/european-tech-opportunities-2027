@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Ultima raccolta completata con successo: 16 novembre 2026 alle 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-789-2563eb?style=for-the-badge" alt="Offerte attive: 789" />
-  <img src="https://img.shields.io/badge/Tirocini-408-16a34a?style=for-the-badge" alt="Tirocini: 408" />
-  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="Posizioni New Grad: 381" />
+  <img src="https://img.shields.io/badge/Offerte%20attive-787-2563eb?style=for-the-badge" alt="Offerte attive: 787" />
+  <img src="https://img.shields.io/badge/Tirocini-407-16a34a?style=for-the-badge" alt="Tirocini: 407" />
+  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="Posizioni New Grad: 380" />
 </p>
-<!-- Public directory state v1 sha256: 2c9e30354aa37f0ecb0472e6da7d7ef29ab4b155089879d2173c4e6f7d9159db -->
+<!-- Public directory state v1 sha256: 8c03a3b721a2e8cbc40093196694faa97cde5070b3c01e1e4c6485e9762d5ff3 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -57,14 +57,14 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 789 (Tirocini: 408 · New Grad: 381)<br>
+**Offerte aperte:** 787 (Tirocini: 407 · New Grad: 380)<br>
 **Ultima raccolta completata con successo:** 16 novembre 2026 alle 11:02 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 381 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 380 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://
 
 ### Ultimi tirocini
 
-5 tirocini su 408 ancora aperti, ordinati dalla data di prima rilevazione più recente:
+5 tirocini su 407 ancora aperti, ordinati dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|

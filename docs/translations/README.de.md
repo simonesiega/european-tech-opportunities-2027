@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Letzte erfolgreiche Datenerfassung: 16. November 2026 um 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offene%20Stellen-789-2563eb?style=for-the-badge" alt="Offene Stellen: 789" />
-  <img src="https://img.shields.io/badge/Praktika-408-16a34a?style=for-the-badge" alt="Praktika: 408" />
-  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 381" />
+  <img src="https://img.shields.io/badge/Offene%20Stellen-787-2563eb?style=for-the-badge" alt="Offene Stellen: 787" />
+  <img src="https://img.shields.io/badge/Praktika-407-16a34a?style=for-the-badge" alt="Praktika: 407" />
+  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="New-Grad-Stellen: 380" />
 </p>
-<!-- Public directory state v1 sha256: 2c9e30354aa37f0ecb0472e6da7d7ef29ab4b155089879d2173c4e6f7d9159db -->
+<!-- Public directory state v1 sha256: 8c03a3b721a2e8cbc40093196694faa97cde5070b3c01e1e4c6485e9762d5ff3 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Warum dieses Projekt?
@@ -57,14 +57,14 @@ Was als kleines Open-Source-Projekt begann, erreicht inzwischen Menschen in Euro
 ## Neueste Stellenangebote
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offene Stellen:** 789 (Praktika: 408 · New Grad: 381)<br>
+**Offene Stellen:** 787 (Praktika: 407 · New Grad: 380)<br>
 **Letzte erfolgreiche Datenerfassung:** 16. November 2026 um 11:02 UTC
 
 Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Neueste New-Grad-Stellen
 
-5 von 381 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 380 offenen New-Grad-Angeboten, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Alle Stellenangebote findest du mit Such- und Filtermöglichkeiten unter **[http
 
 ### Neueste Praktika
 
-5 von 408 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
+5 von 407 offenen Praktika, nach dem Zeitpunkt der ersten Erfassung sortiert, neueste zuerst:
 
 | Unternehmen | Position | Standort | Anzeige |
 |---|---|---|---|
