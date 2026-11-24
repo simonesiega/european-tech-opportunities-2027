@@ -556,6 +556,8 @@ Source: [local-opportunity-state.test.ts](../site/tests/unit/local-opportunity-s
 | `retains only current IDs and deduplicates all local lists` | Stale/duplicate IDs are pruned and toggles preserve the intended list membership |
 | `new rows preserve microsecond boundaries across UTC, SQLite and offset timestamps` | One matrix owns older/equal/newer membership, UTC/SQLite/offset equivalence, and submillisecond boundaries without input mutation; invalid rows remain excluded |
 | `invalid previous-visit evidence never invents new rows` | Missing, unreadable, and impossible calendar baselines yield no new-row claims |
+| `local %s view preserves row order and hidden precedence` | All five local views preserve directory ordering; overlapping saved/applied/new memberships never expose hidden rows outside Hidden, the new count excludes hidden IDs regardless of view, and inputs remain unchanged |
+| `unloaded local state preserves public rows and empty lists select nothing` | Hydration never guesses private membership; empty saved/applied/hidden/new lists and empty directories produce no rows while All retains public data |
 | `visit baseline survives reloads and advances after inactivity` | Reloads preserve the previous visit; the 30-minute boundary advances it without losing saved IDs |
 
 ### API contracts
