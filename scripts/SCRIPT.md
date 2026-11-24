@@ -26,16 +26,7 @@ Run the example commands from the repository root. Python scripts use `uv`; see 
 | [check_built_docs.py](docs/check_built_docs.py) | Checks links, anchors, images, and videos in the built documentation, along with the files allowed in the published site. Run it after a successful build. |
 | [coverage_docs.py](docs/coverage_docs.py) | Updates the generated coverage table in the testing guide from `quality-reports/coverage.json`. Use `--check` to report stale figures without changing the guide. |
 
-To check and build documentation:
-
-```bash
-uv run --frozen python scripts/docs/check_docs.py
-uv run --frozen python scripts/docs/lint_docs.py
-uv run --frozen --group docs python scripts/docs/build_docs.py
-uv run --frozen --group docs python scripts/docs/check_built_docs.py
-```
-
-If you have Make installed, `make docs-site` runs the same sequence. The lint step needs a running Docker daemon; the build commands install the documentation dependencies through uv.
+Run `make docs-site`, or the [direct documentation checks](../docs/maintainers/engineering/documentation.md#source-and-rendered-checks), to validate and build the site. Linting requires a running Docker daemon; the build commands install the documentation dependencies through uv.
 
 For coverage updates, `make coverage` runs the offline test suite, writes the reports, and refreshes the testing guide. After generating a report, you can check that the committed figures match it:
 
