@@ -25,6 +25,7 @@ Source: [integration/test_availability.py](integration/test_availability.py).
 | Test | Behavior protected |
 |---|---|
 | `test_availability_audit_checks_every_row_deletes_only_explicit_unavailability` | Audit open and closed rows; reopen explicit availability, delete explicit absence, preserve inconclusive rows and their provenance |
+| `test_availability_checks_closure_alerts_before_reopening` | Scoped closure alerts on either public or guest detail pages delete open/closed rows and provenance before reopening; unscoped wording does not establish closure |
 | `test_availability_audit_includes_manual_jobs_without_provenance` | Manual listings are audited even without a search association |
 | `test_delayed_audit_cannot_delete_newer_rediscovery` | A delayed audit cannot delete a newer observation or reopen a later closure; stale absence still advances scheduling |
 | `test_availability_distinguishes_public_listing_301s_from_source_stops` | Public 301 is inconclusive and permits unrelated work; detail redirects, denials, and challenges stop requests; only HTTP 429 with completed checks qualifies for partial publication without mutating denied or unchecked rows |
@@ -125,6 +126,7 @@ Source: [integration/test_runner.py](integration/test_runner.py).
 |---|---|
 | `test_pipeline_filters_persists_and_isolates_failed_searches` | Valid sibling work commits while timeout, transport/HTTP failure, source denial, malformed, or unexpected search failures leave prior jobs and near-closure provenance untouched; only HTTP 429 may qualify for partial publication and diagnostics are sanitized |
 | `test_collection_requires_cycle_or_usable_posting_age` | Real parsing/classification persists explicit-cycle roles despite missing, lower-bound, or malformed ages; yearless roles require usable posting evidence |
+| `test_collection_cannot_reinsert_a_job_just_deleted_by_the_audit` | An audit deletion survives immediate collection of a stale card with the same scoped detail closure alert; a healthy sibling still persists |
 | `test_malformed_detail_does_not_publish_a_current_search_card` | A plausible card cannot substitute for missing detail identity or produce a successful collection |
 | `test_concurrent_search_outcomes_apply_in_observation_order` | Reversed fetched outcomes still persist the newest metadata and both search associations |
 | `test_equal_finish_times_keep_configured_search_order` | Equal timestamps are deterministic by configured order, not random run IDs |
@@ -328,6 +330,7 @@ Source: [unit/test_linkedin.py](unit/test_linkedin.py).
 | `test_title_prefilter_continues_to_later_search_pages` | A page of unrelated titles does not prematurely end bounded discovery |
 | `test_linkedin_scraper_leaves_cycle_and_posting_evidence_to_classifier` | The scraper forwards candidates on both sides of the posting floor instead of duplicating acceptance policy |
 | `test_linkedin_company_filter_is_applied_before_detail_fetch` | Company scope rejects a title-eligible out-of-scope card before requesting its detail |
+| `test_closed_details_are_not_candidates_or_search_closure_evidence` | Current cards and known-job rechecks skip scoped closure alerts without reporting malformed HTML or inventing 404/410 confirmations; unscoped wording remains non-evidence |
 | `test_stale_search_card_detail_404_confirms_known_job_unavailability` | A stale visible card does not negate explicit known-job absence |
 | `test_known_job_recheck_requires_identity_in_the_detail_response` | Empty, generic, title-only, and company-only rechecks remain inconclusive and cannot synthesize availability from stored identity |
 | `test_known_job_recheck_uses_fresh_identity_and_only_falls_back_for_location` | Rechecks use current detail title/company and canonical ID links; detail location overrides stored location, which remains an optional fallback |

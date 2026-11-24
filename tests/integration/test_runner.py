@@ -15,8 +15,13 @@ from opportunities.models.enums import EmploymentType, OpportunityCategory
 from opportunities.models.job import DiscoveredJob
 from opportunities.models.raw import KnownJob, RawJob
 from opportunities.models.search import LinkedInSearchConfig
+from opportunities.pipeline.availability import audit_job_availability
 from opportunities.pipeline.runner import CollectionPipeline, SearchOutcome
-from opportunities.scrapers.http import LINKEDIN_DETAIL_ENDPOINT, FetchError
+from opportunities.scrapers.http import (
+    LINKEDIN_DETAIL_ENDPOINT,
+    LINKEDIN_PUBLIC_JOB_URL,
+    FetchError,
+)
 from opportunities.scrapers.linkedin import (
     LinkedInScraper,
     LinkedInScrapeResult,
@@ -252,6 +257,78 @@ def test_malformed_detail_does_not_publish_a_current_search_card(
     assert result.exit_code == 1
     assert repository.list_all_jobs() == []
     assert repository.stats().successful_runs == 0
+
+
+def test_collection_cannot_reinsert_a_job_just_deleted_by_the_audit(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    rules: ClassificationRules,
+    search: LinkedInSearchConfig,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    closed_id, open_id = "1111111111", "3333333333"
+    repository.upsert_manual_job(
+        DiscoveredJob(
+            linkedin_job_id=closed_id,
+            company="Test Technology",
+            title="Software Intern 2027",
+            location="Berlin, Germany",
+            link=LINKEDIN_PUBLIC_JOB_URL.format(job_id=closed_id),
+            category=OpportunityCategory.SOFTWARE_ENGINEERING,
+            employment_type=EmploymentType.INTERNSHIP,
+        ),
+        observed_at=now,
+    )
+    identity = (
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+        '<a class="topcard__org-name-link">Test Technology</a>'
+    )
+    cards = "".join(
+        f'<div data-entity-urn="urn:li:jobPosting:{job_id}">'
+        '<h3 class="base-search-card__title">Software Intern 2027</h3>'
+        '<h4 class="base-search-card__subtitle">Test Technology</h4>'
+        '<span class="job-search-card__location">Berlin, Germany</span></div>'
+        for job_id in (closed_id, open_id)
+    )
+    responses = {
+        LINKEDIN_PUBLIC_JOB_URL.format(job_id=closed_id): "<html>Public listing shell</html>",
+        LINKEDIN_DETAIL_ENDPOINT.format(job_id=closed_id): identity
+        + '<div role="alert">No longer accepting applications</div>',
+        LINKEDIN_DETAIL_ENDPOINT.format(job_id=open_id): identity,
+        build_search_url(search, start=0): cards,
+    }
+
+    class OfflineFetcher:
+        async def get_text(self, url: str) -> str:
+            return responses[url]
+
+    async def update() -> None:
+        fetcher = OfflineFetcher()
+        audit = await audit_job_availability(
+            settings=settings,
+            repository=repository,
+            fetcher=fetcher,
+            observed_at=now + timedelta(minutes=1),
+        )
+        assert audit.deleted == 1
+        assert repository.list_all_jobs() == []
+        result = await CollectionPipeline(
+            settings=settings,
+            repository=repository,
+            rules=rules,
+            clock=lambda: now + timedelta(minutes=2),
+        ).run([search], fetcher=fetcher)
+        assert result.exit_code == 0
+        assert result.accepted == result.summary.new == 1
+        assert result.warnings == 1
+        assert result.summary.reopened == result.summary.closed == 0
+
+    asyncio.run(update())
+    assert [job.linkedin_job_id for job in repository.list_open_jobs()] == [open_id]
+    with session_factory() as session:
+        assert session.get(JobSearchRow, (search.slug, closed_id)) is None
+        assert session.get(JobSearchRow, (search.slug, open_id)) is not None
 
 
 def test_concurrent_search_outcomes_apply_in_observation_order(

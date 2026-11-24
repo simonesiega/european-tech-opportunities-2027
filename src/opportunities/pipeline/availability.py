@@ -70,7 +70,7 @@ async def audit_job_availability(
 ) -> AvailabilityAuditResult:
     """Check a bounded batch of due jobs and delete explicitly unavailable rows.
 
-    HTTP 404/410 responses and LinkedIn's explicit closed-application alert prove that
+    HTTP 404/410 responses and explicit closure alerts on either page prove that
     a listing is unavailable. Otherwise, the guest detail endpoint must still contain
     recognizable listing identity fields. Authentication failures, rate limits, server
     errors, malformed responses, and transport failures are inconclusive and never
@@ -132,6 +132,8 @@ async def _audit_jobs(
             detail_html = await fetcher.get_text(
                 LINKEDIN_DETAIL_ENDPOINT.format(job_id=job.linkedin_job_id)
             )
+            if has_closed_application_notice(detail_html):
+                return job.linkedin_job_id, "unavailable"
             validate_job_detail_page(detail_html)
         except FetchError as exc:
             if exc.code == "source_blocked":

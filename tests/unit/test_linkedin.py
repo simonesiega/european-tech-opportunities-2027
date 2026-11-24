@@ -492,6 +492,37 @@ def test_linkedin_company_filter_is_applied_before_detail_fetch(
     assert all("2222222222" not in call for call in fetcher.calls)
 
 
+@pytest.mark.parametrize("known_recheck", [False, True])
+@pytest.mark.parametrize("scoped", [False, True])
+def test_closed_details_are_not_candidates_or_search_closure_evidence(
+    fixture_html: Callable[[str], str], known_recheck: bool, scoped: bool
+) -> None:
+    search = configured_search(max_pages=1, max_results=25, max_rechecks=1)
+    job_id = "1111111111"
+    tag = '<div role="alert">' if scoped else "<div>"
+    notice = f"{tag}No longer accepting applications</div>"
+    detail_url = LINKEDIN_DETAIL_ENDPOINT.format(job_id=job_id)
+    search_url = build_search_url(search, start=0)
+    fetcher = FixtureFetcher(
+        {
+            search_url: "<!doctype html>"
+            if known_recheck
+            else fixture_html("linkedin_search_page_1.html"),
+            detail_url: fixture_html("linkedin_job_detail_1111111111.html") + notice,
+        }
+    )
+    known = KnownJob(source_job_id=job_id, locations=("Berlin, Germany",))
+
+    result = asyncio.run(LinkedInScraper().scrape(search, fetcher, known_jobs=(known,)))
+
+    assert [job.source_job_id for job in result.positions] == ([] if scoped else [job_id])
+    assert result.confirmed_unavailable_ids == ()
+    assert len(result.warnings) == int(scoped)
+    if scoped:
+        assert "applications are closed" in result.warnings[0]
+    assert fetcher.calls == [search_url, detail_url]
+
+
 def test_stale_search_card_detail_404_confirms_known_job_unavailability(
     fixture_html: Callable[[str], str],
 ) -> None:
