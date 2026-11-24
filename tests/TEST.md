@@ -526,7 +526,7 @@ Sources: [unit/test_test_environment.py](unit/test_test_environment.py) and [uni
 
 ## Website unit tests
 
-These run in Bun without a browser or a running site.
+These run in Bun without a browser or a running site. Tooling dependency tests share a Node subprocess harness while retaining independent consumer assertions, loader flags, timeouts, and memory bounds.
 
 ### HTTP cache and safe URLs
 
@@ -620,7 +620,9 @@ Sources: [opportunity-status.test.ts](../site/tests/unit/opportunity-status.test
 | `Lighthouse resolves compatible Puppeteer imports without extract-zip` | Node resolves the same Puppeteer for Lighthouse's ESM and LHCI's CommonJS consumers, preserves connect/launch APIs, and cannot resolve the vulnerable archive extractor from the browser-management dependency |
 | `ESLint and Lighthouse reject oversized Zod collections before validating elements` | Actual consumer resolution preserves valid parsing and rejects a million-element constrained array without visiting elements or accumulating per-element errors; subprocess memory and time bounds contain vulnerable versions |
 | `Lighthouse's proxy dependency bounds malformed IPv6 parsing and preserves address bytes` | The SOCKS consumer retains valid IPv6 parsing and exact address bytes while a million-character malformed zone is rejected within a bounded subprocess, without network access |
-| `Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing` | The pinned security override stays compatible and rejects pathological synthetic listings within a subprocess timeout, without FTP access |
+| `ESLint's scoped minimatch patch preserves legacy consumers and bounds pattern expansion` | TypeScript-ESLint resolves the patched named API and bounds adversarial pattern preprocessing, while legacy ESLint keeps its callable minimatch API in a memory/time-limited offline Node subprocess |
+| `Ajv and Lighthouse preserve safe URI and query serialization with patched dependencies` | Actual Ajv and body-parser consumers preserve normal URI/query behavior without scheme promotion, path-equivalence confusion, or hostile comma-array serialization crashes |
+| `Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing` | The pinned security override preserves the consumer API, bounds pathological Unix listings, and parses MLSD facts named `__proto__` without crashing, in a timeout-limited subprocess without FTP access |
 
 ## Website HTTP and browser tests
 

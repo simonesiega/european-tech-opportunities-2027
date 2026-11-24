@@ -53,6 +53,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Upgrade Next.js and its ESLint configuration to `16.4.6`, including fixes for cache isolation, response injection, cookie disclosure, and SVG validation, and Lighthouse's `basic-ftp` to `6.2.4` for MLSD parsing and control-character error fixes; preserve offline consumer and full website checks.
+- Patch development-tool URI and query serialization dependencies and scope patched `minimatch` to TypeScript-ESLint, preserving legacy consumers and the pinned CI toolchain.
 - Pin patched Debian APT (`3.0.4`) and zlib (`1:1.3.dfsg+really1.3.1-1+deb13u1`) in both production images to fix high-severity vulnerabilities blocking Docker CI, without weakening image scans.
 - Pin development-tooling dependencies to Zod `4.6.7`, `ip-address` `10.7.4`, and `body-parser` `1.20.9` to fix memory exhaustion, quadratic IPv6 parsing, and compressed-request crashes; retain bounded offline consumer regressions and the dependency audit.
 - Upgrade uv to `0.13.4` in CI and container builds to remove a compromised trust root from its bundled certificates (GHSA-hq85-5cpj-mr62).
