@@ -445,6 +445,14 @@ Sources: [unit/test_activate_release.py](unit/test_activate_release.py), [unit/t
 | `test_publication_reconciles_transport` | Immutable objects and the latest pointer resume after disconnects before, during, or after upload, after rename, and during download; reruns do not repeat completed writes, retries are bounded, and permission errors, conflicting bytes, or unexpected pointer changes fail closed |
 | `test_latest_requires_round_trip_validation` | The actual publication function advances latest only after round-trip verification and application statistics succeed; checksum/statistics failures stop without retries, and late local replacement files or POSIX named pipes remain untouched without blocking even after pointer promotion |
 
+### Container build context
+
+Source: [unit/test_container_context.py](unit/test_container_context.py).
+
+| Test | Behavior protected |
+|---|---|
+| `test_container_context_excludes_operator_directories` | Private data, state, research reports, quality output, and personal agent directories retain explicit directory-level Docker exclusions, not only database suffix rules |
+
 ### Workflow safety
 
 Sources: [unit/test_readme_validation_workflow.py](unit/test_readme_validation_workflow.py) and [unit/test_state_review_workflow.py](unit/test_state_review_workflow.py). Configuration assertions here protect permissions and failure dependencies that local shell execution cannot emulate; dispatch/merge scripts also run against fake GitHub responses.

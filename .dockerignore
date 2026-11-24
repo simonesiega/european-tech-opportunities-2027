@@ -26,6 +26,8 @@ data
 dist
 htmlcov
 quality-reports
+reports
+state
 site/.next
 site/.next-e2e
 site/.lighthouseci
