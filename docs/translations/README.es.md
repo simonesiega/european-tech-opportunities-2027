@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Última recopilación realizada con éxito: 16 de noviembre de 2026 a las 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Ofertas%20activas-787-2563eb?style=for-the-badge" alt="Ofertas activas: 787" />
+  <strong>Última recopilación realizada con éxito: 23 de noviembre de 2026 a las 19:43 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Ofertas%20activas-788-2563eb?style=for-the-badge" alt="Ofertas activas: 788" />
   <img src="https://img.shields.io/badge/Pr%C3%A1cticas-407-16a34a?style=for-the-badge" alt="Prácticas: 407" />
-  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="Puestos New Grad: 380" />
+  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="Puestos New Grad: 381" />
 </p>
-<!-- Public directory state v1 sha256: 8c03a3b721a2e8cbc40093196694faa97cde5070b3c01e1e4c6485e9762d5ff3 -->
+<!-- Public directory state v1 sha256: 57557dc1b93c1abbda535f755e11e18886b69e750de12640f67e819d04a67087 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## ¿Por qué este proyecto?
@@ -57,22 +57,22 @@ Lo que empezó como un pequeño proyecto de código abierto ha llegado a persona
 ## Últimas oportunidades
 
 <!-- BEGIN OPPORTUNITIES -->
-**Ofertas activas:** 787 (Prácticas: 407 · New Grad: 380)<br>
-**Última recopilación realizada con éxito:** 16 de noviembre de 2026 a las 11:02 UTC
+**Ofertas activas:** 788 (Prácticas: 407 · New Grad: 381)<br>
+**Última recopilación realizada con éxito:** 23 de noviembre de 2026 a las 19:43 UTC
 
 Consulta y filtra todas las oportunidades en **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Últimas ofertas New Grad
 
-5 de 380 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
+5 de 381 puestos New Grad activos, ordenados por fecha del primer registro, del más reciente al más antiguo:
 
 | Empresa | Puesto | Ubicación | Anuncio |
 |---|---|---|---|
+| Apex.AI | Software Engineer — Software Platform &amp; Middleware \(Early Career\) | Munich, Bavaria, Germany | [Ver oferta](<https://www.linkedin.com/jobs/view/4491939039>) |
 | Cognizant | Graduate Software Engineer | Cluj, Romania | [Ver oferta](<https://www.linkedin.com/jobs/view/4489723688>) |
 | Cognizant | Graduate Software Engineer | Bucharest Metropolitan Area | [Ver oferta](<https://www.linkedin.com/jobs/view/4489716946>) |
 | targetjobs UK | Graduate Software Engineer | Glasgow, Scotland, United Kingdom | [Ver oferta](<https://www.linkedin.com/jobs/view/4490268038>) |
 | Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4489542552>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [Ver oferta](<https://www.linkedin.com/jobs/view/4489537674>) |
 
 ### Últimas ofertas de prácticas
 

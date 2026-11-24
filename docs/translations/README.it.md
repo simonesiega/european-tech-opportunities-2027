@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Ultima raccolta completata con successo: 16 novembre 2026 alle 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offerte%20attive-787-2563eb?style=for-the-badge" alt="Offerte attive: 787" />
+  <strong>Ultima raccolta completata con successo: 23 novembre 2026 alle 19:43 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Offerte%20attive-788-2563eb?style=for-the-badge" alt="Offerte attive: 788" />
   <img src="https://img.shields.io/badge/Tirocini-407-16a34a?style=for-the-badge" alt="Tirocini: 407" />
-  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="Posizioni New Grad: 380" />
+  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="Posizioni New Grad: 381" />
 </p>
-<!-- Public directory state v1 sha256: 8c03a3b721a2e8cbc40093196694faa97cde5070b3c01e1e4c6485e9762d5ff3 -->
+<!-- Public directory state v1 sha256: 57557dc1b93c1abbda535f755e11e18886b69e750de12640f67e819d04a67087 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Perché questo progetto?
@@ -57,22 +57,22 @@ Nato come piccolo progetto open source, European Tech Opportunities 2027 ha ragg
 ## Ultime opportunità
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offerte aperte:** 787 (Tirocini: 407 · New Grad: 380)<br>
-**Ultima raccolta completata con successo:** 16 novembre 2026 alle 11:02 UTC
+**Offerte aperte:** 788 (Tirocini: 407 · New Grad: 381)<br>
+**Ultima raccolta completata con successo:** 23 novembre 2026 alle 19:43 UTC
 
 Consulta e filtra tutte le offerte su **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Ultime offerte New Grad
 
-5 offerte New Grad su 380 ancora aperte, ordinate dalla data di prima rilevazione più recente:
+5 offerte New Grad su 381 ancora aperte, ordinate dalla data di prima rilevazione più recente:
 
 | Azienda | Posizione | Località | Annuncio |
 |---|---|---|---|
+| Apex.AI | Software Engineer — Software Platform &amp; Middleware \(Early Career\) | Munich, Bavaria, Germany | [Apri](<https://www.linkedin.com/jobs/view/4491939039>) |
 | Cognizant | Graduate Software Engineer | Cluj, Romania | [Apri](<https://www.linkedin.com/jobs/view/4489723688>) |
 | Cognizant | Graduate Software Engineer | Bucharest Metropolitan Area | [Apri](<https://www.linkedin.com/jobs/view/4489716946>) |
 | targetjobs UK | Graduate Software Engineer | Glasgow, Scotland, United Kingdom | [Apri](<https://www.linkedin.com/jobs/view/4490268038>) |
 | Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [Apri](<https://www.linkedin.com/jobs/view/4489542552>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [Apri](<https://www.linkedin.com/jobs/view/4489537674>) |
 
 ### Ultimi tirocini
 

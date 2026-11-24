@@ -26,12 +26,12 @@
 
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
-  <strong>Last successful collection: November 16, 2026 at 11:02 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Total%20opportunities-787-2563eb?style=for-the-badge" alt="Total opportunities: 787" />
+  <strong>Last successful collection: November 23, 2026 at 19:43 UTC</strong><br>
+  <img src="https://img.shields.io/badge/Total%20opportunities-788-2563eb?style=for-the-badge" alt="Total opportunities: 788" />
   <img src="https://img.shields.io/badge/Internships-407-16a34a?style=for-the-badge" alt="Internships: 407" />
-  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="New Grad opportunities: 380" />
+  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="New Grad opportunities: 381" />
 </p>
-<!-- Public directory state v1 sha256: 8c03a3b721a2e8cbc40093196694faa97cde5070b3c01e1e4c6485e9762d5ff3 -->
+<!-- Public directory state v1 sha256: 57557dc1b93c1abbda535f755e11e18886b69e750de12640f67e819d04a67087 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Why this?
@@ -57,22 +57,22 @@ What started as a small open-source project has reached people across Europe and
 ## Latest opportunities
 
 <!-- BEGIN OPPORTUNITIES -->
-**Open opportunities:** 787 (Internships: 407 · New Grad: 380)<br>
-**Last successful collection:** November 16, 2026 at 11:02 UTC
+**Open opportunities:** 788 (Internships: 407 · New Grad: 381)<br>
+**Last successful collection:** November 23, 2026 at 19:43 UTC
 
 Browse and filter the complete directory at **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Latest New Grad opportunities
 
-Showing 5 of 380 open New Grad opportunities, newest first by first-seen time:
+Showing 5 of 381 open New Grad opportunities, newest first by first-seen time:
 
 | Company | Title | Location | Listing |
 |---|---|---|---|
+| Apex.AI | Software Engineer — Software Platform &amp; Middleware \(Early Career\) | Munich, Bavaria, Germany | [View](<https://www.linkedin.com/jobs/view/4491939039>) |
 | Cognizant | Graduate Software Engineer | Cluj, Romania | [View](<https://www.linkedin.com/jobs/view/4489723688>) |
 | Cognizant | Graduate Software Engineer | Bucharest Metropolitan Area | [View](<https://www.linkedin.com/jobs/view/4489716946>) |
 | targetjobs UK | Graduate Software Engineer | Glasgow, Scotland, United Kingdom | [View](<https://www.linkedin.com/jobs/view/4490268038>) |
 | Bending Spoons | Graduate data scientist | Turin, Piedmont, Italy | [View](<https://www.linkedin.com/jobs/view/4489542552>) |
-| Bending Spoons | Graduate data scientist | Milan, Lombardy, Italy | [View](<https://www.linkedin.com/jobs/view/4489537674>) |
 
 ### Latest internships
 
