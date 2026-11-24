@@ -12,6 +12,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Remove redundant internship acceptance coverage and cosmetic/prose assertions; strengthen scout transport rejection, workflow-reference discovery, real directory/saved-list sorting, and synthetic-fixture isolation tests without changing production behavior.
 - Update the pinned uv and Python build images to `0.13.9` and `3.15.2`, Typer to `0.29.1`, Ruff to `0.17.4`, PyYAML stubs to `6.0.12.20261111`, and Material for MkDocs to `9.8.1`.
 - Update SQLAlchemy to `2.1.8`, pytest to `9.2.0`, pytest-benchmark to `5.3.1`, and CodeQL initialization/analysis to the pinned `4.39.3` release.
 - Remove redundant visit-boundary, country-deduplication, README-marker, and combined browser-filter tests; drop a search assertion tied to internal field-concatenation order while preserving the shared matrices and user journeys.

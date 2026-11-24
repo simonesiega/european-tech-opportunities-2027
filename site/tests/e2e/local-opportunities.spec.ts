@@ -194,16 +194,22 @@ test("saved, applied, hidden and restored work across filters, pages and reloads
 
 test("saved rows respect pagination and sorting without changing URL semantics", async ({page}) => {
   await openDirectory(page);
+  const newestRole = "Platform Engineering Intern 9";
+  await page.getByRole("button", {name: `Save ${newestRole} at Example 09`}).click();
   await page.getByRole("link", {name: "Next page"}).click();
   await page.getByRole("button", {name: `Save ${role} at Acme Labs`}).click();
-  await page.getByRole("button", {name: "View 1 saved opportunities"}).click();
-  await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
+  await page.getByRole("button", {name: "View 2 saved opportunities"}).click();
+  const savedRoles = page.locator("tbody").getByRole("link", {
+    name: /^(Software Engineering Intern 2027|Platform Engineering Intern 9)$/,
+  });
+  await expect(savedRoles).toHaveText([newestRole, role]);
   // Clamp the private list's page without rewriting the public pagination parameter.
   await expect(page).toHaveURL(/page=2/);
   await expect(page.getByText("Page 1 of 1")).toBeVisible();
   await page.getByRole("button", {name: "Company"}).click();
   await expect(page).toHaveURL(/sort=company-asc/);
-  await expect(page.getByRole("link", {name: role, exact: true})).toBeVisible();
+  await expect(savedRoles).toHaveText([role, newestRole]);
+  await expect(page).not.toHaveURL(/(?:saved|applied|hidden)=/);
 });
 
 test("keyboard actions, menu dismissal, focus and mobile reachability", async ({page}) => {

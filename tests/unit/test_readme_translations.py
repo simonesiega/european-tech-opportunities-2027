@@ -45,8 +45,7 @@ def test_readme_language_navigation_and_section_hierarchy(readme: Path) -> None:
     assert titles[0].get_text() == "European Tech Opportunities 2027"
     selector = titles[0].find_next_sibling()
     assert selector is not None
-    assert selector.name == "div"
-    assert selector.get("align") == "center"
+    # MkDocs must interpret the language links, regardless of their visual alignment.
     assert selector.get("markdown") == "1"
     links = re.findall(r"\[([^\]]+)\]\(([^)]+)\)", selector.get_text())
     assert len(links) == len(READMES)

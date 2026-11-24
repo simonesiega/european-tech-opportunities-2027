@@ -15,7 +15,7 @@ def test_local_workflow_references_use_self_repository_syntax_and_exist() -> Non
     checked_references = 0
     for workflow in (root / ".github" / "workflows").glob("*.yml"):
         for line in workflow.read_text(encoding="utf-8").splitlines():
-            match = re.match(r"^\s*uses:\s*(\S+)", line)
+            match = re.match(r"^\s*(?:-\s*)?uses:\s*(\S+)", line)
             if match is None:
                 continue
             reference = match.group(1)

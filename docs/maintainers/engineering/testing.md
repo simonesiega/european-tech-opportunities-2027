@@ -20,7 +20,7 @@ Test observable behavior and failure boundaries that affect users or canonical s
 | Deployment assumptions broken | Read-only mount, runtime origin, production headers, fixed downloads, standalone startup | Docker smoke + production build + Lighthouse |
 | Docs leak private files | Public staging allowlist, symlink rejection, generated ownership, source/rendered links | Offline tooling tests + strict docs build |
 
-Keep regressions near their owner. Assert resulting state and public responses rather than exact private helper calls, CSS classes, column widths, or generic framework behavior. Do not delete useful failure-path tests merely to lower the count. Coverage is a backstop, not a substitute for evidence-boundary tests.
+Keep regressions near their owner. Assert resulting state and public responses rather than exact private helper calls, CSS classes, column widths, or generic framework behavior. Do not add tests solely for colours, icons, button presence, prose wording, or visual alignment. Keep interaction tests when they prove a real action, persisted state, privacy, recovery, keyboard access, or accessibility; an ARIA state alone does not prove the action changed the data. Do not delete useful failure-path tests merely to lower the count. Coverage is a backstop, not a substitute for evidence-boundary tests.
 
 ### Reviewing existing tests
 
@@ -28,7 +28,8 @@ Evaluate a test by the regression it detects, not whether it was AI-assisted or 
 
 - Compare its stated contract with the owner implementation, fixtures, and neighboring tests before keeping, refactoring, or removing it.
 - Challenge the assertion with a plausible wrong implementation in a disposable copy. First run an unchanged control; import or setup failures do not prove that a mutation was detected.
-- Make competing outcomes distinguishable: force reversed async completion, isolate each searchable field, and include offset timestamps that cross a UTC date boundary.
+- Make competing outcomes distinguishable: force reversed async completion, isolate each searchable field, include offset timestamps that cross a UTC date boundary, and sort multiple distinguishable rows rather than a single saved item.
+- Make negative fixtures valid apart from the selected defect, and check the intended failure category. Malformed JSON must not let a test pass when the encoding, content-type, or size guard it claims to protect is missing.
 - Assert complete allowlists and actual row multiplicity where privacy or publication accuracy requires them. Do not let partial matches, deduplication, or datetime instant equality hide extra data or missing normalization.
 - Remove a case only when remaining coverage protects the same boundary. Exact fixture duplicates and simpler examples subsumed by a boundary matrix do not need separate tests. A forbidden file extension does not need a second symlink case when the extension matrix rejects it and an allowed-extension symlink test protects against content leakage.
 - Keep filter truth tables in shared-helper tests and representative control/history/sorting journeys in the browser. Do not add browser scenarios for every combination or freeze the incidental order in which search fields are concatenated.

@@ -157,7 +157,6 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 
 | Test | Behavior protected |
 |---|---|
-| `test_explicit_2027_software_internship_is_accepted` | Clear internship evidence produces the expected type and technical category |
 | `test_cycle_must_be_explicit_and_not_only_graduation_year` | Internship eligibility years in titles or descriptions are not programme-cycle evidence |
 | `test_canonical_2025_2026_graduate_listing_is_rejected` | A representative multi-year graduate description rejects the old cycle even with a recent posting |
 | `test_full_time_title_is_rejected_even_if_description_mentions_internships` | Company internship boilerplate cannot turn a full-time title into an opportunity |
@@ -167,7 +166,7 @@ Source: [unit/test_classification.py](unit/test_classification.py).
 | `test_non_technology_title_cannot_be_rescued_by_technical_description` | Technical team mentions cannot reclassify an explicitly unrelated finance title |
 | `test_non_technical_roles_cannot_be_rescued_by_technology_keywords` | Commercial, recruitment, clinical, and market-research titles remain excluded despite technical title or description keywords |
 | `test_generic_research_titles_require_technology_evidence` | Generic research and research-scientist titles cannot establish a technology category without technical evidence |
-| `test_technical_roles_remain_eligible_next_to_non_technical_exclusions` | Technical research, narrowly supported description fallback, software engineering, and whole-word boundaries remain eligible |
+| `test_technical_roles_remain_eligible_next_to_non_technical_exclusions` | Canonical software internship acceptance, technical research, narrowly supported description fallback, and whole-word boundaries retain the expected type and category |
 | `test_employment_type_requires_whole_word_evidence` | “International” and “Internal” do not count as “intern” |
 | `test_explicit_non_european_locations_prevent_city_fallback` | Country names/codes, regional abbreviations, city namesakes, and explicit non-European remote evidence defeat European-city fallback |
 | `test_description_can_classify_generic_technical_internship` | A generic technical title may use explicit description evidence for its category |
@@ -217,7 +216,7 @@ Source: [unit/test_scout.py](unit/test_scout.py). All HTTP uses synthetic mock r
 |---|---|
 | `test_public_contract_is_available_in_the_installed_package` | Wheel-layout schema resources validate public status without relying on checkout paths |
 | `test_public_reader_loads_every_page_and_valid_empty_dataset` | Empty, single-page, boundary, and multi-page reads load all IDs with status brackets, schema-valid integral numeric counts, and no cookies/authentication |
-| `test_public_reader_never_returns_partial_or_inconsistent_data` | Incomplete/duplicate pages, wrong pagination, URL-ID conflicts, schema drift, changed releases, same-count API/export identity mismatches, HTTP/redirect/JSON/encoding/type/size failures, legacy mode, and page budgets fail closed |
+| `test_public_reader_never_returns_partial_or_inconsistent_data` | Incomplete/duplicate pages, pagination, identity, schema, release/export drift, HTTP/redirect/JSON failures, legacy mode, and page budgets fail for the intended reason; valid compressed, wrong-media-type, and oversized JSON isolate each transport guard |
 | `test_public_export_fallback_checks_exact_bytes_and_status` | Complete fixed-path export succeeds only with matching exact hash, count, unique IDs, shared schema, and unchanged status |
 | `test_public_reader_rejects_authentication_before_requests` | Authenticated dataset clients fail before network |
 | `test_scout_calls_current_classifier_without_weakening_evidence` | Real classification and publication models preserve graduation-versus-cycle, posting-floor, conflicting year, seniority, geography, normalized-field bounds, New Grad, and future-evidence boundaries |
@@ -249,7 +248,7 @@ Source: [unit/test_scout.py](unit/test_scout.py). All HTTP uses synthetic mock r
 | `test_cli_preflight_rejects_invalid_options_and_existing_outputs_without_io` | Misplaced flags, missing approval, and existing dataset outputs fail with bounded actionable categories before input reads or HTTP client creation |
 | `test_existing_outputs_block_reads_or_partial_batch_writes` | Existing dataset or later-batch destinations, including dangling symlinks where supported, block HTTP or earlier batch writes and preserve original files |
 | `test_cli_rejects_invalid_approvals_with_actionable_sanitized_errors` | Unknown and repeated approval IDs return a specific recovery message without exposing input or creating batches |
-| `test_shared_skill_is_discoverable_while_personal_files_and_reports_remain_ignored` | Codex metadata/entry point and review instructions exist; Git allowlists only this skill while retaining private skills, routers, context, and reports |
+| `test_shared_skill_is_discoverable_while_personal_files_and_reports_remain_ignored` | The shared skill retains its discovery name and nonempty description; Git allowlists only its entry point while keeping personal skills, routers, context, and research reports ignored |
 
 ### Search-registry documentation
 
@@ -493,7 +492,7 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 
 | Test | Behavior protected |
 |---|---|
-| `test_local_workflow_references_use_self_repository_syntax_and_exist` | Local workflow/action references use the repository's supported syntax and resolve to existing files |
+| `test_local_workflow_references_use_self_repository_syntax_and_exist` | Both job-level workflow calls and list-item step actions use supported local-reference syntax and resolve to existing files |
 | `test_source_checker_validates_inventories_and_local_workflow_overview` | Broken changelog, script/test-inventory, shared skill README/entry-point links, and actual workflow-table references fail; unrelated example filenames do not cause false failures |
 | `test_diagram_links_and_accessibility_match_source` | All five SVGs retain source-matched titles, descriptions, keyboard-usable native links, real repository targets, and no scripts, HTML labels, event handlers, or external resources |
 | `test_source_links_cover_images_video_and_agent_guidance` | Agent guidance, images, video sources, and posters participate in local-link validation |
@@ -509,7 +508,7 @@ Sources: [unit/test_docs.py](unit/test_docs.py), [unit/test_docs_lint.py](unit/t
 | `test_public_staging_publishes_media_but_not_private_root_files` | Approved media/policies/favicon and UTF-8 README translations reach strict staging while private root files do not |
 | `test_public_staging_rejects_unapproved_files` | Databases, environment files, all standalone audio (including the former soundtrack path), and promotional implementation files fail the publication allowlist |
 | `test_public_staging_rejects_symlinked_media` | An otherwise allowed WebP cannot smuggle private content through a symlink; disallowed MP3 paths belong to the separate unapproved-file matrix |
-| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve the English heading hierarchy and reciprocal centered selectors using native language names and resolving to every supported language |
+| `test_readme_language_navigation_and_section_hierarchy` | All six READMEs preserve heading hierarchy and reciprocal language links with native names and MkDocs Markdown interpretation, without prescribing visual alignment or the container tag |
 | `test_localized_readmes_share_canonical_data` | All five committed translations pass structural validation and match English badge counts, listing values/ordering/URLs, and full-state seal |
 | `test_readme_translations_participate_in_documentation_checks_and_navigation` | Every supported README participates in curated source/lint discovery and parsed MkDocs language navigation without restricting unrelated Markdown files |
 | `test_renders_table_and_then_passes_check` | Stale check mode does not write; rendering updates measured values and subsequent checking passes without altering unrelated content |
@@ -529,7 +528,7 @@ Sources: [unit/test_test_environment.py](unit/test_test_environment.py) and [uni
 | `test_offline_http_guard_blocks_sync_and_async_default_transports` | Real HTTPX calls fail even through application exception-catching paths |
 | `test_offline_http_guard_preserves_injected_mock_transports` | The guard permits synthetic transports needed to test the real policy layer |
 | `test_shell_subprocesses_get_only_isolated_settings` | Subprocesses drop operator settings and use temporary homes, offline uv, and blocking transport fallbacks |
-| `test_fixture_matches_migrated_repository_and_exports` | Browser/demo fixtures use current migrations and exports, deterministic relative dates, correct successful-collection time, and no invented provenance |
+| `test_fixture_matches_migrated_repository_and_exports` | Browser/demo fixtures use real migrations/exports, deterministic dates, correct successful-collection time, and no invented provenance; generating the separate demo leaves the browser database, downloads, and metadata byte-identical |
 | `test_fixture_refuses_to_replace_state_with_sidecars` | Fixture regeneration cannot discard WAL/SHM/journal state |
 
 ## Website unit tests
@@ -648,8 +647,8 @@ Source: [directory.spec.ts](../site/tests/e2e/directory.spec.ts). Browser journe
 | `restores filters from a shared URL and browser history` | Deep-linked search/type/country/recency and browser Back restore the same results |
 | `restores a country alias without broadening the directory` | A country-code URL selects the canonical country control and the matching row without rewriting the shared URL |
 | `restores sorting, page, and page size from a shared URL` | Deep-linked pagination survives history; a sort change resets to page one |
-| `falls back safely for unsupported directory view parameters` | Browser inputs constrain invalid recency/sort/page/page-size values rather than applying API-style rejection |
-| `search, reset, keyboard focus, and sorting remain interactive` | Search shortcut works; reset preserves unrelated query/sort/page-size state; sort direction changes actual row order |
+| `falls back safely for unsupported directory view parameters` | Invalid recency/sort/page/page-size inputs restore actual default rows, counts, and pagination rather than applying API-style rejection |
+| `search, reset, keyboard focus, and sorting remain interactive` | Search shortcut works; reset preserves unrelated query/sort/page-size state; both company-sort directions change actual rows, not only headers or URLs |
 | `defaults to latest first seen and paginates results` | Newest-first rows, next-page links, and page-size changes expose the expected data |
 | `publishes canonical SEO and crawler metadata` | Filtered pages are nonindexable with canonical URL, safe JSON-LD including the three-day dataset schedule, and download metadata; image/manifest/robots/sitemap routes work and local analytics stays absent |
 | `legacy host permanently redirects paths and queries without serving alternate content` | Retired-host requests preserve path/query through a 308 canonical-origin redirect |
@@ -682,7 +681,7 @@ Source: [local-opportunities.spec.ts](../site/tests/e2e/local-opportunities.spec
 | `hiding every role leaves a clear route to restoring the directory` | All-hidden state is recoverable through Hidden and restore actions |
 | `menu dismissal preserves tab order and focus after a viewport change` | Tab/Shift+Tab and resizing dismiss menus while restoring meaningful keyboard focus |
 | `saved, applied, hidden and restored work across filters, pages and reloads` | Local choices persist, compose with public filters, respect hiding/restoring, and remain accessible |
-| `saved rows respect pagination and sorting without changing URL semantics` | Private view pagination clamps locally without rewriting public page state; public sorting still applies |
+| `saved rows respect pagination and sorting without changing URL semantics` | A two-employer saved list clamps pagination without rewriting the public page or leaking private filters; company sorting changes actual saved-row order |
 | `keyboard actions, menu dismissal, focus and mobile reachability` | Keyboard save/apply/hide, scroll/Escape dismissal, focused actions, reachable menus, axe, and mobile overflow preserve usability |
 | `local actions still work when storage access is disabled` | Storage-denied browsers can still use in-memory local lists |
 | `tabs merge sequential local actions and synchronize clearing without requests` | Tabs merge sequential actions, ignore stale clear notifications, synchronize real clearing, store only approved state, and make no action requests or URL changes |

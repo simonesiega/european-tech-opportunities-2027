@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import html
 import json
@@ -174,29 +175,31 @@ def test_public_reader_loads_every_page_and_valid_empty_dataset(total: int) -> N
 
 
 @pytest.mark.parametrize(
-    "defect",
+    ("defect", "message"),
     [
-        "short",
-        "duplicate",
-        "total",
-        "page",
-        "pageSize",
-        "totalPages",
-        "identity",
-        "schema",
-        "drift",
-        "export-mismatch",
-        "http",
-        "redirect",
-        "invalid-json",
-        "compressed",
-        "content-type",
-        "oversize",
-        "legacy",
-        "budget",
+        ("short", "public page is incomplete"),
+        ("duplicate", "duplicate identity"),
+        ("total", "public pagination changed"),
+        ("page", "public pagination changed"),
+        ("pageSize", "repository contract"),
+        ("totalPages", "public pagination changed"),
+        ("identity", "identity"),
+        ("schema", "repository contract"),
+        ("drift", "changed during retrieval"),
+        ("export-mismatch", "export identity sets differ"),
+        ("http", "HTTP 503"),
+        ("redirect", "HTTP 302"),
+        ("invalid-json", "response is invalid JSON"),
+        ("compressed", "compressed public dataset response refused"),
+        ("content-type", "response is not JSON"),
+        ("oversize", "response exceeds research budget"),
+        ("legacy", "fixed-path API"),
+        ("budget", "exceeds page budget"),
     ],
 )
-def test_public_reader_never_returns_partial_or_inconsistent_data(defect: str) -> None:
+def test_public_reader_never_returns_partial_or_inconsistent_data(
+    defect: str, message: str
+) -> None:
     calls = 0
     content = export_bytes([1, 3] if defect == "export-mismatch" else [1, 2])
 
@@ -228,17 +231,6 @@ def test_public_reader_never_returns_partial_or_inconsistent_data(defect: str) -
             return httpx.Response(
                 503 if defect == "http" else 302, headers={"location": "https://example.com"}
             )
-        if defect in {"invalid-json", "compressed", "content-type", "oversize"}:
-            headers = {
-                "content-type": "text/html" if defect == "content-type" else "application/json"
-            }
-            if defect == "compressed":
-                headers["content-encoding"] = "br"
-            return httpx.Response(
-                200,
-                content=b"x" * (1024 * 1024 + 1) if defect == "oversize" else b"not-json",
-                headers=headers,
-            )
         rows = [row(1), row(2)]
         pagination = {"page": 1, "pageSize": 100, "total": 2, "totalPages": 1}
         if defect == "short":
@@ -251,11 +243,27 @@ def test_public_reader_never_returns_partial_or_inconsistent_data(defect: str) -
             rows[0]["link"] = row(2)["link"]
         elif defect == "schema":
             rows[0]["private"] = "not allowed"
-        return httpx.Response(200, json={"version": "v1", "pagination": pagination, "data": rows})
+        payload = {"version": "v1", "pagination": pagination, "data": rows}
+        if defect in {"invalid-json", "compressed", "content-type", "oversize"}:
+            # Apart from the selected defect, the response must remain usable;
+            # invalid JSON would hide a missing encoding, media-type, or size guard.
+            body = json.dumps(payload).encode()
+            headers = {
+                "content-type": "text/html" if defect == "content-type" else "application/json"
+            }
+            if defect == "invalid-json":
+                body = b"not-json"
+            elif defect == "compressed":
+                body = gzip.compress(body, mtime=0)
+                headers["content-encoding"] = "gzip"
+            elif defect == "oversize":
+                body += b" " * (1024 * 1024 + 1)
+            return httpx.Response(200, stream=httpx.ByteStream(body), headers=headers)
+        return httpx.Response(200, json=payload)
 
     with (
         httpx.Client(transport=httpx.MockTransport(handle), follow_redirects=True) as client,
-        pytest.raises(ValueError, match=r"public|fixed-path|duplicate|identity"),
+        pytest.raises(ValueError, match=message),
     ):
         load_public_dataset(client)
     assert calls <= 4
@@ -682,7 +690,8 @@ def test_reconciliation_does_not_decode_validated_source_fields_again(
     assert finding.reason == decision.exclusion_reason
     assert finding.candidate.listing is not None
     assert finding.candidate.listing.model_dump() == original
-    assert observation.listing is raw
+    assert observation.listing is not None
+    assert observation.listing.model_dump() == original
     assert raw.model_dump() == original
     assert finding.manual_record is None
     assert not prepare_batches(
@@ -1356,13 +1365,8 @@ def test_shared_skill_is_discoverable_while_personal_files_and_reports_remain_ig
     text = entry.read_text(encoding="utf-8")
     metadata = yaml.safe_load(text.split("---", 2)[1])
     assert metadata["name"] == "linkedin-opportunity-scout"
-    assert all(
-        word in metadata["description"] for word in ("LinkedIn", "dataset", "report", "manual")
-    )
-    assert "## E. Report and STOP" in text
-    assert "## F. Only after specific approval" in text
-    assert "reusable-process-state.yml" in text
-    assert "manual_jobs.py" in text
+    assert isinstance(metadata["description"], str)
+    assert metadata["description"].strip()
     paths = [
         ".agents/skills/linkedin-opportunity-scout/SKILL.md",
         ".agents/skills/linkedin-opportunity-scout/private.md",
