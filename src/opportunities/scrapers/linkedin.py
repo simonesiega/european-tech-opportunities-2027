@@ -389,6 +389,9 @@ class LinkedInScraper:
         for card in selected_cards:
             try:
                 html = await self._detail(card.job_id, fetcher)
+                if has_closed_application_notice(html):
+                    warnings.append("LinkedIn job detail skipped: applications are closed")
+                    continue
                 job = parse_job_detail(
                     html,
                     job_id=card.job_id,
@@ -423,6 +426,10 @@ class LinkedInScraper:
         for known in absent_known:
             try:
                 html = await self._detail(known.source_job_id, fetcher)
+                if has_closed_application_notice(html):
+                    # Search confirmations remain limited to explicit HTTP 404/410.
+                    warnings.append("Known LinkedIn job recheck skipped: applications are closed")
+                    continue
                 # Stored location can fill missing display metadata, but listing
                 # identity must come from the response, just as for current cards.
                 positions.append(

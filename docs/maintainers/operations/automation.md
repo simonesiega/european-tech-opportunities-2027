@@ -68,6 +68,8 @@ A failed gate or security advisory can require engineering or host-administratio
 
 ### Review maintenance pull requests
 
+Dependabot checks for version updates weekly across the Bun-managed website, Python, GitHub Actions, and Docker, retaining the seven-day release cooldowns. Security alerts and enabled security updates are independent of that version-update schedule; triage alerts promptly.
+
 Dependabot proposes changes; it does not establish compatibility or install them in production. For each proposal, inspect the changed packages, lockfile, and upstream release notes, then require all applicable checks on the latest PR commit. A green check from an earlier commit is not sufficient. Do not remove a required check or dependency override merely to make the PR mergeable.
 
 | Change | After validation and merge |
@@ -131,7 +133,9 @@ Review Scorecard alerts individually under **Security → Code scanning**. Score
 
 Use the following context when triaging:
 
-- **Branch protection:** verify the default branch, rulesets or branch-protection rules, required checks, and review policy in GitHub settings. Repository rulesets are visible to Scorecard's default token; some classic branch-protection details may not be, so verify them directly rather than granting an administrative token.
+- **Vulnerabilities:** compare each advisory's affected range with the committed lockfiles and production images. Run full dependency audits, including development tools, and validate patched consumers. Local fixes do not close default-branch alerts until reviewed changes reach `main` and GitHub reassesses them; rebuilding and deploying the application is a separate step.
+- **Branch protection:** verify the default branch, rulesets or branch-protection rules, required checks, and review policy in GitHub settings. With explicit maintainer approval, require independent and code-owner review, dismiss stale approvals, require approval of the latest push and up-to-date checks, and apply protections to administrators. Confirm an eligible reviewer is available; do not bypass these rules for nightly automation. Repository rulesets are visible to Scorecard's default token; some classic branch-protection details may not be, so verify them directly rather than granting an administrative token.
+- **Code review:** require genuine approval by an eligible reviewer other than the author before merging. CI success, self-review, and a bot-created pull request are not independent review. Historical unapproved changesets remain in Scorecard's sample until it rolls forward; do not fabricate approvals or weaken checks to change the score.
 - **Best Practices (#34):** the [OpenSSF Best Practices project](https://www.bestpractices.dev/projects/14982) records its current assessment and badge status. Scorecard reads that external project record; adding a badge image alone cannot resolve the alert. Review the evidence for each claim, distinguish in-progress from passing, and rerun Scorecard after changes to the record.
 - **Pinned dependencies:** this repository pins third-party Actions to full commit SHAs, container images to digests, and application dependencies with `uv.lock` and `site/bun.lock`; Dependabot is configured for updates. The `$/...` syntax resolves repository-owned workflows and actions; Scorecard may misidentify these as unpinned third-party actions. Do not change them to `./...` merely to silence Scorecard: blocking zizmor recommends `$/...` for self-repository references.
 - **Fuzzing:** the website unit suite runs seeded, bounded `fast-check` properties against the public API query parser. This is offline input fuzzing, not a live-source test. Compare any Scorecard fuzzing finding with the suite's actual scope.

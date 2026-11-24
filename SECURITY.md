@@ -161,7 +161,7 @@ For dependencies and releases:
 
 - commit `uv.lock` and `site/bun.lock`, and use frozen installs;
 - pin Actions and CI tool images to immutable revisions where practical;
-- review weekly Dependabot updates for Python, website, Actions, and Docker inputs;
+- review weekly Dependabot version updates for Python, website, Actions, and Docker inputs, and triage security alerts promptly regardless of that schedule;
 - lint workflows and Dockerfiles, run CodeQL security analysis for Python and TypeScript, scan commits with Gitleaks, review new pull-request dependencies for high or critical vulnerabilities, reject fixable high or critical image vulnerabilities, and verify production security headers in CI;
 - keep version references synchronized across metadata, lockfiles, images, user agents, and documentation;
 - publish only from a clean, validated tree;

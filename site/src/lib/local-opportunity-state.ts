@@ -70,18 +70,41 @@ export function newOpportunityIds(
   } catch {
     return new Set();
   }
-  return new Set(
-    opportunities
-      .filter((item) => {
-        try {
-          // Fixed-width UTC strings preserve microseconds at the visit boundary.
-          return normalizeOpportunityTimestamp(item.firstSeenAt) > cutoff;
-        } catch {
-          return false;
-        }
-      })
-      .map((item) => item.linkedinJobId)
-  );
+  const ids = new Set<string>();
+  for (const item of opportunities) {
+    try {
+      // Fixed-width UTC strings preserve microseconds at the visit boundary.
+      if (normalizeOpportunityTimestamp(item.firstSeenAt) > cutoff) ids.add(item.linkedinJobId);
+    } catch {
+      // Invalid timestamps are not evidence of a new opportunity.
+    }
+  }
+  return ids;
+}
+
+export function selectLocalOpportunities(
+  opportunities: Opportunity[],
+  state: LocalOpportunityState | null,
+  view: LocalOpportunityView,
+  newIds: Set<string>
+): {visibleOpportunities: Opportunity[]; newCount: number} {
+  // Index lists once, rather than scanning stored ID arrays for every directory row.
+  const hidden = new Set(state?.hidden);
+  let newCount = 0;
+  for (const id of newIds) {
+    if (!hidden.has(id)) newCount++;
+  }
+  if (!state || (view === "all" && hidden.size === 0))
+    return {visibleOpportunities: opportunities, newCount};
+
+  const selected = view === "saved" || view === "applied" ? new Set(state[view]) : null;
+  const visibleOpportunities = opportunities.filter(({linkedinJobId: id}) => {
+    if (view === "hidden") return hidden.has(id);
+    if (hidden.has(id)) return false;
+    if (view === "new") return newIds.has(id);
+    return selected === null || selected.has(id);
+  });
+  return {visibleOpportunities, newCount};
 }
 
 // A visit continues across reloads and tabs until 30 minutes of inactivity.

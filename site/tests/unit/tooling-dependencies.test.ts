@@ -2,14 +2,20 @@ import {expect, test} from "bun:test";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 
+function assertNode(source: string, ...flags: string[]): void {
+  // Exercise Node's loaders and bound vulnerable consumers without stalling Bun.
+  const result = spawnSync("node", [...flags, "--eval", source], {
+    cwd: fileURLToPath(new URL("../..", import.meta.url)),
+    encoding: "utf8",
+    timeout: 10_000,
+  });
+  expect(result.error).toBeUndefined();
+  expect(result.status, result.stderr).toBe(0);
+}
+
 test("Lighthouse resolves compatible Puppeteer imports without extract-zip", () => {
-  // Exercise Node's loaders, not Bun's interop; Lighthouse runs under Node in CI.
-  const result = spawnSync(
-    "node",
-    [
-      "--input-type=module",
-      "--eval",
-      String.raw`
+  assertNode(
+    String.raw`
         import assert from "node:assert/strict";
         import {createRequire} from "node:module";
         import {pathToFileURL} from "node:url";
@@ -28,25 +34,13 @@ test("Lighthouse resolves compatible Puppeteer imports without extract-zip", () 
         const fromBrowsers = createRequire(fromPuppeteer.resolve("@puppeteer/browsers"));
         assert.throws(() => fromBrowsers.resolve("extract-zip"), {code: "MODULE_NOT_FOUND"});
       `,
-    ],
-    {
-      cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      encoding: "utf8",
-      timeout: 10_000,
-    }
+    "--input-type=module"
   );
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stderr).toBe(0);
 }, 15_000);
 
 test("ESLint and Lighthouse reject oversized Zod collections before validating elements", () => {
-  const result = spawnSync(
-    "node",
-    [
-      "--max-old-space-size=64",
-      "--input-type=commonjs",
-      "--eval",
-      String.raw`
+  assertNode(
+    String.raw`
         const assert = require("node:assert/strict");
         const {createRequire} = require("node:module");
         const fromHooks = createRequire(require.resolve("eslint-plugin-react-hooks"));
@@ -70,26 +64,14 @@ test("ESLint and Lighthouse reject oversized Zod collections before validating e
           assert.equal(visited, 0);
         }
       `,
-    ],
-    {
-      cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      encoding: "utf8",
-      timeout: 10_000,
-    }
+    "--max-old-space-size=64",
+    "--input-type=commonjs"
   );
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stderr).toBe(0);
 }, 15_000);
 
 test("Lighthouse's proxy dependency bounds malformed IPv6 parsing and preserves address bytes", () => {
-  // Bound the child process so an unsafe dependency cannot stall the runner.
-  const result = spawnSync(
-    "node",
-    [
-      "--max-old-space-size=64",
-      "--input-type=commonjs",
-      "--eval",
-      String.raw`
+  assertNode(
+    String.raw`
         const assert = require("node:assert/strict");
         const {createRequire} = require("node:module");
         const fromSocks = createRequire(require.resolve("socks"));
@@ -100,26 +82,58 @@ test("Lighthouse's proxy dependency bounds malformed IPv6 parsing and preserves 
         ]);
         assert.equal(Address6.isValid("%".repeat(1_000_000) + "\n"), false);
       `,
-    ],
-    {
-      cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      encoding: "utf8",
-      timeout: 10_000,
-    }
+    "--max-old-space-size=64",
+    "--input-type=commonjs"
   );
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stderr).toBe(0);
+}, 15_000);
+
+test("ESLint's scoped minimatch patch preserves legacy consumers and bounds pattern expansion", () => {
+  assertNode(
+    String.raw`
+        const assert = require("node:assert/strict");
+        const {createRequire} = require("node:module");
+        const fromEstree = createRequire(require.resolve("@typescript-eslint/typescript-estree"));
+        const {minimatch, Minimatch} = fromEstree("minimatch");
+        assert.equal(minimatch("src/example.ts", "**/*.ts", {dot: true}), true);
+        assert.equal(minimatch("src/example.js", "**/*.ts", {dot: true}), false);
+        new Minimatch("**/../".repeat(20) + "example.ts", {optimizationLevel: 2});
+        const fromEslint = createRequire(require.resolve("eslint"));
+        const legacy = fromEslint("minimatch");
+        assert.equal(typeof legacy, "function");
+        assert.equal(legacy("src/example.js", "**/*.js"), true);
+      `,
+    "--max-old-space-size=64",
+    "--input-type=commonjs"
+  );
+}, 15_000);
+
+test("Ajv and Lighthouse preserve safe URI and query serialization with patched dependencies", () => {
+  assertNode(
+    String.raw`
+        const assert = require("node:assert/strict");
+        const {createRequire} = require("node:module");
+        const fromAjv = createRequire(require.resolve("ajv"));
+        const uri = fromAjv("fast-uri");
+        assert.equal(uri.parse("https://example.invalid/roles").host, "example.invalid");
+        assert.notEqual(uri.normalize("%6Aavascript:alert(1)"), "javascript:alert(1)");
+        assert.equal(uri.equal("https://example.invalid/a", "https://example.invalid/a/"), false);
+        const fromBodyParser = createRequire(require.resolve("body-parser"));
+        const qs = fromBodyParser("qs");
+        assert.equal(qs.stringify({roles: ["one", "two"]}, {arrayFormat: "comma"}), "roles=one%2Ctwo");
+        const hostile = JSON.parse('{"roles":[{"toString":"x"}]}');
+        for (const encodeValuesOnly of [false, true]) {
+          assert.doesNotThrow(() => qs.stringify(hostile, {arrayFormat: "comma", encodeValuesOnly}));
+        }
+      `,
+    "--max-old-space-size=64",
+    "--input-type=commonjs"
+  );
 }, 15_000);
 
 test("Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed listing parsing", () => {
-  // Isolate the parser so a vulnerable transitive version cannot hang the test runner.
   // Only synthetic strings are parsed; no FTP connection is opened.
-  const result = spawnSync(
-    "node",
-    [
-      "--input-type=commonjs",
-      "--eval",
-      String.raw`
+  assertNode(
+    String.raw`
         const assert = require("node:assert/strict");
         const {createRequire} = require("node:module");
         const fromConsumer = createRequire(require.resolve("get-uri"));
@@ -135,17 +149,14 @@ test("Lighthouse's FTP dependency keeps its CommonJS API and bounds malformed li
           assert.deepEqual(entries.map(({name, size}) => ({name, size})), [
             {name: "example.txt", size: 42},
           ]);
+          const mlsd = parseList("__proto__=x;type=file;size=10; example.txt\r\n");
+          assert.deepEqual(mlsd.map(({name, size}) => ({name, size})), [
+            {name: "example.txt", size: 10},
+          ]);
         } finally {
           client.close();
         }
       `,
-    ],
-    {
-      cwd: fileURLToPath(new URL("../..", import.meta.url)),
-      encoding: "utf8",
-      timeout: 10_000,
-    }
+    "--input-type=commonjs"
   );
-  expect(result.error).toBeUndefined();
-  expect(result.status, result.stderr).toBe(0);
 }, 15_000);

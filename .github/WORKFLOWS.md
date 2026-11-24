@@ -71,7 +71,7 @@ These files support contributions and workflow setup but are not separate workfl
 | File | Purpose |
 |---|---|
 | [Python setup action](actions/setup-python/action.yml) | Gives workflows a consistent Python environment and installs the project's locked dependencies. |
-| [Dependabot](dependabot.yml) | Proposes weekly dependency updates for the Bun-managed website, Python, GitHub Actions, and Docker. Does not merge or deploy updates. |
+| [Dependabot](dependabot.yml) | Proposes weekly dependency version updates for the Bun-managed website, Python, GitHub Actions, and Docker. Does not change security-alert settings, merge, or deploy updates. |
 | [Code owners](CODEOWNERS) | Identifies `@simonesiega` as the default reviewer for repository changes. Whether approval is required depends on the repository's review settings. |
 | [Listing suggestion](ISSUE_TEMPLATE/add-position.yml) | Lets you suggest a public listing for review. Submitting an issue does not add it to the directory automatically. |
 | [Bug report](ISSUE_TEMPLATE/bug-report.yml) | Helps you describe a problem, how to reproduce it, and the expected behavior. Use private reporting for security vulnerabilities, and never include credentials or private data. |

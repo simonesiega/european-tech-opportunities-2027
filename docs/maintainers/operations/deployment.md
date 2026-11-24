@@ -46,6 +46,8 @@ The images install only the dependencies required by their target and use commit
 
 ## Build images
 
+`.dockerignore` excludes local settings, credentials, databases, and complete `data/`, `state/`, `reports/`, and `quality-reports/` directories from the build context. Keep new operator output outside image inputs; excluding database suffixes alone does not protect manifests or research files.
+
 Build the pipeline image:
 
 ```bash

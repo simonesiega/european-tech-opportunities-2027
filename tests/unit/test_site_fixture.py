@@ -46,11 +46,20 @@ def test_fixture_matches_migrated_repository_and_exports(
     original = (tmp_path / "open-opportunities.json").read_bytes()
     create_site_fixture.create_fixture(now=now)
     assert (tmp_path / "open-opportunities.json").read_bytes() == original
+    browser_state = {
+        path: path.read_bytes()
+        for path in (
+            database,
+            tmp_path / "open-opportunities.csv",
+            tmp_path / "open-opportunities.json",
+            tmp_path / "dataset-metadata.json",
+        )
+    }
     demo = create_site_fixture.create_fixture(now=now, demo=True)
     assert demo.parent == tmp_path / "demo"
     rows = json.loads((demo.parent / "open-opportunities.json").read_bytes())
     assert len(rows) == 12
-    assert rows[0]["company"] == "Nova Engineering"
+    assert {path: path.read_bytes() for path in browser_state} == browser_state
 
 
 @pytest.mark.parametrize("suffix", ["-wal", "-shm", "-journal"])

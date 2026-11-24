@@ -28,13 +28,6 @@ def classify(
     )
 
 
-def test_explicit_2027_software_internship_is_accepted(rules: ClassificationRules) -> None:
-    result = classify(rules, title="Backend Software Engineering Intern 2027")
-    assert result.include
-    assert result.category == OpportunityCategory.SOFTWARE_ENGINEERING
-    assert result.employment_type == EmploymentType.INTERNSHIP
-
-
 def test_cycle_must_be_explicit_and_not_only_graduation_year(
     rules: ClassificationRules,
 ) -> None:

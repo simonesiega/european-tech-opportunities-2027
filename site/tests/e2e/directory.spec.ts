@@ -100,7 +100,9 @@ test("restores sorting, page, and page size from a shared URL", async ({page}) =
   );
   await expect(page.getByLabel("Rows per page")).toHaveValue("10");
   await expect(page.getByText("Page 2 of 2")).toBeVisible();
-  await expect(page.locator("tbody tr").first().locator("td").nth(1)).toHaveText("Example 09");
+  await expect(
+    page.locator("tbody tr").first().getByRole("cell", {name: "Example 09", exact: true})
+  ).toBeVisible();
 
   await page.getByRole("link", {name: "Previous page"}).click();
   await expect(page).not.toHaveURL(/(?:\?|&)page=2(?:&|$)/);
@@ -123,6 +125,14 @@ test("falls back safely for unsupported directory view parameters", async ({page
   );
   await expect(page.getByLabel("Rows per page")).toHaveValue("10");
   await expect(page.getByText("Page 1 of 2")).toBeVisible();
+  await expectResultCount(page, 12);
+  await expect(page.locator("tbody tr")).toHaveCount(10);
+  await expect(
+    page
+      .locator("tbody tr")
+      .first()
+      .getByRole("link", {name: "Platform Engineering Intern 9", exact: true})
+  ).toBeVisible();
 });
 
 test("search, reset, keyboard focus, and sorting remain interactive", async ({page}) => {
@@ -139,14 +149,15 @@ test("search, reset, keyboard focus, and sorting remain interactive", async ({pa
   await expectResultCount(page, 12);
 
   const companyHeader = page.getByRole("columnheader", {name: "Company"});
+  const firstRow = page.locator("tbody tr").first();
   await companyHeader.getByRole("button").click();
   await expect(companyHeader).toHaveAttribute("aria-sort", "ascending");
   await expect(page).toHaveURL(/sort=company-asc/);
+  await expect(firstRow.getByRole("cell", {name: "Acme Labs", exact: true})).toBeVisible();
   await companyHeader.getByRole("button").click();
   await expect(companyHeader).toHaveAttribute("aria-sort", "descending");
   await expect(page).toHaveURL(/sort=company-desc/);
-  const firstCompanyCell = page.locator("tbody tr").first().locator("td").nth(1);
-  await expect(firstCompanyCell).toHaveText("Northstar Data");
+  await expect(firstRow.getByRole("cell", {name: "Northstar Data", exact: true})).toBeVisible();
 });
 
 test("defaults to latest first seen and paginates results", async ({page}) => {

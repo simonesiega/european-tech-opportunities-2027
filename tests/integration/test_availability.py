@@ -143,6 +143,92 @@ def test_availability_audit_checks_every_row_deletes_only_explicit_unavailabilit
         assert deleted_alias is None
 
 
+@pytest.mark.parametrize("endpoint", ["public", "detail"])
+@pytest.mark.parametrize("closed", [False, True])
+@pytest.mark.parametrize("scoped", [False, True])
+def test_availability_checks_closure_alerts_before_reopening(
+    session_factory: sessionmaker[Session],
+    settings: Settings,
+    search: LinkedInSearchConfig,
+    endpoint: str,
+    closed: bool,
+    scoped: bool,
+) -> None:
+    repository = Repository(session_factory, settings)
+    now = datetime(2026, 7, 20, tzinfo=UTC)
+    job = DiscoveredJob(
+        linkedin_job_id="1111111111",
+        company="Synthetic Technology",
+        title="Software Intern 2027",
+        location="Berlin, Germany",
+        link="https://www.linkedin.com/jobs/view/1111111111",
+        category=OpportunityCategory.SOFTWARE_ENGINEERING,
+        employment_type=EmploymentType.INTERNSHIP,
+    )
+    repository.sync_searches([search], now)
+    for run in range(3 if closed else 1):
+        repository.persist_success(
+            run_id=f"00000000-0000-0000-0000-{run:012d}",
+            search=search,
+            jobs=[] if run else [job],
+            confirmed_unavailable_ids=(job.linkedin_job_id,) if run else (),
+            found_count=int(run == 0),
+            excluded_count=0,
+            warning_count=0,
+            started_at=now + timedelta(minutes=run),
+            finished_at=now + timedelta(minutes=run),
+            duration_ms=1,
+        )
+    assert repository.list_all_jobs()[0].status == (JobStatus.CLOSED if closed else JobStatus.OPEN)
+    identity = (
+        '<h1 class="top-card-layout__title">Software Intern 2027</h1>'
+        '<a class="topcard__org-name-link">Synthetic Technology</a>'
+    )
+    tag = '<div role="alert">' if scoped else "<div>"
+    notice = f"{tag}No longer accepting applications</div>"
+    notice_url = (
+        LINKEDIN_PUBLIC_JOB_URL if endpoint == "public" else LINKEDIN_DETAIL_ENDPOINT
+    ).format(job_id=job.linkedin_job_id)
+    requested: list[str] = []
+
+    def respond(request: httpx.Request) -> httpx.Response:
+        requested.append(str(request.url))
+        return httpx.Response(
+            200, text=identity + (notice if str(request.url) == notice_url else "")
+        )
+
+    async def audit() -> None:
+        async with (
+            httpx.AsyncClient(transport=httpx.MockTransport(respond)) as client,
+            HttpFetcher(settings, client=client) as fetcher,
+        ):
+            result = await audit_job_availability(
+                settings=settings,
+                repository=repository,
+                fetcher=fetcher,
+                observed_at=now + timedelta(days=1),
+            )
+        assert result.checked == 1
+        assert result.deleted == int(scoped)
+        assert result.available == int(not scoped)
+        assert result.reopened == int(closed and not scoped)
+        assert result.inconclusive_ids == ()
+        assert result.exit_code == 0
+
+    asyncio.run(audit())
+    assert len(requested) == (1 if endpoint == "public" and scoped else 2)
+    assert len(repository.list_open_jobs()) == int(not scoped)
+    with session_factory() as session:
+        alias = session.get(JobSearchRow, (search.slug, job.linkedin_job_id))
+        if scoped:
+            assert repository.list_all_jobs() == []
+            assert alias is None
+        else:
+            assert alias is not None
+            assert alias.active
+            assert alias.unavailable_confirmations == 0
+
+
 def test_availability_audit_includes_manual_jobs_without_provenance(
     session_factory: sessionmaker[Session], settings: Settings
 ) -> None:

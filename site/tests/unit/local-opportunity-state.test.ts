@@ -4,7 +4,9 @@ import {
   newOpportunityIds,
   parseLocalState,
   resumeLocalVisit,
+  selectLocalOpportunities,
   toggleLocalId,
+  type LocalOpportunityView,
 } from "@/lib/local-opportunity-state";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -64,6 +66,49 @@ test("invalid previous-visit evidence never invents new rows", () => {
   const rows = [{firstSeenAt: "2026-03-03T12:00:00Z", linkedinJobId: "123"} as Opportunity];
   for (const cutoff of [null, "", "not a date", "2026-02-30T12:00:00Z"]) {
     expect([...newOpportunityIds(rows, cutoff)]).toEqual([]);
+  }
+});
+
+test.each<[LocalOpportunityView, string[]]>([
+  ["all", ["6", "1", "4", "3"]],
+  ["saved", ["6", "1"]],
+  ["applied", ["6", "3"]],
+  ["hidden", ["2", "5"]],
+  ["new", ["6", "4"]],
+])("local %s view preserves row order and hidden precedence", (view, expected) => {
+  const rows = ["6", "2", "5", "1", "4", "3"].map(
+    (linkedinJobId) => ({linkedinJobId}) as Opportunity
+  );
+  const state = {
+    ...emptyLocalState(now),
+    saved: ["1", "2", "6"],
+    applied: ["2", "3", "6"],
+    hidden: ["2", "5"],
+  };
+  const newIds = new Set(["2", "4", "6"]);
+  const original = structuredClone({rows, state, newIds});
+  const result = selectLocalOpportunities(rows, state, view, newIds);
+  expect(result.visibleOpportunities.map((row) => row.linkedinJobId)).toEqual(expected);
+  expect(result.newCount).toBe(2);
+  expect({rows, state, newIds}).toEqual(original);
+});
+
+test("unloaded local state preserves public rows and empty lists select nothing", () => {
+  const rows = [{linkedinJobId: "123"} as Opportunity];
+  const views: LocalOpportunityView[] = ["all", "saved", "applied", "hidden", "new"];
+  for (const view of views) {
+    expect(selectLocalOpportunities(rows, null, view, new Set())).toEqual({
+      visibleOpportunities: rows,
+      newCount: 0,
+    });
+    expect(selectLocalOpportunities(rows, emptyLocalState(now), view, new Set())).toEqual({
+      visibleOpportunities: view === "all" ? rows : [],
+      newCount: 0,
+    });
+    expect(selectLocalOpportunities([], emptyLocalState(now), view, new Set())).toEqual({
+      visibleOpportunities: [],
+      newCount: 0,
+    });
   }
 });
 

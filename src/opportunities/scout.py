@@ -285,7 +285,12 @@ def assess(
             continue
         title = normalize_title(raw.title)
         locations = normalize_locations(raw.locations)
-        decision = _classify_listing(raw, classifier)
+        decision = classifier.classify(
+            title=title,
+            description=raw.description,
+            location=locations,
+            posted_at=raw.posted_at,
+        )
         employment_type = decision.employment_type.value if decision.employment_type else "unknown"
         taxonomy = f"{employment_type} / {decision.category.value}"
         missing = list(candidate.uncertainties)

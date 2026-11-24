@@ -277,11 +277,11 @@ uv run opportunities check-availability --no-render
 
 The command requires the LinkedIn authorization interlock and checks at most 50 due job rows by default, including closed rows. Each row becomes due five days after its last non-denial attempt; never-checked rows are eligible immediately. The [availability settings](../getting-started/configuration.md#lifecycle-and-logging) control the interval and cap. [Production automation](automation.md#schedule-and-concurrency) recommends `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100` for each scheduled run; the CLI default remains 50. The summary reports checked, available, deleted, reopened, inconclusive, blocked, and deferred rows; blocked and unprocessed rows never advance their audit timestamps. It reports why collection was skipped after a source denial. Due rows deferred by the cap remain eligible; those rows stay unchanged and do not cause a partial-success exit.
 
-The audit requests the public listing first; a successful public page without a closure alert is then followed by guest detail validation. It then applies one transaction:
+The audit requests the public listing first. If no closure alert is found, it checks the guest detail page for a scoped closure alert and recognizable listing identity. It then applies one transaction:
 
 - successful public-page and detail-page validation keeps the row open or reopens it;
 - HTTP `404` or `410` from either request permanently deletes the job and cascading search provenance;
-- a scoped public-page “No longer accepting applications” alert also permanently deletes the job;
+- a scoped “No longer accepting applications” alert on either page also permanently deletes the job;
 - authentication failures, rate limits, server errors, malformed responses, and transport failures preserve the row as inconclusive.
 
 An [HTTP `301` from an approved numeric public listing](../../../SECURITY.md#public-listing-redirects) is inconclusive: the destination is ignored, the listing's lifecycle is unchanged, and unrelated checks continue. These redirects do not block otherwise eligible HTTP `429` partial publication, but do not count as confirmed checks. Completed inconclusive attempts advance only audit scheduling. Denied and unprocessed listings keep their priority.

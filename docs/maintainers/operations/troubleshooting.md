@@ -113,11 +113,7 @@ When the GitHub variable is missing or different, collection and availability wo
 
 ### `setup-uv` cannot determine a version
 
-Current workflows pin:
-
-- the setup action revision;
-- `uv` 0.11.6;
-- Python 3.12.
+Current workflows pin the setup action revision, `uv`, and Python in the [shared Python setup action](https://github.com/simonesiega/european-tech-opportunities-2027/blob/main/.github/actions/setup-python/action.yml).
 
 Logs showing fallback to a latest-release API usually indicate an outdated workflow revision.
 

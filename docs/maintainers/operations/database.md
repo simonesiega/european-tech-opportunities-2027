@@ -197,7 +197,7 @@ The confirmation threshold is configured through `OPPORTUNITIES_CLOSURE_CONFIRMA
 
 ## Bounded availability audit
 
-On each eligible three-day update, the scheduled workflow runs `opportunities check-availability` before collection; the daily trigger only checks the cadence. Manual combined updates audit too unless explicitly skipped. See the [schedule and request limits](automation.md#schedule-and-concurrency). Each run selects at most `availability_max_jobs` rows (built-in default 50; [recommended production Actions override](automation.md#schedule-and-concurrency) `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100`) whose last audit attempt is at least `availability_interval_days` old (default five). Closed rows and manual listings are eligible. Never-checked rows go first, ordered by `first_seen_at` and ID; previously checked rows follow in oldest-check order. A successful public page without a closure alert is then followed by guest detail validation.
+On each eligible three-day update, the scheduled workflow runs `opportunities check-availability` before collection; the daily trigger only checks the cadence. Manual combined updates audit too unless explicitly skipped. See the [schedule and request limits](automation.md#schedule-and-concurrency). Each run selects at most `availability_max_jobs` rows (built-in default 50; [recommended production Actions override](automation.md#schedule-and-concurrency) `OPPORTUNITIES_AVAILABILITY_MAX_JOBS=100`) whose last audit attempt is at least `availability_interval_days` old (default five). Closed rows and manual listings are eligible. Never-checked rows go first, ordered by `first_seen_at` and ID; previously checked rows follow in oldest-check order. A successful public page without a closure alert is then followed by a guest detail check for closure alerts and recognizable listing identity.
 
 The migration leaves existing rows with a null `last_availability_checked_at`; it does not fabricate prior checks. The cap applies immediately, so the initial backlog cannot cause a full-database sweep. Excess due rows remain untouched and wait for later runs. Five days is a minimum interval, not a completion guarantee: larger backlogs, failures, or delayed schedules can extend it.
 
@@ -205,12 +205,12 @@ Completed non-denial attempts advance `last_availability_checked_at` in the audi
 
 Results are deliberately narrow:
 
-```text
-public page without a closure alert + valid guest detail → keep or reopen the job
-HTTP 404 or 410 from either request                    → delete the job and job_searches rows
-scoped “No longer accepting applications” alert       → delete the job and job_searches rows
-anything else                                          → preserve the job as inconclusive
-```
+| Evidence | Result |
+|---|---|
+| No closure alert on either page and valid guest detail identity | Keep or reopen the job |
+| HTTP `404` or `410` from either request | Delete the job and its provenance |
+| Scoped “No longer accepting applications” alert on either page | Delete the job and its provenance |
+| Anything else | Preserve the job as inconclusive |
 
 The auditor collects batch outcomes before applying confirmed changes and scheduling metadata in one transaction. Rate limits, authentication failures, redirects, server errors, invalid content, and transport failures never become deletion evidence. Search and run history remain available after a job deletion.
 

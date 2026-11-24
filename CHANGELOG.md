@@ -12,6 +12,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Remove redundant internship acceptance coverage and cosmetic/prose assertions; strengthen scout transport rejection, workflow-reference discovery, real directory/saved-list sorting, and synthetic-fixture isolation tests without changing production behavior.
 - Update the pinned uv and Python build images to `0.13.9` and `3.15.2`, Typer to `0.29.1`, Ruff to `0.17.4`, PyYAML stubs to `6.0.12.20261111`, and Material for MkDocs to `9.8.1`.
 - Update SQLAlchemy to `2.1.8`, pytest to `9.2.0`, pytest-benchmark to `5.3.1`, and CodeQL initialization/analysis to the pinned `4.39.3` release.
 - Remove redundant visit-boundary, country-deduplication, README-marker, and combined browser-filter tests; drop a search assertion tied to internal field-concatenation order while preserving the shared matrices and user journeys.
@@ -27,6 +28,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 - Configure Dependabot's website ecosystem as Bun so it can update the existing `bun.lock`.
 - Pin Site CI to Ubuntu 24.04 and bound retries for transient Playwright installation failures, retaining browser, accessibility, and Lighthouse gates.
 - Use SQLAlchemy's native type annotations without its removed mypy plugin, and disable the unused AnyIO pytest plugin to preserve warning-as-error startup with pytest 9.2.
+- Honor scoped closure alerts on guest detail pages during availability audits and collection, preventing closed listings from being kept open, reopened, or reinserted from stale cards without broadening search-driven closure evidence.
 - Reject malformed coverage-documentation markers before rewriting, preserving authored prose and document bytes on failure.
 - Preserve microsecond precision when identifying opportunities newer than a browser visit, and reject invalid visit-date evidence.
 - Align CodeQL initialization, analysis, and SARIF upload on the same pinned action release to prevent version-mismatch failures.
@@ -52,6 +54,9 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Upgrade Next.js and its ESLint configuration to `16.4.6`, including fixes for cache isolation, response injection, cookie disclosure, and SVG validation, and Lighthouse's `basic-ftp` to `6.2.4` for MLSD parsing and control-character error fixes; preserve offline consumer and full website checks.
+- Patch development-tool URI and query serialization dependencies and scope patched `minimatch` to TypeScript-ESLint, preserving legacy consumers and the pinned CI toolchain.
+- Exclude complete local report and state directories from container build contexts, including non-database manifests and prepared research batches.
 - Pin patched Debian APT (`3.0.4`) and zlib (`1:1.3.dfsg+really1.3.1-1+deb13u1`) in both production images to fix high-severity vulnerabilities blocking Docker CI, without weakening image scans.
 - Pin development-tooling dependencies to Zod `4.6.7`, `ip-address` `10.7.4`, and `body-parser` `1.20.9` to fix memory exhaustion, quadratic IPv6 parsing, and compressed-request crashes; retain bounded offline consumer regressions and the dependency audit.
 - Upgrade uv to `0.13.4` in CI and container builds to remove a compromised trust root from its bundled certificates (GHSA-hq85-5cpj-mr62).

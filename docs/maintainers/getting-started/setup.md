@@ -47,25 +47,13 @@ Install the exact locked development environment:
 uv sync --frozen --dev
 ```
 
-Create the local environment file.
+Copy the example environment file using your shell:
 
-Linux or macOS:
-
-```bash
-cp .env.example .env
-```
-
-Windows Command Prompt:
-
-```bat
-copy .env.example .env
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
+| Shell | Command |
+|---|---|
+| Linux or macOS | `cp .env.example .env` |
+| Windows Command Prompt | `copy .env.example .env` |
+| Windows PowerShell | `Copy-Item .env.example .env` |
 
 The default configuration keeps LinkedIn collection disabled. Review the [configuration guide](configuration.md) before changing runtime values.
 
@@ -106,25 +94,7 @@ cd site
 bun install --frozen-lockfile
 ```
 
-Create the website environment file.
-
-Linux or macOS:
-
-```bash
-cp .env.example .env.local
-```
-
-Windows Command Prompt:
-
-```bat
-copy .env.example .env.local
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env.local
-```
+In `site/`, copy `.env.example` to `.env.local` using your shell's command from [Python setup](#install-the-python-project), with `.env.local` as the destination.
 
 For local development, make sure `site/.env.local` uses the local origin and disposable paths below. Leave `OPPORTUNITIES_RELEASE_ROOT` unset so it cannot override them:
 

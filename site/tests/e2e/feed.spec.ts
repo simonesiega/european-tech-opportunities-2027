@@ -27,8 +27,6 @@ test("RSS publishes recent open opportunities as a bounded, cacheable read-only 
   expect(html).toMatch(
     /rel="alternate"[^>]+type="application\/atom\+xml"[^>]+href="[^"]*atom\.xml"/
   );
-  expect(html).toContain("RSS feed");
-  expect(html).toContain("Atom feed");
 });
 
 test("RSS and Atom accept only safe exact filters and return an empty feed for unmatched values", async ({

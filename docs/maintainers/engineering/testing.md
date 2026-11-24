@@ -20,7 +20,7 @@ Test observable behavior and failure boundaries that affect users or canonical s
 | Deployment assumptions broken | Read-only mount, runtime origin, production headers, fixed downloads, standalone startup | Docker smoke + production build + Lighthouse |
 | Docs leak private files | Public staging allowlist, symlink rejection, generated ownership, source/rendered links | Offline tooling tests + strict docs build |
 
-Keep regressions near their owner. Assert resulting state and public responses rather than exact private helper calls, CSS classes, column widths, or generic framework behavior. Do not delete useful failure-path tests merely to lower the count. Coverage is a backstop, not a substitute for evidence-boundary tests.
+Keep regressions near their owner. Assert resulting state and public responses rather than exact private helper calls, CSS classes, column widths, or generic framework behavior. Do not add tests solely for colours, icons, button presence, prose wording, or visual alignment. Keep interaction tests when they prove a real action, persisted state, privacy, recovery, keyboard access, or accessibility; an ARIA state alone does not prove the action changed the data. Do not delete useful failure-path tests merely to lower the count. Coverage is a backstop, not a substitute for evidence-boundary tests.
 
 ### Reviewing existing tests
 
@@ -28,7 +28,8 @@ Evaluate a test by the regression it detects, not whether it was AI-assisted or 
 
 - Compare its stated contract with the owner implementation, fixtures, and neighboring tests before keeping, refactoring, or removing it.
 - Challenge the assertion with a plausible wrong implementation in a disposable copy. First run an unchanged control; import or setup failures do not prove that a mutation was detected.
-- Make competing outcomes distinguishable: force reversed async completion, isolate each searchable field, and include offset timestamps that cross a UTC date boundary.
+- Make competing outcomes distinguishable: force reversed async completion, isolate each searchable field, include offset timestamps that cross a UTC date boundary, and sort multiple distinguishable rows rather than a single saved item.
+- Make negative fixtures valid apart from the selected defect, and check the intended failure category. Malformed JSON must not let a test pass when the encoding, content-type, or size guard it claims to protect is missing.
 - Assert complete allowlists and actual row multiplicity where privacy or publication accuracy requires them. Do not let partial matches, deduplication, or datetime instant equality hide extra data or missing normalization.
 - Remove a case only when remaining coverage protects the same boundary. Exact fixture duplicates and simpler examples subsumed by a boundary matrix do not need separate tests. A forbidden file extension does not need a second symlink case when the extension matrix rejects it and an allowed-extension symlink test protects against content leakage.
 - Keep filter truth tables in shared-helper tests and representative control/history/sorting journeys in the browser. Do not add browser scenarios for every combination or freeze the incidental order in which search fields are concatenated.
@@ -130,23 +131,26 @@ docker compose run --rm opportunities --help
 
 Run container checks only with disposable synthetic mounts; default Compose paths describe production topology. [Docker CI](../operations/automation.md#validation-workflows) adds Actionlint, zizmor, Hadolint, Trivy fixable high/critical scanning, production-target SPDX SBOMs, and migrated read-only site/export/header smoke tests. Main-only GitHub attestations bind the SBOM and build-evidence files to their workflow; [Containers and deployment](../operations/deployment.md#sbom-and-build-provenance) documents their scope and verification. Linux restore/deploy/release-pointer tests are skipped on Windows: run them in isolated Linux before release. A skipped test is not a pass.
 
-CodeQL, Gitleaks, Dependency Review and Scorecard have distinct roles in [Automation](../operations/automation.md). Run available local dependency/static analysis too; disclose unfixed findings rather than suppressing them. Patched `brace-expansion`, `tmp`, and CommonJS-compatible `uuid` overrides support older development dependencies; remove only after upstream fixes and rerunning the audit.
+CodeQL, Gitleaks, Dependency Review and Scorecard have distinct roles in [Automation](../operations/automation.md). Run available local dependency/static analysis too; disclose unfixed findings rather than suppressing them.
 
-Lighthouse's transitive `basic-ftp` is pinned to `6.2.1` to fix [GHSA-c475-qrg2-pj4r](https://github.com/advisories/GHSA-c475-qrg2-pj4r), a directory-listing parser denial of service. It retains the CommonJS API used by `get-uri` and adopts v6's safer default of rejecting separate transfer hosts. An offline subprocess test checks the client API surface and bounds malformed-listing parsing without opening an FTP connection. Remove the override once upstream selects a patched version and the audit and Lighthouse checks pass.
+#### Development dependency overrides
 
-Lighthouse's `puppeteer-core` is pinned to `25.14.0`, whose official browser-management dependency no longer includes `extract-zip`. This removes the dependency affected by the unpatched symlink traversal advisories [GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv) and [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3), rather than suppressing them.
+`site/package.json` retains security overrides for transitive development dependencies, not new website runtime dependencies. Remove an override only when upstream selects a compatible fixed chain and the frozen install, full dependency audit, consumer regressions, website gate, and Lighthouse pass. Validate major-version overrides on the minimum supported Node.js version.
 
-This is a major-version override: validate Node's ESM/CommonJS imports and the complete Lighthouse gate on the minimum supported Node version before changing it. Keep using installed Chromium through `CHROME_PATH`; the configured audits do not use LHCI's optional `puppeteerScript` executable-path discovery, which assumes the older synchronous `executablePath` API. Review that integration before enabling it. Remove the override only when Lighthouse selects a safe compatible dependency chain itself.
+| Dependency | Pin and reason | Compatibility and regression boundary |
+|---|---|---|
+| `brace-expansion`, `tmp`, `uuid` | Patched versions support older tooling | Preserve `uuid`'s CommonJS API |
+| `basic-ftp` | `6.2.4`; fixes [pathological Unix listings](https://github.com/advisories/GHSA-c475-qrg2-pj4r), [inherited MLSD fact names](https://github.com/advisories/GHSA-5pm8-86m8-9m6r), and [uncaught control-character errors](https://github.com/advisories/GHSA-r4jh-29pc-gfqr) | Preserve `get-uri`'s CommonJS client API, bound malformed listings, parse `__proto__` facts without crashing or FTP access, and retain v6's rejection of separate transfer hosts |
+| `puppeteer-core` | `25.14.0`; removes `extract-zip`, affected by unpatched symlink traversal ([GHSA-jmr9-qjv8-65gv](https://github.com/advisories/GHSA-jmr9-qjv8-65gv), [GHSA-7pqw-9j4j-h8q3](https://github.com/advisories/GHSA-7pqw-9j4j-h8q3)) | Lighthouse's ESM and LHCI's CommonJS loaders must resolve the same working API without the extractor |
+| Zod | `4.6.7`; [oversized collection validation before 4.6.6](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5) | Actual React Hooks and browser-protocol consumers reject oversized arrays before visiting elements; valid arrays still parse |
+| `ip-address` | `10.7.4`; [malformed IPv6 denial of service](https://github.com/advisories/GHSA-rxp7-6hxx-x8q5) | Preserve SOCKS's exact IPv6 byte API and bound malformed zone parsing without network access |
+| `body-parser` | `1.20.9`; [crash on compressed requests with trailing bytes](https://github.com/advisories/GHSA-27r3-jxmh-p828) | Keep Express on the compatible 1.x API, not 2.x |
+| `fast-uri`, `qs` | `3.1.9`, `6.16.1`; URI normalization and comma-array serialization fixes | Exercise actual Ajv and body-parser consumers with safe and malformed inputs |
+| `minimatch` | `11.0.1`; [pattern preprocessing denial of service](https://github.com/advisories/GHSA-g3hv-75wg-m249) | Scope to `@typescript-eslint/typescript-estree`; legacy ESLint requires callable v3 and must not receive v11 |
 
-For an existing checkout, recreate only `site/node_modules` with a frozen install if old installation artifacts leave the removed extractor resolvable; the dependency regression intentionally detects that residue.
+The consumer tests use timeout-limited Node subprocesses, with memory limits for oversized-input cases. Keep using installed Chromium through `CHROME_PATH`: LHCI's optional `puppeteerScript` discovery assumes the older synchronous `executablePath` API and needs review before enabling it. If old installation artifacts leave `extract-zip` resolvable, recreate only `site/node_modules` with a frozen install; the regression deliberately detects that residue.
 
-Development tooling pins Zod to `4.6.7` for [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5), which affects oversized collection validation before `4.6.6`. An offline subprocess exercises the copies resolved by ESLint's React Hooks plugin and Lighthouse's browser-protocol dependency, checking that bounded arrays reject excessive input before visiting elements while valid input remains usable. The child has a memory limit and timeout so a vulnerable version cannot exhaust the test runner.
-
-Lighthouse's proxy chain pins `ip-address` to `10.7.4` for [GHSA-rxp7-6hxx-x8q5](https://github.com/advisories/GHSA-rxp7-6hxx-x8q5). Its offline subprocess checks the IPv6 byte API used by SOCKS and rejects a large malformed zone identifier within a timeout, without opening a connection. These are transitive development dependencies, not new website runtime dependencies. Remove the overrides only after upstream selects patched versions and the dependency audit, consumer checks, and Lighthouse pass.
-
-Lighthouse's Express dependency pins `body-parser` to `1.20.9` for [GHSA-27r3-jxmh-p828](https://github.com/advisories/GHSA-27r3-jxmh-p828), which can crash a process after a compressed request carries trailing bytes. Keep the compatible 1.x patch rather than forcing Express onto the 2.x API. Recheck the frozen install, dependency audit, and Lighthouse before removing this override.
-
-ESLint's development-only `braces` dependency has an unpatched high-severity stack-exhaustion advisory, [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), affecting versions through `3.0.3`. Do not feed untrusted nested glob patterns to this tooling or treat a clean production build as a clean dependency audit. Retain the finding until an upstream fix is available and validated.
+The nested minimatch override uses Bun lockfile format 3. Use pinned Bun `1.4.3` or the Dockerfile's `1.4.4`, not an older version that cannot read it.
 
 ### Benchmarks
 
@@ -164,7 +168,7 @@ Branch-aware coverage measures classification, collection-level data-quality che
 <!-- BEGIN PYTHON COVERAGE -->
 | Metric | Current | Required |
 |---|---:|---:|
-| Combined statement and branch coverage | 99.1% | ≥ 85.0% |
+| Combined statement and branch coverage | 99.2% | ≥ 85.0% |
 | Branch coverage | 98.3% | Reported |
 | Classifier branch coverage | 97.4% | Reported |
 <!-- END PYTHON COVERAGE -->

@@ -39,10 +39,10 @@ Optional industries come from structured criteria, not arbitrary description key
 1. Enforce source authorization and fixed guest HTTPS endpoints.
 2. Fetch bounded 25-card pages; stop on empty/repeated raw pages or configured caps, not merely on a page with no eligible titles.
 3. Apply exact normalized company allowlists and title prefilters.
-4. Fetch details, require independent title/company identity, normalize and classify.
+4. Fetch details, skip scoped closure alerts, require independent title/company identity, normalize and classify.
 5. Return isolated accepted records, warnings, and explicit unavailability evidence to persistence.
 
-Malformed detail identity is not replaced by card identity. A majority-malformed page/search fails instead of masquerading as a successful empty result. Non-404/410 recheck transport failures fail the search, preserving its lifecycle state. Ambiguous recheck HTML is never closure evidence.
+Malformed detail identity is not replaced by card identity. A majority-malformed page/search fails instead of masquerading as a successful empty result. Scoped closure alerts are skipped as closed listings, not counted as malformed HTML, and cannot create or reopen rows. They do not advance search-driven closure confirmations: those remain limited to HTTP `404`/`410`, while the separate audit can delete a listing on a scoped alert. Non-404/410 recheck transport failures fail the search, preserving its lifecycle state. Ambiguous recheck HTML is never closure evidence.
 
 Known-job rechecks select a deterministic bounded lowest-ID subset; they are **not a rotating queue**. The separate rotating audit checks bounded batches of due jobs. See [Database lifecycle](../operations/database.md#bounded-availability-audit) for its distinct deletion policy and [Configuration](../getting-started/configuration.md#http-policy) for retries, pacing, cookies and stop conditions.
 

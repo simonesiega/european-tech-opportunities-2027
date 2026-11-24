@@ -7,7 +7,11 @@ import {OpportunityList} from "@/components/opportunities/opportunity-list";
 import {useLocalOpportunities} from "@/components/opportunities/use-local-opportunities";
 import {useOpportunityDirectory} from "@/components/opportunities/use-opportunity-directory";
 import {Badge} from "@/components/ui/badge";
-import {newOpportunityIds, type LocalOpportunityView} from "@/lib/local-opportunity-state";
+import {
+  newOpportunityIds,
+  selectLocalOpportunities,
+  type LocalOpportunityView,
+} from "@/lib/local-opportunity-state";
 import {siteConfig} from "@/lib/site-config";
 import type {Opportunity} from "@/types/opportunity";
 
@@ -28,17 +32,10 @@ export function OpportunityDirectory({opportunities, referenceTime}: Opportunity
     () => newOpportunityIds(opportunities, previousVisit),
     [opportunities, previousVisit]
   );
-  const visibleOpportunities = useMemo(() => {
-    if (!state || (localView === "all" && state.hidden.length === 0)) return opportunities;
-    return opportunities.filter((item) => {
-      const id = item.linkedinJobId;
-      if (localView === "hidden") return state.hidden.includes(id);
-      if (state.hidden.includes(id)) return false;
-      if (localView === "new") return newIds.has(id);
-      return localView === "all" || state[localView].includes(id);
-    });
-  }, [opportunities, state, localView, newIds]);
-  const newCount = [...newIds].filter((id) => !state?.hidden.includes(id)).length;
+  const {visibleOpportunities, newCount} = useMemo(
+    () => selectLocalOpportunities(opportunities, state, localView, newIds),
+    [opportunities, state, localView, newIds]
+  );
   const isInteractive = state !== null;
   const {
     filters,
