@@ -12,6 +12,8 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Changed
 
+- Update uv to `0.13.10`, SQLAlchemy to `2.1.9`, Typer to `0.29.2`, Ruff to `0.17.5`, PyYAML stubs to `6.0.12.20261113`, and Dependency Review to the pinned `5.0.1` release.
+- Update React and React DOM together to `19.3.1`, Tailwind CSS to `4.3.5`, PostCSS (including its override) to `8.5.33`, and Node.js types to `26.6.6`; retain TypeScript `5.9.3` until compiler-API consumers support TypeScript 7.
 - Remove redundant internship acceptance coverage and cosmetic/prose assertions; strengthen scout transport rejection, workflow-reference discovery, real directory/saved-list sorting, and synthetic-fixture isolation tests without changing production behavior.
 - Update the pinned uv and Python build images to `0.13.9` and `3.15.2`, Typer to `0.29.1`, Ruff to `0.17.4`, PyYAML stubs to `6.0.12.20261111`, and Material for MkDocs to `9.8.1`.
 - Update SQLAlchemy to `2.1.8`, pytest to `9.2.0`, pytest-benchmark to `5.3.1`, and CodeQL initialization/analysis to the pinned `4.39.3` release.
@@ -24,6 +26,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Fixed
 
+- Check Dependency Review's official action identity and full immutable SHA without hardcoding a release in its regression test, allowing dependency updates while retaining mandatory security checks.
 - Separate mandatory Playwright system dependency installation from bounded browser-download retries so a timed-out sudo-owned APT process cannot block later attempts.
 - Configure Dependabot's website ecosystem as Bun so it can update the existing `bun.lock`.
 - Pin Site CI to Ubuntu 24.04 and bound retries for transient Playwright installation failures, retaining browser, accessibility, and Lighthouse gates.
@@ -54,6 +57,7 @@ All notable changes to European Tech Opportunities 2027 are documented in this f
 
 ### Security
 
+- Pin Debian `libzstd1` to `1.5.7+dfsg-1+deb13u1` in both production images to fix CVE-2026-124851 without suppressing vulnerability scans.
 - Upgrade Next.js and its ESLint configuration to `16.4.6`, including fixes for cache isolation, response injection, cookie disclosure, and SVG validation, and Lighthouse's `basic-ftp` to `6.2.4` for MLSD parsing and control-character error fixes; preserve offline consumer and full website checks.
 - Patch development-tool URI and query serialization dependencies and scope patched `minimatch` to TypeScript-ESLint, preserving legacy consumers and the pinned CI toolchain.
 - Exclude complete local report and state directories from container build contexts, including non-database manifests and prepared research batches.
