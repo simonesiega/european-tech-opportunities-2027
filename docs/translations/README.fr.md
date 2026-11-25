@@ -27,11 +27,11 @@
 <!-- BEGIN OPPORTUNITY COUNTS -->
 <p align="center">
   <strong>Dernière collecte réussie : 23 novembre 2026 à 19 h 43 UTC</strong><br>
-  <img src="https://img.shields.io/badge/Offres%20actives-788-2563eb?style=for-the-badge" alt="Offres actives : 788" />
-  <img src="https://img.shields.io/badge/Stages-407-16a34a?style=for-the-badge" alt="Stages : 407" />
-  <img src="https://img.shields.io/badge/New%20Grad-381-9333ea?style=for-the-badge" alt="Offres New Grad : 381" />
+  <img src="https://img.shields.io/badge/Offres%20actives-782-2563eb?style=for-the-badge" alt="Offres actives : 782" />
+  <img src="https://img.shields.io/badge/Stages-402-16a34a?style=for-the-badge" alt="Stages : 402" />
+  <img src="https://img.shields.io/badge/New%20Grad-380-9333ea?style=for-the-badge" alt="Offres New Grad : 380" />
 </p>
-<!-- Public directory state v1 sha256: 57557dc1b93c1abbda535f755e11e18886b69e750de12640f67e819d04a67087 -->
+<!-- Public directory state v1 sha256: dc31c2dd8488d24295ec107823ba1dd2aff52866464fb87c9aaa2ae538b19342 -->
 <!-- END OPPORTUNITY COUNTS -->
 
 ## Pourquoi ce projet ?
@@ -57,14 +57,14 @@ Ce qui n’était au départ qu’un petit projet open source a trouvé son publ
 ## Dernières offres
 
 <!-- BEGIN OPPORTUNITIES -->
-**Offres actives :** 788 (Stages : 407 · New Grad : 381)<br>
+**Offres actives :** 782 (Stages : 402 · New Grad : 380)<br>
 **Dernière collecte réussie :** 23 novembre 2026 à 19 h 43 UTC
 
 Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu/](https://techopportunities.eu/)**.
 
 ### Dernières offres New Grad
 
-5 offres parmi les 381 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 380 offres New Grad actives, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
@@ -76,7 +76,7 @@ Consultez et filtrez l’ensemble des offres sur **[https://techopportunities.eu
 
 ### Derniers stages
 
-5 offres parmi les 407 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
+5 offres parmi les 402 stages actifs, classées par date de première observation, de la plus récente à la plus ancienne :
 
 | Entreprise | Intitulé du poste | Localisation | Annonce |
 |---|---|---|---|
