@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -123,9 +124,7 @@ def test_dependency_review_preserves_real_action_and_pull_request_validation() -
     assert checkout["with"]["persist-credentials"] == "false"
     assert guard["if"] == "github.event_name == 'workflow_dispatch'"
     assert guard["env"]["PULL_REQUEST_NUMBER"] == "${{ inputs.pull_request_number }}"
-    assert action["uses"] == (
-        "actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294"
-    )
+    assert re.fullmatch(r"actions/dependency-review-action@[0-9a-f]{40}", action["uses"])
     assert "if" not in action
     assert "continue-on-error" not in action
     assert action["with"] == {

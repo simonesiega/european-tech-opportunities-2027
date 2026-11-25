@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
 
 # Pin every external build image by digest to keep supply-chain inputs reproducible.
-FROM ghcr.io/astral-sh/uv:0.13.9@sha256:d3b601f0c7b118bc1753febf7c41cc80981df678445e0254284eecf84db79a7d AS uv
+FROM ghcr.io/astral-sh/uv:0.13.10@sha256:a3ea1357342c1a4bf9a0c53a3deb1b55379aefa037338d8113d5771efa01774f AS uv
 
 FROM python:3.15.2-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928 AS opportunities
 
@@ -24,6 +24,7 @@ RUN apt-get update \
         libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
+        libzstd1=1.5.7+dfsg-1+deb13u1 \
         openssl=3.5.7-1~deb13u3 \
         openssl-provider-legacy=3.5.7-1~deb13u3 \
         perl-base=5.40.1-6+deb13u1 \
@@ -101,6 +102,7 @@ RUN apt-get update \
         libpcre2-8-0=10.46-1~deb13u3 \
         libsqlite3-0=3.46.1-7+deb13u2 \
         libssl3t64=3.5.7-1~deb13u3 \
+        libzstd1=1.5.7+dfsg-1+deb13u1 \
         openssl-provider-legacy=3.5.7-1~deb13u3 \
         perl-base=5.40.1-6+deb13u1 \
         zlib1g=1:1.3.dfsg+really1.3.1-1+deb13u1 \
